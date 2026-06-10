@@ -1,17 +1,6 @@
 import pg from "pg";
-import {
-  FileMetadataCoverage,
-  HCAAtlasTrackerDBAtlasOverview,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerDBAtlasForMetadataCoverage } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "../services/database";
-
-export interface AtlasMetadataCoverageDBRow {
-  generation: number;
-  id: string;
-  metadata_coverages: FileMetadataCoverage[];
-  overview: HCAAtlasTrackerDBAtlasOverview;
-  revision: number;
-}
 
 /**
  * Get every atlas along with the `metadata_coverage` blobs of its latest,
@@ -22,8 +11,8 @@ export interface AtlasMetadataCoverageDBRow {
  */
 export async function getAtlasComponentAtlasMetadataCoverage(
   client?: pg.PoolClient,
-): Promise<AtlasMetadataCoverageDBRow[]> {
-  const { rows } = await query<AtlasMetadataCoverageDBRow>(
+): Promise<HCAAtlasTrackerDBAtlasForMetadataCoverage[]> {
+  const { rows } = await query<HCAAtlasTrackerDBAtlasForMetadataCoverage>(
     `
       SELECT
         a.id,
@@ -57,8 +46,8 @@ export async function getAtlasComponentAtlasMetadataCoverage(
  */
 export async function getAtlasSourceDatasetMetadataCoverage(
   client?: pg.PoolClient,
-): Promise<AtlasMetadataCoverageDBRow[]> {
-  const { rows } = await query<AtlasMetadataCoverageDBRow>(
+): Promise<HCAAtlasTrackerDBAtlasForMetadataCoverage[]> {
+  const { rows } = await query<HCAAtlasTrackerDBAtlasForMetadataCoverage>(
     `
       SELECT
         a.id,

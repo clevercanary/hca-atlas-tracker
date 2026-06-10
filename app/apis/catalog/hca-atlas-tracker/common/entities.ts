@@ -391,6 +391,13 @@ export type HCAAtlasTrackerDBSourceStudyForStatusSummary = Pick<
   "doi"
 >;
 
+export interface HCAAtlasTrackerDBAtlasForMetadataCoverage extends Pick<
+  HCAAtlasTrackerDBAtlas,
+  "id" | "generation" | "revision" | "overview"
+> {
+  metadata_coverages: FileMetadataCoverage[];
+}
+
 export interface HCAAtlasTrackerDBComponentAtlas {
   component_info: HCAAtlasTrackerDBComponentAtlasInfo;
   created_at: Date;

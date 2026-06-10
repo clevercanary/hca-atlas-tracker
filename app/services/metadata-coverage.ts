@@ -10,12 +10,12 @@ import {
   AtlasMetadataCoverageClass,
   FILE_TYPE,
   FileMetadataCoverage,
+  HCAAtlasTrackerDBAtlasForMetadataCoverage,
   MetadataCoverageClass,
   MetadataCoverageTier,
   NetworkKey,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  AtlasMetadataCoverageDBRow,
   getAtlasComponentAtlasMetadataCoverage,
   getAtlasSourceDatasetMetadataCoverage,
 } from "../data/metadata-coverage";
@@ -49,7 +49,7 @@ export async function getAtlasCompletenessRollup(
 async function getAtlasMetadataCoverage(
   source: FILE_TYPE.INTEGRATED_OBJECT | FILE_TYPE.SOURCE_DATASET,
   client?: pg.PoolClient,
-): Promise<AtlasMetadataCoverageDBRow[]> {
+): Promise<HCAAtlasTrackerDBAtlasForMetadataCoverage[]> {
   switch (source) {
     case FILE_TYPE.INTEGRATED_OBJECT: {
       return await getAtlasComponentAtlasMetadataCoverage(client);
@@ -91,7 +91,7 @@ function getFieldCatalog(tiers: Set<MetadataCoverageTier>): FieldCatalog {
  * @returns atlas completeness entry.
  */
 function buildAtlasCoverage(
-  row: AtlasMetadataCoverageDBRow,
+  row: HCAAtlasTrackerDBAtlasForMetadataCoverage,
   fieldCatalog: FieldCatalog,
 ): AtlasMetadataCoverage {
   const classes = {} as Record<
