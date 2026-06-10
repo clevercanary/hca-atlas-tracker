@@ -181,10 +181,10 @@ describe(TEST_ROUTE, () => {
     expect(atlas.name).toEqual(ATLAS_WITH_MISC_SOURCE_STUDIES.shortName);
     expect(atlas.version).toEqual("2.3");
     expect(atlas.generation).toEqual(2);
-    expect(atlas.bionetwork).toEqual({ id: "adipose", label: "Adipose" });
+    expect(atlas.bionetwork).toEqual("adipose");
     expect(atlas.integrationLeads).toEqual([
       {
-        id: INTEGRATION_LEAD_BAZ_BAZ.email,
+        email: INTEGRATION_LEAD_BAZ_BAZ.email,
         name: INTEGRATION_LEAD_BAZ_BAZ.name,
       },
     ]);

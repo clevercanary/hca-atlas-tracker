@@ -1,19 +1,14 @@
 import pg from "pg";
 import dataDictionary from "../../catalog/downloaded/data-dictionary.json";
-import {
-  METADATA_COVERAGE_CLASSES,
-  NETWORKS,
-} from "../apis/catalog/hca-atlas-tracker/common/constants";
+import { METADATA_COVERAGE_CLASSES } from "../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   AtlasMetadataCoverage,
-  AtlasMetadataCoverageBioNetwork,
   AtlasMetadataCoverageClass,
   FILE_TYPE,
   FileMetadataCoverage,
   HCAAtlasTrackerDBAtlasForMetadataCoverage,
   MetadataCoverageClass,
   MetadataCoverageTier,
-  NetworkKey,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getAtlasComponentAtlasMetadataCoverage,
@@ -112,13 +107,10 @@ function buildAtlasCoverage(
     ) / METADATA_COVERAGE_CLASSES.length;
   return {
     atlasId: row.id,
-    bionetwork: getBioNetwork(row.overview.network),
+    bionetwork: row.overview.network,
     classes,
     generation: row.generation,
-    integrationLeads: row.overview.integrationLead.map((lead) => ({
-      id: lead.email,
-      name: lead.name,
-    })),
+    integrationLeads: row.overview.integrationLead,
     name: row.overview.shortName,
     total,
     version: `${row.generation}.${row.revision}`,
@@ -160,17 +152,4 @@ function buildClassCoverage(
     filledSlots,
     totalSlots,
   };
-}
-
-/**
- * Get the bionetwork identifier and display label for an atlas's network key.
- * @param networkKey - Network key.
- * @returns bionetwork id and label.
- */
-function getBioNetwork(
-  networkKey: NetworkKey,
-): AtlasMetadataCoverageBioNetwork {
-  const network = NETWORKS.find((n) => n.key === networkKey);
-  const label = (network?.name ?? networkKey).replace(/\sNetwork.*/i, "");
-  return { id: networkKey, label };
 }

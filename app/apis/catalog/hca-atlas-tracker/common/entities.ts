@@ -932,23 +932,13 @@ export interface AtlasMetadataCoverageRollup {
 
 export interface AtlasMetadataCoverage {
   atlasId: string;
-  bionetwork: AtlasMetadataCoverageBioNetwork;
+  bionetwork: NetworkKey;
   classes: Record<MetadataCoverageClass, AtlasMetadataCoverageClass>;
   generation: number;
-  integrationLeads: AtlasMetadataCoverageIntegrationLead[];
+  integrationLeads: IntegrationLead[];
   name: string;
   total: number;
   version: string;
-}
-
-export interface AtlasMetadataCoverageBioNetwork {
-  id: NetworkKey;
-  label: string;
-}
-
-export interface AtlasMetadataCoverageIntegrationLead {
-  id: string;
-  name: string;
 }
 
 export interface AtlasMetadataCoverageClass {
