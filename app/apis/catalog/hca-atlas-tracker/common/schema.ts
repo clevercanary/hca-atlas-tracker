@@ -10,7 +10,7 @@ import {
   string,
 } from "yup";
 import { isDoi, normalizeDoi } from "../../../../utils/doi";
-import { NETWORK_KEYS, WAVES } from "./constants";
+import { METADATA_COVERAGE_TIERS, NETWORK_KEYS, WAVES } from "./constants";
 import {
   ATLAS_STATUS,
   PUBLICATION_STATUS,
@@ -400,6 +400,22 @@ export const filesSetIsArchivedSchema = object({
 }).strict();
 
 export type FilesSetIsArchivedData = InferType<typeof filesSetIsArchivedSchema>;
+
+/**
+ * Schema for list of tiers provided to the metadata coverage API.
+ */
+export const metadataCoverageTiersSchema = array()
+  .of(
+    string()
+      .required()
+      .min(1, '"required" parameter must not be empty')
+      .oneOf(
+        METADATA_COVERAGE_TIERS,
+        `"required" parameter values must be among: ${METADATA_COVERAGE_TIERS.join(", ")}`,
+      ),
+  )
+  .required()
+  .strict();
 
 /**
  * Schema for data used to create a comment.
