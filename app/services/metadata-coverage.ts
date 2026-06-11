@@ -62,19 +62,21 @@ async function getAtlasMetadataCoverage(
  * @returns map of class name to in-scope field names.
  */
 function getFieldCatalog(tiers: Set<MetadataCoverageTier>): FieldCatalog {
-  const catalog = {} as FieldCatalog;
+  const catalog: FieldCatalog = {
+    dataset: new Set(),
+    donor: new Set(),
+    sample: new Set(),
+  };
   for (const className of METADATA_COVERAGE_CLASSES) {
     const ddClass = dataDictionary.classes.find((c) => c.name === className);
     if (!ddClass)
       throw new Error(`Data dictionary class not found: ${className}`);
-    const fields = new Set<string>();
     for (const attribute of ddClass.attributes) {
       const tier: MetadataCoverageTier = attribute.required
         ? "required"
         : "recommended";
-      if (tiers.has(tier)) fields.add(attribute.name);
+      if (tiers.has(tier)) catalog[className].add(attribute.name);
     }
-    catalog[className] = fields;
   }
   return catalog;
 }
