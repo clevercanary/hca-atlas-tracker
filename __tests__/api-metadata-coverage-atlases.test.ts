@@ -304,6 +304,13 @@ describe(TEST_ROUTE, () => {
   }
 
   it("aggregates source dataset coverage for the required tier by default", async () => {
+    // ATLAS_WITH_MISC_SOURCE_STUDIES links many source dataset files, but
+    // coverage was set only on SOURCE_DATASET_FOO and SOURCE_DATASET_BAR.
+    // Its other linked files (e.g. SOURCE_DATASET_BAZ) are seeded with no
+    // metadata coverage; the query's `metadata_coverage IS NOT NULL` filter
+    // drops them before aggregation. A successful response whose counts
+    // reflect only FOO + BAR therefore confirms that linked files without
+    // coverage are skipped without erroring.
     const atlas = await getAtlasFromResponse(
       await doRequest(USER_CONTENT_ADMIN, METHOD.GET, {}),
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
@@ -369,6 +376,10 @@ describe(TEST_ROUTE, () => {
   });
 
   it("aggregates integrated object coverage when source is integrated_object", async () => {
+    // As with the source dataset case, the atlas links integrated object files
+    // with no coverage (COMPONENT_ATLAS_MISC_BAR and COMPONENT_ATLAS_MISC_BAZ);
+    // counts reflecting only COMPONENT_ATLAS_MISC_FOO confirm those null-coverage
+    // files are excluded without erroring.
     const atlas = await getAtlasFromResponse(
       await doRequest(USER_CONTENT_ADMIN, METHOD.GET, {
         source: "integrated_object",
