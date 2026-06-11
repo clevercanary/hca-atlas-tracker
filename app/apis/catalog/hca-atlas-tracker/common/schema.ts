@@ -412,12 +412,12 @@ export const metadataCoverageTiersSchema = array()
   .of(
     string()
       .required()
-      .min(1, '"required" parameter must not be empty')
       .oneOf(
         METADATA_COVERAGE_REPORT_TIERS,
         `"required" parameter values must be among: ${METADATA_COVERAGE_REPORT_TIERS.join(", ")}`,
       ),
   )
+  .min(1, '"required" parameter must not be empty')
   .required()
   .strict();
 
