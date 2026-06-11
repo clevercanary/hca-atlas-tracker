@@ -27,7 +27,6 @@ export async function getAtlasComponentAtlasMetadataCoverage(
       LEFT JOIN hat.component_atlases e ON e.version_id = ANY(a.component_atlases)
       LEFT JOIN hat.files f
         ON f.id = e.file_id
-        AND f.is_latest
         AND NOT f.is_archived
       GROUP BY a.id
     `,
@@ -62,7 +61,6 @@ export async function getAtlasSourceDatasetMetadataCoverage(
       LEFT JOIN hat.source_datasets e ON e.version_id = ANY(a.source_datasets)
       LEFT JOIN hat.files f
         ON f.id = e.file_id
-        AND f.is_latest
         AND NOT f.is_archived
       GROUP BY a.id
     `,

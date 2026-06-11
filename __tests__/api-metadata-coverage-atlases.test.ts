@@ -11,10 +11,17 @@ import metadataCoverageAtlasesHandler from "../pages/api/metadata-coverage/atlas
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
+  ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   COMPONENT_ATLAS_MISC_FOO,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
+  COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   INTEGRATION_LEAD_BAZ_BAZ,
   SOURCE_DATASET_BAR,
   SOURCE_DATASET_FOO,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_UNREGISTERED,
@@ -94,6 +101,106 @@ const COVERAGE_INTEGRATED_OBJECT_FOO: FileMetadataCoverage = {
   schemaVersion: "1.0.0",
 };
 
+// Coverage blobs set on the source dataset files linked to
+// ATLAS_WITH_NON_LATEST_METADATA_ENTITIES. FOO_W2's file is the latest version,
+// while BAR_W2's and BAZ_W1's are non-latest versions linked via the atlas's
+// `source_datasets` array; all three must contribute to the rollup.
+const COVERAGE_NON_LATEST_SOURCE_DATASET_FOO: FileMetadataCoverage = {
+  entities: {
+    dataset: { recordCount: 2 },
+    donor: { recordCount: 4 },
+    obs: { recordCount: 40 },
+    sample: { recordCount: 3 },
+  },
+  fieldCoverage: [
+    fieldCoverage("dataset", "alignment_software", 2, 0, 0),
+    fieldCoverage("donor", "donor_id", 3, 1, 0),
+    fieldCoverage("sample", "cell_enrichment", 2, 1, 0),
+  ],
+  schemaName: "test-schema",
+  schemaVersion: "1.0.0",
+};
+const COVERAGE_NON_LATEST_SOURCE_DATASET_BAR: FileMetadataCoverage = {
+  entities: {
+    dataset: { recordCount: 1 },
+    donor: { recordCount: 2 },
+    obs: { recordCount: 20 },
+    sample: { recordCount: 1 },
+  },
+  fieldCoverage: [
+    fieldCoverage("dataset", "alignment_software", 1, 0, 0),
+    fieldCoverage("donor", "donor_id", 1, 1, 0),
+    fieldCoverage("sample", "cell_enrichment", 0, 1, 0),
+  ],
+  schemaName: "test-schema",
+  schemaVersion: "1.0.0",
+};
+const COVERAGE_NON_LATEST_SOURCE_DATASET_BAZ: FileMetadataCoverage = {
+  entities: {
+    dataset: { recordCount: 3 },
+    donor: { recordCount: 5 },
+    obs: { recordCount: 50 },
+    sample: { recordCount: 2 },
+  },
+  fieldCoverage: [
+    fieldCoverage("dataset", "alignment_software", 1, 1, 1),
+    fieldCoverage("donor", "donor_id", 4, 1, 0),
+    fieldCoverage("sample", "cell_enrichment", 2, 0, 0),
+  ],
+  schemaName: "test-schema",
+  schemaVersion: "1.0.0",
+};
+
+// Coverage blobs set on the integrated object files linked to
+// ATLAS_WITH_NON_LATEST_METADATA_ENTITIES. BAR_W2's file is the latest version,
+// while FOO_W2's and BAZ_W1's are non-latest versions linked via the atlas's
+// `component_atlases` array; all three must contribute to the rollup.
+const COVERAGE_NON_LATEST_INTEGRATED_OBJECT_FOO: FileMetadataCoverage = {
+  entities: {
+    dataset: { recordCount: 1 },
+    donor: { recordCount: 10 },
+    obs: { recordCount: 100 },
+    sample: { recordCount: 4 },
+  },
+  fieldCoverage: [
+    fieldCoverage("dataset", "alignment_software", 1, 0, 0),
+    fieldCoverage("donor", "donor_id", 6, 4, 0),
+    fieldCoverage("sample", "cell_enrichment", 3, 1, 0),
+  ],
+  schemaName: "test-schema",
+  schemaVersion: "1.0.0",
+};
+const COVERAGE_NON_LATEST_INTEGRATED_OBJECT_BAR: FileMetadataCoverage = {
+  entities: {
+    dataset: { recordCount: 2 },
+    donor: { recordCount: 5 },
+    obs: { recordCount: 50 },
+    sample: { recordCount: 2 },
+  },
+  fieldCoverage: [
+    fieldCoverage("dataset", "alignment_software", 1, 1, 0),
+    fieldCoverage("donor", "donor_id", 5, 0, 0),
+    fieldCoverage("sample", "cell_enrichment", 1, 1, 0),
+  ],
+  schemaName: "test-schema",
+  schemaVersion: "1.0.0",
+};
+const COVERAGE_NON_LATEST_INTEGRATED_OBJECT_BAZ: FileMetadataCoverage = {
+  entities: {
+    dataset: { recordCount: 1 },
+    donor: { recordCount: 3 },
+    obs: { recordCount: 30 },
+    sample: { recordCount: 1 },
+  },
+  fieldCoverage: [
+    fieldCoverage("dataset", "alignment_software", 0, 1, 0),
+    fieldCoverage("donor", "donor_id", 2, 1, 0),
+    fieldCoverage("sample", "cell_enrichment", 1, 0, 0),
+  ],
+  schemaName: "test-schema",
+  schemaVersion: "1.0.0",
+};
+
 beforeAll(async () => {
   await resetDatabase();
   await setFileMetadataCoverage(
@@ -107,6 +214,30 @@ beforeAll(async () => {
   await setFileMetadataCoverage(
     COMPONENT_ATLAS_MISC_FOO.file.id,
     COVERAGE_INTEGRATED_OBJECT_FOO,
+  );
+  await setFileMetadataCoverage(
+    SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2.file.id,
+    COVERAGE_NON_LATEST_SOURCE_DATASET_FOO,
+  );
+  await setFileMetadataCoverage(
+    SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2.file.id,
+    COVERAGE_NON_LATEST_SOURCE_DATASET_BAR,
+  );
+  await setFileMetadataCoverage(
+    SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W1.file.id,
+    COVERAGE_NON_LATEST_SOURCE_DATASET_BAZ,
+  );
+  await setFileMetadataCoverage(
+    COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2.file.id,
+    COVERAGE_NON_LATEST_INTEGRATED_OBJECT_FOO,
+  );
+  await setFileMetadataCoverage(
+    COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2.file.id,
+    COVERAGE_NON_LATEST_INTEGRATED_OBJECT_BAR,
+  );
+  await setFileMetadataCoverage(
+    COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAZ_W1.file.id,
+    COVERAGE_NON_LATEST_INTEGRATED_OBJECT_BAZ,
   );
 });
 
@@ -280,6 +411,68 @@ describe(TEST_ROUTE, () => {
       });
     }
     expect(atlas.total).toEqual(0);
+  });
+
+  it("aggregates source dataset coverage across files linked via non-latest versions", async () => {
+    const atlas = await getAtlasFromResponse(
+      await doRequest(USER_CONTENT_ADMIN, METHOD.GET, {}),
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+    );
+
+    // dataset: alignment_software FOO 2/2 + BAR 1/1 + BAZ 1/3
+    expect(atlas.classes.dataset).toEqual({
+      completion: 4 / 6,
+      entityCount: 6,
+      filledSlots: 4,
+      totalSlots: 6,
+    });
+    // donor: donor_id FOO 3/4 + BAR 1/2 + BAZ 4/5
+    expect(atlas.classes.donor).toEqual({
+      completion: 8 / 11,
+      entityCount: 11,
+      filledSlots: 8,
+      totalSlots: 11,
+    });
+    // sample: cell_enrichment FOO 2/3 + BAR 0/1 + BAZ 2/2
+    expect(atlas.classes.sample).toEqual({
+      completion: 4 / 6,
+      entityCount: 6,
+      filledSlots: 4,
+      totalSlots: 6,
+    });
+    expect(atlas.total).toEqual((4 / 6 + 8 / 11 + 4 / 6) / 3);
+  });
+
+  it("aggregates integrated object coverage across files linked via non-latest versions", async () => {
+    const atlas = await getAtlasFromResponse(
+      await doRequest(USER_CONTENT_ADMIN, METHOD.GET, {
+        source: "integrated_object",
+      }),
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+    );
+
+    // dataset: alignment_software FOO 1/1 + BAR 1/2 + BAZ 0/1
+    expect(atlas.classes.dataset).toEqual({
+      completion: 2 / 4,
+      entityCount: 4,
+      filledSlots: 2,
+      totalSlots: 4,
+    });
+    // donor: donor_id FOO 6/10 + BAR 5/5 + BAZ 2/3
+    expect(atlas.classes.donor).toEqual({
+      completion: 13 / 18,
+      entityCount: 18,
+      filledSlots: 13,
+      totalSlots: 18,
+    });
+    // sample: cell_enrichment FOO 3/4 + BAR 1/2 + BAZ 1/1
+    expect(atlas.classes.sample).toEqual({
+      completion: 5 / 7,
+      entityCount: 7,
+      filledSlots: 5,
+      totalSlots: 7,
+    });
+    expect(atlas.total).toEqual((2 / 4 + 13 / 18 + 5 / 7) / 3);
   });
 });
 
