@@ -2,7 +2,7 @@ import { metadataCoverageTiersSchema } from "app/apis/catalog/hca-atlas-tracker/
 import {
   AtlasMetadataCoverageRollup,
   FILE_TYPE,
-  MetadataCoverageTier,
+  MetadataCoverageReportTier,
 } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "../../../app/common/entities";
 import { getAtlasCompletenessRollup } from "../../../app/services/metadata-coverage";
@@ -22,7 +22,7 @@ const ALLOWED_SOURCES = [
 
 const DEFAULT_SOURCE = FILE_TYPE.SOURCE_DATASET;
 
-const DEFAULT_TIERS: MetadataCoverageTier[] = ["required"];
+const DEFAULT_TIERS: MetadataCoverageReportTier[] = ["required"];
 
 /**
  * API route to get the per-atlas, per-entity-class metadata completeness

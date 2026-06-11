@@ -1,21 +1,21 @@
 import pg from "pg";
 import dataDictionary from "../../catalog/downloaded/data-dictionary.json";
-import { METADATA_COVERAGE_CLASSES } from "../apis/catalog/hca-atlas-tracker/common/constants";
+import { METADATA_COVERAGE_REPORT_CLASSES } from "../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   AtlasMetadataCoverage,
   AtlasMetadataCoverageClass,
   FILE_TYPE,
   FileMetadataCoverage,
   HCAAtlasTrackerDBAtlasForMetadataCoverage,
-  MetadataCoverageClass,
-  MetadataCoverageTier,
+  MetadataCoverageReportClass,
+  MetadataCoverageReportTier,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getAtlasComponentAtlasMetadataCoverage,
   getAtlasSourceDatasetMetadataCoverage,
 } from "../data/metadata-coverage";
 
-type FieldCatalog = Record<MetadataCoverageClass, Set<string>>;
+type FieldCatalog = Record<MetadataCoverageReportClass, Set<string>>;
 
 /**
  * Get the per-atlas, per-entity-class metadata completeness rollup that backs
@@ -27,7 +27,7 @@ type FieldCatalog = Record<MetadataCoverageClass, Set<string>>;
  */
 export async function getAtlasCompletenessRollup(
   source: FILE_TYPE.INTEGRATED_OBJECT | FILE_TYPE.SOURCE_DATASET,
-  tiers: MetadataCoverageTier[],
+  tiers: MetadataCoverageReportTier[],
   client?: pg.PoolClient,
 ): Promise<AtlasMetadataCoverage[]> {
   const fieldCatalog = getFieldCatalog(new Set(tiers));
@@ -61,18 +61,18 @@ async function getAtlasMetadataCoverage(
  * @param tiers - Requirement tiers to include.
  * @returns map of class name to in-scope field names.
  */
-function getFieldCatalog(tiers: Set<MetadataCoverageTier>): FieldCatalog {
+function getFieldCatalog(tiers: Set<MetadataCoverageReportTier>): FieldCatalog {
   const catalog: FieldCatalog = {
     dataset: new Set(),
     donor: new Set(),
     sample: new Set(),
   };
-  for (const className of METADATA_COVERAGE_CLASSES) {
+  for (const className of METADATA_COVERAGE_REPORT_CLASSES) {
     const ddClass = dataDictionary.classes.find((c) => c.name === className);
     if (!ddClass)
       throw new Error(`Data dictionary class not found: ${className}`);
     for (const attribute of ddClass.attributes) {
-      const tier: MetadataCoverageTier = attribute.required
+      const tier: MetadataCoverageReportTier = attribute.required
         ? "required"
         : "recommended";
       if (tiers.has(tier)) catalog[className].add(attribute.name);
@@ -91,16 +91,19 @@ function buildAtlasCoverage(
   row: HCAAtlasTrackerDBAtlasForMetadataCoverage,
   fieldCatalog: FieldCatalog,
 ): AtlasMetadataCoverage {
-  const classes: Record<MetadataCoverageClass, AtlasMetadataCoverageClass> = {
+  const classes: Record<
+    MetadataCoverageReportClass,
+    AtlasMetadataCoverageClass
+  > = {
     dataset: buildCoverageForClass("dataset"),
     donor: buildCoverageForClass("donor"),
     sample: buildCoverageForClass("sample"),
   };
   const total =
-    METADATA_COVERAGE_CLASSES.reduce(
+    METADATA_COVERAGE_REPORT_CLASSES.reduce(
       (sum, className) => sum + (classes[className].completion ?? 0),
       0,
-    ) / METADATA_COVERAGE_CLASSES.length;
+    ) / METADATA_COVERAGE_REPORT_CLASSES.length;
   return {
     atlasId: row.id,
     classes,
@@ -113,7 +116,7 @@ function buildAtlasCoverage(
   };
 
   function buildCoverageForClass(
-    className: MetadataCoverageClass,
+    className: MetadataCoverageReportClass,
   ): AtlasMetadataCoverageClass {
     return buildClassCoverage(
       className,
@@ -132,7 +135,7 @@ function buildAtlasCoverage(
  * @returns aggregated class coverage.
  */
 function buildClassCoverage(
-  className: MetadataCoverageClass,
+  className: MetadataCoverageReportClass,
   coverages: FileMetadataCoverage[],
   inScopeFields: Set<string>,
 ): AtlasMetadataCoverageClass {

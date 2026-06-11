@@ -10,7 +10,11 @@ import {
   string,
 } from "yup";
 import { isDoi, normalizeDoi } from "../../../../utils/doi";
-import { METADATA_COVERAGE_TIERS, NETWORK_KEYS, WAVES } from "./constants";
+import {
+  METADATA_COVERAGE_REPORT_TIERS,
+  NETWORK_KEYS,
+  WAVES,
+} from "./constants";
 import {
   ATLAS_STATUS,
   PUBLICATION_STATUS,
@@ -410,8 +414,8 @@ export const metadataCoverageTiersSchema = array()
       .required()
       .min(1, '"required" parameter must not be empty')
       .oneOf(
-        METADATA_COVERAGE_TIERS,
-        `"required" parameter values must be among: ${METADATA_COVERAGE_TIERS.join(", ")}`,
+        METADATA_COVERAGE_REPORT_TIERS,
+        `"required" parameter values must be among: ${METADATA_COVERAGE_REPORT_TIERS.join(", ")}`,
       ),
   )
   .required()

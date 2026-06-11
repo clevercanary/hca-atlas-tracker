@@ -7,8 +7,8 @@ import { API } from "./api";
 import {
   FILE_METADATA_COVERAGE_ENTITY_TYPES,
   FILE_VALIDATOR_NAMES,
-  METADATA_COVERAGE_CLASSES,
-  METADATA_COVERAGE_TIERS,
+  METADATA_COVERAGE_REPORT_CLASSES,
+  METADATA_COVERAGE_REPORT_TIERS,
   NETWORK_KEYS,
   WAVES,
 } from "./constants";
@@ -922,9 +922,11 @@ export interface FileMetadataFieldCoverage {
   missing: number;
 }
 
-export type MetadataCoverageClass = (typeof METADATA_COVERAGE_CLASSES)[number];
+export type MetadataCoverageReportClass =
+  (typeof METADATA_COVERAGE_REPORT_CLASSES)[number];
 
-export type MetadataCoverageTier = (typeof METADATA_COVERAGE_TIERS)[number];
+export type MetadataCoverageReportTier =
+  (typeof METADATA_COVERAGE_REPORT_TIERS)[number];
 
 export interface AtlasMetadataCoverageRollup {
   atlases: AtlasMetadataCoverage[];
@@ -932,7 +934,7 @@ export interface AtlasMetadataCoverageRollup {
 
 export interface AtlasMetadataCoverage {
   atlasId: string;
-  classes: Record<MetadataCoverageClass, AtlasMetadataCoverageClass>;
+  classes: Record<MetadataCoverageReportClass, AtlasMetadataCoverageClass>;
   generation: number;
   integrationLead: IntegrationLead[];
   network: NetworkKey;
