@@ -1,7 +1,6 @@
 import { MenuItem as MMenuItem } from "@mui/material";
 import { JSX } from "react";
 import { Controller } from "react-hook-form";
-import { useFetchAtlases } from "../../../..//hooks/useFetchAtlases";
 import {
   HCAAtlasTrackerUser,
   ROLE,
@@ -11,6 +10,7 @@ import {
   SectionHero,
   SectionTitle,
 } from "../../../../components/Detail/components/TrackerForm/components/Section/section.styles";
+import { useFetchAtlases } from "../../../../hooks/useFetchAtlases";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { FIELD_NAME } from "../../../../views/AddNewUserView/common/constants";

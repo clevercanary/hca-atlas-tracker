@@ -9,9 +9,18 @@ import { GoogleAuthParams } from "./entities";
 // the alternative is an opaque error mid-OAuth handshake.
 const IS_BUILD_PHASE = process.env.NEXT_PHASE === "phase-production-build";
 
-const googleAuthParams: Partial<GoogleAuthParams> = JSON.parse(
-  process.env.GOOGLE_AUTH || "{}",
-);
+let googleAuthParams: Partial<GoogleAuthParams> = {};
+try {
+  googleAuthParams = JSON.parse(process.env.GOOGLE_AUTH || "{}");
+} catch (error) {
+  // A present-but-malformed GOOGLE_AUTH must not break `next build` either;
+  // at any other phase, fail fast with context.
+  if (!IS_BUILD_PHASE) {
+    throw new Error(
+      `GOOGLE_AUTH environment variable contains invalid JSON: ${error}`,
+    );
+  }
+}
 
 if (!IS_BUILD_PHASE) {
   if (!googleAuthParams.client_id || !googleAuthParams.client_secret) {
