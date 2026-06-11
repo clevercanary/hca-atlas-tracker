@@ -1,6 +1,6 @@
 import { AUTH_STATUS } from "@databiosphere/findable-ui/lib/auth/types/auth";
 import { Navigation } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/common/entities";
-import { LogoProps } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/components/Content/components/Logo/logo";
+import type { LogoProps } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/components/Content/components/Logo/logo";
 import { HeaderProps } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header";
 import { cloneElement, isValidElement, ReactNode } from "react";
 import { ROUTE } from "../../../../routes/constants";
