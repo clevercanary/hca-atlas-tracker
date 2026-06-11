@@ -89,17 +89,11 @@ function buildAtlasCoverage(
   row: HCAAtlasTrackerDBAtlasForMetadataCoverage,
   fieldCatalog: FieldCatalog,
 ): AtlasMetadataCoverage {
-  const classes = {} as Record<
-    MetadataCoverageClass,
-    AtlasMetadataCoverageClass
-  >;
-  for (const className of METADATA_COVERAGE_CLASSES) {
-    classes[className] = buildClassCoverage(
-      className,
-      row.metadata_coverages,
-      fieldCatalog[className],
-    );
-  }
+  const classes: Record<MetadataCoverageClass, AtlasMetadataCoverageClass> = {
+    dataset: buildCoverageForClass("dataset"),
+    donor: buildCoverageForClass("donor"),
+    sample: buildCoverageForClass("sample"),
+  };
   const total =
     METADATA_COVERAGE_CLASSES.reduce(
       (sum, className) => sum + (classes[className].completion ?? 0),
@@ -115,6 +109,16 @@ function buildAtlasCoverage(
     shortName: row.overview.shortName,
     total,
   };
+
+  function buildCoverageForClass(
+    className: MetadataCoverageClass,
+  ): AtlasMetadataCoverageClass {
+    return buildClassCoverage(
+      className,
+      row.metadata_coverages,
+      fieldCatalog[className],
+    );
+  }
 }
 
 /**
