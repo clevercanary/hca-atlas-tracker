@@ -1,19 +1,19 @@
 import { withAuth } from "next-auth/middleware";
 import { PUBLIC_PATHS } from "./app/routes/publicPaths";
 
-// This file deliberately uses the deprecated `middleware.ts` convention. Next
-// 16.2 warns to rename it to `proxy.ts`, but the webpack production build
-// silently EXCLUDES `proxy.ts` (middleware-manifest.json comes out empty — no
-// auth gate in deployed builds) while `next dev` honors it. Keep
-// `middleware.ts` (and tolerate the dev warning) until `next build` provably
-// bundles `proxy.ts`: after renaming, check `.next/server/middleware-manifest.json`
-// has a non-empty `middleware` entry.
+// Build-output gotcha: in Next 16 the `proxy.ts` convention compiles to a
+// NODEJS-runtime function registered in
+// `.next/server/functions-config-manifest.json` (key `/_middleware`) — the
+// legacy `.next/server/middleware-manifest.json` stays EMPTY. The gate is
+// active in production builds despite that empty legacy manifest; don't
+// "verify" middleware presence by reading the legacy file.
 //
 // NOTE: `withAuth` validates the session JWT with `process.env.NEXTAUTH_SECRET`.
 // Unlike the NextAuth API route, it has NO dev fallback secret — if the env var
-// is missing, every token check fails and login loops back here forever. The
-// secret is therefore required at runtime in
-// `site-config/hca-atlas-tracker/local/authentication/next-auth-config.ts`.
+// is missing (or differs from what the API route uses), every token check
+// fails and login loops back here forever. The secret is therefore required at
+// runtime in `site-config/hca-atlas-tracker/local/authentication/next-auth-config.ts`,
+// and deployed environments must set NEXTAUTH_SECRET in their task environment.
 
 export default withAuth({
   callbacks: {

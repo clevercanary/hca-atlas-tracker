@@ -29,7 +29,7 @@ if (!IS_BUILD_PHASE) {
     );
   }
   // The NextAuth API route derives a fallback secret in dev when none is
-  // configured, but `withAuth` in `middleware.ts` only reads
+  // configured, but `withAuth` in `proxy.ts` only reads
   // NEXTAUTH_SECRET — with no shared secret the middleware rejects every
   // session and login loops back to the sign-in page forever. Fail fast
   // instead of shipping that silent loop.

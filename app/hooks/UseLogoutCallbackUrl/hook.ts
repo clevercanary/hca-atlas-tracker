@@ -10,7 +10,7 @@ import { useCurrentPath } from "../UseCurrentPath/hook";
  * they are — return `undefined` so `signOut` clears the session in place.
  *
  * Uses the canonical pathname (via `useCurrentPath`) so this hook agrees with
- * `middleware.ts`, which keys `PUBLIC_PATHS` against `req.nextUrl.pathname`.
+ * `proxy.ts`, which keys `PUBLIC_PATHS` against `req.nextUrl.pathname`.
  *
  * @returns The post-logout callbackUrl, or `undefined` on a public path.
  */
