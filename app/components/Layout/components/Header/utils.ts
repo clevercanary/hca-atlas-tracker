@@ -1,6 +1,9 @@
 import { AUTH_STATUS } from "@databiosphere/findable-ui/lib/auth/types/auth";
 import { Navigation } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/common/entities";
+import { LogoProps } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/components/Content/components/Logo/logo";
 import { HeaderProps } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header";
+import { cloneElement, isValidElement, ReactNode } from "react";
+import { ROUTE } from "../../../../routes/constants";
 import { PUBLIC_PATHS } from "../../../../routes/publicPaths";
 
 /**
@@ -19,9 +22,22 @@ export function getLandingHeaderProps(
     : undefined;
   return {
     authenticationEnabled: header?.authenticationEnabled,
-    logo: header?.logo,
+    logo: getLandingLogo(header?.logo),
     navigation,
   };
+}
+
+/**
+ * Returns the logo for the logged-out landing header, re-pointed at the
+ * landing page. The configured app-header logo links to the atlas list
+ * (only authenticated users see the full header); logged-out visitors should
+ * stay on `/` rather than bounce off the auth middleware.
+ * @param logo - The configured app-header logo node.
+ * @returns The logo linking to the landing page.
+ */
+function getLandingLogo(logo: ReactNode): ReactNode {
+  if (!isValidElement<LogoProps>(logo)) return logo;
+  return cloneElement(logo, { link: ROUTE.LANDING });
 }
 
 /**

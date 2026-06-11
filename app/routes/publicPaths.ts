@@ -4,14 +4,14 @@ import { ROUTE } from "./constants";
  * Paths reachable without an authenticated session.
  *
  * Entries MUST be static, concrete pathnames (no dynamic segments). Consumers
- * match against different path representations — `proxy.ts` checks the
+ * match against different path representations — `middleware.ts` checks the
  * concrete `req.nextUrl.pathname`, `shouldRenderAppHeader` checks the
  * pages-router template `router.pathname`, and `useLogoutCallbackUrl` checks
  * the normalized `router.asPath` — and these only agree for static routes.
  * A dynamic route added here would silently diverge across them.
  *
  * Used by:
- * - `proxy.ts` to skip the NextAuth auth redirect for these paths.
+ * - `middleware.ts` to skip the NextAuth auth redirect for these paths.
  * - `app/hooks/UseLogoutCallbackUrl` (consumed in `pages/_app.tsx`) to
  *   suppress the post-logout navigation on public pages (session simply
  *   clears in place instead of redirecting to `/`).
