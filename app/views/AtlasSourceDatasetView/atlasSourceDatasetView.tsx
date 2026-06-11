@@ -2,8 +2,6 @@ import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/
 import { Fragment, JSX } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "../../common/entities";
-import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
-import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
 import { EntityForm } from "../../components/Entity/components/EntityForm/entityForm";
@@ -12,7 +10,6 @@ import { DetailView } from "../../components/Layout/components/Detail/detailView
 import { Payload } from "../../hooks/UseEditFileArchived/entities";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFetchDataState } from "../../hooks/useFetchDataState";
-import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { EntityProvider } from "../../providers/entity/provider";
 import { fetchData } from "../../providers/fetchDataState/actions/fetchData/dispatch";
 import { StyledFileArchivedStatus } from "./atlasSourceDatasetView.styles";
@@ -36,7 +33,7 @@ export const AtlasSourceDatasetView = ({
     formMethod,
   );
   const {
-    access: { canEdit, canView },
+    access: { canEdit },
     formAction,
     isLoading,
   } = formManager;
@@ -45,13 +42,9 @@ export const AtlasSourceDatasetView = ({
 
   if (isLoading) return <Fragment />;
 
-  const accessFallback = renderAccessFallback(formManager);
-
   return (
     <EntityProvider pathParameter={pathParameter}>
-      <ConditionalComponent
-        isIn={shouldRenderView(canView, Boolean(atlas && sourceDataset))}
-      >
+      <ConditionalComponent isIn={Boolean(atlas && sourceDataset)}>
         <DetailView
           actions={
             canEdit &&
@@ -74,7 +67,6 @@ export const AtlasSourceDatasetView = ({
           }
           mainColumn={
             <EntityForm
-              accessFallback={accessFallback}
               formManager={formManager}
               formMethod={formMethod}
               sectionConfigs={VIEW_ATLAS_SOURCE_DATASET_SECTION_CONFIGS}
@@ -102,17 +94,4 @@ export const AtlasSourceDatasetView = ({
  */
 function mapPayload(sourceDataset: HCAAtlasTrackerSourceDataset): Payload {
   return { fileIds: [sourceDataset.fileId] };
-}
-
-/**
- * Returns the access fallback component from the form manager access state.
- * @param formManager - Form manager.
- * @returns access fallback component.
- */
-function renderAccessFallback(formManager: FormManager): JSX.Element | null {
-  const {
-    access: { canView },
-  } = formManager;
-  if (!canView) return <AccessPrompt text="to view the source dataset" />;
-  return null;
 }

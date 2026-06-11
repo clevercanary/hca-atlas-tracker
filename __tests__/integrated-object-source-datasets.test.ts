@@ -294,7 +294,6 @@ const createMockEntityContext = (overrides: {
     formManager: {
       access: {
         canEdit: overrides.canEdit ?? false,
-        canView: true,
       },
       formStatus: {},
       isLoading: false,

@@ -2,15 +2,12 @@ import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/
 import { Fragment, JSX } from "react";
 import { PathParameter } from "../../common/entities";
 import { getRouteURL } from "../../common/utils";
-import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
-import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "../../components/Entity/components/EntityView/entityView";
 import { useBackPath } from "../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
-import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { ROUTE } from "../../routes/constants";
@@ -28,10 +25,7 @@ export const IntegratedObjectValidationView = ({
   const { atlas } = useFetchAtlas(pathParameter);
   const { componentAtlas } = useFetchComponentAtlas(pathParameter);
   const formManager = useFormManager();
-  const {
-    access: { canView },
-    isLoading,
-  } = formManager;
+  const { isLoading } = formManager;
   // Deep-link fallback: integrated-object detail (not URL-trim, which would
   // land on the validator-index route that server-redirects to "cap").
   const backPath =
@@ -42,9 +36,7 @@ export const IntegratedObjectValidationView = ({
 
   return (
     <EntityProvider data={{ componentAtlas }} pathParameter={pathParameter}>
-      <ConditionalComponent
-        isIn={shouldRenderView(canView, Boolean(atlas && componentAtlas))}
-      >
+      <ConditionalComponent isIn={Boolean(atlas && componentAtlas)}>
         <DetailView
           backPath={backPath}
           breadcrumbs={
@@ -52,7 +44,6 @@ export const IntegratedObjectValidationView = ({
           }
           mainColumn={
             <EntityView
-              accessFallback={renderAccessFallback(formManager)}
               sectionConfigs={VIEW_INTEGRATED_OBJECT_VALIDATION_SECTION_CONFIGS}
             />
           }
@@ -68,17 +59,3 @@ export const IntegratedObjectValidationView = ({
     </EntityProvider>
   );
 };
-
-/**
- * Returns the access fallback component from the form manager access state.
- * @param formManager - Form manager.
- * @returns access fallback component.
- */
-function renderAccessFallback(formManager: FormManager): JSX.Element | null {
-  const {
-    access: { canView },
-  } = formManager;
-  if (!canView)
-    return <AccessPrompt text="to view the integrated object validations" />;
-  return null;
-}

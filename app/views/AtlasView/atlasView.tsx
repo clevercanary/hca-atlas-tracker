@@ -6,8 +6,6 @@ import {
   getAtlasName,
 } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
-import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
-import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { EntityForm } from "../../components/Entity/components/EntityForm/entityForm";
@@ -16,7 +14,6 @@ import { AtlasStatuses } from "../../components/Layout/components/Detail/compone
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
 import { ATLAS } from "../../hooks/useFetchAtlas";
 import { useFetchDataState } from "../../hooks/useFetchDataState";
-import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { fetchData } from "../../providers/fetchDataState/actions/fetchData/dispatch";
 import { getBreadcrumbs } from "./common/utils";
 import { AtlasActionButton } from "./components/AtlasActionButton/atlasActionButton";
@@ -35,7 +32,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
   const formMethod = useEditAtlasForm(pathParameter);
   const formManager = useEditAtlasFormManager(pathParameter, formMethod);
   const {
-    access: { canEdit, canView },
+    access: { canEdit },
     formAction,
     formStatus: { isDirty },
     isLoading,
@@ -61,7 +58,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
   if (isLoading) return <Fragment />;
 
   return (
-    <ConditionalComponent isIn={shouldRenderView(canView, Boolean(atlas))}>
+    <ConditionalComponent isIn={Boolean(atlas)}>
       {isDirty ? (
         <PublishDialogUnsavedChanges
           onClose={closePublishDialog}
@@ -115,7 +112,6 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
         }
         mainColumn={
           <EntityForm
-            accessFallback={renderAccessFallback(formManager)}
             formManager={formManager}
             formMethod={formMethod}
             sectionConfigs={VIEW_ATLAS_SECTION_CONFIGS}
@@ -134,16 +130,3 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
     </ConditionalComponent>
   );
 };
-
-/**
- * Returns the access fallback component from the form manager access state.
- * @param formManager - Form manager.
- * @returns access fallback component.
- */
-function renderAccessFallback(formManager: FormManager): JSX.Element | null {
-  const {
-    access: { canView },
-  } = formManager;
-  if (!canView) return <AccessPrompt text="to view the atlas" />;
-  return null;
-}

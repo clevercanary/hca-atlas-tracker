@@ -2,26 +2,18 @@ import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common
 import { Table } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
 import { JSX } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
 import { getAtlasSourceStudySourceDatasetsTableColumns } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
-import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { TABLE_OPTIONS } from "./constants";
 
 interface ViewSourceDatasetsProps {
-  formManager: FormManagerProps;
   sourceDatasets?: HCAAtlasTrackerSourceDataset[];
 }
 
 export const ViewSourceDatasets = ({
-  formManager,
   sourceDatasets = [],
 }: ViewSourceDatasetsProps): JSX.Element => {
-  const {
-    access: { canView },
-  } = formManager;
-  if (!canView) return <RequestAccess />;
   return (
     <StyledFluidPaper elevation={0}>
       {sourceDatasets.length > 0 && (

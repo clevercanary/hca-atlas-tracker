@@ -1,14 +1,11 @@
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment, JSX } from "react";
 import { PathParameter } from "../../common/entities";
-import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
-import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "../../components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "../../components/Entity/components/EntityView/entityView";
 import { StyledDetailView } from "../../components/Layout/components/Detail/sticky/detailView.styles";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
-import { FormManager } from "../../hooks/useFormManager/common/entities";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { getTabs } from "../ComponentAtlasView/common/utils";
@@ -34,10 +31,7 @@ export const IntegratedObjectSourceDatasetsView = ({
   const { integratedObjectSourceDatasets } =
     useFetchIntegratedObjectSourceDatasets(pathParameter);
   const formManager = useFormManager();
-  const {
-    access: { canView },
-    isLoading,
-  } = formManager;
+  const { isLoading } = formManager;
   if (isLoading) return <Fragment />;
   return (
     <EntityProvider
@@ -51,16 +45,13 @@ export const IntegratedObjectSourceDatasetsView = ({
       pathParameter={pathParameter}
     >
       <EditIntegratedObjectSourceDatasetsContext.Provider value={{ onDelete }}>
-        <ConditionalComponent
-          isIn={shouldRenderView(canView, Boolean(atlas && componentAtlas))}
-        >
+        <ConditionalComponent isIn={Boolean(atlas && componentAtlas)}>
           <StyledDetailView
             breadcrumbs={
               <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
             }
             mainColumn={
               <EntityView
-                accessFallback={renderAccessFallback(formManager)}
                 sectionConfigs={
                   VIEW_INTEGRATED_OBJECT_SOURCE_DATASETS_SECTION_CONFIGS
                 }
@@ -79,19 +70,3 @@ export const IntegratedObjectSourceDatasetsView = ({
     </EntityProvider>
   );
 };
-
-/**
- * Returns the access fallback component from the form manager access state.
- * @param formManager - Form manager.
- * @returns access fallback component.
- */
-function renderAccessFallback(formManager: FormManager): JSX.Element | null {
-  const {
-    access: { canView },
-  } = formManager;
-  if (!canView)
-    return (
-      <AccessPrompt text="to view the integrated object source datasets" />
-    );
-  return null;
-}

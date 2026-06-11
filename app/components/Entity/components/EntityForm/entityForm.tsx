@@ -1,4 +1,4 @@
-import { ElementType, Fragment, JSX, ReactNode } from "react";
+import { ElementType, Fragment, JSX } from "react";
 import { FieldValues } from "react-hook-form";
 import { FormMethod } from "../../../../hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
@@ -13,7 +13,6 @@ interface EntityFormProps<
   R = undefined,
   C extends ElementType = "input",
 > {
-  accessFallback: ReactNode;
   formManager: FormManagerProps;
   formMethod: FormMethod<T, R>;
   sectionConfigs: SectionConfig<T, R, C>[];
@@ -24,12 +23,10 @@ export const EntityForm = <
   R = undefined,
   C extends ElementType = "input",
 >({
-  accessFallback,
   formManager,
   formMethod,
   sectionConfigs,
 }: EntityFormProps<T, R, C>): JSX.Element => {
-  if (accessFallback) return <Fragment>{accessFallback}</Fragment>;
   return (
     <TrackerForm>
       <FormManager {...formManager} />

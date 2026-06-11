@@ -6,7 +6,6 @@ import { Head } from "@databiosphere/findable-ui/lib/components/Head/head";
 import { AppLayout } from "@databiosphere/findable-ui/lib/components/Layout/components/AppLayout/appLayout.styles";
 import { Floating } from "@databiosphere/findable-ui/lib/components/Layout/components/Floating/floating";
 import { Footer } from "@databiosphere/findable-ui/lib/components/Layout/components/Footer/footer";
-import { Header as DXHeader } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header";
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
 import { NextAuthAuthenticationProvider } from "@databiosphere/findable-ui/lib/nextauth/provider";
 import { ConfigProvider as DXConfigProvider } from "@databiosphere/findable-ui/lib/providers/config";
@@ -26,6 +25,8 @@ import { NextPage } from "next";
 import { Session } from "next-auth";
 import type { AppProps } from "next/app";
 import { JSX } from "react";
+import { AppHeader } from "../app/components/Layout/components/Header/appHeader";
+import { useLogoutCallbackUrl } from "../app/hooks/UseLogoutCallbackUrl/hook";
 import { AuthorizationProvider } from "../app/providers/authorization";
 import { mergeAppTheme } from "../app/theme/theme";
 import { BREAKPOINTS } from "../site-config/common/constants";
@@ -55,8 +56,10 @@ function MyApp(props: AppPropsWithComponent): JSX.Element {
   const { floating, footer, header } = layout || {};
   const defaultTheme = createAppTheme(themeOptions);
   const appTheme = mergeAppTheme(defaultTheme);
-  const { entityListType, pageTitle, session } = pageProps as PageProps;
+  const { pageTitle, session } = pageProps as PageProps;
   const Main = Component.Main || DXMain;
+  const entityListType = pageProps.entityListType ?? "atlases";
+  const logoutCallbackUrl = useLogoutCallbackUrl();
   return (
     <AppCacheProvider {...props}>
       <EmotionThemeProvider theme={appTheme}>
@@ -67,6 +70,7 @@ function MyApp(props: AppPropsWithComponent): JSX.Element {
             <ServicesProvider>
               <SystemStatusProvider>
                 <NextAuthAuthenticationProvider
+                  logoutCallbackUrl={logoutCallbackUrl}
                   session={session}
                   timeout={SESSION_TIMEOUT}
                   refetchInterval={SESSION_REFETCH_INTERVAL}
@@ -82,7 +86,7 @@ function MyApp(props: AppPropsWithComponent): JSX.Element {
                           )
                         }
                       >
-                        <DXHeader {...header} />
+                        <AppHeader header={header} />
                       </ThemeProvider>
                       <ExploreStateProvider entityListType={entityListType}>
                         <AuthorizationProvider>

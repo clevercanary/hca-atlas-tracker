@@ -1,29 +1,16 @@
-import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { ContentView } from "@databiosphere/findable-ui/lib/views/ContentView/contentView";
 import { JSX } from "react";
-import { AccessPrompt } from "../../components/common/Form/components/FormManager/components/AccessPrompt/accessPrompt";
-import { Divider } from "../../components/Detail/components/TrackerForm/components/Divider/divider.styles";
 import { FilesAdminForm } from "../../components/Forms/components/FilesAdmin/filesAdmin";
 import { Content } from "../../components/Layout/components/Content/content";
 import { LAYOUT_STYLE_NO_CONTRAST_DEFAULT } from "../../content/common/constants";
 
 export const FilesAdminView = (): JSX.Element => {
-  const {
-    authState: { isAuthenticated },
-  } = useAuth();
   return (
     <ContentView
       content={
         <Content>
           <h1>Manage files</h1>
-          {isAuthenticated ? (
-            <FilesAdminForm />
-          ) : (
-            <AccessPrompt
-              divider={<Divider />}
-              text="to access files controls"
-            />
-          )}
+          <FilesAdminForm />
         </Content>
       }
       layoutStyle={LAYOUT_STYLE_NO_CONTRAST_DEFAULT}

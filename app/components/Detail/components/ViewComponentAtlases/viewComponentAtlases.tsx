@@ -8,15 +8,12 @@ import { INTEGRATED_OBJECTS } from "../../../../views/ComponentAtlasesView/hooks
 import { StyledFluidPaper } from "../../../Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "../../../Table/components/TablePlaceholder/tablePlaceholder";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
-import { RequestAccess } from "./components/RequestAccess/requestAccess";
 import { useIntegratedObjectsTable } from "./hooks/UseIntegratedObjectsTable/hook";
 import { StyledToolbar } from "./viewComponentAtlases.styles";
 
 export const ViewComponentAtlases = (): JSX.Element => {
   const { access, table } = useIntegratedObjectsTable();
-  const { canEdit = false, canView = false } = access || {};
-
-  if (!canView) return <RequestAccess />;
+  const { canEdit = false } = access || {};
 
   return (
     <StyledFluidPaper elevation={0}>

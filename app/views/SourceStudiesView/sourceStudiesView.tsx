@@ -3,7 +3,6 @@ import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/
 import { JSX } from "react";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
-import { shouldRenderView } from "../../components/Detail/common/utils";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { ViewSourceStudies } from "../../components/Detail/components/ViewSourceStudies/viewSourceStudies";
 import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
@@ -30,13 +29,8 @@ export const SourceStudiesView = ({
     useFetchSourceStudiesSourceDatasets(pathParameter);
   const formManager = useFormManager();
   const backPath = useBackPath(pathParameter);
-  const {
-    access: { canView },
-  } = formManager;
   return (
-    <ConditionalComponent
-      isIn={shouldRenderView(canView, Boolean(atlas && sourceStudies))}
-    >
+    <ConditionalComponent isIn={Boolean(atlas && sourceStudies)}>
       <StyledDetailView
         backPath={backPath}
         breadcrumbs={
