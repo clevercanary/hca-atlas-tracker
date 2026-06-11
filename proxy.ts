@@ -8,12 +8,25 @@ import { PUBLIC_PATHS } from "./app/routes/publicPaths";
 // active in production builds despite that empty legacy manifest; don't
 // "verify" middleware presence by reading the legacy file.
 //
-// NOTE: `withAuth` validates the session JWT with `process.env.NEXTAUTH_SECRET`.
-// Unlike the NextAuth API route, it has NO dev fallback secret — if the env var
-// is missing (or differs from what the API route uses), every token check
-// fails and login loops back here forever. The secret is therefore required at
-// runtime in `site-config/hca-atlas-tracker/local/authentication/next-auth-config.ts`,
-// and deployed environments must set NEXTAUTH_SECRET in their task environment.
+// `withAuth` reads the session JWT from the `next-auth.session-token` cookie
+// (`__Secure-`-prefixed under HTTPS) and validates it with
+// `process.env.NEXTAUTH_SECRET`. Unlike the NextAuth API route it has NO dev
+// fallback secret, so NEXTAUTH_SECRET must be set wherever this runs — locally
+// via `site-config/hca-atlas-tracker/local/.env`, and in every deployed task
+// environment.
+//
+// DEBUGGING A LOGIN LOOP (lands back on `/` while `/api/auth/session` shows the
+// user as signed in): the cause is almost never the secret — it's that the
+// session cookie never reaches this middleware. `withAuth` redirects to the
+// sign-in page whenever `getToken` returns null, which happens if the cookie
+// isn't on the request at all. The classic deployed cause is the CDN in front
+// of the origin stripping cookies: CloudFront's default cache behavior was set
+// to `cookies { forward = "none" }` (and cached HTML), so the origin saw every
+// page / `_next/data` / middleware request as anonymous while `/api/*` — which
+// did forward cookies — kept reporting a valid session. The fix lives in the
+// infra, not here: the CDN must forward the session cookie to the origin for
+// all non-API routes and not cache gated responses. See
+// clevercanary/hca-atlas-tracker-tf-config#65.
 
 export default withAuth({
   callbacks: {
