@@ -231,8 +231,8 @@ export const FILE_METADATA_COVERAGE_ENTITY_TYPES = [
 ] as const;
 
 // Entity classes rolled up by the metadata completeness API. These are the
-// data-dictionary classes that carry fields; the blob's `obs` entity (the
-// dictionary's empty `cell` class) is intentionally excluded.
+// data-dictionary classes that carry fields; the blob's `obs` entity and the
+// dictionary's empty `cell` class are intentionally excluded.
 export const METADATA_COVERAGE_REPORT_CLASSES = [
   "dataset",
   "donor",
