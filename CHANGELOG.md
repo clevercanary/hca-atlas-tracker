@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.75.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.74.0...v1.75.0) (2026-06-11)
+
+
+### Features
+
+* add api to get metadata coverage reports for atlases ([#1274](https://github.com/clevercanary/hca-atlas-tracker/issues/1274)) ([#1395](https://github.com/clevercanary/hca-atlas-tracker/issues/1395)) ([ca00405](https://github.com/clevercanary/hca-atlas-tracker/commit/ca0040578b1aca85af016031ff51b28f5f36e138))
+* add styled home/login landing page and gate the app with auth middleware ([#1353](https://github.com/clevercanary/hca-atlas-tracker/issues/1353)) ([#1397](https://github.com/clevercanary/hca-atlas-tracker/issues/1397)) ([ad05da7](https://github.com/clevercanary/hca-atlas-tracker/commit/ad05da7e7d7df7882c68e6c51717f9fabd45b318))
+
+
+### Bug Fixes
+
+* eliminate auth flash on protected pages ([#1358](https://github.com/clevercanary/hca-atlas-tracker/issues/1358)) ([#1391](https://github.com/clevercanary/hca-atlas-tracker/issues/1391)) ([6acf9a9](https://github.com/clevercanary/hca-atlas-tracker/commit/6acf9a909de4005eb08b58f537f6040bd4c94e8a))
+* require nextauth_secret so the auth middleware can validate sessions ([#1400](https://github.com/clevercanary/hca-atlas-tracker/issues/1400)) ([#1401](https://github.com/clevercanary/hca-atlas-tracker/issues/1401)) ([b57d072](https://github.com/clevercanary/hca-atlas-tracker/commit/b57d072555c3eb1613a3bfa8e4f9bbb20e55e110))
+
+
+### Chores
+
+* upgrade to next.js 16 + new findable-ui major (phase 2 from findable-ui[#952](https://github.com/clevercanary/hca-atlas-tracker/issues/952)) ([#1359](https://github.com/clevercanary/hca-atlas-tracker/issues/1359)) ([#1388](https://github.com/clevercanary/hca-atlas-tracker/issues/1388)) ([4a88808](https://github.com/clevercanary/hca-atlas-tracker/commit/4a88808fe9bf1bdcd418872ceb3515b6c4e9b3bc))
+
+
+### Documentation
+
+* correct comment to refer to `obs` and `cell` as separate entities ([#1398](https://github.com/clevercanary/hca-atlas-tracker/issues/1398)) ([#1399](https://github.com/clevercanary/hca-atlas-tracker/issues/1399)) ([369ab69](https://github.com/clevercanary/hca-atlas-tracker/commit/369ab69244131ea53e6e0040b80db367bbd1ff58))
+
 ## [1.74.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.73.0...v1.74.0) (2026-06-09)
 
 
