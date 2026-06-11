@@ -3,7 +3,7 @@ import { HCAAtlasTrackerDBAtlasForMetadataCoverage } from "../apis/catalog/hca-a
 import { query } from "../services/database";
 
 /**
- * Get every atlas along with the `metadata_coverage` blobs of its latest,
+ * Get every atlas along with the `metadata_coverage` blobs of its
  * non-archived integrated object files. Atlases with no such files are included
  * with an empty array.
  * @param client - Optional database client for transaction support.
@@ -37,7 +37,7 @@ export async function getAtlasComponentAtlasMetadataCoverage(
 }
 
 /**
- * Get every atlas along with the `metadata_coverage` blobs of its latest,
+ * Get every atlas along with the `metadata_coverage` blobs of its
  * non-archived source dataset files. Atlases with no such files are included
  * with an empty array.
  * @param client - Optional database client for transaction support.
