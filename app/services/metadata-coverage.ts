@@ -1,5 +1,4 @@
 import pg from "pg";
-import dataDictionary from "../../catalog/downloaded/data-dictionary.json";
 import { METADATA_COVERAGE_REPORT_CLASSES } from "../apis/catalog/hca-atlas-tracker/common/constants";
 import {
   AtlasMetadataCoverage,
@@ -14,6 +13,7 @@ import {
   getAtlasComponentAtlasMetadataCoverage,
   getAtlasSourceDatasetMetadataCoverage,
 } from "../data/metadata-coverage";
+import { getDataDictionaryClass } from "../utils/data-dictionary";
 
 type FieldCatalog = Record<MetadataCoverageReportClass, Set<string>>;
 
@@ -68,9 +68,7 @@ function getFieldCatalog(tiers: Set<MetadataCoverageReportTier>): FieldCatalog {
     sample: new Set(),
   };
   for (const className of METADATA_COVERAGE_REPORT_CLASSES) {
-    const ddClass = dataDictionary.classes.find((c) => c.name === className);
-    if (!ddClass)
-      throw new Error(`Data dictionary class not found: ${className}`);
+    const ddClass = getDataDictionaryClass(className);
     for (const attribute of ddClass.attributes) {
       const tier: MetadataCoverageReportTier = attribute.required
         ? "required"
