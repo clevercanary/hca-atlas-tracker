@@ -107,13 +107,13 @@ function buildAtlasCoverage(
     ) / METADATA_COVERAGE_CLASSES.length;
   return {
     atlasId: row.id,
-    bionetwork: row.overview.network,
     classes,
     generation: row.generation,
-    integrationLeads: row.overview.integrationLead,
-    name: row.overview.shortName,
+    integrationLead: row.overview.integrationLead,
+    network: row.overview.network,
+    revision: row.revision,
+    shortName: row.overview.shortName,
     total,
-    version: `${row.generation}.${row.revision}`,
   };
 }
 

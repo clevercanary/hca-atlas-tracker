@@ -178,11 +178,11 @@ describe(TEST_ROUTE, () => {
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
     );
 
-    expect(atlas.name).toEqual(ATLAS_WITH_MISC_SOURCE_STUDIES.shortName);
-    expect(atlas.version).toEqual("2.3");
+    expect(atlas.shortName).toEqual(ATLAS_WITH_MISC_SOURCE_STUDIES.shortName);
     expect(atlas.generation).toEqual(2);
-    expect(atlas.bionetwork).toEqual("adipose");
-    expect(atlas.integrationLeads).toEqual([
+    expect(atlas.revision).toEqual(3);
+    expect(atlas.network).toEqual("adipose");
+    expect(atlas.integrationLead).toEqual([
       {
         email: INTEGRATION_LEAD_BAZ_BAZ.email,
         name: INTEGRATION_LEAD_BAZ_BAZ.name,
