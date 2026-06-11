@@ -60,10 +60,14 @@ export function makeConfig(
       header: {
         announcements: announcementsConfig,
         authenticationEnabled: ROUTE.LANDING,
+        // The full app header only renders for authenticated users, so link
+        // the logo straight to the atlas list (saves the `/` → `/atlases`
+        // server-redirect hop); the logged-out landing header re-points it to
+        // `/` (see `getLandingHeaderProps`).
         logo: C.Logo({
           alt: APP_TITLE,
           height: 32.5,
-          link: ROUTE.LANDING,
+          link: ROUTE.ATLASES,
           src: "/images/hcaAtlasTracker.svg",
         }),
         navigation: [
