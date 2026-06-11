@@ -1,9 +1,9 @@
 import { Class } from "@databiosphere/findable-ui/lib/common/entities";
-import dataDictionary from "../../catalog/downloaded/data-dictionary.json";
 import {
   HCAAtlasTrackerDBEntrySheetValidation,
   Heatmap,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { getDataDictionaryClass } from "../utils/data-dictionary";
 import { EntrySheetValidationErrorInfo } from "../utils/hca-validation-tools/hca-validation-tools";
 import { getBaseModelAtlasEntrySheetValidations } from "./entry-sheets";
 
@@ -16,8 +16,7 @@ export async function getAtlasHeatmap(atlasId: string): Promise<Heatmap> {
     await getBaseModelAtlasEntrySheetValidations(atlasId);
   return {
     classes: ENTITY_TYPES.map((entityType) => {
-      const ddClass = dataDictionary.classes.find((c) => c.name === entityType);
-      if (!ddClass) throw new Error(`Class not found for ${entityType}`);
+      const ddClass = getDataDictionaryClass(entityType);
       return getClassHeatmap(entityType, ddClass, entrySheetValidations);
     }),
   };

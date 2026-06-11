@@ -7,6 +7,8 @@ import { API } from "./api";
 import {
   FILE_METADATA_COVERAGE_ENTITY_TYPES,
   FILE_VALIDATOR_NAMES,
+  METADATA_COVERAGE_REPORT_CLASSES,
+  METADATA_COVERAGE_REPORT_TIERS,
   NETWORK_KEYS,
   WAVES,
 } from "./constants";
@@ -388,6 +390,13 @@ export type HCAAtlasTrackerDBSourceStudyForStatusSummary = Pick<
   HCAAtlasTrackerDBSourceStudy,
   "doi"
 >;
+
+export interface HCAAtlasTrackerDBAtlasForMetadataCoverage extends Pick<
+  HCAAtlasTrackerDBAtlas,
+  "id" | "generation" | "revision" | "overview"
+> {
+  metadata_coverages: FileMetadataCoverage[];
+}
 
 export interface HCAAtlasTrackerDBComponentAtlas {
   component_info: HCAAtlasTrackerDBComponentAtlasInfo;
@@ -911,6 +920,34 @@ export interface FileMetadataFieldCoverage {
   field: string;
   inconsistent: number;
   missing: number;
+}
+
+export type MetadataCoverageReportClass =
+  (typeof METADATA_COVERAGE_REPORT_CLASSES)[number];
+
+export type MetadataCoverageReportTier =
+  (typeof METADATA_COVERAGE_REPORT_TIERS)[number];
+
+export interface AtlasMetadataCoverageRollup {
+  atlases: AtlasMetadataCoverage[];
+}
+
+export interface AtlasMetadataCoverage {
+  atlasId: string;
+  classes: Record<MetadataCoverageReportClass, AtlasMetadataCoverageClass>;
+  generation: number;
+  integrationLead: IntegrationLead[];
+  network: NetworkKey;
+  revision: number;
+  shortName: string;
+  total: number;
+}
+
+export interface AtlasMetadataCoverageClass {
+  completion: number | null;
+  entityCount: number;
+  filledSlots: number;
+  totalSlots: number;
 }
 
 export type FileValidationReports = Partial<

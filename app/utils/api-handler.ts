@@ -16,6 +16,7 @@ import { query } from "../services/database";
 import {
   ApiError,
   ForbiddenError,
+  InvalidOperationError,
   NotFoundError,
   UnauthenticatedError,
 } from "./api-errors";
@@ -213,7 +214,9 @@ export function handleRequiredParam(
   );
   if (responseSent) return null;
   if (param === undefined) {
-    res.status(400).json({ message: `Missing ${paramName} parameter` });
+    res
+      .status(400)
+      .json({ message: `Missing ${JSON.stringify(paramName)} parameter` });
     return null;
   }
   return param;
@@ -233,15 +236,72 @@ export function handleOptionalParam(
   paramName: string,
   paramRegExp?: RegExp,
 ): { param: string | undefined; responseSent: boolean } {
-  const param = req.query[paramName];
-  if (param === undefined) return { param, responseSent: false };
-  if (typeof param !== "string" || (paramRegExp && !paramRegExp.test(param))) {
+  const result = handleMappedOptionalParam(req, res, paramName, (v) => v);
+  if (result.responseSent) return result;
+  if (
+    paramRegExp &&
+    result.param !== undefined &&
+    !paramRegExp.test(result.param)
+  ) {
     res.status(400).json({
-      message: `${paramName} parameter must be a string matching ${paramRegExp}`,
+      message: `${JSON.stringify(paramName)} parameter must match ${paramRegExp}`,
     });
     return { param: undefined, responseSent: true };
   }
-  return { param, responseSent: false };
+  return result;
+}
+
+/**
+ * Retrieves an optional string-valued query parameter from a request and applies a mapping function to it, sending an error response if the parameter is not provided as a string.
+ * @param req - Next API request.
+ * @param res - Next API response.
+ * @param paramName - Parameter name to get.
+ * @param mapParamValue - Function to apply to the parameter value.
+ * @returns object containing mapped parameter value and boolean for whether an error response was sent.
+ */
+export function handleMappedOptionalParam<T>(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  paramName: string,
+  mapParamValue: (v: string, p: string) => T,
+): { param: T | undefined; responseSent: boolean } {
+  const param = req.query[paramName];
+  if (param === undefined) return { param, responseSent: false };
+  if (typeof param !== "string") {
+    res.status(400).json({
+      message: `${JSON.stringify(paramName)} parameter must be a string`,
+    });
+    return { param: undefined, responseSent: true };
+  }
+  return { param: mapParamValue(param, paramName), responseSent: false };
+}
+
+/**
+ * Create a query parameter parsing function that restricts the parameter value to being one of a list of allowed values, and throws an error if it's not.
+ * @param allowedValues - Allowed values for the query parameter.
+ * @returns function to be used to parse the query parameter.
+ */
+export function paramParserForOneOf<T extends string>(
+  allowedValues: readonly T[],
+): (v: string, p: string) => T {
+  return (value, paramName) => {
+    if (allowedValues.includes(value as T)) return value as T;
+    throw new InvalidOperationError(
+      `Parameter ${JSON.stringify(paramName)} must be one of: ${allowedValues.join(", ")}`,
+    );
+  };
+}
+
+/**
+ * Parse a query parameter value representing a comma-separated list, trimming whitespace from each item and dropping empty items.
+ * @param value - Query parameter value to parse.
+ * @returns array of strings representing the parsed list.
+ */
+export function parseListParam(value: string): string[] {
+  return value
+    .split(",")
+    .map((tier) => tier.trim())
+    .filter(Boolean);
 }
 
 /**
