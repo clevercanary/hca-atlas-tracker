@@ -102,7 +102,7 @@ describe("StatusDashboard", () => {
     });
 
     it("renders badges reflecting the counts", () => {
-      expect(screen.getByText("5 unpublished")).toBeInTheDocument();
+      expect(screen.getByText("6 unpublished")).toBeInTheDocument();
       expect(screen.getByText("3 Tier-1 invalid")).toBeInTheDocument();
       expect(screen.getByText("1 Tier-1 invalid")).toBeInTheDocument();
     });
