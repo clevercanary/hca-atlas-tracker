@@ -6,8 +6,8 @@ import { PathParameter } from "../../common/entities";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { EntityView } from "../../components/Entity/components/EntityView/entityView";
 import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
-import { useBackPath } from "../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { StyledDetailView } from "../../components/Layout/components/Detail/sticky/detailView.styles";
+import { useAtlasTabBackPath } from "../../hooks/useAtlasTabBackPath";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
@@ -28,7 +28,7 @@ export const AtlasSourceDatasetsView = ({
   const { atlas } = useFetchAtlas(pathParameter);
   const { atlasSourceDatasets } = useFetchAtlasSourceDatasets(pathParameter);
   const { sourceStudies } = useFetchSourceStudies(pathParameter);
-  const backPath = useBackPath(pathParameter);
+  const backPath = useAtlasTabBackPath(pathParameter);
 
   if (isLoading) return <Fragment />;
 
