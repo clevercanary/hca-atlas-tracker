@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.76.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.75.0...v1.76.0) (2026-06-12)
+
+
+### Features
+
+* atlas status dashboard tab ([#1354](https://github.com/clevercanary/hca-atlas-tracker/issues/1354)) ([#1408](https://github.com/clevercanary/hca-atlas-tracker/issues/1408)) ([b9129f1](https://github.com/clevercanary/hca-atlas-tracker/commit/b9129f1ea34c4d3684894e68a9b60d544b655a90))
+
+
+### Content
+
+* tweak home/landing page copy (hero + sign-in card) ([#1405](https://github.com/clevercanary/hca-atlas-tracker/issues/1405)) ([#1406](https://github.com/clevercanary/hca-atlas-tracker/issues/1406)) ([a2b0488](https://github.com/clevercanary/hca-atlas-tracker/commit/a2b0488272199e7149f1ee41ae42f3e3826aca21))
+
 ## [1.75.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.74.0...v1.75.0) (2026-06-11)
 
 
