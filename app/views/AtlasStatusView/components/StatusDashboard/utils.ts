@@ -242,7 +242,7 @@ function getProgress(numerator: number, total: number): number {
 
 /**
  * Returns the publication badge model: an amber chip while studies remain
- * unpublished, a green chip once some are published, and a neutral chip when
+ * unpublished, a green chip when all studies are published, and a neutral chip when
  * there are no source studies at all.
  * @param published - Published source study count.
  * @param unpublished - Unpublished source study count.
