@@ -1,4 +1,4 @@
-import { STACK_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/stack.js";
+import { STACK_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/stack";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Stack, Typography } from "@mui/material";
 import { JSX } from "react";
