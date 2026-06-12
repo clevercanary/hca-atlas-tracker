@@ -64,7 +64,6 @@ export const StyledStack = styled(Stack)`
     font-style: normal;
     font-weight: 700;
     line-height: 48px;
-    max-width: 366px;
     letter-spacing: -0.4px;
   }
 `;
