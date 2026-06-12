@@ -6,8 +6,8 @@ import { PathParameter } from "../../common/entities";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { ViewComponentAtlases } from "../../components/Detail/components/ViewComponentAtlases/viewComponentAtlases";
 import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
-import { useBackPath } from "../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { StyledDetailView } from "../../components/Layout/components/Detail/sticky/detailView.styles";
+import { useAtlasTabBackPath } from "../../hooks/useAtlasTabBackPath";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
@@ -23,7 +23,7 @@ export const ComponentAtlasesView = ({
   const { atlas } = useFetchAtlas(pathParameter);
   const { componentAtlases } = useFetchComponentAtlases(pathParameter);
   const formManager = useFormManager();
-  const backPath = useBackPath(pathParameter);
+  const backPath = useAtlasTabBackPath(pathParameter);
   return (
     <EntityProvider
       data={{ atlas, integratedObjects: componentAtlases }}

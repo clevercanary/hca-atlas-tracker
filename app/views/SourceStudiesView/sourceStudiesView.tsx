@@ -6,8 +6,8 @@ import { PathParameter } from "../../common/entities";
 import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { ViewSourceStudies } from "../../components/Detail/components/ViewSourceStudies/viewSourceStudies";
 import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
-import { useBackPath } from "../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { StyledDetailView } from "../../components/Layout/components/Detail/sticky/detailView.styles";
+import { useAtlasTabBackPath } from "../../hooks/useAtlasTabBackPath";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFetchSourceStudiesSourceDatasets } from "../../hooks/useFetchSourceStudiesSourceDatasets";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
@@ -28,7 +28,7 @@ export const SourceStudiesView = ({
   const sourceStudiesSourceDatasets =
     useFetchSourceStudiesSourceDatasets(pathParameter);
   const formManager = useFormManager();
-  const backPath = useBackPath(pathParameter);
+  const backPath = useAtlasTabBackPath(pathParameter);
   return (
     <ConditionalComponent isIn={Boolean(atlas && sourceStudies)}>
       <StyledDetailView

@@ -40,6 +40,7 @@ export const Tabs = ({
     <StyledTabs
       onTabChange={onChange}
       tabs={[
+        { label: "Status", value: ROUTE.ATLAS_STATUS },
         { label: "Overview", value: ROUTE.ATLAS },
         {
           label: getTabLabelWithCount("Source Studies", sourceStudyCount),

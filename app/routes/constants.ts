@@ -12,6 +12,7 @@ export const ROUTE = {
   ATLAS_SOURCE_STUDY: "/atlases/[atlasId]/source-studies/[sourceStudyId]",
   ATLAS_SOURCE_STUDY_SOURCE_DATASETS:
     "/atlases/[atlasId]/source-studies/[sourceStudyId]/source-datasets",
+  ATLAS_STATUS: "/atlases/[atlasId]/status",
   COMPONENT_ATLAS: "/atlases/[atlasId]/integrated-objects/[componentAtlasId]",
   COMPONENT_ATLASES: "/atlases/[atlasId]/integrated-objects",
   CREATE_ATLAS: "/atlases/create",

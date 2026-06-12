@@ -30,6 +30,8 @@ export function renderText(route?: RouteValue): string {
   switch (route) {
     case ROUTE.ATLAS:
       return `"Overview" tab`;
+    case ROUTE.ATLAS_STATUS:
+      return `"Status" tab`;
     case ROUTE.ATLASES:
       return `"Atlases" page`;
     case ROUTE.CREATE_ATLAS:

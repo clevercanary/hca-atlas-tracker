@@ -103,7 +103,7 @@ export const buildAtlasName = (
 ): ComponentProps<typeof C.Link> => {
   return {
     label: atlas.name,
-    url: `/atlases/${encodeURIComponent(atlas.id)}`,
+    url: getRouteURL(ROUTE.ATLAS_STATUS, { atlasId: atlas.id }),
   };
 };
 

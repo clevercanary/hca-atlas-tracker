@@ -12,6 +12,7 @@ import { EntityForm } from "../../components/Entity/components/EntityForm/entity
 import { VIEW_ATLAS_SECTION_CONFIGS } from "../../components/Forms/components/Atlas/common/sections";
 import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { DetailView } from "../../components/Layout/components/Detail/detailView";
+import { useAtlasTabBackPath } from "../../hooks/useAtlasTabBackPath";
 import { ATLAS } from "../../hooks/useFetchAtlas";
 import { useFetchDataState } from "../../hooks/useFetchDataState";
 import { fetchData } from "../../providers/fetchDataState/actions/fetchData/dispatch";
@@ -50,6 +51,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
     onOpen: openRevisionDialog,
     open: revisionDialogOpen,
   } = useDialog();
+  const backPath = useAtlasTabBackPath(pathParameter);
   const isPublished = atlas ? apiEntityIsPublished(atlas) : null;
   const canPublish = canEdit && isPublished === false;
   const canCreateRevision =
@@ -104,6 +106,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
             )}
           </>
         }
+        backPath={backPath}
         breadcrumbs={
           <Breadcrumbs
             breadcrumbs={getBreadcrumbs(atlas)}

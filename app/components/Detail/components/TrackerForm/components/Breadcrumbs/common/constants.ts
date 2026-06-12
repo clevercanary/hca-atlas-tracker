@@ -2,8 +2,8 @@ import { ROUTE } from "../../../../../../../routes/constants";
 import { Breadcrumb } from "../breadcrumbs";
 
 export const BREADCRUMB_ATLAS: Breadcrumb = {
-  path: ROUTE.ATLAS,
-  route: ROUTE.ATLAS,
+  path: ROUTE.ATLAS_STATUS,
+  route: ROUTE.ATLAS_STATUS,
   text: "Atlas",
 };
 
