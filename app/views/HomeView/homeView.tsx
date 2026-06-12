@@ -21,9 +21,13 @@ export const HomeView = ({ providers }: Props): JSX.Element => {
         <StyledLoginView providers={providers} />
         <StyledStack spacing={2} useFlexGap>
           <Typography component="h1">HCA Atlas Tracker</Typography>
-          <Typography component="h2">Atlas Ingest and Validation</Typography>
+          <Typography component="h2">
+            Atlas Ingest, Validation,
+            <br />
+            and Publishing
+          </Typography>
           <Typography variant={TYPOGRAPHY_PROPS.VARIANT.BODY_LARGE_400}>
-            Community generated, multi-omic, open data
+            The entry point for atlas data into the HCA ecosystem
           </Typography>
         </StyledStack>
       </StyledSection>
