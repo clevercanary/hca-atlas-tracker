@@ -38,10 +38,7 @@ const SUMMARY: AtlasStatusSummary = {
     reprocessed: 20,
     tier1Invalid: 3,
     tier1Valid: 59,
-    total: 62,
-  },
-  sourceStudies: { published: 3, total: 9, unpublished: 5 },
-};
+  sourceStudies: { published: 3, total: 9, unpublished: 6 },
 
 // All-zero atlas — nothing ingested or validated yet.
 const ZERO_SUMMARY: AtlasStatusSummary = {
