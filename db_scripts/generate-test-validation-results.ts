@@ -24,6 +24,7 @@ import {
 import { addValidationResultsToFile } from "../app/data/files";
 import { doTransaction, endPgPool } from "../app/services/database";
 import { toolReportsToValidationReportsAndSummary } from "../app/services/validation-results-notification";
+import dataDictionary from "../catalog/downloaded/data-dictionary.json";
 
 /**
  * Usage: `npx tsx db_scripts/generate-test-validation-results.ts <keyword ...>`
@@ -287,7 +288,7 @@ function makeMetadataCoverage(): FileMetadataCoverage {
   return {
     entities,
     fieldCoverage,
-    schemaName: "test",
+    schemaName: dataDictionary.name,
     schemaVersion: "1.0-test",
   };
 
