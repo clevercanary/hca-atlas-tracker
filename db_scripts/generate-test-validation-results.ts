@@ -25,13 +25,22 @@ import { toolReportsToValidationReportsAndSummary } from "../app/services/valida
 import dataDictionary from "../catalog/downloaded/data-dictionary.json";
 
 /**
- * Usage: `npx tsx db_scripts/generate-test-validation-results.ts <keyword ...>`
+ * Usage: `npx tsx db_scripts/generate-test-validation-results.ts <keyword/flag ...>`
+ *
  * Each keyword can be an atlas ID, and atlas short name, an atlas name with version,
  * a component atlas ID, a source dataset ID, a file ID, a file key, or a file name.
  * An atlas represents files of that atlas's component atlases and source datasets,
  * a component atlas or source dataset represents the corresponding file, and a file
  * represent the file itself. All matched files will have random validation results
  * added to them.
+ *
+ * Flags can be used to pin certain probabilities to 100% or 0%. The available
+ * probabilities are defined below in `PROBABILITY_DEFS`; the defined `flagBase` can
+ * be prefixed with `--` to pin the probability at 100%, or with `--not-` to pin the
+ * probability to 0%. For example, passing `--successful-validation --coverage-complete`
+ * to the script will ensure that all generated validation results are successful and
+ * have fully complete metadata coverage, and passing `--not-successful-validation` will
+ * ensure that all validation results are unsuccessful.
  */
 
 enum PROBABILITY {
