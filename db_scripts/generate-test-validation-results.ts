@@ -3,10 +3,7 @@ import {
   DatasetValidatorToolReport,
   DatasetValidatorToolReports,
 } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
-import {
-  FILE_METADATA_COVERAGE_ENTITY_TYPES,
-  FILE_VALIDATOR_NAMES,
-} from "../app/apis/catalog/hca-atlas-tracker/common/constants";
+import { FILE_METADATA_COVERAGE_ENTITY_TYPES } from "../app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_VALIDATION_STATUS,
   FileMetadataCoverage,
@@ -36,27 +33,78 @@ import dataDictionary from "../catalog/downloaded/data-dictionary.json";
  * added to them.
  */
 
-// Probability of all fields listed by metadata coverage being forced to be entirely complete
-const METADATA_COVERAGE_ALL_COMPLETE_PROBABILITY = 0.3;
+enum PROBABILITY {
+  CLAIM_CHECK_ERROR = "CLAIM_CHECK_ERROR",
+  COVERAGE_COMPLETE = "COVERAGE_COMPLETE",
+  COVERAGE_FIELD_COMPLETE = "COVERAGE_FIELD_COMPLETE",
+  FAILED_REQUEST = "FAILED_REQUEST",
+  FAILED_VALIDATION = "FAILED_VALIDATION",
+  INTEGRITY_ERROR = "INTEGRITY_ERROR",
+  JOB_ERROR = "JOB_ERROR",
+  OVERALL_VALID = "OVERALL_VALID",
+  TOOL_VALID = "TOOL_VALID",
+}
 
-// Probability of an individual field in metadata coverage being forced to be entirely complete
-const METADATA_COVERAGE_FIELD_ALL_COMPLETE_PROBABILITY = 0.2;
+const PROBABILITY_DEFS = [
+  {
+    // Probability of all fields listed by metadata coverage being forced to be entirely complete
+    default: 0.3,
+    flagBase: "coverage-complete",
+    id: PROBABILITY.COVERAGE_COMPLETE,
+  },
+  {
+    // Probability of an individual field in metadata coverage being forced to be entirely complete
+    default: 0.2,
+    flagBase: "coverage-field-complete",
+    id: PROBABILITY.COVERAGE_FIELD_COMPLETE,
+  },
 
-// Probability of failed validation (of various types) vs. successful validation containing tool reports etc.
-const FAILED_VALIDATION_PROBABILITY = 0.5;
+  {
+    // Probability of failed validation (of various types) vs. successful validation containing tool reports etc.
+    default: 0.5,
+    flagBase: "failed-validation",
+    id: PROBABILITY.FAILED_VALIDATION,
+  },
 
-// Probabilities of failure types, with the remaining possibility being an integrity failure
-const JOB_ERROR_PROBABILITY = 0.4;
-const CLAIM_CHECK_ERROR_PROBABILITY = 0.3;
+  {
+    // Probability of a failed validation being a job error
+    default: 0.4,
+    flagBase: "job-error",
+    id: PROBABILITY.JOB_ERROR,
+  },
+  {
+    // Probability of a failed validation that's not a job error being a claim check error (with the remaining possibility being integrity failure)
+    default: 0.5,
+    flagBase: "claim-check-error",
+    id: PROBABILITY.CLAIM_CHECK_ERROR,
+  },
+  {
+    // Probability of an integrity failure being an error vs. invalid
+    default: 0.5,
+    flagBase: "integrity-error",
+    id: PROBABILITY.INTEGRITY_ERROR,
+  },
 
-// Probability of an integrity failure being an error vs. invalid
-const INTEGRITY_ERROR_PROBABILITY = 0.5;
+  {
+    // Probability of successful results having a failed request on top of them
+    default: 0.2,
+    flagBase: "failed-request",
+    id: PROBABILITY.FAILED_REQUEST,
+  },
 
-// Probability of successful results having a failed request on top of them
-const FAILED_REQUEST_PROBABILITY = 0.2;
-
-// Probability of all tool reports being valid
-const OVERALL_VALID_PROBABILITY = 0.5;
+  {
+    // Probability of tool reports being forced to all be valid
+    default: 0.5,
+    flagBase: "overall-valid",
+    id: PROBABILITY.OVERALL_VALID,
+  },
+  {
+    // Probability of an individual tool report being valid
+    default: 0.5,
+    flagBase: "tool-valid",
+    id: PROBABILITY.TOOL_VALID,
+  },
+];
 
 // (Below use uninclusive max)
 
@@ -87,10 +135,30 @@ interface SuccessRelatedFields {
   validationSummary: FileValidationSummary | null;
 }
 
+const probabilityDefaults: Partial<Record<PROBABILITY, number>> =
+  Object.fromEntries(PROBABILITY_DEFS.map((p) => [p.id, p.default]));
+
+const params = process.argv.slice(2);
+
+const probabilityFlagValues: Partial<Record<PROBABILITY, boolean>> = {};
+for (const param of params) {
+  if (!isFlagParam(param)) continue;
+  for (const { flagBase, id } of PROBABILITY_DEFS) {
+    if (param === `--${flagBase}`) {
+      probabilityFlagValues[id] = true;
+      break;
+    } else if (param === `--not-${flagBase}`) {
+      probabilityFlagValues[id] = false;
+      break;
+    }
+  }
+  throw new Error(`Unknown flag: ${param}`);
+}
+
 generateAndAddValidationResults();
 
 async function generateAndAddValidationResults(): Promise<void> {
-  const entityKeywords = process.argv.slice(2);
+  const entityKeywords = params.filter((p) => !isFlagParam(p));
 
   let fileKeysById: Map<string, string> = new Map(); // Initial value is overwritten and is only here because TS can't tell that the callback below will run
 
@@ -116,8 +184,7 @@ async function addValidationResultsToFiles(
   for (const fileId of fileIds) {
     const validatedAt = new Date();
     let successRelatedFields: SuccessRelatedFields;
-    // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-    if (Math.random() < FAILED_VALIDATION_PROBABILITY) {
+    if (probabilityPasses(PROBABILITY.FAILED_VALIDATION)) {
       successRelatedFields = getFailedValidationFields();
     } else {
       successRelatedFields = getSuccessfulValidationFields(
@@ -147,10 +214,7 @@ async function addValidationResultsToFiles(
 }
 
 function getFailedValidationFields(): SuccessRelatedFields {
-  // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-  let errorTypeSource = Math.random();
-
-  if (errorTypeSource < JOB_ERROR_PROBABILITY) {
+  if (probabilityPasses(PROBABILITY.JOB_ERROR)) {
     return {
       datasetInfo: null,
       errorMessage: "Error in dataset validator",
@@ -161,9 +225,8 @@ function getFailedValidationFields(): SuccessRelatedFields {
       validationSummary: null,
     };
   }
-  errorTypeSource -= JOB_ERROR_PROBABILITY;
 
-  if (errorTypeSource < CLAIM_CHECK_ERROR_PROBABILITY) {
+  if (probabilityPasses(PROBABILITY.CLAIM_CHECK_ERROR)) {
     return {
       datasetInfo: null,
       errorMessage: "Error while reading claim check",
@@ -175,8 +238,7 @@ function getFailedValidationFields(): SuccessRelatedFields {
     };
   }
 
-  // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-  if (Math.random() < INTEGRITY_ERROR_PROBABILITY) {
+  if (probabilityPasses(PROBABILITY.INTEGRITY_ERROR)) {
     return {
       datasetInfo: null,
       errorMessage:
@@ -225,11 +287,9 @@ function getSuccessfulValidationFields(
     integrityStatus: INTEGRITY_STATUS.VALID,
     metadataCoverage: makeMetadataCoverage(),
     validationReports: validationReports,
-    validationStatus:
-      // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-      Math.random() < FAILED_REQUEST_PROBABILITY
-        ? FILE_VALIDATION_STATUS.REQUEST_FAILED
-        : FILE_VALIDATION_STATUS.COMPLETED,
+    validationStatus: probabilityPasses(PROBABILITY.FAILED_REQUEST)
+      ? FILE_VALIDATION_STATUS.REQUEST_FAILED
+      : FILE_VALIDATION_STATUS.COMPLETED,
     validationSummary: validationSummary,
   };
 }
@@ -248,9 +308,7 @@ function makeMetadataCoverage(): FileMetadataCoverage {
     MAX_FIELD_COVERAGE_ENTRIES,
   );
 
-  const allComplete =
-    // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-    Math.random() < METADATA_COVERAGE_ALL_COMPLETE_PROBABILITY;
+  const allComplete = probabilityPasses(PROBABILITY.COVERAGE_COMPLETE);
 
   const fieldCoverage = fields.map((fieldName): FileMetadataFieldCoverage => {
     const entityType =
@@ -262,9 +320,7 @@ function makeMetadataCoverage(): FileMetadataCoverage {
     const { recordCount } = entities[entityType];
 
     const fieldAllComplete =
-      allComplete ||
-      // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-      Math.random() < METADATA_COVERAGE_FIELD_ALL_COMPLETE_PROBABILITY;
+      allComplete || probabilityPasses(PROBABILITY.COVERAGE_FIELD_COMPLETE);
 
     const completeCount = fieldAllComplete
       ? recordCount
@@ -308,24 +364,20 @@ function makeValidationReports(): [
   FileValidationReports,
   FileValidationSummary,
 ] {
-  const validatorValidProbability =
-    OVERALL_VALID_PROBABILITY ** (1 / FILE_VALIDATOR_NAMES.length);
+  const forceValid = probabilityPasses(PROBABILITY.OVERALL_VALID);
 
   const toolReports: DatasetValidatorToolReports = {
-    cap: generateToolReport(validatorValidProbability),
-    cellxgene: generateToolReport(validatorValidProbability),
-    hcaCellAnnotation: generateToolReport(validatorValidProbability),
-    hcaSchema: generateToolReport(validatorValidProbability),
+    cap: generateToolReport(forceValid),
+    cellxgene: generateToolReport(forceValid),
+    hcaCellAnnotation: generateToolReport(forceValid),
+    hcaSchema: generateToolReport(forceValid),
   };
 
   return toolReportsToValidationReportsAndSummary(toolReports);
 }
 
-function generateToolReport(
-  validatorValidProbability: number,
-): DatasetValidatorToolReport {
-  // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-  const valid = Math.random() < validatorValidProbability;
+function generateToolReport(forceValid: boolean): DatasetValidatorToolReport {
+  const valid = forceValid || probabilityPasses(PROBABILITY.TOOL_VALID);
   const errors = valid
     ? []
     : generateArrayVia((l) => `Error ${l.toUpperCase()}`);
@@ -520,4 +572,18 @@ async function findEntityOfTypeForKeyword<TIdKey extends string>(
     }
   }
   return foundEntity;
+}
+
+function probabilityPasses(probability: PROBABILITY): boolean {
+  const flagValue = probabilityFlagValues[probability];
+  if (flagValue !== undefined) return flagValue;
+  const defaultValue = probabilityDefaults[probability];
+  if (defaultValue === undefined)
+    throw new Error(`No definition found for ${probability} probability`);
+  // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
+  return Math.random() < defaultValue;
+}
+
+function isFlagParam(param: string): boolean {
+  return param.startsWith("--");
 }
