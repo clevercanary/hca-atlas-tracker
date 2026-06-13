@@ -141,16 +141,19 @@ const params = process.argv.slice(2);
 const probabilityFlagValues: Partial<Record<PROBABILITY, boolean>> = {};
 for (const param of params) {
   if (!isFlagParam(param)) continue;
+  let matched = false;
   for (const { flagBase, id } of PROBABILITY_DEFS) {
     if (param === `--${flagBase}`) {
       probabilityFlagValues[id] = true;
+      matched = true;
       break;
     } else if (param === `--not-${flagBase}`) {
       probabilityFlagValues[id] = false;
+      matched = true;
       break;
     }
   }
-  throw new Error(`Unknown flag: ${param}`);
+  if (!matched) throw new Error(`Unknown flag: ${param}`);
 }
 
 generateAndAddValidationResults();
