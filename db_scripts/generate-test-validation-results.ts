@@ -18,6 +18,7 @@ import {
   HCAAtlasTrackerDBSourceDataset,
   INTEGRITY_STATUS,
 } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { isFileMetadataCoverageEntityType } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
 import { addValidationResultsToFile } from "../app/data/files";
 import { doTransaction, endPgPool } from "../app/services/database";
 import { toolReportsToValidationReportsAndSummary } from "../app/services/validation-results-notification";
@@ -110,9 +111,6 @@ const PROBABILITY_DEFS = [
 
 const MIN_METADATA_RECORD_COUNT = 100;
 const MAX_METADATA_RECORD_COUNT = 1000;
-
-const MIN_FIELD_COVERAGE_ENTRIES = 10;
-const MAX_FIELD_COVERAGE_ENTRIES = 50;
 
 const MIN_CELL_COUNT = 100;
 const MAX_CELL_COUNT = 10000;
@@ -302,44 +300,40 @@ function makeMetadataCoverage(): FileMetadataCoverage {
     sample: generateEntity(),
   };
 
-  const fields = generateArrayVia(
-    (l) => "field_" + l,
-    MIN_FIELD_COVERAGE_ENTRIES,
-    MAX_FIELD_COVERAGE_ENTRIES,
-  );
-
   const allComplete = probabilityPasses(PROBABILITY.COVERAGE_COMPLETE);
 
-  const fieldCoverage = fields.map((fieldName): FileMetadataFieldCoverage => {
-    const entityType =
-      FILE_METADATA_COVERAGE_ENTITY_TYPES[
+  const fieldCoverage: FileMetadataFieldCoverage[] = [];
+  for (const entityClass of dataDictionary.classes) {
+    const entityType = entityClass.name;
+    if (!isFileMetadataCoverageEntityType(entityType)) continue;
+
+    for (const field of entityClass.attributes) {
+      if (shouldOmitMetadataCoverageField(field)) continue;
+
+      const { recordCount } = entities[entityType];
+
+      const fieldAllComplete =
+        allComplete || probabilityPasses(PROBABILITY.COVERAGE_FIELD_COMPLETE);
+
+      const completeCount = fieldAllComplete
+        ? recordCount
+        : // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
+          Math.floor(Math.random() * (recordCount + 1));
+
+      const missingCount = Math.floor(
         // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-        Math.floor(Math.random() * FILE_METADATA_COVERAGE_ENTITY_TYPES.length)
-      ];
+        Math.random() * (recordCount - completeCount + 1),
+      );
 
-    const { recordCount } = entities[entityType];
-
-    const fieldAllComplete =
-      allComplete || probabilityPasses(PROBABILITY.COVERAGE_FIELD_COMPLETE);
-
-    const completeCount = fieldAllComplete
-      ? recordCount
-      : // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-        Math.floor(Math.random() * (recordCount + 1));
-
-    const missingCount = Math.floor(
-      // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-      Math.random() * (recordCount - completeCount + 1),
-    );
-
-    return {
-      complete: completeCount,
-      entityClass: entityType,
-      field: fieldName,
-      inconsistent: recordCount - completeCount - missingCount,
-      missing: missingCount,
-    };
-  });
+      fieldCoverage.push({
+        complete: completeCount,
+        entityClass: entityType,
+        field: field.name,
+        inconsistent: recordCount - completeCount - missingCount,
+        missing: missingCount,
+      });
+    }
+  }
 
   return {
     entities,
@@ -358,6 +352,17 @@ function makeMetadataCoverage(): FileMetadataCoverage {
         ) + MIN_METADATA_RECORD_COUNT,
     };
   }
+}
+
+function shouldOmitMetadataCoverageField(field: {
+  name: string;
+  description: string;
+}): boolean {
+  // Very rough analog to how the dataset validator filters fields for metadata coverage
+  return (
+    FILE_METADATA_COVERAGE_ENTITY_TYPES.some((t) => field.name === `${t}_id`) ||
+    /deprecated/i.test(field.description)
+  );
 }
 
 function makeValidationReports(): [

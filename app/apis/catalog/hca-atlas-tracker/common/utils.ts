@@ -1,5 +1,6 @@
 import { GREATEST_UNIX_TIME } from "../../../../utils/date-fns";
 import {
+  FILE_METADATA_COVERAGE_ENTITY_TYPES,
   FILE_VALIDATOR_NAMES_HIDDEN_WHEN_REPROCESSED,
   NETWORK_KEYS,
   STATUS_LABEL,
@@ -10,6 +11,7 @@ import {
   CAP_INGEST_STATUS,
   DOI_STATUS,
   DoiPublicationInfo,
+  FileMetadataCoverageEntityType,
   FileValidationSummary,
   FileValidatorName,
   HCA_TIER1_VALIDATION_STATUS,
@@ -437,6 +439,22 @@ export function getLinkedAtlasFieldArrays(atlases: LinkedAtlasSummary[]): {
 export function isNetworkKey(key: unknown): key is NetworkKey {
   return (
     typeof key === "string" && (NETWORK_KEYS as readonly string[]).includes(key)
+  );
+}
+
+/**
+ * Returns true if the given value is a valid file metadata coverage entity type.
+ * @param value - Value.
+ * @returns true if the value is a valid file metadata coverage entity type.
+ */
+export function isFileMetadataCoverageEntityType(
+  value: unknown,
+): value is FileMetadataCoverageEntityType {
+  return (
+    typeof value === "string" &&
+    FILE_METADATA_COVERAGE_ENTITY_TYPES.includes(
+      value as FileMetadataCoverageEntityType,
+    )
   );
 }
 
