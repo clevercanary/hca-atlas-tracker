@@ -39,10 +39,10 @@ enum PROBABILITY {
   COVERAGE_COMPLETE = "COVERAGE_COMPLETE",
   COVERAGE_FIELD_COMPLETE = "COVERAGE_FIELD_COMPLETE",
   FAILED_REQUEST = "FAILED_REQUEST",
-  FAILED_VALIDATION = "FAILED_VALIDATION",
   INTEGRITY_ERROR = "INTEGRITY_ERROR",
   JOB_ERROR = "JOB_ERROR",
   OVERALL_VALID = "OVERALL_VALID",
+  SUCCESSFUL_VALIDATION = "SUCCESSFUL_VALIDATION",
   TOOL_VALID = "TOOL_VALID",
 }
 
@@ -61,10 +61,10 @@ const PROBABILITY_DEFS = [
   },
 
   {
-    // Probability of failed validation (of various types) vs. successful validation containing tool reports etc.
+    // Probability of successful validation containing tool reports etc. vs failed validation (of various types)
     default: 0.5,
-    flagBase: "failed-validation",
-    id: PROBABILITY.FAILED_VALIDATION,
+    flagBase: "successful-validation",
+    id: PROBABILITY.SUCCESSFUL_VALIDATION,
   },
 
   {
@@ -185,13 +185,13 @@ async function addValidationResultsToFiles(
   for (const fileId of fileIds) {
     const validatedAt = new Date();
     let successRelatedFields: SuccessRelatedFields;
-    if (probabilityPasses(PROBABILITY.FAILED_VALIDATION)) {
-      successRelatedFields = getFailedValidationFields();
-    } else {
+    if (probabilityPasses(PROBABILITY.SUCCESSFUL_VALIDATION)) {
       successRelatedFields = getSuccessfulValidationFields(
         fileKeysById,
         fileId,
       );
+    } else {
+      successRelatedFields = getFailedValidationFields();
     }
     const validationInfo: HCAAtlasTrackerDBFileValidationInfo = {
       batchJobId: `test-batch-job-${crypto.randomUUID()}`,
