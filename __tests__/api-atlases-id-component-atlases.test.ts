@@ -129,7 +129,7 @@ describe(TEST_ROUTE, () => {
           ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
           USER_CONTENT_ADMIN,
           undefined,
-          undefined,
+          true,
           "invalid-valid",
         )
       )._getStatusCode(),

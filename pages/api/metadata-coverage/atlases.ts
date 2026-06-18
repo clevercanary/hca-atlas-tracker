@@ -7,7 +7,7 @@ import {
 import { METHOD } from "../../../app/common/entities";
 import { getAtlasCompletenessRollup } from "../../../app/services/metadata-coverage";
 import {
-  handleMappedOptionalParam,
+  getMappedOptionalParam,
   handler,
   method,
   paramParserForOneOf,
@@ -29,24 +29,15 @@ const DEFAULT_TIERS: MetadataCoverageReportTier[] = ["required"];
  * rollup that backs the corpus-wide metadata completeness heatmap.
  */
 export default handler(method(METHOD.GET), registeredUser, async (req, res) => {
-  const sourceResult = handleMappedOptionalParam(
-    req,
-    res,
-    "source",
-    paramParserForOneOf(ALLOWED_SOURCES),
-  );
-  if (sourceResult.responseSent) return;
-  const source = sourceResult.param ?? DEFAULT_SOURCE;
+  const source =
+    getMappedOptionalParam(
+      req,
+      "source",
+      paramParserForOneOf(ALLOWED_SOURCES),
+    ) ?? DEFAULT_SOURCE;
 
-  const tiersResult = handleMappedOptionalParam(
-    req,
-    res,
-    "required",
-    parseListParam,
-  );
-  if (tiersResult.responseSent) return;
   const tiers = await metadataCoverageTiersSchema.validate(
-    tiersResult.param ?? DEFAULT_TIERS,
+    getMappedOptionalParam(req, "required", parseListParam) ?? DEFAULT_TIERS,
   );
 
   const rollup: AtlasMetadataCoverageRollup = {

@@ -3,7 +3,7 @@ import { ROLE_GROUP } from "../../../../app/apis/catalog/hca-atlas-tracker/commo
 import { METHOD } from "../../../../app/common/entities";
 import { getAtlasDatasets } from "../../../../app/services/source-datasets";
 import {
-  handleOptionalParam,
+  getOptionalParam,
   handler,
   method,
   publishedOrRole,
@@ -16,13 +16,7 @@ export default handler(
   publishedOrRole(ROLE_GROUP.READ),
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
-    const { param: archived, responseSent } = handleOptionalParam(
-      req,
-      res,
-      "archived",
-      /^(?:true|false)$/,
-    );
-    if (responseSent) return;
+    const archived = getOptionalParam(req, "archived", /^(?:true|false)$/);
     const isArchivedValue = archived === "true";
     res
       .status(200)
