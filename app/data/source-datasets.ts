@@ -193,7 +193,7 @@ export async function getSourceDatasetsForListApi(
         JOIN hat.concepts con ON con.id = d.id
         LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
         JOIN hat.atlases a ON d.version_id = ANY(a.source_datasets)
-        LEFT JOIN atlas_component_atlases ca ON d.version_id = ANY(ca.source_datasets) AND ca.version_id = ANY(a.component_atlases)
+        LEFT JOIN atlas_component_atlases ca ON d.version_id = ANY(ca.source_datasets)
         WHERE d.version_id = ANY($1) AND f.is_archived = ANY($2) AND a.id = $3
         GROUP BY d.version_id, f.id, con.id, s.id, a.id
       `,
