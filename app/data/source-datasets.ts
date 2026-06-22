@@ -501,45 +501,6 @@ async function getSourceDatasetVersionsPresentOnAtlas(
 }
 
 /**
- * Get the ID of the version of the given source dataset that's linked to the given component atlas.
- * @param sourceDatasetId - ID of the source dataset to get the version ID of.
- * @param componentAtlasVersion - Version ID of the component atlas to get the linked source dataset of.
- * @param client - Postgres client to use.
- * @returns linked source dataset version ID.
- */
-export async function getSourceDatasetVersionForComponentAtlas(
-  sourceDatasetId: string,
-  componentAtlasVersion: string,
-  client?: pg.PoolClient,
-): Promise<string> {
-  const queryResult = await query<
-    Pick<HCAAtlasTrackerDBSourceDataset, "version_id">
-  >(
-    `
-      SELECT sd.version_id
-      FROM hat.source_datasets sd
-      JOIN hat.component_atlases ca
-      ON sd.version_id = ANY(ca.source_datasets)
-      WHERE sd.id = $1 AND ca.version_id = $2
-    `,
-    [sourceDatasetId, componentAtlasVersion],
-    client,
-  );
-
-  if (queryResult.rows.length === 0)
-    throw new NotFoundError(
-      `Source dataset with ID ${sourceDatasetId} doesn't exist on component atlas with version ID ${componentAtlasVersion}`,
-    );
-
-  if (queryResult.rows.length > 1)
-    throw new Error(
-      `Multiple versions of source dataset ${sourceDatasetId} found linked to component atlas version ${componentAtlasVersion}`,
-    );
-
-  return queryResult.rows[0].version_id;
-}
-
-/**
  * Set all unpublished source datasets linked to the given atlas as being published at the given timestamp.
  * @param atlasId - Atlas ID.
  * @param publishedAt - Published-at date to set.

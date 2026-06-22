@@ -20,7 +20,6 @@ import {
   getSourceDatasetForDetailApi,
   getSourceDatasetsForListApi,
   getSourceDatasetVersionForAtlas,
-  getSourceDatasetVersionForComponentAtlas,
   getSourceDatasetVersionsForAtlas,
   getSourceStudySourceDatasetVersionIds,
   setSourceDatasetsPublicationStatus,
@@ -116,29 +115,6 @@ export async function getAtlasSourceDataset(
     client,
   );
   return await getSourceDatasetForDetailApi(sourceDatasetVersion, client);
-}
-
-/**
- * Get a source dataset of a component atlas.
- * @param atlasId - ID of the atlas that the source dataset is accessed through.
- * @param componentAtlasId - ID of the component atlas that the source dataset is accessed through.
- * @param sourceDatasetId - Source dataset ID.
- * @returns database model of the source dataset.
- */
-export async function getComponentAtlasSourceDataset(
-  atlasId: string,
-  componentAtlasId: string,
-  sourceDatasetId: string,
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
-  const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
-    componentAtlasId,
-    atlasId,
-  );
-  const sourceDatasetVersion = await getSourceDatasetVersionForComponentAtlas(
-    sourceDatasetId,
-    componentAtlasVersion,
-  );
-  return await getSourceDatasetForDetailApi(sourceDatasetVersion);
 }
 
 /**
