@@ -193,87 +193,67 @@ export const integrationLeadAssociatedAtlasOnly: MiddlewareFunction = async (
 };
 
 /**
- * Retrieves a string-valued query parameter from a request, sending an error response if the parameter doesn't exist or doesn't match a given regular expression.
+ * Retrieves a string-valued query parameter from a request, throwing an error if the parameter doesn't exist or doesn't match a given regular expression.
  * @param req - Next API request.
- * @param res - Next API response.
  * @param paramName - Parameter name to get.
  * @param paramRegExp - Regular expression to match parameter against.
- * @returns parameter value, or null if an error response was sent.
+ * @returns parameter value.
  */
-export function handleRequiredParam(
+export function getRequiredParam(
   req: NextApiRequest,
-  res: NextApiResponse,
   paramName: string,
   paramRegExp?: RegExp,
-): null | string {
-  const { param, responseSent } = handleOptionalParam(
-    req,
-    res,
-    paramName,
-    paramRegExp,
-  );
-  if (responseSent) return null;
+): string {
+  const param = getOptionalParam(req, paramName, paramRegExp);
   if (param === undefined) {
-    res
-      .status(400)
-      .json({ message: `Missing ${JSON.stringify(paramName)} parameter` });
-    return null;
+    throw new InvalidOperationError(
+      `Missing ${JSON.stringify(paramName)} parameter`,
+    );
   }
   return param;
 }
 
 /**
- * Retrieves an optional string-valued query parameter from a request, sending an error response if the parameter is present but doesn't match a given regular expression.
+ * Retrieves an optional string-valued query parameter from a request, throwing an error if the parameter is present but doesn't match a given regular expression.
  * @param req - Next API request.
- * @param res - Next API response.
  * @param paramName - Parameter name to get.
  * @param paramRegExp - Regular expression to match parameter against.
- * @returns object containing parameter value and boolean for whether an error response was sent.
+ * @returns parameter value, if present.
  */
-export function handleOptionalParam(
+export function getOptionalParam(
   req: NextApiRequest,
-  res: NextApiResponse,
   paramName: string,
   paramRegExp?: RegExp,
-): { param: string | undefined; responseSent: boolean } {
-  const result = handleMappedOptionalParam(req, res, paramName, (v) => v);
-  if (result.responseSent) return result;
-  if (
-    paramRegExp &&
-    result.param !== undefined &&
-    !paramRegExp.test(result.param)
-  ) {
-    res.status(400).json({
-      message: `${JSON.stringify(paramName)} parameter must match ${paramRegExp}`,
-    });
-    return { param: undefined, responseSent: true };
+): string | undefined {
+  const param = getMappedOptionalParam(req, paramName, (v) => v);
+  if (paramRegExp && param !== undefined && !paramRegExp.test(param)) {
+    throw new InvalidOperationError(
+      `${JSON.stringify(paramName)} parameter must match ${paramRegExp}`,
+    );
   }
-  return result;
+  return param;
 }
 
 /**
- * Retrieves an optional string-valued query parameter from a request and applies a mapping function to it, sending an error response if the parameter is not provided as a string.
+ * Retrieves an optional string-valued query parameter from a request and applies a mapping function to it, throwing an error if the parameter is not provided as a string.
  * @param req - Next API request.
- * @param res - Next API response.
  * @param paramName - Parameter name to get.
  * @param mapParamValue - Function to apply to the parameter value.
- * @returns object containing mapped parameter value and boolean for whether an error response was sent.
+ * @returns mapped parameter value, if available.
  */
-export function handleMappedOptionalParam<T>(
+export function getMappedOptionalParam<T>(
   req: NextApiRequest,
-  res: NextApiResponse,
   paramName: string,
   mapParamValue: (v: string, p: string) => T,
-): { param: T | undefined; responseSent: boolean } {
+): T | undefined {
   const param = req.query[paramName];
-  if (param === undefined) return { param, responseSent: false };
+  if (param === undefined) return;
   if (typeof param !== "string") {
-    res.status(400).json({
-      message: `${JSON.stringify(paramName)} parameter must be a string`,
-    });
-    return { param: undefined, responseSent: true };
+    throw new InvalidOperationError(
+      `${JSON.stringify(paramName)} parameter must be a string`,
+    );
   }
-  return { param: mapParamValue(param, paramName), responseSent: false };
+  return mapParamValue(param, paramName);
 }
 
 /**

@@ -101,7 +101,9 @@ describe(TEST_ROUTE, () => {
 
   it("returns error 400 when specified ID is non-numeric", async () => {
     expect(
-      (await doDisableRequest(USER_CONTENT_ADMIN, "test"))._getStatusCode(),
+      (
+        await doDisableRequest(USER_CONTENT_ADMIN, "test", undefined, true)
+      )._getStatusCode(),
     ).toEqual(400);
   });
 
