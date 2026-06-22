@@ -156,12 +156,13 @@ export async function getSourceDatasetsForListApi(
   const { rows: sourceDatasets } =
     await query<HCAAtlasTrackerDBSourceDatasetForListAPI>(
       `
-        WITH component_atlases AS (
+        WITH atlas_component_atlases AS (
           SELECT c.id, c.source_datasets, c.version_id, ccon.base_filename
           FROM hat.component_atlases c
           JOIN hat.concepts ccon ON ccon.id = c.id
           JOIN hat.files cf ON cf.id = c.file_id
-          WHERE NOT cf.is_archived
+          JOIN hat.atlases a ON c.version_id = ANY(a.component_atlases)
+          WHERE NOT cf.is_archived AND a.id = $3
         )
         SELECT
           d.*,
@@ -192,7 +193,7 @@ export async function getSourceDatasetsForListApi(
         JOIN hat.concepts con ON con.id = d.id
         LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
         JOIN hat.atlases a ON d.version_id = ANY(a.source_datasets)
-        LEFT JOIN component_atlases ca ON d.version_id = ANY(ca.source_datasets) AND ca.version_id = ANY(a.component_atlases)
+        LEFT JOIN atlas_component_atlases ca ON d.version_id = ANY(ca.source_datasets)
         WHERE d.version_id = ANY($1) AND f.is_archived = ANY($2) AND a.id = $3
         GROUP BY d.version_id, f.id, con.id, s.id, a.id
       `,
