@@ -7,7 +7,10 @@ import { assertMigrationDownAllowed } from "./migration-down-guard";
 // Defense-in-depth alongside removing this script from the built image (see
 // Dockerfile.node).
 try {
-  assertMigrationDownAllowed(process.env.APP_ENV);
+  assertMigrationDownAllowed({
+    appEnv: process.env.APP_ENV,
+    nodeEnv: process.env.NODE_ENV,
+  });
 } catch (error) {
   console.error(`ERROR: ${error instanceof Error ? error.message : error}`);
   process.exit(1);
