@@ -1,6 +1,20 @@
 import migrate from "node-pg-migrate";
 import pg from "pg";
 import { getPoolConfig } from "../app/utils/pg-migrate-connect-config";
+import { assertMigrationDownAllowed } from "./migration-down-guard";
+
+// Block destructive migration rollbacks in deployed (AWS dev/prod) environments.
+// Defense-in-depth alongside removing this script from the built image (see
+// Dockerfile.node).
+try {
+  assertMigrationDownAllowed({
+    appEnv: process.env.APP_ENV,
+    nodeEnv: process.env.NODE_ENV,
+  });
+} catch (error) {
+  console.error(`ERROR: ${error instanceof Error ? error.message : error}`);
+  process.exit(1);
+}
 
 const { Pool } = pg;
 
