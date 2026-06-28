@@ -54,9 +54,10 @@ export const ViewSourceStudies = ({
         );
         if (linkedDataset) {
           let studyDatasets = datasets.get(sourceDataset.sourceStudyId);
-          if (!studyDatasets)
-            // eslint-disable-next-line sonarjs/no-nested-assignment -- track via #1364
-            datasets.set(sourceDataset.sourceStudyId, (studyDatasets = []));
+          if (!studyDatasets) {
+            studyDatasets = [];
+            datasets.set(sourceDataset.sourceStudyId, studyDatasets);
+          }
           studyDatasets.push(sourceDataset);
         }
         return datasets;
