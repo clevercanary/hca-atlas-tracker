@@ -77,10 +77,12 @@ export const Alert = ({
 
 /**
  * Get the location detail for a validation report, preferring the cell
- * reference and falling back to the (1-based) row number.
- * @param cell - Cell reference, if any.
- * @param row - Zero-based row index, if any.
- * @returns Location detail element, or null when neither is present.
+ * reference and otherwise showing the row number. Mirrors the prior inline
+ * logic exactly: falsy `cell`/`row` (including a `row` of 0) are treated as
+ * absent.
+ * @param cell - Cell reference, shown when truthy.
+ * @param row - Row index, shown (as `row + 1`) when truthy.
+ * @returns Location detail element, or null when neither is set.
  */
 function getCellOrRowDetail(
   cell: string | null,
