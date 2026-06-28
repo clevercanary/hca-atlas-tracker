@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
@@ -76,6 +76,31 @@ describe("useFetchData", () => {
     // Logout: data is cleared on the next render (no longer survives logout).
     mockUseAuth.mockReturnValue(authStateOf(false));
     rerender();
+    expect(result.current.data).toBeUndefined();
+    expect(result.current.isSuccess).toBe(false);
+  });
+
+  it("does not re-throw a cached fetch error after the user logs out", async () => {
+    // Authenticated: fetch is in flight (rejection controlled below).
+    mockUseAuth.mockReturnValue(authStateOf(true));
+    let rejectFetch: (reason: unknown) => void = (_reason) => undefined;
+    mockFetchResource.mockReturnValue(
+      new Promise<Response>((_, reject) => {
+        rejectFetch = reject;
+      }),
+    );
+    const { result } = renderHook(() => useFetchData("/api/x", METHOD.GET));
+
+    // Log out, then let the in-flight fetch reject in the same act so the
+    // ERROR-state re-render happens while unauthenticated. Without the
+    // `isAuthenticated` guard on the synchronous throw, this render would
+    // re-throw the cached error and the act() would fail.
+    await act(async () => {
+      mockUseAuth.mockReturnValue(authStateOf(false));
+      rejectFetch(new Error("boom"));
+      await Promise.resolve();
+    });
+
     expect(result.current.data).toBeUndefined();
     expect(result.current.isSuccess).toBe(false);
   });

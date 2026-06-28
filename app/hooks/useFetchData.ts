@@ -64,8 +64,12 @@ export const useFetchData = <D>(
     if (!isAuthenticated) setState(PENDING_STATE);
   }
 
-  // If an error has been saved from the asynchronous fetch, throw it synchronously.
-  if (state.outcome === FETCH_OUTCOME.ERROR) throw state.error;
+  // If an error has been saved from the asynchronous fetch, throw it
+  // synchronously — but only while authenticated, so logging out clears the
+  // error (reset to pending during render above) rather than re-throwing a
+  // stale error to a logged-out user.
+  if (isAuthenticated && state.outcome === FETCH_OUTCOME.ERROR)
+    throw state.error;
 
   /**
    * Perform a fetch using the request URL and method, with the given abort signal allowing the request to be canceled.
