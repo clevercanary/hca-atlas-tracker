@@ -47,11 +47,22 @@ export const useFetchData = <D>(
   } = useAuth();
 
   const [state, setState] = useState<FetchState<D>>(PENDING_STATE);
+  const [wasAuthenticated, setWasAuthenticated] = useState(isAuthenticated);
 
   const [progress, progressDispatch] = useReducer(
     fetchProgressReducer,
     FETCH_PROGRESS.INACTIVE,
   );
+
+  // Reset to the pending state the moment the user logs out so fetched data
+  // can't survive logout. Adjusting state during render (React re-renders
+  // immediately and discards the intermediate, so it's flash-free) rather than
+  // in an effect avoids the cascading re-render flagged by
+  // react-hooks/set-state-in-effect.
+  if (wasAuthenticated !== isAuthenticated) {
+    setWasAuthenticated(isAuthenticated);
+    if (!isAuthenticated) setState(PENDING_STATE);
+  }
 
   // If an error has been saved from the asynchronous fetch, throw it synchronously.
   if (state.outcome === FETCH_OUTCOME.ERROR) throw state.error;
@@ -78,10 +89,9 @@ export const useFetchData = <D>(
   );
 
   useEffect(() => {
-    // If the user is unauthenticated, reset to the pending state and non-fetching progress.
+    // If the user is unauthenticated, set progress to non-fetching. (State is
+    // reset to the pending state during render — see above.)
     if (!isAuthenticated) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- track via #1374
-      setState(PENDING_STATE);
       progressDispatch(FetchProgressActionKind.NotFetching);
       return;
     }
