@@ -70,18 +70,35 @@ export const Alert = ({
           <Typography noWrap>{message}</Typography>
         </Tooltip>
       </Fragment>
-      {cell ? (
-        <Fragment>
-          <StyledDot />
-          <code>{cell}</code>
-        </Fragment>
-      ) : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1384
-      row ? (
-        <Fragment>
-          <StyledDot />
-          <code>row {row + 1}</code>
-        </Fragment>
-      ) : null}
+      {getCellOrRowDetail(cell, row)}
     </StyledAlert>
   );
 };
+
+/**
+ * Get the location detail for a validation report, preferring the cell
+ * reference and falling back to the (1-based) row number.
+ * @param cell - Cell reference, if any.
+ * @param row - Zero-based row index, if any.
+ * @returns Location detail element, or null when neither is present.
+ */
+function getCellOrRowDetail(
+  cell: string | null,
+  row: number | null,
+): JSX.Element | null {
+  if (cell)
+    return (
+      <Fragment>
+        <StyledDot />
+        <code>{cell}</code>
+      </Fragment>
+    );
+  if (row)
+    return (
+      <Fragment>
+        <StyledDot />
+        <code>row {row + 1}</code>
+      </Fragment>
+    );
+  return null;
+}
