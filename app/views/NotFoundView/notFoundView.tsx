@@ -11,7 +11,6 @@ import {
   ErrorSection,
   SectionContent,
 } from "@databiosphere/findable-ui/lib/components/Error/error.styles";
-import { useLayoutDimensions } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/hook";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Typography } from "@mui/material";
 import Link from "next/link";
@@ -19,9 +18,8 @@ import { JSX } from "react";
 import { ROUTE } from "../../routes/constants";
 
 export const NotFoundView = (): JSX.Element => {
-  const { dimensions } = useLayoutDimensions();
   return (
-    <ErrorLayout offset={dimensions.header.height}>
+    <ErrorLayout offset={0}>
       <ErrorContent>
         <ErrorSection>
           <StatusIcon priority={PRIORITY.HIGH} StatusIcon={AlertIcon} />
