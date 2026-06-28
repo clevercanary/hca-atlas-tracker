@@ -1,5 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   FieldValues,
   Path,
@@ -52,8 +52,20 @@ export const useForm = <T extends FieldValues, R = undefined>(
     values,
     ...options,
   });
-  const [data, setData] = useState<R | undefined>();
+  const [data, setData] = useState<R | undefined>(apiData);
+  const [prevApiData, setPrevApiData] = useState(apiData);
   const { reset, setError } = formMethod;
+
+  // Re-initialize data when the API response (apiData) changes — mirrors the
+  // previous effect keyed on [apiData]: track every reference change, but only
+  // overwrite data when apiData is truthy. apiData must be referentially stable
+  // across renders (it is — it comes from useFetchData's state); a caller
+  // passing a freshly-built apiData each render would loop ("Too many
+  // re-renders"), just as the prior effect would have looped on [apiData].
+  if (prevApiData !== apiData) {
+    setPrevApiData(apiData);
+    if (apiData) setData(apiData);
+  }
 
   const onError = useCallback(
     (errors: FormResponseErrors) => {
@@ -113,13 +125,6 @@ export const useForm = <T extends FieldValues, R = undefined>(
     },
     [mapApiValues, mapSchemaValues, onError, schema],
   );
-
-  // Initialize data with given API response.
-  useEffect(() => {
-    if (!apiData) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- track via #1376
-    setData(apiData);
-  }, [apiData]);
 
   return {
     ...formMethod,
