@@ -1,9 +1,9 @@
 import { BackOrigin } from "./constants";
 
 // Dummy base for parsing relative URLs through the URL API; never appears
-// in the output. We always return `pathname + search + hash`.
-// eslint-disable-next-line sonarjs/no-clear-text-protocols -- track via #1371
-const DUMMY_BASE = "http://x";
+// in the output (we always return `pathname + search + hash`), so the scheme
+// is irrelevant — https avoids the cleartext-protocol lint.
+const DUMMY_BASE = "https://x";
 
 /**
  * Adds a `from=<origin>` query parameter to a URL so the target view can
