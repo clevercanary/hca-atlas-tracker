@@ -52,8 +52,8 @@ export const useForm = <T extends FieldValues, R = undefined>(
     values,
     ...options,
   });
-  const [data, setData] = useState<R | undefined>(apiData);
-  const [prevApiData, setPrevApiData] = useState(apiData);
+  const [data, setData] = useState<R | undefined>();
+  const [prevApiData, setPrevApiData] = useState<R | undefined>();
   const { reset, setError } = formMethod;
 
   // Re-initialize data when the API response (apiData) changes — mirrors the
