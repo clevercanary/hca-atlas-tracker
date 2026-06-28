@@ -1,10 +1,9 @@
 import { Error } from "@databiosphere/findable-ui/lib/components/Error/error";
-import { config } from "app/config/config";
+import { ROUTE } from "app/routes/constants";
 import { JSX } from "react";
 
 const ServerErrorPage = (): JSX.Element => {
-  const { redirectRootToPath } = config();
-  return <Error rootPath={redirectRootToPath} />;
+  return <Error rootPath={ROUTE.ATLASES} />;
 };
 
 export default ServerErrorPage;

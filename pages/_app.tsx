@@ -21,6 +21,7 @@ import { AppCacheProvider } from "@mui/material-nextjs/v16-pagesRouter";
 import { createBreakpoints } from "@mui/system";
 import { deepmerge } from "@mui/utils";
 import { config } from "app/config/config";
+import { ROUTE } from "app/routes/constants";
 import { NextPage } from "next";
 import { Session } from "next-auth";
 import type { AppProps } from "next/app";
@@ -52,7 +53,7 @@ function MyApp(props: AppPropsWithComponent): JSX.Element {
   const { Component, pageProps } = props;
   // Set up the site configuration, layout and theme.
   const appConfig = config();
-  const { layout, redirectRootToPath, themeOptions } = appConfig;
+  const { layout, themeOptions } = appConfig;
   const { floating, footer, header } = layout || {};
   const defaultTheme = createAppTheme(themeOptions);
   const appTheme = mergeAppTheme(defaultTheme);
@@ -101,9 +102,9 @@ function MyApp(props: AppPropsWithComponent): JSX.Element {
                               }): JSX.Element => (
                                 <Error
                                   errorMessage={error.message}
-                                  requestUrlMessage={error.requestUrlMessage}
-                                  rootPath={redirectRootToPath}
                                   onReset={reset}
+                                  requestUrlMessage={error.requestUrlMessage}
+                                  rootPath={ROUTE.ATLASES}
                                 />
                               )}
                             >
