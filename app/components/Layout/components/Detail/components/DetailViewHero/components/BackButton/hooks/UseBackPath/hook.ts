@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useRef } from "react";
+import { useState } from "react";
 import { PathParameter } from "../../../../../../../../../../common/entities";
 import { parseBackOrigin, resolveBackPath } from "./utils";
 
@@ -15,9 +15,7 @@ import { parseBackOrigin, resolveBackPath } from "./utils";
 export function useBackPath(pathParameter: PathParameter): string | undefined {
   const { query } = useRouter();
   const { from } = query;
-  const originRef = useRef(parseBackOrigin(from));
-  // eslint-disable-next-line react-hooks/refs -- track via #1370
-  const origin = originRef.current;
+  const [origin] = useState(() => parseBackOrigin(from));
 
   return resolveBackPath({ origin, pathParameter });
 }
