@@ -59,16 +59,7 @@ export const InputController = <
           error={invalid}
           helperText={error?.message || renderHelperText?.(formMethod.data)}
           isFilled={Boolean(field.value)}
-          label={
-            labelLink
-              ? getLabelWithLink(
-                  label,
-                  // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1373
-                  labelLink === true ? {} : labelLink,
-                  field.value,
-                )
-              : label
-          }
+          label={getInputLabel(label, labelLink, field.value)}
           readOnly={isReadOnly}
           viewBuilder={viewBuilder}
           {...inputProps}
@@ -78,6 +69,23 @@ export const InputController = <
     />
   );
 };
+
+/**
+ * Get the input label, optionally augmented with a value-derived link.
+ * @param label - Primary label.
+ * @param labelLink - Link config, `true` for defaults, or undefined for no link.
+ * @param value - Input value.
+ * @returns Input label, with a link when `labelLink` is set.
+ */
+function getInputLabel(
+  label: ReactNode,
+  labelLink: LabelLinkConfig | true | undefined,
+  value: unknown,
+): ReactNode {
+  if (!labelLink) return label;
+  const linkConfig = labelLink === true ? {} : labelLink;
+  return getLabelWithLink(label, linkConfig, value);
+}
 
 /**
  * Get input label including a link derived from the input value.
