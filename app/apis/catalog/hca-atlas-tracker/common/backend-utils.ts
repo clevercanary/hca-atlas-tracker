@@ -477,16 +477,14 @@ export function getDbSourceStudyTierOneMetadataStatus(
   sourceStudy: HCAAtlasTrackerDBSourceStudy,
 ): TIER_ONE_METADATA_STATUS {
   const collectionId = sourceStudy.study_info.cellxgeneCollectionId;
-  return collectionId
-    ? // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1362
-      Object.hasOwn(savedCellxgeneInfo.collections, collectionId)
-      ? getCompositeTierOneMetadataStatus(
-          savedCellxgeneInfo.collections[collectionId].datasets.map(
-            getCellxGeneDatasetTierOneMetadataStatus,
-          ),
-        )
-      : TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION
-    : TIER_ONE_METADATA_STATUS.NA;
+  if (!collectionId) return TIER_ONE_METADATA_STATUS.NA;
+  if (!Object.hasOwn(savedCellxgeneInfo.collections, collectionId))
+    return TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION;
+  return getCompositeTierOneMetadataStatus(
+    savedCellxgeneInfo.collections[collectionId].datasets.map(
+      getCellxGeneDatasetTierOneMetadataStatus,
+    ),
+  );
 }
 
 /**
