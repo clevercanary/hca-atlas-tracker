@@ -15,10 +15,23 @@ import { ROUTE } from "../app/routes/constants";
 
 const mockGetServerSession = getServerSession as jest.Mock;
 
-const CONTEXT = { req: {}, res: {} } as unknown as GetServerSidePropsContext;
+const REQUESTED_URL = "/atlases/create";
 
-const EXPECTED_REDIRECT = {
+const CONTEXT = {
+  req: {},
+  res: {},
+  resolvedUrl: REQUESTED_URL,
+} as unknown as GetServerSidePropsContext;
+
+const ATLASES_REDIRECT = {
   redirect: { destination: ROUTE.ATLASES, permanent: false },
+};
+
+const SIGN_IN_REDIRECT = {
+  redirect: {
+    destination: `${ROUTE.LANDING}?callbackUrl=${encodeURIComponent(REQUESTED_URL)}`,
+    permanent: false,
+  },
 };
 
 describe("getAdminPageRedirect", () => {
@@ -34,21 +47,21 @@ describe("getAdminPageRedirect", () => {
     expect(await getAdminPageRedirect(CONTEXT)).toBeNull();
   });
 
-  it("redirects a non-admin role", async () => {
+  it("redirects an authenticated non-admin role to atlases", async () => {
     mockGetServerSession.mockResolvedValue({
       expires: "",
       user: { role: ROLE.INTEGRATION_LEAD },
     });
-    expect(await getAdminPageRedirect(CONTEXT)).toEqual(EXPECTED_REDIRECT);
+    expect(await getAdminPageRedirect(CONTEXT)).toEqual(ATLASES_REDIRECT);
   });
 
-  it("redirects when the session has no role", async () => {
+  it("redirects an authenticated user with no role to atlases", async () => {
     mockGetServerSession.mockResolvedValue({ expires: "", user: {} });
-    expect(await getAdminPageRedirect(CONTEXT)).toEqual(EXPECTED_REDIRECT);
+    expect(await getAdminPageRedirect(CONTEXT)).toEqual(ATLASES_REDIRECT);
   });
 
-  it("redirects when there is no session", async () => {
+  it("redirects an unauthenticated request to sign-in with a callbackUrl", async () => {
     mockGetServerSession.mockResolvedValue(null);
-    expect(await getAdminPageRedirect(CONTEXT)).toEqual(EXPECTED_REDIRECT);
+    expect(await getAdminPageRedirect(CONTEXT)).toEqual(SIGN_IN_REDIRECT);
   });
 });
