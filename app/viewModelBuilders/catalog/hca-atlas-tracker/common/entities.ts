@@ -30,6 +30,3 @@ export enum DISEASE {
 }
 
 export type ExtraPropsByComponentName = Map<COMPONENT_NAME, ExtraProps>;
-
-// eslint-disable-next-line sonarjs/redundant-type-aliases -- track via #1383
-export type Unused = unknown;

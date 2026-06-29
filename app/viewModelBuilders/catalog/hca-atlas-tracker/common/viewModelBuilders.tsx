@@ -71,7 +71,6 @@ import {
   DISEASE,
   ExtraPropsByComponentName,
   METADATA_KEY,
-  Unused,
 } from "./entities";
 import {
   getPluralizedMetadataLabel,
@@ -1004,7 +1003,7 @@ export const buildTaskNetworks = (
  * @returns Props to be used for the RowDrawer component.
  */
 export const buildTaskRowPreview = (
-  _: Unused,
+  _: unknown,
   viewContext: ViewContext<HCAAtlasTrackerListValidationRecord>,
 ): ComponentProps<typeof C.RowDrawer<HCAAtlasTrackerListValidationRecord>> => {
   const { tableInstance } = viewContext;
