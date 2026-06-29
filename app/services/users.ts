@@ -94,6 +94,22 @@ export async function getUserById(
 }
 
 /**
+ * Get a user's role by email address, for use in the NextAuth JWT callback.
+ * Unlike `getUserByEmail`, this does not throw when no user record exists for
+ * the email — a signed-in Google account that hasn't been registered carries a
+ * known, non-privileged `UNREGISTERED` role rather than failing the sign-in.
+ * @param email - Email of the user.
+ * @returns The user's role, or `ROLE.UNREGISTERED` when no user record exists.
+ */
+export async function getUserRoleByEmail(email: string): Promise<ROLE> {
+  const { rows } = await query<Pick<HCAAtlasTrackerDBUser, "role">>(
+    "SELECT role FROM hat.users WHERE email=$1",
+    [email],
+  );
+  return rows[0]?.role ?? ROLE.UNREGISTERED;
+}
+
+/**
  * Create a user.
  * @param inputData - Values used to create the new user.
  * @returns new user.
