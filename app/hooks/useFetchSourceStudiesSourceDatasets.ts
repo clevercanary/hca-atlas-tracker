@@ -44,7 +44,7 @@ export const useFetchSourceStudiesSourceDatasets = (
 
   useEffect(() => {
     if (!sourceStudies) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- track via #1375
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- false positive: fetchData sets state after await (async fetch completion), not a synchronous cascading render; the rule flags the useCallback call site because it can't see the await boundary
     fetchData(
       sourceStudies.map(({ id }) => id),
       pathParameter,
