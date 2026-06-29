@@ -795,7 +795,7 @@ export interface HeatmapEntrySheet {
 
 export type AtlasId = HCAAtlasTrackerAtlas["id"];
 
-// eslint-disable-next-line sonarjs/redundant-type-aliases -- track via #1363
+// eslint-disable-next-line sonarjs/redundant-type-aliases -- intentional domain-semantic alias; kept for self-documenting call sites and to allow future tightening (e.g. branding) without touching usages
 export type ComponentAtlasId = string;
 
 export type EntrySheetValidationId = HCAAtlasTrackerEntrySheetValidation["id"];
@@ -881,10 +881,10 @@ export interface GoogleSheetInfo {
   title: string | null;
 }
 
-// eslint-disable-next-line sonarjs/redundant-type-aliases -- track via #1363
+// eslint-disable-next-line sonarjs/redundant-type-aliases -- intentional domain-semantic alias; kept for self-documenting call sites and to allow future tightening (e.g. branding) without touching usages
 export type SourceDatasetId = string;
 
-// eslint-disable-next-line sonarjs/redundant-type-aliases -- track via #1363
+// eslint-disable-next-line sonarjs/redundant-type-aliases -- intentional domain-semantic alias; kept for self-documenting call sites and to allow future tightening (e.g. branding) without touching usages
 export type SourceStudyId = string;
 
 export enum TIER_ONE_METADATA_STATUS {
@@ -986,10 +986,10 @@ export interface PresignedUrlInfo {
   url: string;
 }
 
-// eslint-disable-next-line sonarjs/redundant-type-aliases -- track via #1363
+// eslint-disable-next-line sonarjs/redundant-type-aliases -- intentional domain-semantic alias; kept for self-documenting call sites and to allow future tightening (e.g. branding) without touching usages
 export type UserId = number;
 
-// eslint-disable-next-line sonarjs/redundant-type-aliases -- track via #1363
+// eslint-disable-next-line sonarjs/redundant-type-aliases -- intentional domain-semantic alias; kept for self-documenting call sites and to allow future tightening (e.g. branding) without touching usages
 export type ValidatorName = FileValidatorName;
 
 export interface ValidationDifference {
