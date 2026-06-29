@@ -1,5 +1,5 @@
 import { withAuth } from "next-auth/middleware";
-import { PUBLIC_PATHS } from "./app/routes/publicPaths";
+import { isRequestAuthorized } from "./app/routes/authorization";
 
 // Build-output gotcha: in Next 16 the `proxy.ts` convention compiles to a
 // NODEJS-runtime function registered in
@@ -28,10 +28,15 @@ import { PUBLIC_PATHS } from "./app/routes/publicPaths";
 // all non-API routes and not cache gated responses. See
 // clevercanary/hca-atlas-tracker-tf-config#65.
 
+// Role-based gate: public paths are open, any other path needs a valid
+// session, and admin-only paths (see `ADMIN_PATHS`) additionally require the
+// CONTENT_ADMIN role. When this returns false, `withAuth` redirects to
+// `pages.signIn` ("/") with a `callbackUrl` — for an authenticated non-admin
+// that bounces on to /atlases, the same UX as the unauthenticated case.
 export default withAuth({
   callbacks: {
     authorized: ({ req, token }) =>
-      PUBLIC_PATHS.has(req.nextUrl.pathname) || !!token,
+      isRequestAuthorized(req.nextUrl.pathname, token?.role, !!token),
   },
   pages: {
     signIn: "/",
