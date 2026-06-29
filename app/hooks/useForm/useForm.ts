@@ -57,12 +57,13 @@ export const useForm = <T extends FieldValues, R = undefined>(
   const { reset, setError } = formMethod;
 
   // Re-initialize data when the API response (apiData) changes — mirrors the
-  // previous effect keyed on [apiData]: track every reference change, but only
-  // overwrite data when apiData is truthy. apiData must be referentially stable
-  // across renders (it is — it comes from useFetchData's state); a caller
-  // passing a freshly-built apiData each render would loop ("Too many
-  // re-renders"), just as the prior effect would have looped on [apiData].
-  if (prevApiData !== apiData) {
+  // previous effect keyed on [apiData]: track every reference change (compared
+  // with Object.is, matching React's dependency semantics) but only overwrite
+  // data when apiData is truthy. apiData must be referentially stable across
+  // renders (it is — it comes from useFetchData's state); a caller passing a
+  // freshly-built apiData each render would loop here, just as the prior
+  // [apiData] effect would have.
+  if (!Object.is(prevApiData, apiData)) {
     setPrevApiData(apiData);
     if (apiData) setData(apiData);
   }
