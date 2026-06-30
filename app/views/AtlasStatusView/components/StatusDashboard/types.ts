@@ -30,9 +30,10 @@ export interface MetricRowModel {
 
 export interface MetricSectionModel {
   heading: string;
-  // A validation block (e.g. Tier-1, Cell Annotation) carries a single rollup
-  // `status` indicator on its heading instead of per-row Valid/Invalid rows.
-  // Breakdown sections (Processing, CAP, Publication) carry `rows` instead.
+  // A validation block (e.g. Tier-1, Cell Annotation) carries both a single
+  // rollup `status` indicator on its heading and plain Valid/Invalid count
+  // `rows` beneath it. Breakdown sections (Processing, CAP, Publication) carry
+  // only `rows`, with no heading `status`.
   rows?: MetricRowModel[];
   status?: SectionStatus;
 }
