@@ -29,9 +29,10 @@ export const BADGE_ICON: Record<
   [BADGE_VARIANT.SUCCESS]: SuccessIcon,
 };
 
-// Rollup icon + colour shown on a validation block's heading. `color` is a
-// theme palette path resolved via the `sx` prop. PASS green, PENDING amber
-// (nothing validated yet — work to do), ERROR red (any invalid).
+// Rollup icon + colour shown on a section heading. `color` is a theme palette
+// path resolved via the `sx` prop. PASS green, ERROR red, and WARNING/PENDING
+// amber (work to do — outstanding items, or a validation block with nothing
+// validated yet).
 export const SECTION_STATUS_CONFIG: Record<
   SectionStatus,
   { color: string; Icon: ComponentType<SvgIconProps> }
@@ -39,4 +40,5 @@ export const SECTION_STATUS_CONFIG: Record<
   [SECTION_STATUS.ERROR]: { Icon: ErrorIcon, color: "alert.main" },
   [SECTION_STATUS.PASS]: { Icon: SuccessIcon, color: "success.main" },
   [SECTION_STATUS.PENDING]: { Icon: InProgressIcon, color: "caution.main" },
+  [SECTION_STATUS.WARNING]: { Icon: InProgressIcon, color: "caution.main" },
 };

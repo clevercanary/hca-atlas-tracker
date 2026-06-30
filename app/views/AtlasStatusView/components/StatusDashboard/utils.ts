@@ -54,7 +54,11 @@ function buildCapSection(
       variant: ROW_VARIANT.PLAIN,
     },
   );
-  return { heading: SECTION_HEADING.CAP, rows };
+  return {
+    heading: SECTION_HEADING.CAP,
+    rows,
+    status: getCapStatus(capInvalid),
+  };
 }
 
 /**
@@ -160,6 +164,8 @@ export function buildSourceDatasetsCard(
             variant: unspecified > 0 ? ROW_VARIANT.WARNING : ROW_VARIANT.PLAIN,
           },
         ],
+        // Amber while any datasets remain unclassified (unspecified), else green.
+        status: getWarningStatus(unspecified),
       },
       // CAP funnel: only a subset of source datasets require CAP, so an explicit
       // "Required" row is shown (the API has no dedicated capRequired field, so
@@ -212,6 +218,8 @@ export function buildSourceStudiesCard(
             variant: ROW_VARIANT.PLAIN,
           },
         ],
+        // Amber while any studies remain unpublished, else green.
+        status: getWarningStatus(sourceStudies.unpublished),
       },
     ],
     title: TITLE.SOURCE_STUDIES,
@@ -241,6 +249,16 @@ function buildValidationSection(
     ],
     status: getValidationStatus(valid, invalid),
   };
+}
+
+/**
+ * Returns the CAP section rollup status: ERROR (red) when any failed CAP
+ * validation, otherwise PASS (green).
+ * @param invalid - CAP invalid count.
+ * @returns CAP section rollup status.
+ */
+export function getCapStatus(invalid: number): SectionStatus {
+  return invalid > 0 ? SECTION_STATUS.ERROR : SECTION_STATUS.PASS;
 }
 
 /**
@@ -323,4 +341,15 @@ export function getValidationStatus(
   if (invalid > 0) return SECTION_STATUS.ERROR;
   if (valid > 0) return SECTION_STATUS.PASS;
   return SECTION_STATUS.PENDING;
+}
+
+/**
+ * Returns a breakdown section's rollup status: WARNING (amber) while a count of
+ * outstanding items remains (e.g. unspecified datasets, unpublished studies),
+ * otherwise PASS (green).
+ * @param outstanding - Count of outstanding items.
+ * @returns breakdown section rollup status.
+ */
+export function getWarningStatus(outstanding: number): SectionStatus {
+  return outstanding > 0 ? SECTION_STATUS.WARNING : SECTION_STATUS.PASS;
 }

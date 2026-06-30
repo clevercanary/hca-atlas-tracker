@@ -7,7 +7,11 @@ import { AtlasStatusSummary } from "../app/apis/catalog/hca-atlas-tracker/common
 import { mergeAppTheme } from "../app/theme/theme";
 import { StatusDashboard } from "../app/views/AtlasStatusView/components/StatusDashboard/statusDashboard";
 import { SECTION_STATUS } from "../app/views/AtlasStatusView/components/StatusDashboard/types";
-import { getValidationStatus } from "../app/views/AtlasStatusView/components/StatusDashboard/utils";
+import {
+  getCapStatus,
+  getValidationStatus,
+  getWarningStatus,
+} from "../app/views/AtlasStatusView/components/StatusDashboard/utils";
 
 // Theme must include the app-only "caution" palette because mergeAppTheme's
 // MuiChip override reads theme.palette.caution when the theme is built.
@@ -185,6 +189,30 @@ describe("StatusDashboard", () => {
 
     it("returns PENDING only when nothing has been validated yet", () => {
       expect(getValidationStatus(0, 0)).toBe(SECTION_STATUS.PENDING);
+    });
+  });
+
+  // CAP headings roll up to error (any failed CAP) or green; there is no
+  // pending/amber CAP state.
+  describe("getCapStatus", () => {
+    it("returns ERROR when any failed CAP validation", () => {
+      expect(getCapStatus(1)).toBe(SECTION_STATUS.ERROR);
+    });
+
+    it("returns PASS when none failed", () => {
+      expect(getCapStatus(0)).toBe(SECTION_STATUS.PASS);
+    });
+  });
+
+  // Breakdown headings (Processing, Publication) roll up to warning (amber)
+  // while outstanding items remain, else green.
+  describe("getWarningStatus", () => {
+    it("returns WARNING when items remain outstanding", () => {
+      expect(getWarningStatus(3)).toBe(SECTION_STATUS.WARNING);
+    });
+
+    it("returns PASS when nothing is outstanding", () => {
+      expect(getWarningStatus(0)).toBe(SECTION_STATUS.PASS);
     });
   });
 });

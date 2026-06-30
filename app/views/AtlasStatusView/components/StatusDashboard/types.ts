@@ -30,10 +30,10 @@ export interface MetricRowModel {
 
 export interface MetricSectionModel {
   heading: string;
-  // A validation block (e.g. Tier-1, Cell Annotation) carries both a single
-  // rollup `status` indicator on its heading and plain Valid/Invalid count
-  // `rows` beneath it. Breakdown sections (Processing, CAP, Publication) carry
-  // only `rows`, with no heading `status`.
+  // Every section carries a rollup `status` indicator on its heading. Validation
+  // blocks (Tier-1, Cell Annotation) also render plain Valid/Invalid count
+  // `rows` beneath it; breakdown sections (Processing, CAP, Publication) render
+  // their own `rows`.
   rows?: MetricRowModel[];
   status?: SectionStatus;
 }
@@ -45,12 +45,14 @@ export const ROW_VARIANT = {
 
 export type RowVariant = (typeof ROW_VARIANT)[keyof typeof ROW_VARIANT];
 
-// Rollup status for a validation block, driven by its valid/invalid counts:
-// any invalid → ERROR, else any valid → PASS, else nothing validated → PENDING.
+// Rollup status shown on a section heading. ERROR (red) for failures, WARNING
+// (amber) for outstanding-but-not-failing work, PASS (green) when all good, and
+// PENDING (amber) for a validation block with nothing validated yet.
 export const SECTION_STATUS = {
   ERROR: "ERROR",
   PASS: "PASS",
   PENDING: "PENDING",
+  WARNING: "WARNING",
 } as const;
 
 export type SectionStatus =
