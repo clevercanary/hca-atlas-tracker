@@ -1,14 +1,11 @@
-import { Stack } from "@mui/material";
 import { JSX, useMemo } from "react";
 import { MetricCard } from "./components/MetricCard/metricCard";
-import { StatusFlagCard } from "./components/StatusFlagCard/statusFlagCard";
 import { StyledGrid } from "./statusDashboard.styles";
 import { StatusDashboardProps } from "./types";
 import {
   buildIntegratedObjectsCard,
   buildSourceDatasetsCard,
   buildSourceStudiesCard,
-  buildStatusFlags,
 } from "./utils";
 
 export const StatusDashboard = ({
@@ -26,14 +23,10 @@ export const StatusDashboard = ({
     () => buildIntegratedObjectsCard(summary),
     [summary],
   );
-  const statusFlags = useMemo(() => buildStatusFlags(summary), [summary]);
 
   return (
     <StyledGrid>
-      <Stack spacing={4} useFlexGap>
-        <MetricCard card={sourceStudiesCard} />
-        <StatusFlagCard flags={statusFlags} />
-      </Stack>
+      <MetricCard card={sourceStudiesCard} />
       <MetricCard card={sourceDatasetsCard} />
       <MetricCard card={integratedObjectsCard} />
     </StyledGrid>

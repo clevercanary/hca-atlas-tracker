@@ -1,8 +1,3 @@
-export const FLAG_LABEL = {
-  OC_ENDORSED: "OC Endorsed",
-  PUBLISHED_ON_PORTAL: "Published on Portal",
-} as const;
-
 export const ROW_LABEL = {
   INVALID: "Invalid",
   ORIGINAL: "Original",

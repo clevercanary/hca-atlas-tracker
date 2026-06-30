@@ -6,6 +6,8 @@ import { JSX, ReactNode } from "react";
 import { AtlasStatusSummary } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { mergeAppTheme } from "../app/theme/theme";
 import { StatusDashboard } from "../app/views/AtlasStatusView/components/StatusDashboard/statusDashboard";
+import { SECTION_STATUS } from "../app/views/AtlasStatusView/components/StatusDashboard/types";
+import { getValidationStatus } from "../app/views/AtlasStatusView/components/StatusDashboard/utils";
 
 // Theme must include the app-only "caution" palette because mergeAppTheme's
 // MuiChip override reads theme.palette.caution when the theme is built.
@@ -16,12 +18,13 @@ const THEME = mergeAppTheme(
 );
 
 // A populated summary exercising every badge/row branch: unpublished studies,
-// an unspecified-datasets remainder, tier-1 invalids, and boolean flags.
+// an unspecified-datasets remainder, CAP funnels with published subsets, and
+// invalids across multiple validation dimensions.
 const SUMMARY: AtlasStatusSummary = {
   integratedObjects: {
     capInvalid: 1,
-    capPublished: 0,
-    capReady: 2,
+    capPublished: 2,
+    capReady: 1,
     cellAnnotationInvalid: 1,
     cellAnnotationValid: 1,
     tier1Invalid: 1,
@@ -31,9 +34,9 @@ const SUMMARY: AtlasStatusSummary = {
   ocEndorsed: false,
   publishedOnPortal: true,
   sourceDatasets: {
-    capInvalid: 0,
-    capPublished: 58,
-    capReady: 60,
+    capInvalid: 5,
+    capPublished: 30,
+    capReady: 5,
     original: 40,
     reprocessed: 20,
     tier1Invalid: 3,
@@ -104,17 +107,37 @@ describe("StatusDashboard", () => {
       expect(screen.getByText("Unspecified")).toBeInTheDocument();
     });
 
-    it("renders badges reflecting the counts", () => {
-      expect(screen.getByText("6 unpublished")).toBeInTheDocument();
-      expect(screen.getByText("3 Tier-1 invalid")).toBeInTheDocument();
-      expect(screen.getByText("1 Tier-1 invalid")).toBeInTheDocument();
+    it("renders plain Valid/Invalid count rows in the validation blocks", () => {
+      // Valid/Invalid rows appear in the two CAP funnels plus the three
+      // validation blocks (datasets Tier-1, integrated objects Tier-1, and
+      // integrated objects Cell Annotation) = 5 each.
+      expect(screen.getAllByText("Valid")).toHaveLength(5);
+      expect(screen.getAllByText("Invalid")).toHaveLength(5);
+      // The datasets Tier-1 counts render as plain rows (59 valid / 3 invalid).
+      expect(screen.getByText("59")).toBeInTheDocument();
     });
 
-    it("renders the status flags as Yes/No", () => {
-      expect(screen.getByText("OC Endorsed")).toBeInTheDocument();
-      expect(screen.getByText("Published on Portal")).toBeInTheDocument();
-      expect(screen.getByText("Yes")).toBeInTheDocument(); // Published on Portal
-      expect(screen.getByText("No")).toBeInTheDocument(); // OC Endorsed
+    it("renders the CAP funnel with valid = required - invalid", () => {
+      // Source datasets CAP: Required = original (40), Valid = 40 - invalid 5 =
+      // 35, Invalid = 5, Published = 30. "40" appears twice (Processing →
+      // Original and CAP → Required).
+      expect(screen.getByText("Required")).toBeInTheDocument();
+      expect(screen.getAllByText("40")).toHaveLength(2);
+      expect(screen.getByText("35")).toBeInTheDocument();
+      expect(screen.getByText("30")).toBeInTheDocument();
+    });
+
+    it("rolls the header badge up across all validation dimensions", () => {
+      expect(screen.getByText("6 unpublished")).toBeInTheDocument();
+      // Source datasets: Tier-1 only → 3 invalid.
+      expect(screen.getByText("3 invalid")).toBeInTheDocument();
+      // Integrated objects: Tier-1 (1) + Cell Annotation (1) → 2 invalid.
+      expect(screen.getByText("2 invalid")).toBeInTheDocument();
+    });
+
+    it("does not render the OC Endorsed / Published on Portal flags", () => {
+      expect(screen.queryByText("OC Endorsed")).not.toBeInTheDocument();
+      expect(screen.queryByText("Published on Portal")).not.toBeInTheDocument();
     });
   });
 
@@ -137,10 +160,31 @@ describe("StatusDashboard", () => {
       ).toBeInTheDocument();
     });
 
-    it("uses the neutral default badge, not the green published or count badges", () => {
+    it("uses the neutral default badge, not the green or error count badges", () => {
       expect(screen.queryByText("0 published")).not.toBeInTheDocument();
       expect(screen.queryByText(/ unpublished$/)).not.toBeInTheDocument();
-      expect(screen.queryByText(/ Tier-1 invalid$/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/ invalid$/)).not.toBeInTheDocument();
+    });
+  });
+
+  // The validation-block heading rollup drives the icon/colour (ERROR red,
+  // PASS green, PENDING amber). Any invalid must surface as ERROR — e.g. a
+  // block with 0 valid / 46 invalid is red, never amber.
+  describe("getValidationStatus", () => {
+    it("returns ERROR when there are any invalids, even with zero valid", () => {
+      expect(getValidationStatus(0, 46)).toBe(SECTION_STATUS.ERROR);
+    });
+
+    it("returns ERROR when invalids exist alongside valids (failures win)", () => {
+      expect(getValidationStatus(59, 3)).toBe(SECTION_STATUS.ERROR);
+    });
+
+    it("returns PASS when some are valid and none invalid", () => {
+      expect(getValidationStatus(10, 0)).toBe(SECTION_STATUS.PASS);
+    });
+
+    it("returns PENDING only when nothing has been validated yet", () => {
+      expect(getValidationStatus(0, 0)).toBe(SECTION_STATUS.PENDING);
     });
   });
 });

@@ -30,23 +30,38 @@ export interface MetricRowModel {
 
 export interface MetricSectionModel {
   heading: string;
-  rows: MetricRowModel[];
+  // A validation block (e.g. Tier-1, Cell Annotation) carries a single rollup
+  // `status` indicator on its heading instead of per-row Valid/Invalid rows.
+  // Breakdown sections (Processing, CAP, Publication) carry `rows` instead.
+  rows?: MetricRowModel[];
+  status?: SectionStatus;
 }
 
 export const ROW_VARIANT = {
-  INVALID: "INVALID",
   PLAIN: "PLAIN",
-  VALID: "VALID",
   WARNING: "WARNING",
 } as const;
 
 export type RowVariant = (typeof ROW_VARIANT)[keyof typeof ROW_VARIANT];
 
+// Rollup status for a validation block, driven by its valid/invalid counts:
+// any invalid → ERROR, else any valid → PASS, else nothing validated → PENDING.
+export const SECTION_STATUS = {
+  ERROR: "ERROR",
+  PASS: "PASS",
+  PENDING: "PENDING",
+} as const;
+
+export type SectionStatus =
+  (typeof SECTION_STATUS)[keyof typeof SECTION_STATUS];
+
 export interface StatusDashboardProps {
   summary: AtlasStatusSummary;
 }
 
-export interface StatusFlagModel {
-  label: string;
-  value: boolean;
+// A single validation dimension's pass/fail counts, used to roll up a column's
+// header badge across every dimension it validates.
+export interface ValidationDimension {
+  invalid: number;
+  valid: number;
 }

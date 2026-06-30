@@ -1,12 +1,61 @@
 import { AtlasStatusSummary } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { FLAG_LABEL, ROW_LABEL, SECTION_HEADING, TITLE } from "./constants";
+import { ROW_LABEL, SECTION_HEADING, TITLE } from "./constants";
 import {
   BADGE_VARIANT,
   MetricBadgeModel,
   MetricCardModel,
+  MetricRowModel,
+  MetricSectionModel,
   ROW_VARIANT,
-  StatusFlagModel,
+  SECTION_STATUS,
+  SectionStatus,
+  ValidationDimension,
 } from "./types";
+
+/**
+ * Builds the CAP funnel section. Valid = required - invalid (so the funnel
+ * reconciles: required = valid + invalid), and Published is shown as a subset
+ * of valid. Source datasets show an explicit Required row; integrated objects
+ * do not (required = total).
+ * @param required - CAP required base count (original count / total).
+ * @param capInvalid - Count that failed CAP validation.
+ * @param capPublished - Count published via CAP (a subset of valid).
+ * @param showRequired - Whether to render an explicit Required row.
+ * @returns CAP funnel section model.
+ */
+function buildCapSection(
+  required: number,
+  capInvalid: number,
+  capPublished: number,
+  showRequired: boolean,
+): MetricSectionModel {
+  const rows: MetricRowModel[] = [];
+  if (showRequired) {
+    rows.push({
+      label: ROW_LABEL.REQUIRED,
+      value: required,
+      variant: ROW_VARIANT.PLAIN,
+    });
+  }
+  rows.push(
+    {
+      label: ROW_LABEL.VALID,
+      value: Math.max(0, required - capInvalid),
+      variant: ROW_VARIANT.PLAIN,
+    },
+    {
+      label: ROW_LABEL.INVALID,
+      value: capInvalid,
+      variant: ROW_VARIANT.PLAIN,
+    },
+    {
+      label: ROW_LABEL.PUBLISHED,
+      value: capPublished,
+      variant: ROW_VARIANT.PLAIN,
+    },
+  );
+  return { heading: SECTION_HEADING.CAP, rows };
+}
 
 /**
  * Builds the metric card model for the integrated objects group.
@@ -18,9 +67,19 @@ export function buildIntegratedObjectsCard(
 ): MetricCardModel {
   const { integratedObjects } = summary;
   return {
-    badge: getTier1Badge(
-      integratedObjects.tier1Valid,
-      integratedObjects.tier1Invalid,
+    // Roll the header badge up across both validation dimensions (Tier-1 and
+    // Cell Annotation) so it can't report "valid" while one dimension fails.
+    badge: getColumnBadge(
+      [
+        {
+          invalid: integratedObjects.tier1Invalid,
+          valid: integratedObjects.tier1Valid,
+        },
+        {
+          invalid: integratedObjects.cellAnnotationInvalid,
+          valid: integratedObjects.cellAnnotationValid,
+        },
+      ],
       "0 valid integrated objects",
     ),
     progress: getProgress(
@@ -28,56 +87,24 @@ export function buildIntegratedObjectsCard(
       integratedObjects.total,
     ),
     sections: [
-      {
-        heading: SECTION_HEADING.CAP,
-        rows: [
-          {
-            label: ROW_LABEL.VALID,
-            value: integratedObjects.capReady,
-            variant: ROW_VARIANT.PLAIN,
-          },
-          {
-            label: ROW_LABEL.INVALID,
-            value: integratedObjects.capInvalid,
-            variant: ROW_VARIANT.PLAIN,
-          },
-          {
-            label: ROW_LABEL.PUBLISHED,
-            value: integratedObjects.capPublished,
-            variant: ROW_VARIANT.PLAIN,
-          },
-        ],
-      },
-      {
-        heading: SECTION_HEADING.METADATA_TIER1,
-        rows: [
-          {
-            label: ROW_LABEL.VALID,
-            value: integratedObjects.tier1Valid,
-            variant: ROW_VARIANT.VALID,
-          },
-          {
-            label: ROW_LABEL.INVALID,
-            value: integratedObjects.tier1Invalid,
-            variant: ROW_VARIANT.INVALID,
-          },
-        ],
-      },
-      {
-        heading: SECTION_HEADING.CELL_ANNOTATION,
-        rows: [
-          {
-            label: ROW_LABEL.VALID,
-            value: integratedObjects.cellAnnotationValid,
-            variant: ROW_VARIANT.VALID,
-          },
-          {
-            label: ROW_LABEL.INVALID,
-            value: integratedObjects.cellAnnotationInvalid,
-            variant: ROW_VARIANT.INVALID,
-          },
-        ],
-      },
+      // All integrated objects are required for CAP, so there is no "Required"
+      // row here (required = total).
+      buildCapSection(
+        integratedObjects.total,
+        integratedObjects.capInvalid,
+        integratedObjects.capPublished,
+        false,
+      ),
+      buildValidationSection(
+        SECTION_HEADING.METADATA_TIER1,
+        integratedObjects.tier1Valid,
+        integratedObjects.tier1Invalid,
+      ),
+      buildValidationSection(
+        SECTION_HEADING.CELL_ANNOTATION,
+        integratedObjects.cellAnnotationValid,
+        integratedObjects.cellAnnotationInvalid,
+      ),
     ],
     title: TITLE.INTEGRATED_OBJECTS,
     total: integratedObjects.total,
@@ -98,9 +125,15 @@ export function buildSourceDatasetsCard(
     sourceDatasets.total - sourceDatasets.original - sourceDatasets.reprocessed,
   );
   return {
-    badge: getTier1Badge(
-      sourceDatasets.tier1Valid,
-      sourceDatasets.tier1Invalid,
+    // Source datasets validate Tier-1 only, so the badge rolls up that single
+    // dimension.
+    badge: getColumnBadge(
+      [
+        {
+          invalid: sourceDatasets.tier1Invalid,
+          valid: sourceDatasets.tier1Valid,
+        },
+      ],
       "0 valid source datasets",
     ),
     progress: getProgress(sourceDatasets.tier1Valid, sourceDatasets.total),
@@ -128,49 +161,20 @@ export function buildSourceDatasetsCard(
           },
         ],
       },
-      {
-        heading: SECTION_HEADING.CAP,
-        rows: [
-          // CAP "Required" is displayed using the original source dataset count
-          // (the API does not provide a dedicated capRequired field).
-          {
-            label: ROW_LABEL.REQUIRED,
-            value: sourceDatasets.original,
-            variant: ROW_VARIANT.PLAIN,
-          },
-          // CAP "Valid" maps to capReady.
-          {
-            label: ROW_LABEL.VALID,
-            value: sourceDatasets.capReady,
-            variant: ROW_VARIANT.PLAIN,
-          },
-          {
-            label: ROW_LABEL.INVALID,
-            value: sourceDatasets.capInvalid,
-            variant: ROW_VARIANT.PLAIN,
-          },
-          {
-            label: ROW_LABEL.PUBLISHED,
-            value: sourceDatasets.capPublished,
-            variant: ROW_VARIANT.PLAIN,
-          },
-        ],
-      },
-      {
-        heading: SECTION_HEADING.METADATA_TIER1,
-        rows: [
-          {
-            label: ROW_LABEL.VALID,
-            value: sourceDatasets.tier1Valid,
-            variant: ROW_VARIANT.VALID,
-          },
-          {
-            label: ROW_LABEL.INVALID,
-            value: sourceDatasets.tier1Invalid,
-            variant: ROW_VARIANT.INVALID,
-          },
-        ],
-      },
+      // CAP funnel: only a subset of source datasets require CAP, so an explicit
+      // "Required" row is shown (the API has no dedicated capRequired field, so
+      // the original count stands in).
+      buildCapSection(
+        sourceDatasets.original,
+        sourceDatasets.capInvalid,
+        sourceDatasets.capPublished,
+        true,
+      ),
+      buildValidationSection(
+        SECTION_HEADING.METADATA_TIER1,
+        sourceDatasets.tier1Valid,
+        sourceDatasets.tier1Invalid,
+      ),
     ],
     title: TITLE.SOURCE_DATASETS,
     total: sourceDatasets.total,
@@ -216,21 +220,61 @@ export function buildSourceStudiesCard(
 }
 
 /**
- * Builds the status flag models (boolean indicators).
- * @param summary - Atlas status summary.
- * @returns status flag models.
+ * Builds a validation block section. The heading carries a single rollup status
+ * icon (driven by the counts), and the Valid/Invalid counts sit beneath it as
+ * plain rows — no per-row icon or colour, so the heading is the only indicator.
+ * @param heading - Section heading.
+ * @param valid - Valid count.
+ * @param invalid - Invalid count.
+ * @returns validation block section model.
  */
-export function buildStatusFlags(
-  summary: AtlasStatusSummary,
-): StatusFlagModel[] {
-  return [
-    { label: FLAG_LABEL.OC_ENDORSED, value: summary.ocEndorsed },
-    { label: FLAG_LABEL.PUBLISHED_ON_PORTAL, value: summary.publishedOnPortal },
-  ];
+function buildValidationSection(
+  heading: string,
+  valid: number,
+  invalid: number,
+): MetricSectionModel {
+  return {
+    heading,
+    rows: [
+      { label: ROW_LABEL.VALID, value: valid, variant: ROW_VARIANT.PLAIN },
+      { label: ROW_LABEL.INVALID, value: invalid, variant: ROW_VARIANT.PLAIN },
+    ],
+    status: getValidationStatus(valid, invalid),
+  };
 }
 
 /**
- * Returns the completion percentage (0-100) for a numerator over a total.
+ * Returns the rollup badge model for a column, computed from the worst state
+ * across all of its validation dimensions: a red chip with the combined invalid
+ * count when any are invalid, a green chip with the largest dimension's valid
+ * count when some are valid, and a neutral chip with the given empty label when
+ * nothing has been validated yet.
+ * @param dimensions - Per-dimension valid/invalid counts.
+ * @param emptyLabel - Label for the neutral (nothing validated) chip.
+ * @returns column badge model.
+ */
+function getColumnBadge(
+  dimensions: ValidationDimension[],
+  emptyLabel: string,
+): MetricBadgeModel {
+  // Sum invalids across dimensions — each invalid is a distinct failure to act
+  // on, so the total reads as the column's outstanding work.
+  const totalInvalid = dimensions.reduce((sum, d) => sum + d.invalid, 0);
+  if (totalInvalid > 0) {
+    return { label: `${totalInvalid} invalid`, variant: BADGE_VARIANT.ERROR };
+  }
+  // For the positive case use the largest dimension's valid count rather than a
+  // sum — dimensions validate the same entities, so summing would inflate past
+  // the column total.
+  const maxValid = dimensions.reduce((max, d) => Math.max(max, d.valid), 0);
+  if (maxValid > 0) {
+    return { label: `${maxValid} valid`, variant: BADGE_VARIANT.SUCCESS };
+  }
+  return { label: emptyLabel, variant: BADGE_VARIANT.DEFAULT };
+}
+
+/**
+ * Returns the progress percentage (0-100) for a numerator over a total.
  * @param numerator - Subset count.
  * @param total - Total count.
  * @returns percentage between 0 and 100.
@@ -265,30 +309,18 @@ function getPublicationBadge(
 }
 
 /**
- * Returns the HCA Tier-1 badge model: a red invalid chip when any are invalid,
- * a green "tier 1 valid" chip when some are valid, and a neutral chip with the
- * given empty label when nothing has been validated yet (0 valid / 0 invalid).
- * @param tier1Valid - HCA Tier-1 valid count.
- * @param tier1Invalid - HCA Tier-1 invalid count.
- * @param emptyLabel - Label for the neutral (nothing validated) chip.
- * @returns tier-1 badge model.
+ * Returns the rollup status for a validation block from its counts: ERROR when
+ * any are invalid (failures dominate), PASS when some are valid and none invalid,
+ * and PENDING when nothing has been validated yet (a call to action, not a pass).
+ * @param valid - Valid count.
+ * @param invalid - Invalid count.
+ * @returns validation block rollup status.
  */
-function getTier1Badge(
-  tier1Valid: number,
-  tier1Invalid: number,
-  emptyLabel: string,
-): MetricBadgeModel {
-  if (tier1Invalid > 0) {
-    return {
-      label: `${tier1Invalid} Tier-1 invalid`,
-      variant: BADGE_VARIANT.ERROR,
-    };
-  }
-  if (tier1Valid > 0) {
-    return {
-      label: `${tier1Valid} Tier-1 valid`,
-      variant: BADGE_VARIANT.SUCCESS,
-    };
-  }
-  return { label: emptyLabel, variant: BADGE_VARIANT.DEFAULT };
+export function getValidationStatus(
+  valid: number,
+  invalid: number,
+): SectionStatus {
+  if (invalid > 0) return SECTION_STATUS.ERROR;
+  if (valid > 0) return SECTION_STATUS.PASS;
+  return SECTION_STATUS.PENDING;
 }
