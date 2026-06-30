@@ -157,15 +157,15 @@ export function buildSourceDatasetsCard(
           },
           // "Unspecified" is the remainder of the total not classified as
           // original or reprocessed, so the breakdown reconciles with the total.
-          // A non-zero remainder is flagged with a warning icon and colour.
+          // A non-zero remainder is surfaced by the heading rollup, not a row icon.
           {
             label: ROW_LABEL.UNSPECIFIED,
             value: unspecified,
-            variant: unspecified > 0 ? ROW_VARIANT.WARNING : ROW_VARIANT.PLAIN,
+            variant: ROW_VARIANT.PLAIN,
           },
         ],
-        // Amber while any datasets remain unclassified (unspecified), else green.
-        status: getWarningStatus(unspecified),
+        // Amber while any datasets are unclassified or none exist yet, else green.
+        status: getWarningStatus(sourceDatasets.total, unspecified),
       },
       // CAP funnel: only a subset of source datasets require CAP, so an explicit
       // "Required" row is shown (the API has no dedicated capRequired field, so
@@ -218,8 +218,11 @@ export function buildSourceStudiesCard(
             variant: ROW_VARIANT.PLAIN,
           },
         ],
-        // Amber while any studies remain unpublished, else green.
-        status: getWarningStatus(sourceStudies.unpublished),
+        // Amber while any studies are unpublished or none exist yet, else green.
+        status: getWarningStatus(
+          sourceStudies.total,
+          sourceStudies.unpublished,
+        ),
       },
     ],
     title: TITLE.SOURCE_STUDIES,
@@ -344,12 +347,19 @@ export function getValidationStatus(
 }
 
 /**
- * Returns a breakdown section's rollup status: WARNING (amber) while a count of
- * outstanding items remains (e.g. unspecified datasets, unpublished studies),
- * otherwise PASS (green).
+ * Returns a breakdown section's rollup status: WARNING (amber) while items
+ * remain outstanding (e.g. unspecified datasets, unpublished studies) OR while
+ * the section is empty (nothing exists yet — work to do), otherwise PASS
+ * (green) once items exist and none are outstanding.
+ * @param total - Total count of items in the section.
  * @param outstanding - Count of outstanding items.
  * @returns breakdown section rollup status.
  */
-export function getWarningStatus(outstanding: number): SectionStatus {
-  return outstanding > 0 ? SECTION_STATUS.WARNING : SECTION_STATUS.PASS;
+export function getWarningStatus(
+  total: number,
+  outstanding: number,
+): SectionStatus {
+  if (outstanding > 0) return SECTION_STATUS.WARNING;
+  if (total > 0) return SECTION_STATUS.PASS;
+  return SECTION_STATUS.WARNING;
 }

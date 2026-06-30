@@ -205,14 +205,19 @@ describe("StatusDashboard", () => {
   });
 
   // Breakdown headings (Processing, Publication) roll up to warning (amber)
-  // while outstanding items remain, else green.
+  // while items are outstanding or none exist yet, and green only once items
+  // exist with none outstanding.
   describe("getWarningStatus", () => {
     it("returns WARNING when items remain outstanding", () => {
-      expect(getWarningStatus(3)).toBe(SECTION_STATUS.WARNING);
+      expect(getWarningStatus(10, 3)).toBe(SECTION_STATUS.WARNING);
     });
 
-    it("returns PASS when nothing is outstanding", () => {
-      expect(getWarningStatus(0)).toBe(SECTION_STATUS.PASS);
+    it("returns PASS when items exist and none are outstanding", () => {
+      expect(getWarningStatus(10, 0)).toBe(SECTION_STATUS.PASS);
+    });
+
+    it("returns WARNING when the section is empty (nothing exists yet)", () => {
+      expect(getWarningStatus(0, 0)).toBe(SECTION_STATUS.WARNING);
     });
   });
 });

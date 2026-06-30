@@ -40,7 +40,6 @@ export interface MetricSectionModel {
 
 export const ROW_VARIANT = {
   PLAIN: "PLAIN",
-  WARNING: "WARNING",
 } as const;
 
 export type RowVariant = (typeof ROW_VARIANT)[keyof typeof ROW_VARIANT];
