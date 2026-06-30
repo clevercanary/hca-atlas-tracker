@@ -50,10 +50,7 @@ export const MetricCard = ({ card }: Props): JSX.Element => {
         )}
       </StyledStack>
       {card.sections.map((section) => {
-        const statusConfig = section.status
-          ? SECTION_STATUS_CONFIG[section.status]
-          : null;
-        const StatusIcon = statusConfig?.Icon;
+        const statusConfig = SECTION_STATUS_CONFIG[section.status];
         return (
           <StyledStack key={section.heading}>
             <StyledHeadingStack>
@@ -63,7 +60,7 @@ export const MetricCard = ({ card }: Props): JSX.Element => {
               >
                 {section.heading}
               </Typography>
-              {StatusIcon && <StatusIcon sx={{ color: statusConfig.color }} />}
+              <statusConfig.Icon sx={{ color: statusConfig.color }} />
             </StyledHeadingStack>
             {section.rows?.map((row) => (
               <MetricRow key={row.label} row={row} />

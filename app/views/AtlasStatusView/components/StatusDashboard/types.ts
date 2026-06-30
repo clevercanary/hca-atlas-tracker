@@ -35,7 +35,7 @@ export interface MetricSectionModel {
   // `rows` beneath it; breakdown sections (Processing, CAP, Publication) render
   // their own `rows`.
   rows?: MetricRowModel[];
-  status?: SectionStatus;
+  status: SectionStatus;
 }
 
 export const ROW_VARIANT = {
