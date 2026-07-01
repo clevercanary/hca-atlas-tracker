@@ -34,3 +34,13 @@ export const StyledChip = styled(Chip)`
     font-size: 12px;
   }
 `;
+
+// Section heading row: heading on the left, rollup status icon on the right
+// (aligned with the metric values in the rows below).
+export const StyledHeadingStack = styled(Stack)`
+  align-items: center;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: space-between;
+  width: 100%;
+`;

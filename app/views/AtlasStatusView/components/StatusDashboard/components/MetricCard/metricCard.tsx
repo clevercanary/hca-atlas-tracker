@@ -3,10 +3,11 @@ import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/m
 import { Stack, Typography } from "@mui/material";
 import { JSX } from "react";
 import { MetricRow } from "./components/MetricRow/metricRow";
-import { BADGE_COLOR, BADGE_ICON } from "./constants";
+import { BADGE_COLOR, BADGE_ICON, SECTION_STATUS_CONFIG } from "./constants";
 import {
   StyledChip,
   StyledFluidPaper,
+  StyledHeadingStack,
   StyledProgress,
   StyledStack,
 } from "./metricCard.styles";
@@ -48,19 +49,25 @@ export const MetricCard = ({ card }: Props): JSX.Element => {
           />
         )}
       </StyledStack>
-      {card.sections.map((section) => (
-        <StyledStack key={section.heading}>
-          <Typography
-            color={TYPOGRAPHY_PROPS.COLOR.INK_MAIN}
-            variant={TYPOGRAPHY_PROPS.VARIANT.BODY_SMALL_500}
-          >
-            {section.heading}
-          </Typography>
-          {section.rows.map((row) => (
-            <MetricRow key={row.label} row={row} />
-          ))}
-        </StyledStack>
-      ))}
+      {card.sections.map((section) => {
+        const statusConfig = SECTION_STATUS_CONFIG[section.status];
+        return (
+          <StyledStack key={section.heading}>
+            <StyledHeadingStack>
+              <Typography
+                color={TYPOGRAPHY_PROPS.COLOR.INK_MAIN}
+                variant={TYPOGRAPHY_PROPS.VARIANT.BODY_SMALL_500}
+              >
+                {section.heading}
+              </Typography>
+              <statusConfig.Icon sx={{ color: statusConfig.color }} />
+            </StyledHeadingStack>
+            {section.rows?.map((row) => (
+              <MetricRow key={row.label} row={row} />
+            ))}
+          </StyledStack>
+        );
+      })}
     </StyledFluidPaper>
   );
 };

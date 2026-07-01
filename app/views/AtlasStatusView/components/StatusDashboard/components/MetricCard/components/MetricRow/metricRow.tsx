@@ -9,7 +9,7 @@ import { Props } from "./types";
 export const MetricRow = ({ row }: Props): JSX.Element => {
   const { color, Icon } = ROW_VARIANT_CONFIG[row.variant];
   return (
-    <StyledStack>
+    <StyledStack highlighted={row.highlight}>
       <Typography
         color={TYPOGRAPHY_PROPS.COLOR.INK_MAIN}
         variant={TYPOGRAPHY_PROPS.VARIANT.BODY_SMALL_400}

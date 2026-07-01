@@ -10,3 +10,7 @@ export interface RowVariantConfig {
   color: string;
   Icon: ComponentType<SvgIconProps> | null;
 }
+
+export interface StyledStackProps {
+  highlighted?: boolean;
+}

@@ -3,7 +3,12 @@ import { InProgressIcon } from "@databiosphere/findable-ui/lib/components/common
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { ChipProps, SvgIconProps } from "@mui/material";
 import { ComponentType } from "react";
-import { BADGE_VARIANT, BadgeVariant } from "../../types";
+import {
+  BADGE_VARIANT,
+  BadgeVariant,
+  SECTION_STATUS,
+  SectionStatus,
+} from "../../types";
 
 export const BADGE_COLOR: Record<BadgeVariant, ChipProps["color"]> = {
   [BADGE_VARIANT.CAUTION]: "caution",
@@ -22,4 +27,18 @@ export const BADGE_ICON: Record<
   [BADGE_VARIANT.DEFAULT]: null,
   [BADGE_VARIANT.ERROR]: ErrorIcon,
   [BADGE_VARIANT.SUCCESS]: SuccessIcon,
+};
+
+// Rollup icon + colour shown on a section heading. `color` is a theme palette
+// path resolved via the `sx` prop. PASS green, ERROR red, and WARNING/PENDING
+// amber (work to do — outstanding items, or a validation block with nothing
+// validated yet).
+export const SECTION_STATUS_CONFIG: Record<
+  SectionStatus,
+  { color: string; Icon: ComponentType<SvgIconProps> }
+> = {
+  [SECTION_STATUS.ERROR]: { Icon: ErrorIcon, color: "alert.main" },
+  [SECTION_STATUS.PASS]: { Icon: SuccessIcon, color: "success.main" },
+  [SECTION_STATUS.PENDING]: { Icon: InProgressIcon, color: "caution.main" },
+  [SECTION_STATUS.WARNING]: { Icon: InProgressIcon, color: "caution.main" },
 };
