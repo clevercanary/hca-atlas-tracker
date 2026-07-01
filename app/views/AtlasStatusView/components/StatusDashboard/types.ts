@@ -23,6 +23,9 @@ export interface MetricCardModel {
 }
 
 export interface MetricRowModel {
+  // When true, the row is emphasised with an alert background (e.g. a non-zero
+  // Invalid count).
+  highlight?: boolean;
   label: string;
   value: number;
   variant: RowVariant;

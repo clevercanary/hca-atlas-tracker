@@ -11,6 +11,7 @@ import {
   SECTION_STATUS,
 } from "../app/views/AtlasStatusView/components/StatusDashboard/types";
 import {
+  buildIntegratedObjectsCard,
   getCapStatus,
   getMinValidBadge,
   getValidationStatus,
@@ -253,6 +254,33 @@ describe("StatusDashboard", () => {
         label: "empty",
         variant: BADGE_VARIANT.DEFAULT,
       });
+    });
+  });
+
+  // Invalid rows are flagged for an alert background only when the count is > 0.
+  describe("invalid row highlight", () => {
+    it("highlights invalid rows with a non-zero count", () => {
+      const card = buildIntegratedObjectsCard(SUMMARY);
+      for (const section of card.sections) {
+        const invalidRow = section.rows?.find((row) => row.label === "Invalid");
+        if (invalidRow && invalidRow.value > 0) {
+          expect(invalidRow.highlight).toBe(true);
+        }
+      }
+      // Valid rows are never highlighted.
+      const validRows = card.sections.flatMap((section) =>
+        (section.rows ?? []).filter((row) => row.label === "Valid"),
+      );
+      for (const row of validRows) expect(row.highlight).toBeFalsy();
+    });
+
+    it("does not highlight invalid rows with a zero count", () => {
+      const card = buildIntegratedObjectsCard(ZERO_SUMMARY);
+      const invalidRows = card.sections.flatMap((section) =>
+        (section.rows ?? []).filter((row) => row.label === "Invalid"),
+      );
+      expect(invalidRows.length).toBeGreaterThan(0);
+      for (const row of invalidRows) expect(row.highlight).toBe(false);
     });
   });
 });

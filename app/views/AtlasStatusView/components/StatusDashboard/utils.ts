@@ -44,6 +44,7 @@ function buildCapSection(
       variant: ROW_VARIANT.PLAIN,
     },
     {
+      highlight: capInvalid > 0,
       label: ROW_LABEL.INVALID,
       value: capInvalid,
       variant: ROW_VARIANT.PLAIN,
@@ -245,7 +246,12 @@ function buildValidationSection(
     heading,
     rows: [
       { label: ROW_LABEL.VALID, value: valid, variant: ROW_VARIANT.PLAIN },
-      { label: ROW_LABEL.INVALID, value: invalid, variant: ROW_VARIANT.PLAIN },
+      {
+        highlight: invalid > 0,
+        label: ROW_LABEL.INVALID,
+        value: invalid,
+        variant: ROW_VARIANT.PLAIN,
+      },
     ],
     status: getValidationStatus(valid, invalid),
   };
