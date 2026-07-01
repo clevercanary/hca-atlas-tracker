@@ -64,7 +64,7 @@
     "sns-validator": "^0.3.5",
     "string-strip-html": "^13.4.8",
     "unified": "^11",
-    "uuid": "^13",
+    "uuid": "^14",
     "yup": "^1"
   },
   "devDependencies": {
