@@ -84,6 +84,9 @@ export function buildIntegratedObjectsCard(
     badge: getMinValidBadge(
       integratedObjects.total,
       sectionValids,
+      integratedObjects.capInvalid +
+        integratedObjects.tier1Invalid +
+        integratedObjects.cellAnnotationInvalid,
       "0 valid integrated objects",
     ),
     // Fill reflects fully-valid / total, so the unfilled portion is invalid / total.
@@ -304,27 +307,34 @@ function getColumnBadge(
 /**
  * Returns the column badge for a column whose sections all validate the full
  * population (e.g. integrated objects). An item must pass every section to be
- * valid, so the fully-valid count is bounded by the smallest per-section valid
- * count and invalid = total - that minimum: a red chip when any are invalid, a
- * green chip when all are valid, and a neutral chip when the column is empty.
+ * valid, so the not-fully-valid count is bounded by the smallest per-section
+ * valid count (`total - min`). The chip is: neutral when the column is empty,
+ * green when every item is fully valid, red ("N invalid") when there are known
+ * failures, and amber ("N pending") when the shortfall is only due to sections
+ * that haven't been validated yet (no known invalids).
  * @param total - Total item count.
  * @param sectionValids - Valid count per section.
+ * @param invalidTotal - Combined known-invalid count across sections.
  * @param emptyLabel - Label for the neutral (empty column) chip.
  * @returns column badge model.
  */
 export function getMinValidBadge(
   total: number,
   sectionValids: number[],
+  invalidTotal: number,
   emptyLabel: string,
 ): MetricBadgeModel {
   if (total === 0) {
     return { label: emptyLabel, variant: BADGE_VARIANT.DEFAULT };
   }
-  const invalid = Math.max(0, total - Math.min(...sectionValids));
-  if (invalid > 0) {
-    return { label: `${invalid} invalid`, variant: BADGE_VARIANT.ERROR };
+  const notValid = Math.max(0, total - Math.min(...sectionValids));
+  if (notValid === 0) {
+    return { label: `${total} valid`, variant: BADGE_VARIANT.SUCCESS };
   }
-  return { label: `${total} valid`, variant: BADGE_VARIANT.SUCCESS };
+  if (invalidTotal > 0) {
+    return { label: `${notValid} invalid`, variant: BADGE_VARIANT.ERROR };
+  }
+  return { label: `${notValid} pending`, variant: BADGE_VARIANT.CAUTION };
 }
 
 /**

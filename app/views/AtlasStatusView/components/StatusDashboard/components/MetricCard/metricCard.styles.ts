@@ -35,8 +35,8 @@ export const StyledChip = styled(Chip)`
   }
 `;
 
-// Section heading row: heading on the left, optional rollup status icon on the
-// right (aligned with the metric values in the rows below).
+// Section heading row: heading on the left, rollup status icon on the right
+// (aligned with the metric values in the rows below).
 export const StyledHeadingStack = styled(Stack)`
   align-items: center;
   flex-direction: row;

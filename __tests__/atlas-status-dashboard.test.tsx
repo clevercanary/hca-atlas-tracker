@@ -231,26 +231,35 @@ describe("StatusDashboard", () => {
     });
   });
 
-  // The integrated objects badge counts invalid as total minus the smallest
-  // per-section valid (an object must pass every section to be valid).
+  // The integrated objects badge counts the shortfall as total minus the
+  // smallest per-section valid (an object must pass every section to be valid),
+  // shown red only when there are known invalids, amber when only pending.
   describe("getMinValidBadge", () => {
-    it("subtracts the smallest section valid from the total", () => {
-      // total 5, smallest valid 1 (Cell Annotation) → 4 invalid.
-      expect(getMinValidBadge(5, [4, 2, 1], "empty")).toEqual({
+    it("is red with the shortfall when there are known invalids", () => {
+      // total 5, smallest valid 1 → 4 short, and there are known invalids.
+      expect(getMinValidBadge(5, [4, 2, 1], 3, "empty")).toEqual({
         label: "4 invalid",
         variant: BADGE_VARIANT.ERROR,
       });
     });
 
+    it("is amber (pending) when the shortfall is only unvalidated sections", () => {
+      // total 5, a section is unvalidated (valid 0) but nothing has failed.
+      expect(getMinValidBadge(5, [5, 0, 0], 0, "empty")).toEqual({
+        label: "5 pending",
+        variant: BADGE_VARIANT.CAUTION,
+      });
+    });
+
     it("is green when every section is fully valid", () => {
-      expect(getMinValidBadge(5, [5, 5, 5], "empty")).toEqual({
+      expect(getMinValidBadge(5, [5, 5, 5], 0, "empty")).toEqual({
         label: "5 valid",
         variant: BADGE_VARIANT.SUCCESS,
       });
     });
 
     it("uses the neutral empty label when the column is empty", () => {
-      expect(getMinValidBadge(0, [0, 0, 0], "empty")).toEqual({
+      expect(getMinValidBadge(0, [0, 0, 0], 0, "empty")).toEqual({
         label: "empty",
         variant: BADGE_VARIANT.DEFAULT,
       });
