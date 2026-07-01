@@ -73,24 +73,32 @@ export function buildIntegratedObjectsCard(
   const { integratedObjects } = summary;
   // An integrated object must pass every section to be valid, so the fully valid
   // count is bounded by the weakest section: the smallest valid across CAP
-  // (total - capInvalid), Tier-1, and Cell Annotation. invalid = total - this.
+  // (total - capInvalid), Tier-1, and Cell Annotation. `invalid` = total minus
+  // that, and the badge and progress bar share this one count.
   const sectionValids = [
     integratedObjects.total - integratedObjects.capInvalid,
     integratedObjects.tier1Valid,
     integratedObjects.cellAnnotationValid,
   ];
-  const fullyValid = Math.max(0, Math.min(...sectionValids));
+  const invalid = Math.max(
+    0,
+    integratedObjects.total - Math.min(...sectionValids),
+  );
   return {
     badge: getMinValidBadge(
       integratedObjects.total,
-      sectionValids,
+      invalid,
       integratedObjects.capInvalid +
         integratedObjects.tier1Invalid +
         integratedObjects.cellAnnotationInvalid,
       "0 valid integrated objects",
     ),
-    // Fill reflects fully-valid / total, so the unfilled portion is invalid / total.
-    progress: getProgress(fullyValid, integratedObjects.total),
+    // Fill = (total - invalid) / total, matching the badge below it (so the
+    // unfilled portion is invalid / total).
+    progress: getProgress(
+      integratedObjects.total - invalid,
+      integratedObjects.total,
+    ),
     sections: [
       // All integrated objects are required for CAP, so there is no "Required"
       // row here (required = total).
@@ -129,19 +137,17 @@ export function buildSourceDatasetsCard(
     0,
     sourceDatasets.total - sourceDatasets.original - sourceDatasets.reprocessed,
   );
+  // Source datasets validate Tier-1 only, so invalid is the Tier-1 invalid count
+  // — shared by the badge and the progress bar.
+  const invalid = sourceDatasets.tier1Invalid;
   return {
-    // Source datasets validate Tier-1 only, so the badge rolls up that single
-    // dimension.
     badge: getColumnBadge(
-      [
-        {
-          invalid: sourceDatasets.tier1Invalid,
-          valid: sourceDatasets.tier1Valid,
-        },
-      ],
+      [{ invalid, valid: sourceDatasets.tier1Valid }],
       "0 valid source datasets",
     ),
-    progress: getProgress(sourceDatasets.tier1Valid, sourceDatasets.total),
+    // Fill = (total - invalid) / total so the bar matches the "N invalid" badge
+    // below it (pending datasets count towards the bar, not against it).
+    progress: getProgress(sourceDatasets.total - invalid, sourceDatasets.total),
     sections: [
       {
         heading: SECTION_HEADING.PROCESSING,
@@ -202,8 +208,12 @@ export function buildSourceStudiesCard(
       sourceStudies.published,
       sourceStudies.unpublished,
     ),
-    // Progress reflects the published proportion of the total.
-    progress: getProgress(sourceStudies.published, sourceStudies.total),
+    // Fill = (total - invalid) / total so the bar matches the "N unpublished"
+    // badge below it, consistent with the other cards.
+    progress: getProgress(
+      sourceStudies.total - sourceStudies.unpublished,
+      sourceStudies.total,
+    ),
     sections: [
       {
         heading: SECTION_HEADING.PUBLICATION_STATUS,
@@ -306,35 +316,33 @@ function getColumnBadge(
 
 /**
  * Returns the column badge for a column whose sections all validate the full
- * population (e.g. integrated objects). An item must pass every section to be
- * valid, so the not-fully-valid count is bounded by the smallest per-section
- * valid count (`total - min`). The chip is: neutral when the column is empty,
- * green when every item is fully valid, red ("N invalid") when there are known
- * failures, and amber ("N pending") when the shortfall is only due to sections
- * that haven't been validated yet (no known invalids).
+ * population (e.g. integrated objects). `invalid` is the not-fully-valid count
+ * (total minus the smallest per-section valid — an item must pass every section
+ * to be valid). The chip is: neutral when the column is empty, green when every
+ * item is fully valid, red ("N invalid") when there are known failures, and
+ * amber ("N pending") when the shortfall is only sections not yet validated.
  * @param total - Total item count.
- * @param sectionValids - Valid count per section.
+ * @param invalid - Not-fully-valid count (total - smallest per-section valid).
  * @param invalidTotal - Combined known-invalid count across sections.
  * @param emptyLabel - Label for the neutral (empty column) chip.
  * @returns column badge model.
  */
 export function getMinValidBadge(
   total: number,
-  sectionValids: number[],
+  invalid: number,
   invalidTotal: number,
   emptyLabel: string,
 ): MetricBadgeModel {
   if (total === 0) {
     return { label: emptyLabel, variant: BADGE_VARIANT.DEFAULT };
   }
-  const notValid = Math.max(0, total - Math.min(...sectionValids));
-  if (notValid === 0) {
+  if (invalid === 0) {
     return { label: `${total} valid`, variant: BADGE_VARIANT.SUCCESS };
   }
   if (invalidTotal > 0) {
-    return { label: `${notValid} invalid`, variant: BADGE_VARIANT.ERROR };
+    return { label: `${invalid} invalid`, variant: BADGE_VARIANT.ERROR };
   }
-  return { label: `${notValid} pending`, variant: BADGE_VARIANT.CAUTION };
+  return { label: `${invalid} pending`, variant: BADGE_VARIANT.CAUTION };
 }
 
 /**
