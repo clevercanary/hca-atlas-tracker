@@ -3,10 +3,11 @@ import styled from "@emotion/styled";
 import { Stack } from "@mui/material";
 import { StyledStackProps } from "./types";
 
-// A highlighted row paints an alert background with vertical breathing room. The
-// padding is cancelled by an equal negative margin so the row's layout box (28px)
-// — and therefore the section and card — does not grow; the background simply
-// bleeds into the surrounding gap.
+// A highlighted row paints an alert background with breathing room on all sides.
+// The padding is cancelled by an equal negative margin (and a widened box so the
+// value stays right-aligned) so the row's layout box (28px tall, full width) —
+// and therefore the section and card — does not grow; the background simply
+// bleeds into the surrounding gap and section padding.
 export const StyledStack = styled(Stack, {
   shouldForwardProp: (prop) => prop !== "highlighted",
 })<StyledStackProps>`
@@ -20,7 +21,8 @@ export const StyledStack = styled(Stack, {
     highlighted &&
     `
       background-color: ${PALETTE.ALERT_LIGHTEST};
-      margin: -6px 0;
-      padding: 6px 0;
+      margin: -6px -8px;
+      padding: 6px 8px;
+      width: calc(100% + 16px);
     `}
 `;
