@@ -57,7 +57,7 @@ function buildCapSection(
   return {
     heading: SECTION_HEADING.CAP,
     rows,
-    status: getCapStatus(capInvalid),
+    status: getCapStatus(required, capInvalid),
   };
 }
 
@@ -253,12 +253,16 @@ function buildValidationSection(
 
 /**
  * Returns the CAP section rollup status: ERROR (red) when any failed CAP
- * validation, otherwise PASS (green).
+ * validation, PASS (green) when items are required and none failed, and WARNING
+ * (amber) when nothing is required yet (empty — work to do).
+ * @param required - CAP required count.
  * @param invalid - CAP invalid count.
  * @returns CAP section rollup status.
  */
-export function getCapStatus(invalid: number): SectionStatus {
-  return invalid > 0 ? SECTION_STATUS.ERROR : SECTION_STATUS.PASS;
+export function getCapStatus(required: number, invalid: number): SectionStatus {
+  if (invalid > 0) return SECTION_STATUS.ERROR;
+  if (required > 0) return SECTION_STATUS.PASS;
+  return SECTION_STATUS.WARNING;
 }
 
 /**

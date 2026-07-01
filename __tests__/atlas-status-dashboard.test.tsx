@@ -197,15 +197,19 @@ describe("StatusDashboard", () => {
     });
   });
 
-  // CAP headings roll up to error (any failed CAP) or green; there is no
-  // pending/amber CAP state.
+  // CAP headings roll up to error (any failed CAP), green (items required, none
+  // failed), or amber (nothing required yet — empty).
   describe("getCapStatus", () => {
     it("returns ERROR when any failed CAP validation", () => {
-      expect(getCapStatus(1)).toBe(SECTION_STATUS.ERROR);
+      expect(getCapStatus(5, 1)).toBe(SECTION_STATUS.ERROR);
     });
 
-    it("returns PASS when none failed", () => {
-      expect(getCapStatus(0)).toBe(SECTION_STATUS.PASS);
+    it("returns PASS when items are required and none failed", () => {
+      expect(getCapStatus(5, 0)).toBe(SECTION_STATUS.PASS);
+    });
+
+    it("returns WARNING when nothing is required yet (empty)", () => {
+      expect(getCapStatus(0, 0)).toBe(SECTION_STATUS.WARNING);
     });
   });
 
