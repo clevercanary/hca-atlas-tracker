@@ -70,26 +70,23 @@ export function buildIntegratedObjectsCard(
   summary: AtlasStatusSummary,
 ): MetricCardModel {
   const { integratedObjects } = summary;
+  // An integrated object must pass every section to be valid, so the fully valid
+  // count is bounded by the weakest section: the smallest valid across CAP
+  // (total - capInvalid), Tier-1, and Cell Annotation. invalid = total - this.
+  const sectionValids = [
+    integratedObjects.total - integratedObjects.capInvalid,
+    integratedObjects.tier1Valid,
+    integratedObjects.cellAnnotationValid,
+  ];
+  const fullyValid = Math.max(0, Math.min(...sectionValids));
   return {
-    // Roll the header badge up across both validation dimensions (Tier-1 and
-    // Cell Annotation) so it can't report "valid" while one dimension fails.
-    badge: getColumnBadge(
-      [
-        {
-          invalid: integratedObjects.tier1Invalid,
-          valid: integratedObjects.tier1Valid,
-        },
-        {
-          invalid: integratedObjects.cellAnnotationInvalid,
-          valid: integratedObjects.cellAnnotationValid,
-        },
-      ],
+    badge: getMinValidBadge(
+      integratedObjects.total,
+      sectionValids,
       "0 valid integrated objects",
     ),
-    progress: getProgress(
-      integratedObjects.tier1Valid,
-      integratedObjects.total,
-    ),
+    // Fill reflects fully-valid / total, so the unfilled portion is invalid / total.
+    progress: getProgress(fullyValid, integratedObjects.total),
     sections: [
       // All integrated objects are required for CAP, so there is no "Required"
       // row here (required = total).
@@ -292,6 +289,32 @@ function getColumnBadge(
     return { label: `${maxValid} valid`, variant: BADGE_VARIANT.SUCCESS };
   }
   return { label: emptyLabel, variant: BADGE_VARIANT.DEFAULT };
+}
+
+/**
+ * Returns the column badge for a column whose sections all validate the full
+ * population (e.g. integrated objects). An item must pass every section to be
+ * valid, so the fully-valid count is bounded by the smallest per-section valid
+ * count and invalid = total - that minimum: a red chip when any are invalid, a
+ * green chip when all are valid, and a neutral chip when the column is empty.
+ * @param total - Total item count.
+ * @param sectionValids - Valid count per section.
+ * @param emptyLabel - Label for the neutral (empty column) chip.
+ * @returns column badge model.
+ */
+export function getMinValidBadge(
+  total: number,
+  sectionValids: number[],
+  emptyLabel: string,
+): MetricBadgeModel {
+  if (total === 0) {
+    return { label: emptyLabel, variant: BADGE_VARIANT.DEFAULT };
+  }
+  const invalid = Math.max(0, total - Math.min(...sectionValids));
+  if (invalid > 0) {
+    return { label: `${invalid} invalid`, variant: BADGE_VARIANT.ERROR };
+  }
+  return { label: `${total} valid`, variant: BADGE_VARIANT.SUCCESS };
 }
 
 /**

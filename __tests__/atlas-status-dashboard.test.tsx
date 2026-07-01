@@ -6,9 +6,13 @@ import { JSX, ReactNode } from "react";
 import { AtlasStatusSummary } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 import { mergeAppTheme } from "../app/theme/theme";
 import { StatusDashboard } from "../app/views/AtlasStatusView/components/StatusDashboard/statusDashboard";
-import { SECTION_STATUS } from "../app/views/AtlasStatusView/components/StatusDashboard/types";
+import {
+  BADGE_VARIANT,
+  SECTION_STATUS,
+} from "../app/views/AtlasStatusView/components/StatusDashboard/types";
 import {
   getCapStatus,
+  getMinValidBadge,
   getValidationStatus,
   getWarningStatus,
 } from "../app/views/AtlasStatusView/components/StatusDashboard/utils";
@@ -29,10 +33,10 @@ const SUMMARY: AtlasStatusSummary = {
     capInvalid: 1,
     capPublished: 2,
     capReady: 1,
-    cellAnnotationInvalid: 1,
-    cellAnnotationValid: 1,
+    cellAnnotationInvalid: 2,
+    cellAnnotationValid: 2,
     tier1Invalid: 1,
-    tier1Valid: 1,
+    tier1Valid: 3,
     total: 4,
   },
   ocEndorsed: false,
@@ -135,7 +139,8 @@ describe("StatusDashboard", () => {
       expect(screen.getByText("6 unpublished")).toBeInTheDocument();
       // Source datasets: Tier-1 only → 3 invalid.
       expect(screen.getByText("3 invalid")).toBeInTheDocument();
-      // Integrated objects: Tier-1 (1) + Cell Annotation (1) → 2 invalid.
+      // Integrated objects: total 4 - smallest section valid (Cell Annotation 2;
+      // CAP 4-1=3, Tier-1 3) = 4 - 2 = 2 invalid.
       expect(screen.getByText("2 invalid")).toBeInTheDocument();
     });
 
@@ -218,6 +223,32 @@ describe("StatusDashboard", () => {
 
     it("returns WARNING when the section is empty (nothing exists yet)", () => {
       expect(getWarningStatus(0, 0)).toBe(SECTION_STATUS.WARNING);
+    });
+  });
+
+  // The integrated objects badge counts invalid as total minus the smallest
+  // per-section valid (an object must pass every section to be valid).
+  describe("getMinValidBadge", () => {
+    it("subtracts the smallest section valid from the total", () => {
+      // total 5, smallest valid 1 (Cell Annotation) → 4 invalid.
+      expect(getMinValidBadge(5, [4, 2, 1], "empty")).toEqual({
+        label: "4 invalid",
+        variant: BADGE_VARIANT.ERROR,
+      });
+    });
+
+    it("is green when every section is fully valid", () => {
+      expect(getMinValidBadge(5, [5, 5, 5], "empty")).toEqual({
+        label: "5 valid",
+        variant: BADGE_VARIANT.SUCCESS,
+      });
+    });
+
+    it("uses the neutral empty label when the column is empty", () => {
+      expect(getMinValidBadge(0, [0, 0, 0], "empty")).toEqual({
+        label: "empty",
+        variant: BADGE_VARIANT.DEFAULT,
+      });
     });
   });
 });
