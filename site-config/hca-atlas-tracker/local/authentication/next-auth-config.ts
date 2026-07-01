@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { getUserRoleByEmail } from "../../../../app/services/users";
 import { SESSION_MAX_AGE } from "./constants";
 import { GoogleAuthParams } from "./entities";
 
@@ -41,6 +42,26 @@ if (!IS_BUILD_PHASE) {
 }
 
 export const nextAuthOptions: NextAuthOptions = {
+  callbacks: {
+    // Persist the user's role on the JWT so the middleware (proxy.ts) and SSR
+    // can read it without a DB call. `user` is only set on initial sign-in, so
+    // we backfill from `token.email` whenever the role is missing — this both
+    // populates sessions issued before this feature shipped (no re-login
+    // needed) and avoids a DB hit once the role is present. Tradeoff: a later
+    // DB role *change* isn't reflected until the token is reissued — acceptable
+    // here, as role changes are rare and admin-driven.
+    async jwt({ token, user }) {
+      const email = user?.email ?? token.email;
+      if (email && token.role === undefined) {
+        token.role = await getUserRoleByEmail(email);
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) session.user.role = token.role;
+      return session;
+    },
+  },
   debug: false,
   pages: {
     signIn: "/",
