@@ -12,6 +12,8 @@ import {
 } from "../app/views/AtlasStatusView/components/StatusDashboard/types";
 import {
   buildIntegratedObjectsCard,
+  buildSourceDatasetsCard,
+  buildSourceStudiesCard,
   getCapStatus,
   getMinValidBadge,
   getValidationStatus,
@@ -235,31 +237,31 @@ describe("StatusDashboard", () => {
   // smallest per-section valid (an object must pass every section to be valid),
   // shown red only when there are known invalids, amber when only pending.
   describe("getMinValidBadge", () => {
-    it("is red with the shortfall when there are known invalids", () => {
-      // total 5, smallest valid 1 → 4 short, and there are known invalids.
-      expect(getMinValidBadge(5, [4, 2, 1], 3, "empty")).toEqual({
+    it("is red with the invalid count when there are known invalids", () => {
+      // total 5, 4 not-fully-valid, and there are known invalids.
+      expect(getMinValidBadge(5, 4, 3, "empty")).toEqual({
         label: "4 invalid",
         variant: BADGE_VARIANT.ERROR,
       });
     });
 
     it("is amber (pending) when the shortfall is only unvalidated sections", () => {
-      // total 5, a section is unvalidated (valid 0) but nothing has failed.
-      expect(getMinValidBadge(5, [5, 0, 0], 0, "empty")).toEqual({
+      // total 5, 5 not-fully-valid but nothing has failed.
+      expect(getMinValidBadge(5, 5, 0, "empty")).toEqual({
         label: "5 pending",
         variant: BADGE_VARIANT.CAUTION,
       });
     });
 
-    it("is green when every section is fully valid", () => {
-      expect(getMinValidBadge(5, [5, 5, 5], 0, "empty")).toEqual({
+    it("is green when every item is fully valid", () => {
+      expect(getMinValidBadge(5, 0, 0, "empty")).toEqual({
         label: "5 valid",
         variant: BADGE_VARIANT.SUCCESS,
       });
     });
 
     it("uses the neutral empty label when the column is empty", () => {
-      expect(getMinValidBadge(0, [0, 0, 0], 0, "empty")).toEqual({
+      expect(getMinValidBadge(0, 0, 0, "empty")).toEqual({
         label: "empty",
         variant: BADGE_VARIANT.DEFAULT,
       });
@@ -290,6 +292,106 @@ describe("StatusDashboard", () => {
       );
       expect(invalidRows.length).toBeGreaterThan(0);
       for (const row of invalidRows) expect(row.highlight).toBe(false);
+    });
+  });
+
+  // The source datasets progress bar fill is (total - invalid) / total, matching
+  // the "N invalid" badge — so pending datasets (not yet valid) still fill it.
+  describe("source datasets progress bar", () => {
+    it("derives progress from total - invalid", () => {
+      // total 62, tier1Invalid 3 → (62 - 3) / 62.
+      expect(buildSourceDatasetsCard(SUMMARY).progress).toBeCloseTo(
+        ((62 - 3) / 62) * 100,
+      );
+    });
+
+    it("fills even when valid is 0 but not everything is invalid", () => {
+      const summary: AtlasStatusSummary = {
+        ...SUMMARY,
+        sourceDatasets: {
+          ...SUMMARY.sourceDatasets,
+          tier1Invalid: 9,
+          tier1Valid: 0,
+          total: 56,
+        },
+      };
+      const { progress } = buildSourceDatasetsCard(summary);
+      // (56 - 9) / 56 ≈ 83.9%, not 0.
+      expect(progress).toBeCloseTo(((56 - 9) / 56) * 100);
+      expect(progress).toBeGreaterThan(0);
+    });
+
+    it("is empty when nothing has been validated (0 valid, 0 invalid)", () => {
+      const summary: AtlasStatusSummary = {
+        ...SUMMARY,
+        sourceDatasets: {
+          ...SUMMARY.sourceDatasets,
+          tier1Invalid: 0,
+          tier1Valid: 0,
+          total: 2,
+        },
+      };
+      // All pending → 0, not (2 - 0) / 2 = 100%.
+      expect(buildSourceDatasetsCard(summary).progress).toBe(0);
+    });
+  });
+
+  // The integrated objects progress bar fill is (total - invalid) / total, where
+  // invalid is the same not-fully-valid count shown in the badge.
+  describe("integrated objects progress bar", () => {
+    it("derives progress from total - invalid (smallest section valid)", () => {
+      // total 4, smallest section valid 2 (Cell Annotation) → invalid 2 → (4-2)/4.
+      expect(buildIntegratedObjectsCard(SUMMARY).progress).toBeCloseTo(
+        ((4 - 2) / 4) * 100,
+      );
+    });
+
+    it("is 0 when the smallest section valid is 0", () => {
+      const summary: AtlasStatusSummary = {
+        ...SUMMARY,
+        integratedObjects: {
+          ...SUMMARY.integratedObjects,
+          capInvalid: 0,
+          cellAnnotationValid: 0,
+          tier1Valid: 0,
+          total: 3,
+        },
+      };
+      // sectionValids = [3, 0, 0] → invalid 3 → (3 - 3) / 3 = 0.
+      expect(buildIntegratedObjectsCard(summary).progress).toBe(0);
+    });
+
+    it("clamps to 0 and caps the badge count for inconsistent data (capInvalid > total)", () => {
+      const summary: AtlasStatusSummary = {
+        ...SUMMARY,
+        integratedObjects: {
+          ...SUMMARY.integratedObjects,
+          capInvalid: 6,
+          cellAnnotationValid: 0,
+          tier1Valid: 0,
+          total: 4,
+        },
+      };
+      const card = buildIntegratedObjectsCard(summary);
+      // fullyValid clamps to 0 → progress 0 (not negative), badge invalid capped
+      // at total (4), never "6 invalid".
+      expect(card.progress).toBe(0);
+      expect(card.badge?.label).toBe("4 invalid");
+    });
+  });
+
+  // Source studies progress fill is (total - unpublished) / total, matching the
+  // "N unpublished" badge.
+  describe("source studies progress bar", () => {
+    it("derives progress from total - unpublished", () => {
+      // total 9, unpublished 6 → (9 - 6) / 9.
+      expect(buildSourceStudiesCard(SUMMARY).progress).toBeCloseTo(
+        ((9 - 6) / 9) * 100,
+      );
+    });
+
+    it("is 0 when there are no studies", () => {
+      expect(buildSourceStudiesCard(ZERO_SUMMARY).progress).toBe(0);
     });
   });
 });
