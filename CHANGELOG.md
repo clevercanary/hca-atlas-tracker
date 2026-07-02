@@ -1,5 +1,57 @@
 # Changelog
 
+## [1.77.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.76.0...v1.77.0) (2026-07-02)
+
+
+### Features
+
+* add styled 404 and 500 error pages ([#1404](https://github.com/clevercanary/hca-atlas-tracker/issues/1404)) ([#1422](https://github.com/clevercanary/hca-atlas-tracker/issues/1422)) ([ea1599d](https://github.com/clevercanary/hca-atlas-tracker/commit/ea1599d9c0312fb9effa62ae90efb5f02595ca4e))
+* bump findable-ui to 55.0.0 for login mobile ux ([#1437](https://github.com/clevercanary/hca-atlas-tracker/issues/1437)) ([#1443](https://github.com/clevercanary/hca-atlas-tracker/issues/1443)) ([6337475](https://github.com/clevercanary/hca-atlas-tracker/commit/6337475d0af5cc9579cf0aa3fd308d0ae37872ed))
+* prevent migration-down from running in deployed environments ([#1053](https://github.com/clevercanary/hca-atlas-tracker/issues/1053)) ([#1419](https://github.com/clevercanary/hca-atlas-tracker/issues/1419)) ([57f3560](https://github.com/clevercanary/hca-atlas-tracker/commit/57f35602f7087ff720f37875937cf398a2227cf0))
+* remove unused component atlas source dataset detail api ([#1351](https://github.com/clevercanary/hca-atlas-tracker/issues/1351)) ([#1414](https://github.com/clevercanary/hca-atlas-tracker/issues/1414)) ([0696a92](https://github.com/clevercanary/hca-atlas-tracker/commit/0696a923ea863838a112a76bfa9c78afce77564e))
+* update validation results generator to draw from data dictionary and support pinning probabilities ([#1394](https://github.com/clevercanary/hca-atlas-tracker/issues/1394)) ([#1410](https://github.com/clevercanary/hca-atlas-tracker/issues/1410)) ([8371c70](https://github.com/clevercanary/hca-atlas-tracker/commit/8371c708496d6f23d85e010bd8570fdb733d71ad))
+
+
+### Bug Fixes
+
+* no-clear-text-protocols in backbutton utils ([#1371](https://github.com/clevercanary/hca-atlas-tracker/issues/1371)) ([#1432](https://github.com/clevercanary/hca-atlas-tracker/issues/1432)) ([89c5e78](https://github.com/clevercanary/hca-atlas-tracker/commit/89c5e7819fbdb5881890efa41fc83c439c3a947e))
+* no-nested-assignment in viewsourcestudies ([#1364](https://github.com/clevercanary/hca-atlas-tracker/issues/1364)) ([#1429](https://github.com/clevercanary/hca-atlas-tracker/issues/1429)) ([552d31d](https://github.com/clevercanary/hca-atlas-tracker/commit/552d31d071076b79f7e1217ab77fad5d52ede3d9))
+* no-nested-conditional in atlasmetadataentrysheetvalidationview alert ([#1384](https://github.com/clevercanary/hca-atlas-tracker/issues/1384)) ([#1435](https://github.com/clevercanary/hca-atlas-tracker/issues/1435)) ([391efa6](https://github.com/clevercanary/hca-atlas-tracker/commit/391efa608e9cc2804915e030100df8405017f231))
+* no-nested-conditional in backend-utils ([#1362](https://github.com/clevercanary/hca-atlas-tracker/issues/1362)) ([#1427](https://github.com/clevercanary/hca-atlas-tracker/issues/1427)) ([07fb6a3](https://github.com/clevercanary/hca-atlas-tracker/commit/07fb6a3702927aabd3b1c824a7d9e30c7053f36b))
+* no-nested-conditional in inputcontroller ([#1373](https://github.com/clevercanary/hca-atlas-tracker/issues/1373)) ([#1433](https://github.com/clevercanary/hca-atlas-tracker/issues/1433)) ([5fdfb59](https://github.com/clevercanary/hca-atlas-tracker/commit/5fdfb59a35ce95e038a7ad16f3a9b55526237624))
+* react-hooks/refs anti-pattern in usebackpath hook ([#1370](https://github.com/clevercanary/hca-atlas-tracker/issues/1370)) ([#1423](https://github.com/clevercanary/hca-atlas-tracker/issues/1423)) ([49f92f5](https://github.com/clevercanary/hca-atlas-tracker/commit/49f92f5433ceb5f89e7811e68f92263dc4ac6760))
+* react-hooks/set-state-in-effect in usefetchdata ([#1374](https://github.com/clevercanary/hca-atlas-tracker/issues/1374)) ([#1424](https://github.com/clevercanary/hca-atlas-tracker/issues/1424)) ([5eb15c9](https://github.com/clevercanary/hca-atlas-tracker/commit/5eb15c9aedc8579e9088a2379f21995f10e6a7cc))
+* react-hooks/set-state-in-effect in useform ([#1376](https://github.com/clevercanary/hca-atlas-tracker/issues/1376)) ([#1426](https://github.com/clevercanary/hca-atlas-tracker/issues/1426)) ([b6d41af](https://github.com/clevercanary/hca-atlas-tracker/commit/b6d41af065604739f8e998ea96cd7ce488b0107a))
+* redundant-type-aliases in summary entities ([#1365](https://github.com/clevercanary/hca-atlas-tracker/issues/1365)) ([#1430](https://github.com/clevercanary/hca-atlas-tracker/issues/1430)) ([d021670](https://github.com/clevercanary/hca-atlas-tracker/commit/d021670d7a389c4f73fb326aedcce639de4be4ee))
+* redundant-type-aliases in viewmodelbuilders entities ([#1383](https://github.com/clevercanary/hca-atlas-tracker/issues/1383)) ([#1434](https://github.com/clevercanary/hca-atlas-tracker/issues/1434)) ([f0e6475](https://github.com/clevercanary/hca-atlas-tracker/commit/f0e6475752b55df5d073afe2e584ef984cae69ed))
+* status page: indicator semantics cleanup (icons/colors driven by label, not value) ([#1440](https://github.com/clevercanary/hca-atlas-tracker/issues/1440)) ([#1441](https://github.com/clevercanary/hca-atlas-tracker/issues/1441)) ([712d337](https://github.com/clevercanary/hca-atlas-tracker/commit/712d3379e26a6cda1f91d8044935e1a4463ac414))
+* status page: metric card progress bar is empty when valid count is 0 ([#1442](https://github.com/clevercanary/hca-atlas-tracker/issues/1442)) ([#1444](https://github.com/clevercanary/hca-atlas-tracker/issues/1444)) ([9843228](https://github.com/clevercanary/hca-atlas-tracker/commit/9843228981d17d493358c4363adc0e955079c095))
+
+
+### Chores
+
+* exclude `.next` from type checking ([#1412](https://github.com/clevercanary/hca-atlas-tracker/issues/1412)) ([#1413](https://github.com/clevercanary/hca-atlas-tracker/issues/1413)) ([96a9a31](https://github.com/clevercanary/hca-atlas-tracker/commit/96a9a31d5db9384ef7edac3530d54707d9b162b6))
+
+
+### Documentation
+
+* correct proxy.ts comment — deployed login loop was CDN cookie-stripping, not the secret ([#1402](https://github.com/clevercanary/hca-atlas-tracker/issues/1402)) ([#1403](https://github.com/clevercanary/hca-atlas-tracker/issues/1403)) ([113d3ae](https://github.com/clevercanary/hca-atlas-tracker/commit/113d3ae45f284f5aea79efde22a730f29b53cea7))
+* justify redundant-type-aliases disable in updatearchived ([#1366](https://github.com/clevercanary/hca-atlas-tracker/issues/1366)) ([#1431](https://github.com/clevercanary/hca-atlas-tracker/issues/1431)) ([765b41b](https://github.com/clevercanary/hca-atlas-tracker/commit/765b41b0e5c1223236a07e4d1dd4ae354c6ab959))
+* justify redundant-type-aliases disables in entities ([#1363](https://github.com/clevercanary/hca-atlas-tracker/issues/1363)) ([#1428](https://github.com/clevercanary/hca-atlas-tracker/issues/1428)) ([6bf0acc](https://github.com/clevercanary/hca-atlas-tracker/commit/6bf0acc000e32a2d566e5ff931cbc4132e2b9111))
+* justify set-state-in-effect disable in usefetchsourcestudiessourcedatasets ([#1375](https://github.com/clevercanary/hca-atlas-tracker/issues/1375)) ([#1425](https://github.com/clevercanary/hca-atlas-tracker/issues/1425)) ([03eea3a](https://github.com/clevercanary/hca-atlas-tracker/commit/03eea3aae9ba3c5dfabe2f30b286ce69f835a98a))
+
+
+### Code Refactoring
+
+* adjust source dataset list query ([#1350](https://github.com/clevercanary/hca-atlas-tracker/issues/1350)) ([#1411](https://github.com/clevercanary/hca-atlas-tracker/issues/1411)) ([816110c](https://github.com/clevercanary/hca-atlas-tracker/commit/816110c573152786649e7a73d97bce6f1ea8d63b))
+* throw error rather than sending response in query param handlers ([#1393](https://github.com/clevercanary/hca-atlas-tracker/issues/1393)) ([6570412](https://github.com/clevercanary/hca-atlas-tracker/commit/6570412c7438c476626780262ecb4ec637f93b72))
+* throw errors rather than sending responses in query param handlers ([#1393](https://github.com/clevercanary/hca-atlas-tracker/issues/1393)) ([#1415](https://github.com/clevercanary/hca-atlas-tracker/issues/1415)) ([6570412](https://github.com/clevercanary/hca-atlas-tracker/commit/6570412c7438c476626780262ecb4ec637f93b72))
+
+
+### Build System
+
+* pin Node base image to 22.13.0 and drop unpinned 'n' installer ([#1063](https://github.com/clevercanary/hca-atlas-tracker/issues/1063)) ([#1420](https://github.com/clevercanary/hca-atlas-tracker/issues/1420)) ([6dcc3de](https://github.com/clevercanary/hca-atlas-tracker/commit/6dcc3de3443c2c9326c64e495f91384271fbc850))
+
 ## [1.76.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.75.0...v1.76.0) (2026-06-12)
 
 
