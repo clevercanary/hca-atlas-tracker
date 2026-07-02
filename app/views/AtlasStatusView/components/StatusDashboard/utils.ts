@@ -72,18 +72,16 @@ export function buildIntegratedObjectsCard(
 ): MetricCardModel {
   const { integratedObjects } = summary;
   // An integrated object must pass every section to be valid, so the fully valid
-  // count is bounded by the weakest section: the smallest valid across CAP
-  // (total - capInvalid), Tier-1, and Cell Annotation. `invalid` = total minus
-  // that, and the badge and progress bar share this one count.
+  // count is the smallest valid across CAP (total - capInvalid), Tier-1, and Cell
+  // Annotation, clamped to 0..total (guarding against inconsistent counts). The
+  // badge and progress bar share it: invalid = total - fullyValid.
   const sectionValids = [
     integratedObjects.total - integratedObjects.capInvalid,
     integratedObjects.tier1Valid,
     integratedObjects.cellAnnotationValid,
   ];
-  const invalid = Math.max(
-    0,
-    integratedObjects.total - Math.min(...sectionValids),
-  );
+  const fullyValid = Math.max(0, Math.min(...sectionValids));
+  const invalid = integratedObjects.total - fullyValid;
   return {
     badge: getMinValidBadge(
       integratedObjects.total,
@@ -93,12 +91,9 @@ export function buildIntegratedObjectsCard(
         integratedObjects.cellAnnotationInvalid,
       "0 valid integrated objects",
     ),
-    // Fill = (total - invalid) / total, matching the badge below it (so the
-    // unfilled portion is invalid / total).
-    progress: getProgress(
-      integratedObjects.total - invalid,
-      integratedObjects.total,
-    ),
+    // Fill = fully-valid / total (= (total - invalid) / total), matching the
+    // badge below it (so the unfilled portion is invalid / total).
+    progress: getProgress(fullyValid, integratedObjects.total),
     sections: [
       // All integrated objects are required for CAP, so there is no "Required"
       // row here (required = total).
@@ -351,14 +346,16 @@ export function getMinValidBadge(
 }
 
 /**
- * Returns the progress percentage (0-100) for a numerator over a total.
+ * Returns the progress percentage clamped to 0-100 for a numerator over a total.
+ * Clamping guards against inconsistent summary counts (e.g. an invalid count
+ * exceeding the total) producing an out-of-range value for the progress bar.
  * @param numerator - Subset count.
  * @param total - Total count.
  * @returns percentage between 0 and 100.
  */
 function getProgress(numerator: number, total: number): number {
   if (total === 0) return 0;
-  return (numerator / total) * 100;
+  return Math.max(0, Math.min(100, (numerator / total) * 100));
 }
 
 /**

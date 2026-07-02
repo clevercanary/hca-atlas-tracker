@@ -13,6 +13,7 @@ import {
 import {
   buildIntegratedObjectsCard,
   buildSourceDatasetsCard,
+  buildSourceStudiesCard,
   getCapStatus,
   getMinValidBadge,
   getValidationStatus,
@@ -358,6 +359,39 @@ describe("StatusDashboard", () => {
       };
       // sectionValids = [3, 0, 0] → invalid 3 → (3 - 3) / 3 = 0.
       expect(buildIntegratedObjectsCard(summary).progress).toBe(0);
+    });
+
+    it("clamps to 0 and caps the badge count for inconsistent data (capInvalid > total)", () => {
+      const summary: AtlasStatusSummary = {
+        ...SUMMARY,
+        integratedObjects: {
+          ...SUMMARY.integratedObjects,
+          capInvalid: 6,
+          cellAnnotationValid: 0,
+          tier1Valid: 0,
+          total: 4,
+        },
+      };
+      const card = buildIntegratedObjectsCard(summary);
+      // fullyValid clamps to 0 → progress 0 (not negative), badge invalid capped
+      // at total (4), never "6 invalid".
+      expect(card.progress).toBe(0);
+      expect(card.badge?.label).toBe("4 invalid");
+    });
+  });
+
+  // Source studies progress fill is (total - unpublished) / total, matching the
+  // "N unpublished" badge.
+  describe("source studies progress bar", () => {
+    it("derives progress from total - unpublished", () => {
+      // total 9, unpublished 6 → (9 - 6) / 9.
+      expect(buildSourceStudiesCard(SUMMARY).progress).toBeCloseTo(
+        ((9 - 6) / 9) * 100,
+      );
+    });
+
+    it("is 0 when there are no studies", () => {
+      expect(buildSourceStudiesCard(ZERO_SUMMARY).progress).toBe(0);
     });
   });
 });
