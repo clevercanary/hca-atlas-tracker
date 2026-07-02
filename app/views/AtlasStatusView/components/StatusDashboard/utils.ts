@@ -145,9 +145,14 @@ export function buildSourceDatasetsCard(
       [{ invalid, valid: sourceDatasets.tier1Valid }],
       "0 valid source datasets",
     ),
-    // Fill = (total - invalid) / total so the bar matches the "N invalid" badge
-    // below it (pending datasets count towards the bar, not against it).
-    progress: getProgress(sourceDatasets.total - invalid, sourceDatasets.total),
+    // Fill = (total - invalid) / total to match the "N invalid" badge below it
+    // (pending datasets count towards the bar). But when nothing has been
+    // validated yet (no valid and no invalid), show an empty bar rather than a
+    // full one.
+    progress:
+      sourceDatasets.tier1Valid + invalid === 0
+        ? 0
+        : getProgress(sourceDatasets.total - invalid, sourceDatasets.total),
     sections: [
       {
         heading: SECTION_HEADING.PROCESSING,

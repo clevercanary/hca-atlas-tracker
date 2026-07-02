@@ -319,6 +319,20 @@ describe("StatusDashboard", () => {
       expect(progress).toBeCloseTo(((56 - 9) / 56) * 100);
       expect(progress).toBeGreaterThan(0);
     });
+
+    it("is empty when nothing has been validated (0 valid, 0 invalid)", () => {
+      const summary: AtlasStatusSummary = {
+        ...SUMMARY,
+        sourceDatasets: {
+          ...SUMMARY.sourceDatasets,
+          tier1Invalid: 0,
+          tier1Valid: 0,
+          total: 2,
+        },
+      };
+      // All pending → 0, not (2 - 0) / 2 = 100%.
+      expect(buildSourceDatasetsCard(summary).progress).toBe(0);
+    });
   });
 
   // The integrated objects progress bar fill is (total - invalid) / total, where
