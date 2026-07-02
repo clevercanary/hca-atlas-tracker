@@ -80,7 +80,10 @@ export function buildIntegratedObjectsCard(
     integratedObjects.tier1Valid,
     integratedObjects.cellAnnotationValid,
   ];
-  const fullyValid = Math.max(0, Math.min(...sectionValids));
+  const fullyValid = Math.max(
+    0,
+    Math.min(integratedObjects.total, ...sectionValids),
+  );
   const invalid = integratedObjects.total - fullyValid;
   return {
     badge: getMinValidBadge(
