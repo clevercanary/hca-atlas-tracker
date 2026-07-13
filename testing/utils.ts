@@ -309,17 +309,7 @@ export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
     ...restFields
   } = file;
   const resolvedAtlas = typeof atlas === "function" ? atlas() : atlas;
-  const validationInfo: HCAAtlasTrackerDBFileValidationInfo | null =
-    file.validationInfo !== undefined
-      ? file.validationInfo
-      : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1387
-        integrityCheckedAt === null
-        ? null
-        : {
-            batchJobId: `batch-job-${file.id}`,
-            snsMessageId: `sns-message-${file.id}`,
-            snsMessageTime: integrityCheckedAt,
-          };
+  const validationInfo = getTestFileValidationInfo(file, integrityCheckedAt);
   return {
     atlas,
     datasetInfo,
@@ -337,6 +327,19 @@ export function fillTestFileDefaults(file: TestFile): NormalizedTestFile {
     validationStatus,
     validationSummary,
     ...restFields,
+  };
+}
+
+function getTestFileValidationInfo(
+  file: TestFile,
+  integrityCheckedAt: string | null,
+): HCAAtlasTrackerDBFileValidationInfo | null {
+  if (file.validationInfo !== undefined) return file.validationInfo;
+  if (integrityCheckedAt === null) return null;
+  return {
+    batchJobId: `batch-job-${file.id}`,
+    snsMessageId: `sns-message-${file.id}`,
+    snsMessageTime: integrityCheckedAt,
   };
 }
 

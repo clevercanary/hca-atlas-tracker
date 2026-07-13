@@ -53,12 +53,7 @@ export const IntegrationLeadsFromAtlasesForm = (): JSX.Element => {
       </div>
       {responseErrors || didUpdate ? (
         <div style={{ marginTop: "1em" }}>
-          {responseErrors
-            ? buildResponseErrors(responseErrors)
-            : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1368
-              didUpdate
-              ? "Updated"
-              : ""}
+          {responseErrors ? buildResponseErrors(responseErrors) : "Updated"}
         </div>
       ) : (
         ""

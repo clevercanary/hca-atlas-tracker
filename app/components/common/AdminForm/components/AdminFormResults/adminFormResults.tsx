@@ -13,17 +13,19 @@ export const AdminFormResults = ({
   success,
   wrapResult = defaultWrapResult,
 }: Props): JSX.Element => {
-  return (
-    <>
-      {errors === null
-        ? // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1372
-          success === null
-          ? ""
-          : applyResultWrapper(success, wrapResult)
-        : applyResultWrapper(<AdminFormErrors errors={errors} />, wrapResult)}
-    </>
-  );
+  return <>{buildResults(errors, success, wrapResult)}</>;
 };
+
+function buildResults(
+  errors: FormResponseErrors | null,
+  success: React.ReactNode | null,
+  wrapResult: ((result: React.ReactNode) => React.ReactNode) | null,
+): React.ReactNode {
+  if (errors !== null)
+    return applyResultWrapper(<AdminFormErrors errors={errors} />, wrapResult);
+  if (success !== null) return applyResultWrapper(success, wrapResult);
+  return "";
+}
 
 function applyResultWrapper(
   result: React.ReactNode,

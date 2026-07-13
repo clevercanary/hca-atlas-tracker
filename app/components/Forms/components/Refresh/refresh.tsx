@@ -44,12 +44,7 @@ export const RefreshForm = (): JSX.Element => {
 
   return (
     <>
-      {statusResponseErrors
-        ? buildResponseErrors(statusResponseErrors)
-        : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1369
-          statuses
-          ? buildStatuses(statuses)
-          : ""}
+      {buildStatusResult(statusResponseErrors, statuses)}
       <div style={{ marginBottom: "1em", marginTop: "1em" }}>
         <Button
           color={BUTTON_PROPS.COLOR.PRIMARY}
@@ -71,17 +66,28 @@ export const RefreshForm = (): JSX.Element => {
           Start Refresh
         </Button>
       </div>
-      {refreshResponseErrors ? (
-        buildResponseErrors(refreshResponseErrors)
-      ) : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1369
-      refreshStarted ? (
-        <div>Refresh started</div>
-      ) : (
-        ""
-      )}
+      {buildRefreshResult(refreshResponseErrors, refreshStarted)}
     </>
   );
 };
+
+function buildStatusResult(
+  statusResponseErrors: FormResponseErrors | undefined,
+  statuses: RefreshServicesStatuses | undefined,
+): JSX.Element | string {
+  if (statusResponseErrors) return buildResponseErrors(statusResponseErrors);
+  if (statuses) return buildStatuses(statuses);
+  return "";
+}
+
+function buildRefreshResult(
+  refreshResponseErrors: FormResponseErrors | undefined,
+  refreshStarted: boolean,
+): JSX.Element | string {
+  if (refreshResponseErrors) return buildResponseErrors(refreshResponseErrors);
+  if (refreshStarted) return <div>Refresh started</div>;
+  return "";
+}
 
 function buildStatuses(statuses: RefreshServicesStatuses): JSX.Element {
   return (

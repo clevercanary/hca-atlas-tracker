@@ -138,12 +138,7 @@ export function makeRefreshService<TData, TRefreshParams>(
     },
     getStatus(): RefreshStatus {
       return {
-        currentActivity: info.refreshing
-          ? REFRESH_ACTIVITY.REFRESHING
-          : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1378
-            info.attemptingRefresh
-            ? REFRESH_ACTIVITY.ATTEMPTING_REFRESH
-            : REFRESH_ACTIVITY.NOT_REFRESHING,
+        currentActivity: getCurrentActivity(info),
         errorMessage: info.errorMessage ?? null,
         lastAttemptedAt: info.lastAttemptedAt?.toISOString() ?? null,
         lastResolvedAt: info.lastResolvedAt?.toISOString() ?? null,
@@ -157,6 +152,14 @@ export function makeRefreshService<TData, TRefreshParams>(
       startRefreshIfNeeded(params, info);
     },
   };
+}
+
+function getCurrentActivity<TData, TRefreshParams>(
+  info: RefreshInfo<TData, TRefreshParams>,
+): REFRESH_ACTIVITY {
+  if (info.refreshing) return REFRESH_ACTIVITY.REFRESHING;
+  if (info.attemptingRefresh) return REFRESH_ACTIVITY.ATTEMPTING_REFRESH;
+  return REFRESH_ACTIVITY.NOT_REFRESHING;
 }
 
 function startRefreshIfNeeded<TData, TRefreshParams>(
