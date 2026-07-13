@@ -216,12 +216,10 @@ async function addValidationsToSourceStudiesInfo<
   >();
   for (const validation of validations) {
     let studyValidations = validationsBySourceStudyId.get(validation.entity_id);
-    if (!studyValidations)
-      validationsBySourceStudyId.set(
-        validation.entity_id,
-        // eslint-disable-next-line sonarjs/no-nested-assignment -- track via #1379
-        (studyValidations = []),
-      );
+    if (!studyValidations) {
+      studyValidations = [];
+      validationsBySourceStudyId.set(validation.entity_id, studyValidations);
+    }
     studyValidations.push(validation);
   }
   return sourceStudies.map((sourceStudy) => ({

@@ -120,8 +120,8 @@ export function makeRefreshService<TData, TRefreshParams>(
   if (initStoredInfo) {
     info = initStoredInfo;
   } else {
-    // eslint-disable-next-line sonarjs/no-nested-assignment -- track via #1377
-    setStoredInfo((info = {}));
+    info = {};
+    setStoredInfo(info);
   }
 
   return {
