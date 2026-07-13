@@ -1,5 +1,5 @@
 /**
- * Get a boolean that is randomly true according the given probability, to be used to generate data for manual testing.
+ * Get a boolean that is randomly true according to the given probability, to be used to generate data for manual testing.
  * @param probability - Probability (0 to 1) to check against.
  * @returns boolean to use for test data, corresponding to the provided probability.
  */
