@@ -89,7 +89,8 @@ export async function processValidationResultsMessage(
     snsMessage,
     validationResults.error_message,
   );
-  // An invalid integrity status is also counted as completed, since the dataset validator currently sets the status as "failure" when the integrity check doesn't pass.
+  // An invalid integrity status is also counted as completed, since the dataset validator
+  // currently sets the status as "failure" when the integrity check doesn't pass.
   const validationStatus =
     validationResults.status === "success" ||
     validationResults.integrity_status === INTEGRITY_STATUS.INVALID
