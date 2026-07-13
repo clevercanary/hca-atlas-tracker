@@ -23,6 +23,7 @@ import { addValidationResultsToFile } from "../app/data/files";
 import { doTransaction, endPgPool } from "../app/services/database";
 import { toolReportsToValidationReportsAndSummary } from "../app/services/validation-results-notification";
 import dataDictionary from "../catalog/downloaded/data-dictionary.json";
+import { randomTestProbabilityPasses, randomTestValueInRange } from "./utils";
 
 /**
  * Usage: `npx tsx db_scripts/generate-test-validation-results.ts <keyword/flag ...>`
@@ -115,8 +116,6 @@ const PROBABILITY_DEFS = [
     id: PROBABILITY.TOOL_VALID,
   },
 ];
-
-// (Below use uninclusive max)
 
 const MIN_METADATA_RECORD_COUNT = 100;
 const MAX_METADATA_RECORD_COUNT = 1000;
@@ -281,15 +280,9 @@ function getSuccessfulValidationFields(
   return {
     datasetInfo: {
       assay: generateArray("assay"),
-      cellCount:
-        // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-        Math.floor(Math.random() * (MAX_CELL_COUNT - MIN_CELL_COUNT)) +
-        MIN_CELL_COUNT,
+      cellCount: randomTestValueInRange(MIN_CELL_COUNT, MAX_CELL_COUNT),
       disease: generateArray("disease"),
-      geneCount:
-        // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-        Math.floor(Math.random() * (MAX_GENE_COUNT - MIN_GENE_COUNT)) +
-        MIN_GENE_COUNT,
+      geneCount: randomTestValueInRange(MIN_GENE_COUNT, MAX_GENE_COUNT),
       suspensionType: generateArray("suspension-type"),
       tissue: generateArray("tissue"),
       title: `Test ${(key && key.split("/").pop()) || fileId}`,
@@ -329,12 +322,11 @@ function makeMetadataCoverage(): FileMetadataCoverage {
 
       const completeCount = fieldAllComplete
         ? recordCount
-        : // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-          Math.floor(Math.random() * (recordCount + 1));
+        : randomTestValueInRange(0, recordCount);
 
-      const missingCount = Math.floor(
-        // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-        Math.random() * (recordCount - completeCount + 1),
+      const missingCount = randomTestValueInRange(
+        0,
+        recordCount - completeCount,
       );
 
       fieldCoverage.push({
@@ -356,12 +348,10 @@ function makeMetadataCoverage(): FileMetadataCoverage {
 
   function generateEntity(): FileMetadataCoverageEntity {
     return {
-      recordCount:
-        Math.floor(
-          // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-          Math.random() *
-            (MAX_METADATA_RECORD_COUNT - MIN_METADATA_RECORD_COUNT),
-        ) + MIN_METADATA_RECORD_COUNT,
+      recordCount: randomTestValueInRange(
+        MIN_METADATA_RECORD_COUNT,
+        MAX_METADATA_RECORD_COUNT,
+      ),
     };
   }
 }
@@ -398,11 +388,9 @@ function generateToolReport(forceValid: boolean): DatasetValidatorToolReport {
   const errors = valid
     ? []
     : generateArrayVia((l) => `Error ${l.toUpperCase()}`);
-  const warnings =
-    // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-    Math.random() < 0.5
-      ? []
-      : generateArrayVia((l) => `Warning ${l.toUpperCase()}`);
+  const warnings = randomTestProbabilityPasses(0.5)
+    ? []
+    : generateArrayVia((l) => `Warning ${l.toUpperCase()}`);
   const timestamp = new Date().toISOString();
   return {
     errors,
@@ -424,9 +412,7 @@ function generateArrayVia(
 ): string[] {
   let prevLetters = Array.from(LETTERS);
   let lettersLeft = prevLetters.slice();
-  const amount =
-    // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-    Math.floor(Math.random() * (maxLength - minLength)) + minLength;
+  const amount = randomTestValueInRange(minLength, maxLength);
   const result: string[] = [];
   for (let i = 0; i < amount; i++) {
     if (lettersLeft.length === 0) {
@@ -435,8 +421,7 @@ function generateArrayVia(
         .flat();
       lettersLeft = prevLetters.slice();
     }
-    // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-    const j = Math.floor(Math.random() * lettersLeft.length);
+    const j = randomTestValueInRange(0, lettersLeft.length - 1);
     result.push(makeItem(lettersLeft[j]));
     lettersLeft.splice(j, 1);
   }
@@ -597,8 +582,7 @@ function probabilityPasses(probability: PROBABILITY): boolean {
   const defaultValue = probabilityDefaults[probability];
   if (defaultValue === undefined)
     throw new Error(`No definition found for ${probability} probability`);
-  // eslint-disable-next-line sonarjs/pseudo-random -- track via #1386
-  return Math.random() < defaultValue;
+  return randomTestProbabilityPasses(defaultValue);
 }
 
 function isFlagParam(param: string): boolean {

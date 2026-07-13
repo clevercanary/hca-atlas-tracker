@@ -39,6 +39,7 @@ import { createComponentAtlas } from "../app/services/component-atlases";
 import { getOrCreateConceptId } from "../app/services/concepts";
 import { doTransaction, endPgPool } from "../app/services/database";
 import { createSourceDataset } from "../app/services/source-datasets";
+import { randomTestValueInRange } from "./utils";
 
 /**
  * Usage: `npx tsx db_scripts/generate-test-files.ts`
@@ -239,17 +240,17 @@ async function generateAndAddFilesForAtlas(
   client: pg.PoolClient,
   atlas: HCAAtlasTrackerDBAtlas,
 ): Promise<[number, number]> {
-  const integratedObjectAmount = randomInRange(
+  const integratedObjectAmount = randomTestValueInRange(
     GENERATED_INTEGRATED_OBJECT_AMOUNT_MIN,
     GENERATED_INTEGRATED_OBJECT_AMOUNT_MAX,
   );
-  const sourceDatasetAmount = randomInRange(
+  const sourceDatasetAmount = randomTestValueInRange(
     GENERATED_SOURCE_DATASET_AMOUNT_MIN,
     GENERATED_SOURCE_DATASET_AMOUNT_MAX,
   );
 
-  const bucketName = `test-${randomInRange(0, 99999)}`;
-  const versioned = Boolean(randomInRange(0, 1));
+  const bucketName = `test-${randomTestValueInRange(0, 99999)}`;
+  const versioned = Boolean(randomTestValueInRange(0, 1));
 
   // Generate integrated object files linked to component atlases
   for (let i = 0; i < integratedObjectAmount; i++) {
@@ -290,7 +291,7 @@ async function generateAndAddVersionsForFile(
     throw new Error(`Missing concept ID for file ${file.id}`);
   const conceptId = file.concept_id;
 
-  const numVersions = randomInRange(
+  const numVersions = randomTestValueInRange(
     GENERATED_FILE_VERSION_AMOUNT_MIN,
     GENERATED_FILE_VERSION_AMOUNT_MAX,
   );
@@ -427,12 +428,14 @@ async function generateAndAddFileVersion(
   conceptId: string,
 ): Promise<string> {
   const versionId = versioned
-    ? randomInRange(0, 999999).toString().padStart(6, "0")
+    ? randomTestValueInRange(0, 999999).toString().padStart(6, "0")
     : null;
   const eTag = crypto.randomUUID().replaceAll("-", "");
   const eventInfo: FileEventInfo = {
     eventName: "ObjectCreated:*",
-    eventTime: new Date(randomInRange(1755755554042, Date.now())).toISOString(),
+    eventTime: new Date(
+      randomTestValueInRange(1755755554042, Date.now()),
+    ).toISOString(),
   };
   const snsMessageId = crypto.randomUUID();
 
@@ -446,7 +449,7 @@ async function generateAndAddFileVersion(
       integrityStatus: INTEGRITY_STATUS.PENDING,
       key,
       sha256Client: null,
-      sizeBytes: randomInRange(1e3, 1e12),
+      sizeBytes: randomTestValueInRange(1e3, 1e12),
       snsMessageId,
       validationStatus: FILE_VALIDATION_STATUS.PENDING,
       versionId,
@@ -469,11 +472,11 @@ async function generateAndAddAtlas(client: pg.PoolClient): Promise<string> {
   const network = chooseRandom(networkOptions);
   // Create a random sequence of letters to name the atlas with
   const shortNameDiscriminator = Array.from({ length: 5 }, () =>
-    String.fromCodePoint(65 + randomInRange(0, 25)),
+    String.fromCodePoint(65 + randomTestValueInRange(0, 25)),
   ).join("");
   const shortName = `Files Test ${shortNameDiscriminator}`;
-  const generation = randomInRange(0, 9);
-  const revision = randomInRange(0, 9);
+  const generation = randomTestValueInRange(0, 9);
+  const revision = randomTestValueInRange(0, 9);
   const wave = chooseRandom(waveOptions);
   const status = chooseRandom(atlasStatusOptions);
   const integrationLead = chooseRandom(integrationLeadOptions);
@@ -499,10 +502,5 @@ async function generateAndAddAtlas(client: pg.PoolClient): Promise<string> {
 }
 
 function chooseRandom<T>(arr: T[]): T {
-  return arr[randomInRange(0, arr.length - 1)];
-}
-
-function randomInRange(min: number, max: number): number {
-  // eslint-disable-next-line sonarjs/pseudo-random -- track via #1385
-  return min + Math.floor(Math.random() * (max - min + 1));
+  return arr[randomTestValueInRange(0, arr.length - 1)];
 }
