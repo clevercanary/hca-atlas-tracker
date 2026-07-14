@@ -74,12 +74,7 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
       {responseErrors || updateResult ? (
         <>
           <h2>Result</h2>
-          {responseErrors
-            ? buildResponseErrors(responseErrors)
-            : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1367
-              updateResult
-              ? buildUpdateResult(updateResult)
-              : ""}
+          {buildResult(responseErrors, updateResult)}
         </>
       ) : (
         ""
@@ -87,6 +82,15 @@ export const CellxGeneInProgressForm = (): JSX.Element => {
     </>
   );
 };
+
+function buildResult(
+  responseErrors: FormResponseErrors | undefined,
+  updateResult: TaskStatusesUpdatedByDOIResult | undefined,
+): JSX.Element | string {
+  if (responseErrors) return buildResponseErrors(responseErrors);
+  if (updateResult) return buildUpdateResult(updateResult);
+  return "";
+}
 
 function buildResponseErrors(responseErrors: FormResponseErrors): JSX.Element {
   return "message" in responseErrors ? (

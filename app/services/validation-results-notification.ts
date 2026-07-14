@@ -89,13 +89,13 @@ export async function processValidationResultsMessage(
     snsMessage,
     validationResults.error_message,
   );
+  // An invalid integrity status is also counted as completed, since the dataset validator
+  // currently sets the status as "failure" when the integrity check doesn't pass.
   const validationStatus =
-    validationResults.status === "success"
+    validationResults.status === "success" ||
+    validationResults.integrity_status === INTEGRITY_STATUS.INVALID
       ? FILE_VALIDATION_STATUS.COMPLETED
-      : // eslint-disable-next-line sonarjs/no-nested-conditional -- track via #1381
-        validationResults.integrity_status === INTEGRITY_STATUS.INVALID // Currently, the dataset validator sets the status as "failure" when the integrity check doesn't pass
-        ? FILE_VALIDATION_STATUS.COMPLETED
-        : FILE_VALIDATION_STATUS.JOB_FAILED;
+      : FILE_VALIDATION_STATUS.JOB_FAILED;
   const [validationReports, validationSummary] =
     getValidationReportsAndSummary(validationResults);
 
