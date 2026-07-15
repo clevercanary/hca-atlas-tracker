@@ -24,14 +24,14 @@ jobs:
       - run: echo "🍏 This job's run number is${{ env.IMAGE_TAG }}"
 
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
 
       - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@517a711dbcd0e402f90c77e7e2f81e849156e31d # v6.2.2
         with:
           role-to-assume: arn:aws:iam::${{ secrets.PROD_AWS_ACCOUNT_ID }}:role/${{ secrets.PROD_AWS_ROLE_NAME }}
           role-session-name: ${{ secrets.PROD_ROLE_SESSION_NAME }}
@@ -39,7 +39,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@d539f0932e70871a027e9d5a9d8fc38589180a64 # v2.1.6
 
       - name: Build Docker container
         id: build-image
