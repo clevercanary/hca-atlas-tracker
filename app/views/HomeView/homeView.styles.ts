@@ -10,6 +10,10 @@ import { Stack } from "@mui/material";
 export const StyledSection = styled.section`
   align-items: center;
   align-self: stretch;
+  /* Dominant color of the hero image, painted first so the initial paint is
+   * blue rather than the white body showing through while the background
+   * image decodes. */
+  background-color: #004d75;
   background-image: url("/landing/hca-cell.webp");
   background-position: center;
   background-size: cover;
