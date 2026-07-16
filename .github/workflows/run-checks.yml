@@ -14,3 +14,30 @@ jobs:
           npm run check-format
           npm run lint
           npx tsc --noEmit
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: atlas-tracker-test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "22.13.0"
+      - run: npm ci
+      - run: npm test
+        env:
+          PGPASSWORD: postgres
+          PGUSER: postgres
+          TZ: UTC
