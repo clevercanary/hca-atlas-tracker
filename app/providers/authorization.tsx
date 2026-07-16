@@ -66,19 +66,26 @@ function isUserAuthorized(role?: ROLE, disabled?: boolean): boolean {
  * Returns true if components should be rendered.
  *
  * Renders children:
- * - While auth/user state is still resolving (optimistic; a brief render
- *   before the disabled-user redirect fires is acceptable). This is what
- *   stops the disappear → reappear flash for authenticated users on first
- *   load — previously the UI would render, collapse while the user fetch
- *   was in flight, then re-render once the role landed.
- * - When the user is unauthenticated.
- * - When the user is authenticated and authorized.
+ * - When the user is unauthenticated (optimistically, whether or not auth
+ *   state has settled). Unauthenticated pages don't fire authenticated data
+ *   fetches, so rendering early is safe and avoids a first-load flash.
+ * - When the user is authenticated, settled, and authorized.
  *
- * Falls through to a placeholder when the user is authenticated and known
- * to be unauthorized — i.e. `disabled` (the existing `useEffect` redirects
- * them to `/account-disabled`) OR `UNREGISTERED` (no role yet, currently
- * left as a blank placeholder; tracked as a follow-up so they're routed to
- * a dedicated "awaiting access" page instead).
+ * Falls through to a placeholder when the user is authenticated but not yet
+ * settled, or settled and known to be unauthorized:
+ * - `!isSettled`: the active-user fetch (`PUT /api/me`, which auto-registers
+ *   first-time users) is still in flight. Holding back children until it
+ *   resolves stops the target page from mounting and firing its own data
+ *   fetch first — which on a deep link could otherwise reach the server
+ *   before the `hat.users` row exists and get a 403 (see issue #1456).
+ *   Tradeoff: if `PUT /api/me` stalls indefinitely this placeholder never
+ *   clears; giving that fetch a timeout so a hang surfaces via the
+ *   ErrorBoundary is tracked as a follow-up (issue #1460).
+ * - `disabled`: the existing `useEffect` redirects them to
+ *   `/account-disabled`.
+ * - `UNREGISTERED`: no role yet, currently left as a blank placeholder;
+ *   tracked as a follow-up so they're routed to a dedicated "awaiting
+ *   access" page instead.
  * @param isSettled - Auth and (if authenticated) user fetch are both resolved.
  * @param isAuthenticated - User's authentication status.
  * @param isAuthorized - User's authorization status.
@@ -89,5 +96,5 @@ function shouldRenderComponents(
   isAuthenticated: boolean,
   isAuthorized: boolean,
 ): boolean {
-  return !isSettled || !isAuthenticated || isAuthorized;
+  return !isAuthenticated || (isSettled && isAuthorized);
 }
