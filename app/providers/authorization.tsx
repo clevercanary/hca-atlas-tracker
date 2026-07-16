@@ -91,7 +91,7 @@ function isUserAuthorized(role?: ROLE, disabled?: boolean): boolean {
  * @param isAuthorized - User's authorization status.
  * @returns true if the components should be rendered.
  */
-function shouldRenderComponents(
+export function shouldRenderComponents(
   isSettled: boolean,
   isAuthenticated: boolean,
   isAuthorized: boolean,
