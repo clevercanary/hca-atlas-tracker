@@ -131,6 +131,34 @@ export async function createUser(
 }
 
 /**
+ * Register the user with the given email as a `STAKEHOLDER` if they don't
+ * already have a record, and return their role. Called from the NextAuth
+ * `jwt` callback on sign-in so the `hat.users` row exists before the session
+ * cookie is issued to the browser — this prevents an authenticated page's own
+ * data-fetch from racing auto-registration and getting a spurious 403 on a
+ * first-time deep link (issue #1456).
+ *
+ * Idempotent: `ON CONFLICT (email) DO NOTHING` leaves an existing user and
+ * their role untouched, so this is safe to call on every sign-in. Mirrors the
+ * `STAKEHOLDER` auto-registration in `PUT /api/me` (`pages/api/me.ts`).
+ * @param email - Email of the user.
+ * @param fullName - Full name of the user, used only when creating the record.
+ * @returns The user's role.
+ */
+export async function registerUser(
+  email: string,
+  fullName: string,
+): Promise<ROLE> {
+  await query(
+    `INSERT INTO hat.users (disabled, email, full_name, role, role_associated_resource_ids)
+     VALUES (false, $1, $2, $3, '{}')
+     ON CONFLICT (email) DO NOTHING`,
+    [email, fullName, ROLE.STAKEHOLDER],
+  );
+  return getUserRoleByEmail(email);
+}
+
+/**
  * Update a user.
  * @param id - ID of the user to update.
  * @param inputData - Values used to update a user.

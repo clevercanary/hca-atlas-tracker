@@ -1,6 +1,9 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { getUserRoleByEmail } from "../../../../app/services/users";
+import {
+  getUserRoleByEmail,
+  registerUser,
+} from "../../../../app/services/users";
 import { SESSION_MAX_AGE } from "./constants";
 import { GoogleAuthParams } from "./entities";
 
@@ -50,10 +53,20 @@ export const nextAuthOptions: NextAuthOptions = {
     // needed) and avoids a DB hit once the role is present. Tradeoff: a later
     // DB role *change* isn't reflected until the token is reissued — acceptable
     // here, as role changes are rare and admin-driven.
+    //
+    // On initial sign-in we also auto-register first-time users here (rather
+    // than relying solely on the client-side `PUT /api/me`), so the
+    // `hat.users` row exists before the session cookie is issued. Otherwise a
+    // first-time user landing on a deep link can have the page's own data
+    // fetch reach the server before registration commits and get a spurious
+    // 403 (issue #1456).
     async jwt({ token, user }) {
-      const email = user?.email ?? token.email;
-      if (email && token.role === undefined) {
-        token.role = await getUserRoleByEmail(email);
+      if (token.role === undefined) {
+        if (user?.email) {
+          token.role = await registerUser(user.email, user.name ?? "");
+        } else if (token.email) {
+          token.role = await getUserRoleByEmail(token.email);
+        }
       }
       return token;
     },
