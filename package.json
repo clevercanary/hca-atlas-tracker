@@ -9,6 +9,7 @@
     "build:prod": "./scripts/build.sh hca-atlas-tracker prod && ./scripts/set-version.sh && next build --webpack",
     "start": "next start",
     "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit",
     "check-format": "prettier --check .",
     "prepare": "husky install .husky",
     "test": "jest --runInBand",
