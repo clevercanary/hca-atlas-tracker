@@ -18,7 +18,7 @@ npm run lint ||
 )
 
 # Check TypeScript
-npx tsc --noEmit ||
+npm run typecheck ||
 (
 	echo 'TypeScript compile failed';
 	false;
