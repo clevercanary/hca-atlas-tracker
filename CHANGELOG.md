@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.78.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.78.0...v1.78.1) (2026-07-23)
+
+
+### Continuous Integration
+
+* run dev deploy after release-please to fix version race ([#1476](https://github.com/clevercanary/hca-atlas-tracker/issues/1476)) ([55aaef7](https://github.com/clevercanary/hca-atlas-tracker/commit/55aaef7fde7fd871a6d9c9e113dab8d87758a696))
+
 ## [1.78.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.77.0...v1.78.0) (2026-07-23)
 
 
