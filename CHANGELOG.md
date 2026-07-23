@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.78.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.77.0...v1.78.0) (2026-07-23)
+
+
+### Features
+
+* restrict randomness in test data generators to two utility functions ([#1385](https://github.com/clevercanary/hca-atlas-tracker/issues/1385), [#1386](https://github.com/clevercanary/hca-atlas-tracker/issues/1386)) ([#1446](https://github.com/clevercanary/hca-atlas-tracker/issues/1446)) ([ea15c1a](https://github.com/clevercanary/hca-atlas-tracker/commit/ea15c1a11db86685b9d11698771da3326a67d235))
+* role-based route authorization via nextauth jwt (drop accessdeniedprompt) ([#1356](https://github.com/clevercanary/hca-atlas-tracker/issues/1356)) ([#1438](https://github.com/clevercanary/hca-atlas-tracker/issues/1438)) ([114366b](https://github.com/clevercanary/hca-atlas-tracker/commit/114366b0fb4e271b33ae6e780970525ad91a1707))
+
+
+### Bug Fixes
+
+* first-time login on a deep link can 403 because page data-fetch races auto-registration ([#1456](https://github.com/clevercanary/hca-atlas-tracker/issues/1456)) ([#1461](https://github.com/clevercanary/hca-atlas-tracker/issues/1461)) ([2c7c39a](https://github.com/clevercanary/hca-atlas-tracker/commit/2c7c39a5277f15dae7d1cdc46f3f44cf50b47368))
+* white-&gt;blue flash on first paint of login/landing page ([#1457](https://github.com/clevercanary/hca-atlas-tracker/issues/1457)) ([#1462](https://github.com/clevercanary/hca-atlas-tracker/issues/1462)) ([726b625](https://github.com/clevercanary/hca-atlas-tracker/commit/726b6257c9f80492e8429c656df9e5b4dbba05b3))
+
+
+### Documentation
+
+* add note about generating next types for typechecking ([#1468](https://github.com/clevercanary/hca-atlas-tracker/issues/1468)) ([#1469](https://github.com/clevercanary/hca-atlas-tracker/issues/1469)) ([fe25132](https://github.com/clevercanary/hca-atlas-tracker/commit/fe251325d2a4f116031d98859c1f3bd5f33faf53))
+
+
+### Code Refactoring
+
+* resolve `sonarjs/no-nested-assignment` errors ([#1448](https://github.com/clevercanary/hca-atlas-tracker/issues/1448)) ([#1450](https://github.com/clevercanary/hca-atlas-tracker/issues/1450)) ([5ef3eaf](https://github.com/clevercanary/hca-atlas-tracker/commit/5ef3eaf2d159f2d5652950b73c2cedcc07519f06))
+* resolve `sonarjs/no-nested-conditional` errors ([#1447](https://github.com/clevercanary/hca-atlas-tracker/issues/1447)) ([#1449](https://github.com/clevercanary/hca-atlas-tracker/issues/1449)) ([41b7fa0](https://github.com/clevercanary/hca-atlas-tracker/commit/41b7fa017509cfb33564192058b51dd60a344901))
+
+
+### Continuous Integration
+
+* generate next types before doing typechecking but exclude dev types ([#1459](https://github.com/clevercanary/hca-atlas-tracker/issues/1459)) ([#1467](https://github.com/clevercanary/hca-atlas-tracker/issues/1467)) ([17c2cad](https://github.com/clevercanary/hca-atlas-tracker/commit/17c2cad15f2a3b2ac05168ccd36ac6fb5e91633a))
+* pin github actions by commit sha at current versions ([#1453](https://github.com/clevercanary/hca-atlas-tracker/issues/1453)) ([76d298a](https://github.com/clevercanary/hca-atlas-tracker/commit/76d298a4697a6e1cf5f39c32c890fea88be23fd5))
+* pin github actions by commit sha at current versions ([#1455](https://github.com/clevercanary/hca-atlas-tracker/issues/1455)) ([76d298a](https://github.com/clevercanary/hca-atlas-tracker/commit/76d298a4697a6e1cf5f39c32c890fea88be23fd5))
+* run unit tests in ci ([#1463](https://github.com/clevercanary/hca-atlas-tracker/issues/1463)) ([#1465](https://github.com/clevercanary/hca-atlas-tracker/issues/1465)) ([3c979d5](https://github.com/clevercanary/hca-atlas-tracker/commit/3c979d58d3eb01dd72fabbf6984eb66391892e91))
+* upgrade release-please-action from v4 to v5 ([#1451](https://github.com/clevercanary/hca-atlas-tracker/issues/1451)) ([6ff1f10](https://github.com/clevercanary/hca-atlas-tracker/commit/6ff1f10de597a42e47505a336ebccf799ed18e06))
+* upgrade release-please-action from v4 to v5 ([#1452](https://github.com/clevercanary/hca-atlas-tracker/issues/1452)) ([6ff1f10](https://github.com/clevercanary/hca-atlas-tracker/commit/6ff1f10de597a42e47505a336ebccf799ed18e06))
+
 ## [1.77.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.76.0...v1.77.0) (2026-07-02)
 
 
