@@ -1,5 +1,8 @@
-import { Logo } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/components/Content/components/Logo/logo";
-import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
+import {
+  ANCHOR_TARGET,
+  REL_ATTRIBUTE,
+} from "@databiosphere/findable-ui/lib/components/Links/common/entities";
+import Image from "next/image";
 import { JSX } from "react";
 import { Brands } from "./hcaBranding.styles";
 
@@ -14,20 +17,30 @@ export const HCABranding = ({
 }: HCABrandingProps): JSX.Element => {
   return (
     <Brands>
-      <Logo
-        alt="HCA Data Portal"
-        height={32}
-        link={portalURL}
-        src="/images/hcaPortal.png"
+      <a
+        href={portalURL}
+        rel={REL_ATTRIBUTE.NO_OPENER_NO_REFERRER}
         target={ANCHOR_TARGET.BLANK}
-      />
-      <Logo
-        alt="The Human Cell Atlas"
-        height={32}
-        link={orgURL}
-        src="/images/hcaOrg.png"
+      >
+        <Image
+          alt="HCA Data Portal"
+          height={32}
+          src="/images/hcaPortal.png"
+          width={139}
+        />
+      </a>
+      <a
+        href={orgURL}
+        rel={REL_ATTRIBUTE.NO_OPENER_NO_REFERRER}
         target={ANCHOR_TARGET.BLANK}
-      />
+      >
+        <Image
+          alt="The Human Cell Atlas"
+          height={32}
+          src="/images/hcaOrg.png"
+          width={89}
+        />
+      </a>
     </Brands>
   );
 };
