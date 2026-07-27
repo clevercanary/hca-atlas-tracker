@@ -9,9 +9,9 @@ export const Figure = styled.figure`
   img {
     border: 1px solid ${PALETTE.SMOKE_MAIN};
     border-radius: 6px;
+    display: block;
     height: auto !important;
     inset: auto !important;
-    margin: 0 auto;
     position: relative !important;
   }
 
