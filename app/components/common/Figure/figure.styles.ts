@@ -4,12 +4,15 @@ import styled from "@emotion/styled";
 
 export const Figure = styled.figure`
   margin: 32px 0;
+  position: relative;
 
   img {
     border: 1px solid ${PALETTE.SMOKE_MAIN};
     border-radius: 6px;
-    margin: 0 auto;
-    max-width: 100%;
+    display: block;
+    height: auto !important;
+    inset: auto !important;
+    position: relative !important;
   }
 
   figcaption {

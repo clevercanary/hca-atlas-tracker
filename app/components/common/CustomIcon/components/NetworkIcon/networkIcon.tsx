@@ -1,29 +1,28 @@
-import {
-  StaticImage,
-  StaticImageProps,
-} from "@databiosphere/findable-ui/lib/components/common/StaticImage/staticImage";
+import Image, { ImageProps } from "next/image";
 import { JSX } from "react";
 import { NETWORK_ICONS } from "../../../../../apis/catalog/hca-atlas-tracker/common/constants";
 import { NetworkKey } from "../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 
-export interface NetworkIconProps extends Pick<
-  StaticImageProps,
-  "height" | "width"
-> {
+export interface NetworkIconProps extends Pick<ImageProps, "height" | "width"> {
+  alt?: string;
   networkKey: NetworkKey;
 }
 
 export const NetworkIcon = ({
+  alt = "",
   height = 24,
   networkKey,
-  ...props
+  width,
 }: NetworkIconProps): JSX.Element => {
+  // Icons render beside a visible network label, so they're decorative by
+  // default (empty alt); callers pass alt when used without an adjacent label.
+  // Icons are square, so default width to the rendered height.
   return (
-    <StaticImage
-      alt={networkKey}
+    <Image
+      alt={alt}
       height={height}
       src={NETWORK_ICONS[networkKey]}
-      {...props}
+      width={width ?? height}
     />
   );
 };

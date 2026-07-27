@@ -68,7 +68,7 @@ export function makeConfig(
           alt: APP_TITLE,
           height: 32.5,
           link: ROUTE.ATLASES,
-          src: "/images/hcaAtlasTracker.svg",
+          src: "/images/hcaAtlasTracker.webp",
         }),
         navigation: [
           undefined,

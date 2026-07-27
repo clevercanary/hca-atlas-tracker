@@ -20,7 +20,12 @@ const withMDX = nextMDX({
 export default withMDX({
   basePath: "",
   images: {
-    unoptimized: true,
+    // Serve WebP from the built-in optimizer. The tracker runs as a Node server
+    // (App Runner), so on-demand optimization is available — this is not a
+    // static export, which is the usual reason to disable it. WebP only (the
+    // Next.js default): AVIF encoding is CPU-heavy on the small container and
+    // would slow the first (uncached) request for little extra saving.
+    formats: ["image/webp"],
   },
   pageExtensions: ["md", "mdx", "ts", "tsx"],
   reactStrictMode: true,
