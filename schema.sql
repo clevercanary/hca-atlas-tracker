@@ -509,10 +509,59 @@ ALTER TABLE ONLY hat.validations
 
 
 --
+-- Name: atlases_source_studies_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX atlases_source_studies_index ON hat.atlases USING gin (source_studies);
+
+
+--
+-- Name: comments_thread_id_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX comments_thread_id_index ON hat.comments USING btree (thread_id);
+
+
+--
+-- Name: component_atlases_file_id_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX component_atlases_file_id_index ON hat.component_atlases USING btree (file_id);
+
+
+--
+-- Name: component_atlases_id_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX component_atlases_id_index ON hat.component_atlases USING btree (id);
+
+
+--
+-- Name: component_atlases_source_datasets_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX component_atlases_source_datasets_index ON hat.component_atlases USING gin (source_datasets);
+
+
+--
+-- Name: entry_sheet_validations_source_study_id_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX entry_sheet_validations_source_study_id_index ON hat.entry_sheet_validations USING btree (source_study_id);
+
+
+--
 -- Name: files_bucket_key_index; Type: INDEX; Schema: hat; Owner: -
 --
 
 CREATE INDEX files_bucket_key_index ON hat.files USING btree (bucket, key);
+
+
+--
+-- Name: files_concept_id_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX files_concept_id_index ON hat.files USING btree (concept_id);
 
 
 --
@@ -548,6 +597,48 @@ CREATE INDEX files_status_index ON hat.files USING btree (validation_status);
 --
 
 CREATE UNIQUE INDEX idx_concepts_identity_fields ON hat.concepts USING btree (atlas_short_name, base_filename, file_type, generation, network);
+
+
+--
+-- Name: source_datasets_file_id_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX source_datasets_file_id_index ON hat.source_datasets USING btree (file_id);
+
+
+--
+-- Name: source_datasets_id_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX source_datasets_id_index ON hat.source_datasets USING btree (id);
+
+
+--
+-- Name: source_datasets_source_study_id_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX source_datasets_source_study_id_index ON hat.source_datasets USING btree (source_study_id);
+
+
+--
+-- Name: source_studies_has_preprint_doi_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX source_studies_has_preprint_doi_index ON hat.source_studies USING btree ((((study_info -> 'publication'::text) ->> 'hasPreprintDoi'::text)));
+
+
+--
+-- Name: source_studies_preprint_of_doi_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX source_studies_preprint_of_doi_index ON hat.source_studies USING btree ((((study_info -> 'publication'::text) ->> 'preprintOfDoi'::text)));
+
+
+--
+-- Name: validations_atlas_ids_index; Type: INDEX; Schema: hat; Owner: -
+--
+
+CREATE INDEX validations_atlas_ids_index ON hat.validations USING gin (atlas_ids);
 
 
 --
