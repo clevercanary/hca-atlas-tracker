@@ -1,5 +1,6 @@
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
+import { EntityProvider } from "app/providers/entity/provider";
 import { JSX } from "react";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
@@ -9,9 +10,7 @@ import { AtlasStatuses } from "../../components/Layout/components/Detail/compone
 import { StyledDetailView } from "../../components/Layout/components/Detail/sticky/detailView.styles";
 import { useAtlasTabBackPath } from "../../hooks/useAtlasTabBackPath";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
-import { useFetchSourceStudiesSourceDatasets } from "../../hooks/useFetchSourceStudiesSourceDatasets";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
-import { useFetchAtlasSourceDatasets } from "../AtlasSourceDatasetsView/hooks/useFetchAtlasSourceDatasets";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchSourceStudies } from "./hooks/useFetchSourceStudies";
 
@@ -24,31 +23,31 @@ export const SourceStudiesView = ({
 }: SourceStudiesViewProps): JSX.Element => {
   const { atlas } = useFetchAtlas(pathParameter);
   const { sourceStudies } = useFetchSourceStudies(pathParameter);
-  const { atlasSourceDatasets } = useFetchAtlasSourceDatasets(pathParameter);
-  const sourceStudiesSourceDatasets =
-    useFetchSourceStudiesSourceDatasets(pathParameter);
   const formManager = useFormManager();
   const backPath = useAtlasTabBackPath(pathParameter);
   return (
-    <ConditionalComponent isIn={Boolean(atlas && sourceStudies)}>
-      <StyledDetailView
-        backPath={backPath}
-        breadcrumbs={
-          <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
-        }
-        mainColumn={
-          <ViewSourceStudies
-            atlasSourceDatasets={atlasSourceDatasets}
-            formManager={formManager}
-            pathParameter={pathParameter}
-            sourceStudies={sourceStudies}
-            sourceStudiesSourceDatasets={sourceStudiesSourceDatasets}
-          />
-        }
-        status={atlas && <AtlasStatuses statuses={atlas} />}
-        tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
-        title={atlas ? getAtlasName(atlas) : "View Source Studies"}
-      />
-    </ConditionalComponent>
+    <EntityProvider
+      data={{ sourceStudies }}
+      formManager={formManager}
+      pathParameter={pathParameter}
+    >
+      <ConditionalComponent isIn={Boolean(atlas && sourceStudies)}>
+        <StyledDetailView
+          backPath={backPath}
+          breadcrumbs={
+            <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
+          }
+          mainColumn={
+            <ViewSourceStudies
+              formManager={formManager}
+              pathParameter={pathParameter}
+            />
+          }
+          status={atlas && <AtlasStatuses statuses={atlas} />}
+          tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
+          title={atlas ? getAtlasName(atlas) : "View Source Studies"}
+        />
+      </ConditionalComponent>
+    </EntityProvider>
   );
 };
