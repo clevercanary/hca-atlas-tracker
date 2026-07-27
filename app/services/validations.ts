@@ -366,7 +366,7 @@ export async function getValidationRecords(
             ARRAY_AGG(DISTINCT a.overview->>'network') AS networks,
             ARRAY_AGG(DISTINCT a.overview->>'wave') AS waves
           FROM hat.validations v
-          LEFT JOIN hat.atlases a ON v.atlas_ids @> ARRAY[a.id]
+          LEFT JOIN hat.atlases a ON a.id = ANY(v.atlas_ids)
           WHERE v.id=ANY($1)
           GROUP BY v.entity_id, v.validation_id;
         `,
@@ -383,7 +383,7 @@ export async function getValidationRecords(
             ARRAY_AGG(DISTINCT a.overview->>'network') AS networks,
             ARRAY_AGG(DISTINCT a.overview->>'wave') AS waves
           FROM hat.validations v
-          LEFT JOIN hat.atlases a ON v.atlas_ids @> ARRAY[a.id]
+          LEFT JOIN hat.atlases a ON a.id = ANY(v.atlas_ids)
           GROUP BY v.entity_id, v.validation_id;
         `,
         undefined,
