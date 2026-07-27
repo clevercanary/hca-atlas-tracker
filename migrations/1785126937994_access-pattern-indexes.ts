@@ -56,17 +56,15 @@ export function up(pgm: MigrationBuilder): void {
   // GIN indexes for the array/jsonb containment relationships. These can't use
   // B-trees, and the joins below currently scan the whole referencing table.
 
-  // `JOIN ... ON a.id = ANY(v.atlas_ids)` in `updateTaskCounts` and
-  // `getValidationRecords` (the tasks/reports page). Queries need updating to
-  // use `@>`.
+  // `JOIN ... ON v.atlas_ids @> ARRAY[a.id]` in `updateTaskCounts` and
+  // `getValidationRecords` (the tasks/reports page).
   pgm.createIndex(VALIDATIONS, ["atlas_ids"], { method: "gin" });
 
   // `a.source_studies` is jsonb queried with both `?` and `@>`, so the default
   // `jsonb_ops` opclass is required (`jsonb_path_ops` doesn't support `?`).
   pgm.createIndex(ATLASES, ["source_studies"], { method: "gin" });
 
-  // `updateSourceDatasetVersionInComponentAtlases` could make use of this but
-  // needs to be updated to filter by existing ID.
+  // `WHERE ... source_datasets @> ARRAY[$1]` in `updateSourceDatasetVersionInComponentAtlases`.
   pgm.createIndex(COMPONENT_ATLASES, ["source_datasets"], { method: "gin" });
 
   // `getExistingStudyId` and `getSourceStudiesByDois` match a DOI against `doi`

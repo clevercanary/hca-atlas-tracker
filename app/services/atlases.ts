@@ -521,7 +521,7 @@ export async function updateTaskCounts(client?: pg.PoolClient): Promise<void> {
         FROM
           hat.atlases a
         LEFT JOIN
-          hat.validations v ON a.id = ANY(v.atlas_ids)
+          hat.validations v ON v.atlas_ids @> ARRAY[a.id]
         GROUP BY
           a.id
       ) AS counts
