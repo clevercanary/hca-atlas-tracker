@@ -15,6 +15,8 @@ export const HCABranding = ({
   orgURL,
   portalURL,
 }: HCABrandingProps): JSX.Element => {
+  // Widths are derived from each logo's source aspect ratio at 32px tall
+  // (hcaPortal.png 2048×472 → 139, hcaOrg.png 887×320 → 89).
   return (
     <Brands>
       <a
