@@ -1358,22 +1358,6 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
 }
 
 /**
- * Returns the table column definition model for the atlas source datasets table.
- * @returns Table column definition.
- */
-export function getAtlasSourceStudySourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
-  return [
-    getSourceDatasetDownloadColumnDef(),
-    getSourceDatasetTitleColumnDef(),
-    getAssayColumnDef(),
-    getSuspensionTypeColumnDef(),
-    getTissueColumnDef(),
-    getDiseaseColumnDef(),
-    getCellCountColumnDef(),
-  ];
-}
-
-/**
  * Returns the publication string column definition model for the component atlas source datasets selection table.
  * @returns Column definition.
  */
@@ -1665,41 +1649,6 @@ function getIntegratedObjectVersionColumnDef(): ColumnDef<
 function getProgressValue(numerator: number, denominator: number): number {
   if (denominator === 0) return 0;
   return (numerator / denominator) * 100;
-}
-
-/**
- * Returns source dataset download column def.
- * CHECK
- * @returns Column def.
- */
-function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "download",
-    cell: (ctx): JSX.Element =>
-      C.FileDownloadCell({
-        fileId: ctx.row.original.fileId,
-        fileName: ctx.row.original.baseFileName,
-        sizeBytes: ctx.row.original.sizeBytes,
-      }),
-    enableSorting: false,
-    header: "Download",
-  };
-}
-
-/**
- * Returns source dataset title column def.
- * @returns Column def.
- */
-function getSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "title",
-    cell: ({ row }) =>
-      C.BasicCell({
-        value: row.original.title,
-      }),
-    header: "Dataset Title",
-    meta: { columnPinned: true },
-  };
 }
 
 /**
