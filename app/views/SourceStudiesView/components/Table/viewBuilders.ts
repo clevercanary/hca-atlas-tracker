@@ -82,7 +82,7 @@ export function buildSourceStudyTitle({
   const { pathParameter } = (table.options.meta || {}) as TableMeta;
   const { id: sourceStudyId } = original;
   return {
-    label: getValue() as string,
+    label: String(getValue() ?? ""),
     url: withBackOrigin(
       getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
         ...pathParameter,
