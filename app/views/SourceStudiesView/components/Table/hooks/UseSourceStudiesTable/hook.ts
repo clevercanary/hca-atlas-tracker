@@ -14,6 +14,12 @@ export const useSourceStudiesTable = (): UseSourceStudiesTable => {
   const { data, pathParameter } = useEntity();
   const { sourceStudies = [] } = data as EntityData;
 
+  // The source study/dataset link cells build routes from the path parameter,
+  // so fail fast (rather than emit broken URLs) if the provider omits it.
+  if (!pathParameter) {
+    throw new Error("Source studies table requires a path parameter.");
+  }
+
   const table = useReactTable<HCAAtlasTrackerSourceStudy>({
     columns: COLUMNS,
     data: sourceStudies,
