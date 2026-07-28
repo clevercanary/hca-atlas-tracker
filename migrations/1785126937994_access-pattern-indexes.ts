@@ -56,8 +56,7 @@ export function up(pgm: MigrationBuilder): void {
   // GIN indexes for the array/jsonb containment relationships. These can't use
   // B-trees, and the joins below currently scan the whole referencing table.
 
-  // `JOIN ... ON v.atlas_ids @> ARRAY[a.id]` in `updateTaskCounts` and
-  // `getValidationRecords` (the tasks/reports page).
+  // `JOIN ... ON v.atlas_ids @> ARRAY[a.id]` in `updateTaskCounts`.
   pgm.createIndex(VALIDATIONS, ["atlas_ids"], { method: "gin" });
 
   // `a.source_studies` is jsonb queried with both `?` and `@>`, so the default
