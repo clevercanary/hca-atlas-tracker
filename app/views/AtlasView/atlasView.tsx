@@ -10,7 +10,7 @@ import { VIEW_ATLAS_SECTION_CONFIGS } from "@/app/components/Forms/components/At
 import { AtlasStatuses } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
 import { useAtlasTabBackPath } from "@/app/hooks/useAtlasTabBackPath";
-import { ATLAS } from "@/app/hooks/useFetchAtlas";
+import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { useFetchDataState } from "@/app/hooks/useFetchDataState";
 import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
 import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";

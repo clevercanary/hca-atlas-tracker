@@ -4,7 +4,7 @@ import { ArchivedStatusToggle } from "@/app/components/Entity/components/common/
 import { Table as CommonTable } from "@/app/components/Entity/components/common/Table/table";
 import { StyledFluidPaper } from "@/app/components/Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
-import { ATLAS } from "@/app/hooks/useFetchAtlas";
+import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { INTEGRATED_OBJECTS } from "@/app/views/ComponentAtlasesView/hooks/useFetchComponentAtlases";
 import { Fragment, JSX } from "react";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";

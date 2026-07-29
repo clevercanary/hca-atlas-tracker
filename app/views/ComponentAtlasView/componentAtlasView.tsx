@@ -6,7 +6,7 @@ import { EntityForm } from "@/app/components/Entity/components/EntityForm/entity
 import { useBackPath } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
 import { Payload } from "@/app/hooks/UseEditFileArchived/entities";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFetchDataState } from "@/app/hooks/useFetchDataState";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
@@ -26,7 +26,7 @@ interface ComponentAtlasViewProps {
 export const ComponentAtlasView = ({
   pathParameter,
 }: ComponentAtlasViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
   const { fetchDataDispatch } = useFetchDataState();
   const formMethod = useViewComponentAtlasForm(pathParameter);
   const formManager = useEditIntegratedObjectFormManager(

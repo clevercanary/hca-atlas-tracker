@@ -1,6 +1,6 @@
 import { EditFileArchivedStatus } from "@/app/components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/editFileArchivedStatus";
 import { useArchivedState } from "@/app/components/Entity/providers/archived/hook";
-import { ATLAS } from "@/app/hooks/useFetchAtlas";
+import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/useFetchAtlasSourceDatasets";
 import { DropdownMenu } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowSelection/components/DropdownMenu/dropdownMenu";
 import { Stack } from "@mui/material";

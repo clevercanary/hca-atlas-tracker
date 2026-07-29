@@ -5,7 +5,7 @@ import { EntityView } from "@/app/components/Entity/components/EntityView/entity
 import { AtlasStatuses } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
 import { useAtlasTabBackPath } from "@/app/hooks/useAtlasTabBackPath";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
@@ -22,7 +22,7 @@ interface AtlasMetadataCorrectnessView {
 export const AtlasMetadataCorrectnessView = ({
   pathParameter,
 }: AtlasMetadataCorrectnessView): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
   const { heatmap } = useFetchMetadataCorrectness(pathParameter);
   const formManager = useFormManager();
   const backPath = useAtlasTabBackPath(pathParameter);

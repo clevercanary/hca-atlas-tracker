@@ -5,7 +5,7 @@ import { Tabs } from "@/app/components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "@/app/components/Entity/components/EntityView/entityView";
 import { useBackPath } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { ROUTE } from "@/app/routes/constants";
@@ -22,7 +22,7 @@ interface Props {
 export const AtlasSourceDatasetValidationView = ({
   pathParameter,
 }: Props): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
   const { sourceDataset } = useFetchAtlasSourceDataset(pathParameter);
   const formManager = useFormManager();
   const { isLoading } = formManager;

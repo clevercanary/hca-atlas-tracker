@@ -5,7 +5,7 @@ import { ViewComponentAtlases } from "@/app/components/Detail/components/ViewCom
 import { AtlasStatuses } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { StyledDetailView } from "@/app/components/Layout/components/Detail/sticky/detailView.styles";
 import { useAtlasTabBackPath } from "@/app/hooks/useAtlasTabBackPath";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
@@ -20,7 +20,7 @@ interface ComponentAtlasesViewProps {
 export const ComponentAtlasesView = ({
   pathParameter,
 }: ComponentAtlasesViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
   const { componentAtlases } = useFetchComponentAtlases(pathParameter);
   const formManager = useFormManager();
   const backPath = useAtlasTabBackPath(pathParameter);

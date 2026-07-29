@@ -6,7 +6,7 @@ import { Tabs } from "@/app/components/Detail/components/ViewSourceStudy/compone
 import { ViewSourceStudy } from "@/app/components/Detail/components/ViewSourceStudy/viewSourceStudy";
 import { useBackPath } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment, JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
@@ -20,7 +20,7 @@ interface SourceStudyViewProps {
 export const SourceStudyView = ({
   pathParameter,
 }: SourceStudyViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
   const formMethod = useEditSourceStudyForm(pathParameter);
   const formManager = useEditSourceStudyFormManager(pathParameter, formMethod);
   const backPath = useBackPath(pathParameter);

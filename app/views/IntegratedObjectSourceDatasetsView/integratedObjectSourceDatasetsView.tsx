@@ -3,7 +3,7 @@ import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/comp
 import { Tabs } from "@/app/components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "@/app/components/Entity/components/EntityView/entityView";
 import { StyledDetailView } from "@/app/components/Layout/components/Detail/sticky/detailView.styles";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
@@ -24,7 +24,7 @@ export const IntegratedObjectSourceDatasetsView = ({
   pathParameter,
 }: Props): JSX.Element => {
   const { onDelete } = useEditIntegratedObjectSourceDatasets(pathParameter);
-  const { atlas } = useFetchAtlas(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
   const { atlasSourceDatasets } =
     useFetchAssociatedAtlasSourceDatasets(pathParameter);
   const { componentAtlas } = useFetchComponentAtlas(pathParameter);

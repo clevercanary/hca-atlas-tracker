@@ -4,7 +4,7 @@ import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/comp
 import { Actions } from "@/app/components/Detail/components/ViewSourceStudy/components/Actions/actions";
 import { Tabs } from "@/app/components/Detail/components/ViewSourceStudy/components/Tabs/tabs";
 import { StyledDetailView } from "@/app/components/Layout/components/Detail/sticky/detailView.styles";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
@@ -21,7 +21,7 @@ interface SourceDatasetsViewProps {
 export const SourceDatasetsView = ({
   pathParameter,
 }: SourceDatasetsViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
   const { sourceStudy } = useFetchSourceStudy(pathParameter);
   const { sourceDatasets } = useFetchSourceDatasets(pathParameter);
   const formManager = useFormManager();
