@@ -13,7 +13,7 @@ import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/
 import { JSX } from "react";
 import { VIEW_METADATA_CORRECTNESS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
-import { useFetchMetadataCorrectness } from "./hooks/useFetchMetadataCorrectness";
+import { useFetchMetadataCorrectness } from "./hooks/UseFetchMetadataCorrectness/hook";
 
 interface AtlasMetadataCorrectnessView {
   pathParameter: PathParameter;
@@ -23,7 +23,7 @@ export const AtlasMetadataCorrectnessView = ({
   pathParameter,
 }: AtlasMetadataCorrectnessView): JSX.Element => {
   const { data: atlas } = useFetchAtlas(pathParameter);
-  const { heatmap } = useFetchMetadataCorrectness(pathParameter);
+  const { data: heatmap } = useFetchMetadataCorrectness(pathParameter);
   const formManager = useFormManager();
   const backPath = useAtlasTabBackPath(pathParameter);
   return (
