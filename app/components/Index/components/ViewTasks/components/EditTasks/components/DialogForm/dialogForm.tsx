@@ -1,3 +1,8 @@
+import { HCAAtlasTrackerValidationRecord } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { TrackerForm } from "@/app/components/Detail/components/TrackerForm/trackerForm";
+import { DialogFormValue } from "@/app/components/Index/components/ViewTasks/components/EditTasks/common/entities";
+import { useEditTasksForm } from "@/app/components/Index/components/ViewTasks/components/EditTasks/hooks/useEditTasksForm";
+import { useEditTasksFormManager } from "@/app/components/Index/components/ViewTasks/components/EditTasks/hooks/useEditTasksFormManager";
 import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
 import {
   DialogActions as MDialogActions,
@@ -6,11 +11,6 @@ import {
 import { JSX } from "react";
 import { FieldValues } from "react-hook-form";
 import { object, ObjectSchema } from "yup";
-import { HCAAtlasTrackerValidationRecord } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { TrackerForm } from "../../../../../../../Detail/components/TrackerForm/trackerForm";
-import { DialogFormValue } from "../../common/entities";
-import { useEditTasksForm } from "../../hooks/useEditTasksForm";
-import { useEditTasksFormManager } from "../../hooks/useEditTasksFormManager";
 
 export interface DialogFormProps<
   T extends FieldValues,

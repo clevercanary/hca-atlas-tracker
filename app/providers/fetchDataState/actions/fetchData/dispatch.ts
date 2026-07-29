@@ -1,4 +1,7 @@
-import { FetchDataAction, FetchDataActionKind } from "../../fetchDataState";
+import {
+  FetchDataAction,
+  FetchDataActionKind,
+} from "@/app/providers/fetchDataState/fetchDataState";
 
 /**
  * Action creator for fetching data.

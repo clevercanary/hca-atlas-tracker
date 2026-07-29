@@ -1,17 +1,13 @@
-import { ROLE } from "app/apis/catalog/hca-atlas-tracker/common/entities";
-import { dbComponentAtlasFileToDetailApiComponentAtlas } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
-import { ROLE_GROUP } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
-import { componentAtlasEditSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../../../../../app/common/entities";
+import { dbComponentAtlasFileToDetailApiComponentAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { ROLE_GROUP } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
+import { componentAtlasEditSchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
 import {
   getComponentAtlas,
   updateComponentAtlas,
-} from "../../../../../app/services/component-atlases";
-import {
-  handleByMethod,
-  handler,
-  role,
-} from "../../../../../app/utils/api-handler";
+} from "@/app/services/component-atlases";
+import { handleByMethod, handler, role } from "@/app/utils/api-handler";
+import { ROLE } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 
 const getHandler = handler(role(ROLE_GROUP.READ), async (req, res) => {
   const atlasId = req.query.atlasId as string;

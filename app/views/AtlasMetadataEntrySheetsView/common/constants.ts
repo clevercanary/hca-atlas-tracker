@@ -1,5 +1,5 @@
+import { SectionConfig } from "@/app/components/Entity/components/EntityView/components/Section/entities";
 import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
-import { SectionConfig } from "../../../components/Entity/components/EntityView/components/Section/entities";
 import { Alert } from "../components/Alert/alert";
 import { Summary } from "../components/Summary/summary";
 import { Table } from "../components/Table/table";

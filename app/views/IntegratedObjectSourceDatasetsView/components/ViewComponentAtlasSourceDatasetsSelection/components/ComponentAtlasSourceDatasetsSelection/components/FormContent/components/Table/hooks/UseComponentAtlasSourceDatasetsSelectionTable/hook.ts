@@ -1,11 +1,11 @@
+import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { CORE_OPTIONS } from "@/app/components/Table/options/core/constants";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { ComponentAtlasSourceDatasetsEditData } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/entities";
+import { COLUMNS } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/components/ComponentAtlasSourceDatasetsSelection/components/FormContent/components/Table/columns";
+import { useComponentAtlasSourceDatasetsSelectionFormState } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/components/ComponentAtlasSourceDatasetsSelection/hooks/useComponentAtlasSourceDatasetsSelectionFormState";
+import { useComponentAtlasSourceDatasetsSelectionTableOptions } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/components/ComponentAtlasSourceDatasetsSelection/hooks/useComponentAtlasSourceDatasetsSelectionTableOptions";
 import { useReactTable } from "@tanstack/react-table";
-import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { CORE_OPTIONS } from "../../../../../../../../../../../../components/Table/options/core/constants";
-import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
-import { ComponentAtlasSourceDatasetsEditData } from "../../../../../../../../common/entities";
-import { useComponentAtlasSourceDatasetsSelectionFormState } from "../../../../../../hooks/useComponentAtlasSourceDatasetsSelectionFormState";
-import { useComponentAtlasSourceDatasetsSelectionTableOptions } from "../../../../../../hooks/useComponentAtlasSourceDatasetsSelectionTableOptions";
-import { COLUMNS } from "../../columns";
 import { UseComponentAtlasSourceDatasetsSelectionTable } from "./entities";
 
 export const useComponentAtlasSourceDatasetsSelectionTable = (

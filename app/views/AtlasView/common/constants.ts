@@ -1,4 +1,4 @@
-import { FIELD_NAME as NEW_ATLAS_FIELD_NAME } from "../../AddNewAtlasView/common/constants";
+import { FIELD_NAME as NEW_ATLAS_FIELD_NAME } from "@/app/views/AddNewAtlasView/common/constants";
 
 export const FIELD_NAME = {
   ...NEW_ATLAS_FIELD_NAME,

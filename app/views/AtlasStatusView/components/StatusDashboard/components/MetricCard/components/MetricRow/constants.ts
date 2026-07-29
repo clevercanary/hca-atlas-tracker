@@ -1,4 +1,7 @@
-import { ROW_VARIANT, RowVariant } from "../../../../types";
+import {
+  ROW_VARIANT,
+  RowVariant,
+} from "@/app/views/AtlasStatusView/components/StatusDashboard/types";
 import { RowVariantConfig } from "./types";
 
 // `color` is a theme palette path resolved via the `sx` prop. Rows are plain

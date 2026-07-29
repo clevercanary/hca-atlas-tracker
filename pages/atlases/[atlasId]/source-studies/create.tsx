@@ -1,8 +1,8 @@
+import { PathParameter } from "@/app/common/entities";
+import { AddNewSourceStudyView } from "@/app/views/AddNewSourceStudyView/addNewSourceStudyView";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { JSX } from "react";
-import { PathParameter } from "../../../../app/common/entities";
-import { AddNewSourceStudyView } from "../../../../app/views/AddNewSourceStudyView/addNewSourceStudyView";
 
 interface CreateSourceStudyPageUrlParams extends ParsedUrlQuery {
   atlasId: string;

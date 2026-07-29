@@ -1,9 +1,12 @@
+import {
+  FormActions,
+  FormStatus,
+} from "@/app/components/common/Form/components/FormManager/formManager.styles";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { ButtonOutline } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonOutline/buttonOutline";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button, Fade, Toolbar } from "@mui/material";
 import { JSX } from "react";
-import { FormManager } from "../../../../../../../hooks/useFormManager/common/entities";
-import { FormActions, FormStatus } from "../../formManager.styles";
 import { AppBar } from "./banner.styles";
 
 export const Banner = ({

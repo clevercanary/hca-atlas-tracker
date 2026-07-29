@@ -1,16 +1,16 @@
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD, PathParameter } from "@/app/common/entities";
+import { getRequestURL } from "@/app/common/utils";
+import { useFetchDataState } from "@/app/hooks/useFetchDataState";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
+import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
+import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/useFetchComponentAtlas";
+import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/useFetchIntegratedObjectSourceDatasets";
 import { useCallback } from "react";
 import { FormState } from "react-hook-form";
-import { API } from "../../../../../apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerSourceDataset } from "../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD, PathParameter } from "../../../../../common/entities";
-import { getRequestURL } from "../../../../../common/utils";
-import { useFetchDataState } from "../../../../../hooks/useFetchDataState";
-import { FormMethod } from "../../../../../hooks/useForm/common/entities";
-import { FormManager } from "../../../../../hooks/useFormManager/common/entities";
-import { useFormManager } from "../../../../../hooks/useFormManager/useFormManager";
-import { fetchData } from "../../../../../providers/fetchDataState/actions/fetchData/dispatch";
-import { INTEGRATED_OBJECT } from "../../../../../views/ComponentAtlasView/hooks/useFetchComponentAtlas";
-import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "../../../../../views/IntegratedObjectSourceDatasetsView/hooks/useFetchIntegratedObjectSourceDatasets";
 import { FIELD_NAME } from "../common/constants";
 import { ComponentAtlasSourceDatasetsEditData } from "../common/entities";
 

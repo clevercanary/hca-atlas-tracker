@@ -1,8 +1,8 @@
+import { RouteValue } from "@/app/routes/entities";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import Router from "next/router";
 import { useCallback, useEffect, useState } from "react";
 import { FieldValues } from "react-hook-form";
-import { RouteValue } from "../../routes/entities";
 import { useAuthorization } from "../useAuthorization";
 import { FormMethod, YupValidatedFormValues } from "../useForm/common/entities";
 import { useUserHasEditAuthorization } from "../useUserHasEditAuthorization/useUserHasEditAuthorization";

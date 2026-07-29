@@ -1,8 +1,8 @@
-import { escapeRegExp } from "@databiosphere/findable-ui/lib/common/utils";
 import {
   ATLAS_ECOSYSTEM_PATHS,
   ATLAS_ECOSYSTEM_URLS,
-} from "../../site-config/common/constants";
+} from "@/site-config/common/constants";
+import { escapeRegExp } from "@databiosphere/findable-ui/lib/common/utils";
 
 export const DEFAULT_HEADERS = {
   "content-type": "application/json",

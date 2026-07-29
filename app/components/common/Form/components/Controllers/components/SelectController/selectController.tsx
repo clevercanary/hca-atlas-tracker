@@ -1,11 +1,11 @@
-import { ForwardRefExoticComponent, JSX, RefAttributes } from "react";
-import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
+import { SelectProps } from "@/app/components/common/Form/components/Select/select";
 import {
   FormMethod,
   YupValidatedFormValues,
-} from "../../../../../../../hooks/useForm/common/entities";
-import { FormManager } from "../../../../../../../hooks/useFormManager/common/entities";
-import { SelectProps } from "../../../Select/select";
+} from "@/app/hooks/useForm/common/entities";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { ForwardRefExoticComponent, JSX, RefAttributes } from "react";
+import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
 
 export interface SelectControllerProps<
   T extends FieldValues,

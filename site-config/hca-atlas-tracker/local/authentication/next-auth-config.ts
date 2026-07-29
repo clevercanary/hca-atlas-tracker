@@ -1,9 +1,6 @@
+import { getUserRoleByEmail, registerUser } from "@/app/services/users";
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import {
-  getUserRoleByEmail,
-  registerUser,
-} from "../../../../app/services/users";
 import { SESSION_MAX_AGE } from "./constants";
 import { GoogleAuthParams } from "./entities";
 

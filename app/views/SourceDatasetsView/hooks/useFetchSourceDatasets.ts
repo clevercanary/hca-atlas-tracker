@@ -1,10 +1,10 @@
-import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerLocalListSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD, PathParameter } from "../../../common/entities";
-import { getRequestURL } from "../../../common/utils";
-import { useFetchData } from "../../../hooks/useFetchData";
-import { useFetchDataState } from "../../../hooks/useFetchDataState";
-import { useResetFetchStatus } from "../../../hooks/useResetFetchStatus";
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { HCAAtlasTrackerLocalListSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD, PathParameter } from "@/app/common/entities";
+import { getRequestURL } from "@/app/common/utils";
+import { useFetchData } from "@/app/hooks/useFetchData";
+import { useFetchDataState } from "@/app/hooks/useFetchDataState";
+import { useResetFetchStatus } from "@/app/hooks/useResetFetchStatus";
 
 interface UseFetchSourceDatasets {
   sourceDatasets?: HCAAtlasTrackerLocalListSourceDataset[];

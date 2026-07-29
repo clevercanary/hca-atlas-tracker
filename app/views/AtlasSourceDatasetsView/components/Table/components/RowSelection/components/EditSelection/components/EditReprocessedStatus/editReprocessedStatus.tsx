@@ -1,12 +1,12 @@
+import { StyledDialog } from "@/app/components/common/Dialog/dialog.styles";
+import { Controllers } from "@/app/components/common/Form/components/Controllers/controllers";
+import { FormActions } from "@/app/components/common/Form/components/FormActions/formActions";
+import { TrackerForm } from "@/app/components/Detail/components/TrackerForm/trackerForm";
 import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
 import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
 import { MenuItem } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/components/MenuItem/menuItem";
 import { DialogActions, DialogContent } from "@mui/material";
 import { Fragment, JSX } from "react";
-import { StyledDialog } from "../../../../../../../../../../components/common/Dialog/dialog.styles";
-import { Controllers } from "../../../../../../../../../../components/common/Form/components/Controllers/controllers";
-import { FormActions } from "../../../../../../../../../../components/common/Form/components/FormActions/formActions";
-import { TrackerForm } from "../../../../../../../../../../components/Detail/components/TrackerForm/trackerForm";
 import { REPROCESSED_STATUS } from "./common/controllers";
 import { ReprocessedStatusEditData } from "./common/entities";
 import { FIELD_NAME } from "./common/fields";

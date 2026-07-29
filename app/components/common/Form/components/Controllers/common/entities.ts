@@ -1,8 +1,8 @@
+import { InputProps } from "@/app/components/common/Form/components/Input/input";
+import { SelectProps } from "@/app/components/common/Form/components/Select/select";
+import { YupValidatedFormValues } from "@/app/hooks/useForm/common/entities";
 import { ComponentPropsWithoutRef, ElementType, ReactNode } from "react";
 import { FieldValues, Path } from "react-hook-form";
-import { YupValidatedFormValues } from "../../../../../../hooks/useForm/common/entities";
-import { InputProps } from "../../Input/input";
-import { SelectProps } from "../../Select/select";
 import { LabelLinkConfig } from "../components/InputController/inputController";
 import { SelectControllerProps } from "../components/SelectController/selectController";
 

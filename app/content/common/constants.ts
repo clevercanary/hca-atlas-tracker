@@ -1,11 +1,11 @@
+import { Breadcrumbs } from "@/app/components/common/Content/components/Breadcrumbs/breadcrumbs.styles";
+import { Figure } from "@/app/components/common/Figure/figure";
+import { Link } from "@/app/components/Layout/components/Content/components/Link/link";
+import { ROUTE } from "@/app/routes/constants";
 import {
   LayoutStyle,
   PANEL_BACKGROUND_COLOR,
 } from "@databiosphere/findable-ui/lib/components/Layout/components/ContentLayout/common/entities";
-import { Breadcrumbs } from "../../components/common/Content/components/Breadcrumbs/breadcrumbs.styles";
-import { Figure } from "../../components/common/Figure/figure";
-import { Link } from "../../components/Layout/components/Content/components/Link/link";
-import { ROUTE } from "../../routes/constants";
 
 export const CONTENT_FOLDER_NAME = "content";
 

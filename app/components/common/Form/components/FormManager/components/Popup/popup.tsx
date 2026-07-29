@@ -1,13 +1,13 @@
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
-import { Button } from "@mui/material";
-import { JSX, ReactNode } from "react";
-import { FormManager } from "../../../../../../../hooks/useFormManager/common/entities";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../../../ConfirmationDialog/confirmationDialog.styles";
+} from "@/app/components/common/ConfirmationDialog/confirmationDialog.styles";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { Button } from "@mui/material";
+import { JSX, ReactNode } from "react";
 import { PopupContent } from "./components/PopupContent/popupContent";
 
 interface PopupProps extends FormManager {

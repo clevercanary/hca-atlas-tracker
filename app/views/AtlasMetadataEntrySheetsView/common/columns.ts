@@ -1,6 +1,6 @@
+import { KeyValueCell } from "@/app/components/Table/components/TableCell/components/KeyValueCell/keyValueCell";
 import { LinkCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/LinkCell/linkCell";
 import { ColumnDef } from "@tanstack/react-table";
-import { KeyValueCell } from "../../../components/Table/components/TableCell/components/KeyValueCell/keyValueCell";
 import { ValidationSummaryCell } from "../components/Table/components/TableCell/components/ValidationSummaryCell/validationSummaryCell";
 import { MetadataEntrySheet } from "../entities";
 import {

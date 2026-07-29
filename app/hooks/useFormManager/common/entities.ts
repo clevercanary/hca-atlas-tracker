@@ -1,4 +1,4 @@
-import { RouteValue } from "../../../routes/entities";
+import { RouteValue } from "@/app/routes/entities";
 import { UseFormManager } from "../useFormManager";
 
 export interface FormAccess {

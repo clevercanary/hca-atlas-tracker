@@ -1,4 +1,4 @@
-import { SectionConfig } from "../../../components/Entity/components/EntityView/components/Section/entities";
+import { SectionConfig } from "@/app/components/Entity/components/EntityView/components/Section/entities";
 import { Alert } from "../components/Alert/alert";
 import { Table } from "../components/Table/table";
 

@@ -1,13 +1,13 @@
-import { Row, RowSelectionState } from "@tanstack/react-table";
-import { FormState } from "react-hook-form";
-import { HCAAtlasTrackerSourceDataset } from "../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { FormMethod } from "../../../../../../../hooks/useForm/common/entities";
+import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import {
   PartialTableOptions,
   useTableOptions,
-} from "../../../../../../../hooks/useTableOptions";
-import { FIELD_NAME } from "../../../common/constants";
-import { ComponentAtlasSourceDatasetsEditData } from "../../../common/entities";
+} from "@/app/hooks/useTableOptions";
+import { FIELD_NAME } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/constants";
+import { ComponentAtlasSourceDatasetsEditData } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/entities";
+import { Row, RowSelectionState } from "@tanstack/react-table";
+import { FormState } from "react-hook-form";
 import { TABLE_OPTIONS } from "../components/FormContent/components/Table/common/constants";
 
 export const useComponentAtlasSourceDatasetsSelectionTableOptions = (

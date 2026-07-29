@@ -1,11 +1,11 @@
-import { useRouter } from "next/router";
-import type { ParsedUrlQuery } from "querystring";
-import { useMemo } from "react";
 import {
   HCAAtlasTrackerActiveUser,
   ROLE,
-} from "../../apis/catalog/hca-atlas-tracker/common/entities";
-import { isRouteValue } from "../../routes/utils";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { isRouteValue } from "@/app/routes/utils";
+import { useRouter } from "next/router";
+import type { ParsedUrlQuery } from "querystring";
+import { useMemo } from "react";
 import { useAuthorization } from "../useAuthorization";
 import { ROUTES } from "./common/constants";
 

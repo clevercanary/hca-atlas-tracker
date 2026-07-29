@@ -1,13 +1,13 @@
-import { dbCommentToApiComment } from "../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
-import { newCommentThreadSchema } from "../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../../app/common/entities";
-import { createCommentThread } from "../../app/services/comments";
+import { dbCommentToApiComment } from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { newCommentThreadSchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
+import { createCommentThread } from "@/app/services/comments";
 import {
   getRegisteredActiveUser,
   handler,
   method,
   registeredUser,
-} from "../../app/utils/api-handler";
+} from "@/app/utils/api-handler";
 
 export default handler(
   method(METHOD.POST),

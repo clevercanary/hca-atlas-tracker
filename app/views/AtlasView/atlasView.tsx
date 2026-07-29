@@ -1,21 +1,21 @@
-import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
-import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { Fragment, JSX } from "react";
 import {
   apiEntityIsPublished,
   getAtlasName,
-} from "../../apis/catalog/hca-atlas-tracker/common/utils";
-import { PathParameter } from "../../common/entities";
-import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
-import { Tabs } from "../../components/Detail/components/ViewAtlas/components/Tabs/tabs";
-import { EntityForm } from "../../components/Entity/components/EntityForm/entityForm";
-import { VIEW_ATLAS_SECTION_CONFIGS } from "../../components/Forms/components/Atlas/common/sections";
-import { AtlasStatuses } from "../../components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
-import { DetailView } from "../../components/Layout/components/Detail/detailView";
-import { useAtlasTabBackPath } from "../../hooks/useAtlasTabBackPath";
-import { ATLAS } from "../../hooks/useFetchAtlas";
-import { useFetchDataState } from "../../hooks/useFetchDataState";
-import { fetchData } from "../../providers/fetchDataState/actions/fetchData/dispatch";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import { PathParameter } from "@/app/common/entities";
+import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
+import { Tabs } from "@/app/components/Detail/components/ViewAtlas/components/Tabs/tabs";
+import { EntityForm } from "@/app/components/Entity/components/EntityForm/entityForm";
+import { VIEW_ATLAS_SECTION_CONFIGS } from "@/app/components/Forms/components/Atlas/common/sections";
+import { AtlasStatuses } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
+import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
+import { useAtlasTabBackPath } from "@/app/hooks/useAtlasTabBackPath";
+import { ATLAS } from "@/app/hooks/useFetchAtlas";
+import { useFetchDataState } from "@/app/hooks/useFetchDataState";
+import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
+import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
+import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
+import { Fragment, JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
 import { AtlasActionButton } from "./components/AtlasActionButton/atlasActionButton";
 import { CreateRevisionDialog } from "./components/CreateRevisionDialog/createRevisionDialog";

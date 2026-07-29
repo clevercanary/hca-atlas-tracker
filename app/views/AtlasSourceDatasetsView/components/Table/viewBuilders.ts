@@ -1,9 +1,9 @@
+import { INTEGRITY_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import * as C from "@/app/components";
+import { ROUTE } from "@/app/routes/constants";
+import { AtlasSourceDataset } from "@/app/views/AtlasSourceDatasetsView/entities";
 import { CellContext } from "@tanstack/react-table";
 import { JSX } from "react";
-import { INTEGRITY_STATUS } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import * as C from "../../../../components";
-import { ROUTE } from "../../../../routes/constants";
-import { AtlasSourceDataset } from "../../entities";
 
 /**
  * Returns the CAP URL cell.

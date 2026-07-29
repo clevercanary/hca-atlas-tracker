@@ -1,8 +1,8 @@
+import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { FileDownloadCell } from "@/app/components/Entity/components/common/Table/components/TableCell/components/FileDownloadCell/fileDownloadCell";
 import { BasicCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/BasicCell/basicCell";
 import type { CellContext } from "@tanstack/react-table";
 import { ComponentProps } from "react";
-import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { FileDownloadCell } from "../../../../components/Entity/components/common/Table/components/TableCell/components/FileDownloadCell/fileDownloadCell";
 
 /**
  * Returns props for the "Download" column.

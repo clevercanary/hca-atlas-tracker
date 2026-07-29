@@ -1,12 +1,12 @@
-import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
-import { HCAAtlasTrackerSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getApiEntityFileVersion,
   getCapIngestStatus,
-} from "../../../apis/catalog/hca-atlas-tracker/common/utils";
-import { PathParameter } from "../../../common/entities";
-import { FormMethod } from "../../../hooks/useForm/common/entities";
-import { useForm } from "../../../hooks/useForm/useForm";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import { PathParameter } from "@/app/common/entities";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { useForm } from "@/app/hooks/useForm/useForm";
+import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { FIELD_NAME } from "../common/constants";
 import { ViewAtlasSourceDatasetData } from "../common/entities";
 import { viewAtlasSourceDatasetSchema } from "../common/schema";

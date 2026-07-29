@@ -1,14 +1,17 @@
-import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { ElementType, Fragment, JSX, ReactNode } from "react";
-import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
-import { TypographyNoWrap } from "../../../../../../../components/common/Typography/components/TypographyNoWrap/typographyNoWrap";
+import { ControllerViewBuilder } from "@/app/components/common/Form/components/Controllers/common/entities";
+import {
+  Input,
+  InputProps,
+} from "@/app/components/common/Form/components/Input/input";
+import { TypographyNoWrap } from "@/app/components/common/Typography/components/TypographyNoWrap/typographyNoWrap";
 import {
   FormMethod,
   YupValidatedFormValues,
-} from "../../../../../../../hooks/useForm/common/entities";
-import { FormManager } from "../../../../../../../hooks/useFormManager/common/entities";
-import { Input, InputProps } from "../../../Input/input";
-import { ControllerViewBuilder } from "../../common/entities";
+} from "@/app/hooks/useForm/common/entities";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { ElementType, Fragment, JSX, ReactNode } from "react";
+import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
 
 export interface LabelLinkConfig {
   getUrl?: (v: string | null) => string | null;

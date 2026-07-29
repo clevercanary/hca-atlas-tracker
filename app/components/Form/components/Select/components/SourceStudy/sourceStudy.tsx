@@ -1,14 +1,14 @@
-import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, JSX, ReactNode, useEffect, useMemo } from "react";
-import { useFetchDataState } from "../../../../../../hooks/useFetchDataState";
-import { useEntity } from "../../../../../../providers/entity/hook";
-import { fetchData } from "../../../../../../providers/fetchDataState/actions/fetchData/dispatch";
-import { Entity } from "../../../../../../views/AtlasSourceDatasetsView/entities";
-import { SOURCE_STUDIES } from "../../../../../../views/SourceStudiesView/hooks/useFetchSourceStudies";
 import {
   Select,
   SelectProps,
-} from "../../../../../common/Form/components/Select/select";
+} from "@/app/components/common/Form/components/Select/select";
+import { useFetchDataState } from "@/app/hooks/useFetchDataState";
+import { useEntity } from "@/app/providers/entity/hook";
+import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
+import { Entity } from "@/app/views/AtlasSourceDatasetsView/entities";
+import { SOURCE_STUDIES } from "@/app/views/SourceStudiesView/hooks/useFetchSourceStudies";
+import { MenuItem as MMenuItem } from "@mui/material";
+import { forwardRef, JSX, ReactNode, useEffect, useMemo } from "react";
 import {
   buildPublicationStringMap,
   getPublicationStringOptions,

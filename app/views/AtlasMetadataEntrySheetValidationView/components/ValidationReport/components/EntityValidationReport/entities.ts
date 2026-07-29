@@ -1,4 +1,7 @@
-import { EntityType, ValidationErrorInfo } from "../../entities";
+import {
+  EntityType,
+  ValidationErrorInfo,
+} from "@/app/views/AtlasMetadataEntrySheetValidationView/components/ValidationReport/entities";
 
 export interface Props {
   columnValidationReports: Map<string, ValidationErrorInfo[]>;

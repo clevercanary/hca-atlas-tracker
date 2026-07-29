@@ -1,10 +1,10 @@
-import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, JSX, ReactNode, useMemo } from "react";
-import { getPastAndNextTwoYearsQuartersByDate } from "../../../../../../utils/date-fns";
 import {
   Select,
   SelectProps,
-} from "../../../../../common/Form/components/Select/select";
+} from "@/app/components/common/Form/components/Select/select";
+import { getPastAndNextTwoYearsQuartersByDate } from "@/app/utils/date-fns";
+import { MenuItem as MMenuItem } from "@mui/material";
+import { forwardRef, JSX, ReactNode, useMemo } from "react";
 import { TARGET_COMPLETION_NULL } from "./common/constants";
 
 export const TargetCompletion = forwardRef<HTMLInputElement, SelectProps>(

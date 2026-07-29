@@ -1,9 +1,9 @@
+import { SiteConfig } from "@/site-config/common/entities";
 import { TypographyWordBreak } from "@databiosphere/findable-ui/lib/components/common/Typography/TypographyWordBreak/TypographyWordBreak";
 import { Link as DXLink } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { useConfig } from "@databiosphere/findable-ui/lib/hooks/useConfig";
 import { replaceParameters } from "@databiosphere/findable-ui/lib/utils/replaceParameters";
 import { JSX } from "react";
-import { SiteConfig } from "../../../../../../../site-config/common/entities";
 
 /**
  * Basic anchor link component, used by MDX for all anchor links.

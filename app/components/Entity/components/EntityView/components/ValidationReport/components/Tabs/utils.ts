@@ -1,10 +1,10 @@
-import { FILE_VALIDATOR_NAMES } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
+import { FILE_VALIDATOR_NAMES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FileValidationReports,
   FileValidatorName,
   REPROCESSED_STATUS,
-} from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { shouldShowValidator } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { shouldShowValidator } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 
 /**
  * Returns the validator names to render as tabs, in canonical FILE_VALIDATOR_NAMES order.

@@ -1,11 +1,7 @@
-import { dbEntrySheetValidationToApiModel } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
-import { METHOD } from "../../../../../app/common/entities";
-import { getEntrySheetValidation } from "../../../../../app/services/entry-sheets";
-import {
-  handler,
-  method,
-  registeredUser,
-} from "../../../../../app/utils/api-handler";
+import { dbEntrySheetValidationToApiModel } from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { METHOD } from "@/app/common/entities";
+import { getEntrySheetValidation } from "@/app/services/entry-sheets";
+import { handler, method, registeredUser } from "@/app/utils/api-handler";
 
 /**
  * API route to get an entry sheet validations.

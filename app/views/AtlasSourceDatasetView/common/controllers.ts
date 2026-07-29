@@ -1,11 +1,11 @@
-import { HCAAtlasTrackerSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { ControllerConfig } from "../../../components/common/Form/components/Controllers/common/entities";
-import { Chip } from "../../../components/Form/components/Input/inputComponent/Chip/chip";
+import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { ControllerConfig } from "@/app/components/common/Form/components/Controllers/common/entities";
+import { Chip } from "@/app/components/Form/components/Input/inputComponent/Chip/chip";
 import {
   buildCAPIngestStatus,
   buildReleaseDate,
   buildValidationStatus,
-} from "../../ComponentAtlasView/common/viewBuilders";
+} from "@/app/views/ComponentAtlasView/common/viewBuilders";
 import { FIELD_NAME } from "./constants";
 import { ViewAtlasSourceDatasetData } from "./entities";
 

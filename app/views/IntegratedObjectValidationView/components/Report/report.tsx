@@ -1,8 +1,8 @@
+import { ValidationReport } from "@/app/components/Entity/components/EntityView/components/ValidationReport/validationReport";
+import { useEntity } from "@/app/providers/entity/hook";
+import { ROUTE } from "@/app/routes/constants";
+import { EntityData } from "@/app/views/IntegratedObjectValidationView/entities";
 import { JSX } from "react";
-import { ValidationReport } from "../../../../components/Entity/components/EntityView/components/ValidationReport/validationReport";
-import { useEntity } from "../../../../providers/entity/hook";
-import { ROUTE } from "../../../../routes/constants";
-import { EntityData } from "../../entities";
 
 export const Report = (): JSX.Element | null => {
   const { data, pathParameter } = useEntity();

@@ -1,5 +1,5 @@
-import { ROUTE } from "../../routes/constants";
-import { PUBLIC_PATHS } from "../../routes/publicPaths";
+import { ROUTE } from "@/app/routes/constants";
+import { PUBLIC_PATHS } from "@/app/routes/publicPaths";
 import { useCurrentPath } from "../UseCurrentPath/hook";
 
 /**

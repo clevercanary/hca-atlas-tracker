@@ -1,14 +1,14 @@
-import { dbComponentAtlasFileToApiComponentAtlas } from "../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
-import { ROLE_GROUP } from "../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
-import { METHOD } from "../../../../app/common/entities";
-import { getAtlasComponentAtlases } from "../../../../app/services/component-atlases";
+import { dbComponentAtlasFileToApiComponentAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { ROLE_GROUP } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
+import { METHOD } from "@/app/common/entities";
+import { getAtlasComponentAtlases } from "@/app/services/component-atlases";
 import {
   getOptionalParam,
   handler,
   method,
   publishedOrRole,
   resolveAtlasId,
-} from "../../../../app/utils/api-handler";
+} from "@/app/utils/api-handler";
 
 /**
  * API route for getting an atlas's component atlases.

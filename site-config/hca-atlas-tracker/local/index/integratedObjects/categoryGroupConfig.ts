@@ -1,8 +1,8 @@
-import { SiteConfig } from "../../../../common/entities";
+import { SiteConfig } from "@/site-config/common/entities";
 import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
-} from "../../../category";
+} from "@/site-config/hca-atlas-tracker/category";
 import {
   CAP_INGEST_STATUS_CATEGORY_CONFIG,
   TIER1_VALIDATION_STATUS_CATEGORY_CONFIG,

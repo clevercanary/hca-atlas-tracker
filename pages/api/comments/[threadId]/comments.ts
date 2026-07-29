@@ -1,16 +1,13 @@
-import { dbCommentToApiComment } from "../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
-import { newCommentSchema } from "../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../../../../app/common/entities";
-import {
-  createComment,
-  getThreadComments,
-} from "../../../../app/services/comments";
+import { dbCommentToApiComment } from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { newCommentSchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
+import { createComment, getThreadComments } from "@/app/services/comments";
 import {
   getRegisteredActiveUser,
   handleByMethod,
   handler,
   registeredUser,
-} from "../../../../app/utils/api-handler";
+} from "@/app/utils/api-handler";
 
 const getHandler = handler(registeredUser, async (req, res) => {
   const threadId = req.query.threadId as string;

@@ -1,5 +1,5 @@
+import { RouteValue } from "@/app/routes/entities";
 import Router from "next/router";
-import { RouteValue } from "../../../routes/entities";
 
 /**
  * Default navigation.

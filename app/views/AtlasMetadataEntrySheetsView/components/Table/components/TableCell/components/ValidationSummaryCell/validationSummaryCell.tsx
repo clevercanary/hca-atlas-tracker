@@ -1,10 +1,10 @@
+import { ROUTE } from "@/app/routes/constants";
+import { MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
 import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
 import { Chip, Grid, Link as MLink } from "@mui/material";
 import { CellContext } from "@tanstack/react-table";
 import Link from "next/link";
 import { JSX } from "react";
-import { ROUTE } from "../../../../../../../../routes/constants";
-import { MetadataEntrySheet } from "../../../../../../entities";
 import { ValidationSummaryCellProps } from "./types";
 import {
   getErrorCountColor,

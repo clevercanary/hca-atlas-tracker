@@ -1,4 +1,4 @@
-import { View } from "../../hooks/useTable/entities";
+import { View } from "@/app/views/AtlasMetadataCorrectnessView/components/Table/hooks/useTable/entities";
 
 export const OPTIONS: Record<View, string> = {
   organSpecific: "Organ Specific",

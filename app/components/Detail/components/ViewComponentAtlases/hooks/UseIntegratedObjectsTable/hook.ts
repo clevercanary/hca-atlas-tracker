@@ -1,12 +1,12 @@
+import { useArchivedState } from "@/app/components/Entity/providers/archived/hook";
+import { CORE_OPTIONS } from "@/app/components/Table/options/core/constants";
+import { SORTING_OPTIONS } from "@/app/components/Table/options/sorting/constants";
+import { useEntity } from "@/app/providers/entity/hook";
+import { getAtlasComponentAtlasesTableColumns } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { EntityData } from "@/app/views/ComponentAtlasesView/entities";
 import { COLUMN_IDENTIFIER } from "@databiosphere/findable-ui/lib/components/Table/common/columnIdentifier";
 import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
 import { useReactTable } from "@tanstack/react-table";
-import { useEntity } from "../../../../../../providers/entity/hook";
-import { getAtlasComponentAtlasesTableColumns } from "../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { EntityData } from "../../../../../../views/ComponentAtlasesView/entities";
-import { useArchivedState } from "../../../../../Entity/providers/archived/hook";
-import { CORE_OPTIONS } from "../../../../../Table/options/core/constants";
-import { SORTING_OPTIONS } from "../../../../../Table/options/sorting/constants";
 import { UseIntegratedObjectsTable } from "./entities";
 
 export const useIntegratedObjectsTable = (): UseIntegratedObjectsTable => {

@@ -1,6 +1,6 @@
+import type { PathParameter } from "@/app/common/entities";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import type { PathParameter } from "../../../../../../../../../../common/entities";
 import { parseBackOrigin, resolveBackPath } from "./utils";
 
 /**

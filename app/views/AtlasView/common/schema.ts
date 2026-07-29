@@ -1,11 +1,11 @@
-import { object, string } from "yup";
-import { ATLAS_STATUS } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
+import { ATLAS_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { GOOGLE_SHEETS_URL_OR_EMPTY_STRING_REGEX } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import {
   TARGET_COMPLETION_NULL,
   TARGET_COMPLETION_REGEXP,
-} from "../../../components/Form/components/Select/components/TargetCompletion/common/constants";
-import { newAtlasSchema } from "../../AddNewAtlasView/common/schema";
+} from "@/app/components/Form/components/Select/components/TargetCompletion/common/constants";
+import { newAtlasSchema } from "@/app/views/AddNewAtlasView/common/schema";
+import { object, string } from "yup";
 import { FIELD_NAME } from "./constants";
 
 export const atlasEditSchema = newAtlasSchema.concat(

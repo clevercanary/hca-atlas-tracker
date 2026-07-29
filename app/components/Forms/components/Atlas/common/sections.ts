@@ -1,8 +1,8 @@
-import { HCAAtlasTrackerAtlas } from "../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { NewAtlasData } from "../../../../../views/AddNewAtlasView/common/entities";
-import { AtlasEditData } from "../../../../../views/AtlasView/common/entities";
-import { SECTION_TITLES } from "../../../common/constants";
-import { SectionConfig } from "../../../common/entities";
+import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { SECTION_TITLES } from "@/app/components/Forms/common/constants";
+import { SectionConfig } from "@/app/components/Forms/common/entities";
+import { NewAtlasData } from "@/app/views/AddNewAtlasView/common/entities";
+import { AtlasEditData } from "@/app/views/AtlasView/common/entities";
 import { NewAtlasIntegrationLeadSection } from "../components/NewAtlasIntegrationLeadSection/newAtlasIntegrationLeadSection";
 import { ViewAtlasIntegrationLeadSection } from "../components/ViewAtlasIntegrationLeadSection/viewAtlasIntegrationLeadSection";
 import * as C from "./constants";

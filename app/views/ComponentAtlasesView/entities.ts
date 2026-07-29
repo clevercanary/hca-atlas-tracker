@@ -2,9 +2,9 @@ import {
   CAP_INGEST_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerComponentAtlas,
-} from "../../apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "../../common/entities";
-import { FormManager } from "../../hooks/useFormManager/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "@/app/common/entities";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 
 export interface AtlasIntegratedObject extends HCAAtlasTrackerComponentAtlas {
   atlasId: string;

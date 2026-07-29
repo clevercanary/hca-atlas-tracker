@@ -1,13 +1,13 @@
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD, PathParameter } from "@/app/common/entities";
+import { getRequestURL, getRouteURL } from "@/app/common/utils";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
+import { ROUTE } from "@/app/routes/constants";
 import Router from "next/router";
 import { useCallback } from "react";
-import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerSourceStudy } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD, PathParameter } from "../../../common/entities";
-import { getRequestURL, getRouteURL } from "../../../common/utils";
-import { FormMethod } from "../../../hooks/useForm/common/entities";
-import { FormManager } from "../../../hooks/useFormManager/common/entities";
-import { useFormManager } from "../../../hooks/useFormManager/useFormManager";
-import { ROUTE } from "../../../routes/constants";
 import {
   FIELD_NAME,
   NO_DOI_FIELDS,

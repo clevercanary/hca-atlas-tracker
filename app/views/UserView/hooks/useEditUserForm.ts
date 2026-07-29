@@ -1,12 +1,12 @@
 import {
   HCAAtlasTrackerUser,
   ROLE,
-} from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { UserEditData as ApiUserEditData } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
-import { PathParameter } from "../../../common/entities";
-import { useFetchUser } from "../../../hooks/useFetchUser";
-import { FormMethod } from "../../../hooks/useForm/common/entities";
-import { useForm } from "../../../hooks/useForm/useForm";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { UserEditData as ApiUserEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { PathParameter } from "@/app/common/entities";
+import { useFetchUser } from "@/app/hooks/useFetchUser";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { useForm } from "@/app/hooks/useForm/useForm";
 import { FIELD_NAME } from "../common/constants";
 import { UserEditData } from "../common/entities";
 import { userEditSchema } from "../common/schema";

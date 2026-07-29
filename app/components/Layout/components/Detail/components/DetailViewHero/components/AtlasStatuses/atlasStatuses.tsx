@@ -1,5 +1,5 @@
+import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { JSX } from "react";
-import { HCAAtlasTrackerAtlas } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { AtlasPublishStatus } from "../AtlasPublishStatus/atlasPublishStatus";
 import { AtlasStatus } from "../AtlasStatus/atlasStatus";
 

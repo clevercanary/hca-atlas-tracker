@@ -1,19 +1,19 @@
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
-import { Button } from "@mui/material";
-import { JSX } from "react";
-import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getAtlasGenerationName } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
-import { PathParameter } from "../../../../common/entities";
-import { getRequestURL, getRouteURL } from "../../../../common/utils";
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getAtlasGenerationName } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import { PathParameter } from "@/app/common/entities";
+import { getRequestURL, getRouteURL } from "@/app/common/utils";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../../components/common/ConfirmationDialog/confirmationDialog.styles";
-import { useCreateAtlasRevision } from "../../../../hooks/UseCreateAtlasRevision/hook";
-import { ROUTE } from "../../../../routes/constants";
+} from "@/app/components/common/ConfirmationDialog/confirmationDialog.styles";
+import { useCreateAtlasRevision } from "@/app/hooks/UseCreateAtlasRevision/hook";
+import { ROUTE } from "@/app/routes/constants";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { Button } from "@mui/material";
+import { JSX } from "react";
 
 interface Props {
   atlas: HCAAtlasTrackerAtlas | undefined;

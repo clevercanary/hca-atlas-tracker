@@ -1,5 +1,5 @@
+import { EntityType } from "@/app/views/AtlasMetadataEntrySheetValidationView/components/ValidationReport/entities";
 import { GridProps } from "@mui/material";
-import { EntityType } from "../../entities";
 
 export const ENTITY_NAME: Record<EntityType | "entrySheet", string> = {
   dataset: "Datasets",

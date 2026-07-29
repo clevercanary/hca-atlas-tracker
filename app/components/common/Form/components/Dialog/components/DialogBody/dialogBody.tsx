@@ -1,3 +1,5 @@
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
 import {
   DialogActions as MDialogActions,
@@ -5,8 +7,6 @@ import {
 } from "@mui/material";
 import { Fragment, JSX, ReactNode } from "react";
 import { FieldValues } from "react-hook-form";
-import { FormMethod } from "../../../../../../../hooks/useForm/common/entities";
-import { FormManager } from "../../../../../../../hooks/useFormManager/common/entities";
 
 export interface DialogBodyProps<T extends FieldValues, R = undefined> {
   actions?: ({

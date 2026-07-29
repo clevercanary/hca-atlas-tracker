@@ -1,4 +1,4 @@
-import { MetadataEntrySheet } from "../../entities";
+import { MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
 
 /**
  * Builds a summary object from the given entry sheets.

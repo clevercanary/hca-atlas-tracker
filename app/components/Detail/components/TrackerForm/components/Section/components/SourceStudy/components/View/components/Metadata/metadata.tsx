@@ -1,19 +1,19 @@
-import { Fragment, JSX } from "react";
-import { useFieldArray } from "react-hook-form";
-import { HCAAtlasTrackerSourceStudy } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
-import { FormManager } from "../../../../../../../../../../../../hooks/useFormManager/common/entities";
-import { getSpreadsheetIdFromUrl } from "../../../../../../../../../../../../utils/google-sheets";
-import { SourceStudyEditData } from "../../../../../../../../../../../../views/SourceStudyView/common/entities";
-import { InputController } from "../../../../../../../../../../../common/Form/components/Controllers/components/InputController/inputController";
+import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { InputController } from "@/app/components/common/Form/components/Controllers/components/InputController/inputController";
+import { AddItemButton } from "@/app/components/Detail/components/TrackerForm/components/Section/components/ListSection/components/AddItemButton/addItemButton";
+import { DeleteItemButton } from "@/app/components/Detail/components/TrackerForm/components/Section/components/ListSection/components/DeleteItemButton/deleteItemButton";
+import { ListSection } from "@/app/components/Detail/components/TrackerForm/components/Section/components/ListSection/listSection";
 import {
   Section,
   SectionHero,
   SectionTitle,
-} from "../../../../../../section.styles";
-import { AddItemButton } from "../../../../../ListSection/components/AddItemButton/addItemButton";
-import { DeleteItemButton } from "../../../../../ListSection/components/DeleteItemButton/deleteItemButton";
-import { ListSection } from "../../../../../ListSection/listSection";
+} from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { getSpreadsheetIdFromUrl } from "@/app/utils/google-sheets";
+import { SourceStudyEditData } from "@/app/views/SourceStudyView/common/entities";
+import { Fragment, JSX } from "react";
+import { useFieldArray } from "react-hook-form";
 
 export interface MetadataProps {
   formManager: FormManager;

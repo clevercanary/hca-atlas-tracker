@@ -1,6 +1,6 @@
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
 import { Table } from "@tanstack/react-table";
-import { FormManager } from "../../../../../../hooks/useFormManager/common/entities";
-import { IntegratedObjectSourceDataset } from "../../../../entities";
 
 export interface UseIntegratedObjectSourceDatasetsTable {
   access?: FormManager["access"];

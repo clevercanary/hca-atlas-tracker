@@ -1,3 +1,4 @@
+import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { COLUMN_IDENTIFIER } from "@databiosphere/findable-ui/lib/components/Table/common/columnIdentifier";
 import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
 import {
@@ -7,7 +8,6 @@ import {
   SortingState,
   TableOptions,
 } from "@tanstack/react-table";
-import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 
 const PUBLICATION_STRING = "publicationString";
 const TITLE = "title";

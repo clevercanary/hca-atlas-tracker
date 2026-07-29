@@ -1,3 +1,12 @@
+import { InputController } from "@/app/components/common/Form/components/Controllers/components/InputController/inputController";
+import { AddItemButton } from "@/app/components/Detail/components/TrackerForm/components/Section/components/ListSection/components/AddItemButton/addItemButton";
+import { DeleteItemButton } from "@/app/components/Detail/components/TrackerForm/components/Section/components/ListSection/components/DeleteItemButton/deleteItemButton";
+import { ListSection } from "@/app/components/Detail/components/TrackerForm/components/Section/components/ListSection/listSection";
+import {
+  FormMethod,
+  YupValidatedFormValues,
+} from "@/app/hooks/useForm/common/entities";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { Fragment, JSX } from "react";
 import {
   FieldArrayPath,
@@ -5,15 +14,6 @@ import {
   FieldValues,
   useFieldArray,
 } from "react-hook-form";
-import {
-  FormMethod,
-  YupValidatedFormValues,
-} from "../../../../../../hooks/useForm/common/entities";
-import { FormManager } from "../../../../../../hooks/useFormManager/common/entities";
-import { InputController } from "../../../../../common/Form/components/Controllers/components/InputController/inputController";
-import { AddItemButton } from "../../../../../Detail/components/TrackerForm/components/Section/components/ListSection/components/AddItemButton/addItemButton";
-import { DeleteItemButton } from "../../../../../Detail/components/TrackerForm/components/Section/components/ListSection/components/DeleteItemButton/deleteItemButton";
-import { ListSection } from "../../../../../Detail/components/TrackerForm/components/Section/components/ListSection/listSection";
 
 interface IntegrationLeadSectionProps<
   T extends FieldValues,

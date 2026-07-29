@@ -1,10 +1,10 @@
+import { useArchivedState } from "@/app/components/Entity/providers/archived/hook";
+import { FileArchivedStatus } from "@/app/components/Forms/components/FileArchivedStatus/fileArchivedStatus";
+import { Payload } from "@/app/hooks/UseEditFileArchived/entities";
+import { useFetchDataState } from "@/app/hooks/useFetchDataState";
+import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
 import { Row, RowData } from "@tanstack/react-table";
 import { JSX } from "react";
-import { Payload } from "../../../../../../../../../../hooks/UseEditFileArchived/entities";
-import { useFetchDataState } from "../../../../../../../../../../hooks/useFetchDataState";
-import { fetchData } from "../../../../../../../../../../providers/fetchDataState/actions/fetchData/dispatch";
-import { FileArchivedStatus } from "../../../../../../../../../Forms/components/FileArchivedStatus/fileArchivedStatus";
-import { useArchivedState } from "../../../../../../../../providers/archived/hook";
 import { Props } from "./entities";
 
 export const EditFileArchivedStatus = <T extends RowData>({

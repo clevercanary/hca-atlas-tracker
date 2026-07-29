@@ -1,5 +1,5 @@
-import { NetworkKey } from "../../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../../common/entities";
+import { NetworkKey } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
 import { EntrySheetValidationResponse } from "./hca-validation-tools";
 
 interface EntrySheetValidationRequestBody {

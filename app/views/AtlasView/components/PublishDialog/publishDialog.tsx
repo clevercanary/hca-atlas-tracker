@@ -1,18 +1,18 @@
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
-import { Button } from "@mui/material";
-import { JSX } from "react";
-import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerAtlas } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getAtlasName } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
-import { PathParameter } from "../../../../common/entities";
-import { getRequestURL } from "../../../../common/utils";
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getAtlasName } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import { PathParameter } from "@/app/common/entities";
+import { getRequestURL } from "@/app/common/utils";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../../components/common/ConfirmationDialog/confirmationDialog.styles";
-import { usePublishAtlas } from "../../../../hooks/UsePublishAtlas/hook";
+} from "@/app/components/common/ConfirmationDialog/confirmationDialog.styles";
+import { usePublishAtlas } from "@/app/hooks/UsePublishAtlas/hook";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { Button } from "@mui/material";
+import { JSX } from "react";
 
 interface Props {
   atlas: HCAAtlasTrackerAtlas | undefined;

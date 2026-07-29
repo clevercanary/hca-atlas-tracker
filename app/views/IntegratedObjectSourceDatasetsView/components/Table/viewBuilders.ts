@@ -1,10 +1,10 @@
+import { getRouteURL } from "@/app/common/utils";
+import * as C from "@/app/components";
+import { ROUTE } from "@/app/routes/constants";
+import { getDOILink } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
 import { CellContext } from "@tanstack/react-table";
 import { JSX } from "react";
-import { getRouteURL } from "../../../../common/utils";
-import * as C from "../../../../components";
-import { ROUTE } from "../../../../routes/constants";
-import { getDOILink } from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { IntegratedObjectSourceDataset } from "../../entities";
 
 /**
  * Renders file name as a link.

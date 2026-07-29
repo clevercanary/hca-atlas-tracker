@@ -1,5 +1,5 @@
-import { FormMethod } from "../../../../../../../../../../../hooks/useForm/common/entities";
-import { useForm } from "../../../../../../../../../../../hooks/useForm/useForm";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { useForm } from "@/app/hooks/useForm/useForm";
 import { SourceStudyEditData } from "../common/entities";
 import { sourceStudyEditSchema } from "../common/schema";
 

@@ -1,13 +1,13 @@
-import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, JSX, ReactNode } from "react";
-import { NETWORKS } from "../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
-import { isNetworkKey } from "../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
-import { getBioNetworkByKey } from "../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { NETWORKS } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
+import { isNetworkKey } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import {
   Select,
   SelectProps,
-} from "../../../../../common/Form/components/Select/select";
-import { NetworkIconAndName } from "../../../../../Detail/components/TrackerForm/components/Select/components/NetworkIconAndName/networkIconAndName";
+} from "@/app/components/common/Form/components/Select/select";
+import { NetworkIconAndName } from "@/app/components/Detail/components/TrackerForm/components/Select/components/NetworkIconAndName/networkIconAndName";
+import { getBioNetworkByKey } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { MenuItem as MMenuItem } from "@mui/material";
+import { forwardRef, JSX, ReactNode } from "react";
 
 export const BioNetwork = forwardRef<HTMLInputElement, SelectProps>(
   function BioNetwork(

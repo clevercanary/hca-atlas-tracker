@@ -1,5 +1,5 @@
+import { PUBLICATION_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { array, object, string } from "yup";
-import { PUBLICATION_STATUS } from "../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FIELD_NAME } from "./fields";
 
 export const publicationStatusEditSchema = object({

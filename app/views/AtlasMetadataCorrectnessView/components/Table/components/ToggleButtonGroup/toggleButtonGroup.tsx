@@ -1,7 +1,7 @@
+import { View } from "@/app/views/AtlasMetadataCorrectnessView/components/Table/hooks/useTable/entities";
 import { useToggleButtonGroup } from "@databiosphere/findable-ui/lib/components/common/ToggleButtonGroup/hooks/UseToggleButtonGroup/hook";
 import { ToggleButton } from "@mui/material";
 import { JSX } from "react";
-import { View } from "../../hooks/useTable/entities";
 import { OPTIONS } from "./constants";
 import { Props } from "./entities";
 import { StyledToggleButtonGroup } from "./toggleButtonGroup.styles";

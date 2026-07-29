@@ -1,8 +1,8 @@
+import { InvalidIcon } from "@/app/components/common/CustomIcon/components/InvalidIcon/invalidIcon";
+import { PartiallyInvalidIcon } from "@/app/components/common/CustomIcon/components/PartiallyInvalidIcon/partiallyInvalidIcon";
+import { PartiallyValidIcon } from "@/app/components/common/CustomIcon/components/PartiallyValidIcon/partiallyValidIcon";
+import { ValidIcon } from "@/app/components/common/CustomIcon/components/ValidIcon/validIcon";
 import { type JSX } from "react";
-import { InvalidIcon } from "../../../../../../../../../common/CustomIcon/components/InvalidIcon/invalidIcon";
-import { PartiallyInvalidIcon } from "../../../../../../../../../common/CustomIcon/components/PartiallyInvalidIcon/partiallyInvalidIcon";
-import { PartiallyValidIcon } from "../../../../../../../../../common/CustomIcon/components/PartiallyValidIcon/partiallyValidIcon";
-import { ValidIcon } from "../../../../../../../../../common/CustomIcon/components/ValidIcon/validIcon";
 import { Props } from "./entities";
 
 export const ValidatorIcon = ({ status }: Props): JSX.Element => {

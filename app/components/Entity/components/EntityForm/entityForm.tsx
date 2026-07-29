@@ -1,12 +1,12 @@
+import { Divider } from "@/app/components/Detail/components/TrackerForm/components/Divider/divider.styles";
+import { TrackerFormSection as Section } from "@/app/components/Detail/components/TrackerForm/components/Section/components/TrackerFormSection/trackerFormSection";
+import { TrackerForm } from "@/app/components/Detail/components/TrackerForm/trackerForm";
+import { SectionConfig } from "@/app/components/Forms/common/entities";
+import { FormManager } from "@/app/components/common/Form/components/FormManager/formManager";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { FormManager as FormManagerProps } from "@/app/hooks/useFormManager/common/entities";
 import { ElementType, Fragment, JSX } from "react";
 import { FieldValues } from "react-hook-form";
-import { FormMethod } from "../../../../hooks/useForm/common/entities";
-import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
-import { Divider } from "../../../Detail/components/TrackerForm/components/Divider/divider.styles";
-import { TrackerFormSection as Section } from "../../../Detail/components/TrackerForm/components/Section/components/TrackerFormSection/trackerFormSection";
-import { TrackerForm } from "../../../Detail/components/TrackerForm/trackerForm";
-import { SectionConfig } from "../../../Forms/common/entities";
-import { FormManager } from "../../../common/Form/components/FormManager/formManager";
 
 interface EntityFormProps<
   T extends FieldValues,

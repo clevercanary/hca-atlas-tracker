@@ -1,5 +1,5 @@
-import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
-import { getAtlasesBreadcrumb } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
+import { Breadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
+import { getAtlasesBreadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 
 /**
  * Returns the breadcrumbs for the create atlas view.

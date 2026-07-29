@@ -1,4 +1,4 @@
-import { ROUTE } from "../../../../../../../routes/constants";
+import { ROUTE } from "@/app/routes/constants";
 import { Breadcrumb } from "../breadcrumbs";
 
 export const BREADCRUMB_ATLAS: Breadcrumb = {

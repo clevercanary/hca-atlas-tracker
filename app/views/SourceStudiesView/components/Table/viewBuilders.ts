@@ -1,14 +1,14 @@
+import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getRouteURL } from "@/app/common/utils";
+import { LinksCell } from "@/app/components/Index/components/LinksCell/linksCell";
+import { withBackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
+import { ROUTE } from "@/app/routes/constants";
+import { buildSheetsUrl } from "@/app/utils/google-sheets";
 import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { LinkCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/LinkCell/linkCell";
 import { CellContext } from "@tanstack/react-table";
 import { ComponentProps } from "react";
-import { HCAAtlasTrackerSourceStudy } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getRouteURL } from "../../../../common/utils";
-import { LinksCell } from "../../../../components/Index/components/LinksCell/linksCell";
-import { withBackOrigin } from "../../../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
-import { ROUTE } from "../../../../routes/constants";
-import { buildSheetsUrl } from "../../../../utils/google-sheets";
 import type { TableMeta } from "./entities";
 
 /**

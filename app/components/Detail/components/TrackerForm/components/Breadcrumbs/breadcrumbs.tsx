@@ -1,3 +1,6 @@
+import { FormAction } from "@/app/hooks/useFormManager/common/entities";
+import { navigateToRoute } from "@/app/hooks/useFormManager/common/utils";
+import { RouteValue } from "@/app/routes/entities";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import {
@@ -6,9 +9,6 @@ import {
   Typography as MTypography,
 } from "@mui/material";
 import { JSX, ReactNode } from "react";
-import { FormAction } from "../../../../../../hooks/useFormManager/common/entities";
-import { navigateToRoute } from "../../../../../../hooks/useFormManager/common/utils";
-import { RouteValue } from "../../../../../../routes/entities";
 
 export interface Breadcrumb {
   path: string;

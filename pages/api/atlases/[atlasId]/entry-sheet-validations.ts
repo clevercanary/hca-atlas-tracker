@@ -1,11 +1,7 @@
+import { METHOD } from "@/app/common/entities";
+import { getAtlasEntrySheetValidations } from "@/app/services/entry-sheets";
+import { handler, method, registeredUser } from "@/app/utils/api-handler";
 import { dbEntrySheetValidationToApiListModel } from "app/apis/catalog/hca-atlas-tracker/common/backend-utils";
-import { METHOD } from "../../../../app/common/entities";
-import { getAtlasEntrySheetValidations } from "../../../../app/services/entry-sheets";
-import {
-  handler,
-  method,
-  registeredUser,
-} from "../../../../app/utils/api-handler";
 
 /**
  * API route to get entry sheet validations of an atlas.

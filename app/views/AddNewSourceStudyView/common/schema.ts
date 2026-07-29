@@ -1,5 +1,5 @@
+import { isDoi } from "@/app/utils/doi";
 import { mixed, object, string } from "yup";
-import { isDoi } from "../../../utils/doi";
 import { FIELD_NAME } from "./constants";
 import { PUBLICATION_STATUS } from "./entities";
 

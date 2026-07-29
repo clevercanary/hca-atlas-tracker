@@ -1,9 +1,9 @@
+import { updateArchived } from "@/app/components/Entity/providers/archived/actions/updateArchived/dispatch";
+import { useArchivedState } from "@/app/components/Entity/providers/archived/hook";
+import { useFetchDataState } from "@/app/hooks/useFetchDataState";
+import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
 import { ToggleButton } from "@mui/material";
 import { JSX } from "react";
-import { useFetchDataState } from "../../../../../../../../../hooks/useFetchDataState";
-import { fetchData } from "../../../../../../../../../providers/fetchDataState/actions/fetchData/dispatch";
-import { updateArchived } from "../../../../../../../providers/archived/actions/updateArchived/dispatch";
-import { useArchivedState } from "../../../../../../../providers/archived/hook";
 import { StyledToggleButtonGroup } from "./archiveStatusToggle.styles";
 import { OPTIONS } from "./constants";
 import { Props } from "./entities";

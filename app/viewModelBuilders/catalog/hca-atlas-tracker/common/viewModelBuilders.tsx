@@ -1,27 +1,9 @@
-import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
-import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
-import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
-import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
-import {
-  ColumnConfig,
-  ViewContext,
-} from "@databiosphere/findable-ui/lib/config/entities";
-import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
-import {
-  CellContext,
-  ColumnDef,
-  Row,
-  RowData,
-  Table,
-} from "@tanstack/react-table";
-import { BaseSyntheticEvent, ComponentProps, type JSX } from "react";
 import {
   HCA_TIER1_VALIDATION_STATUS_LABEL,
   NETWORKS,
   STATUS_LABEL,
   UNPUBLISHED,
-} from "../../../../apis/catalog/hca-atlas-tracker/common/constants";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ATLAS_STATUS,
   CAP_INGEST_STATUS,
@@ -42,26 +24,44 @@ import {
   TASK_STATUS,
   VALIDATION_DESCRIPTION,
   VALIDATION_ID,
-} from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getApiEntityFileVersion,
   getAtlasName,
   getSourceStudyCitation,
   getSourceStudyTaskStatus,
   isTask,
-} from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
-import { getRouteURL } from "../../../../common/utils";
-import * as C from "../../../../components";
-import { withBackOrigin } from "../../../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
-import { CAPIngestStatusCell } from "../../../../components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
-import { ICON_STATUS } from "../../../../components/Table/components/TableCell/components/IconStatusBadge/iconStatusBadge";
-import { ROUTE } from "../../../../routes/constants";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import { getRouteURL } from "@/app/common/utils";
+import * as C from "@/app/components";
+import { withBackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
+import { CAPIngestStatusCell } from "@/app/components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
+import { ICON_STATUS } from "@/app/components/Table/components/TableCell/components/IconStatusBadge/iconStatusBadge";
+import { ROUTE } from "@/app/routes/constants";
 import {
   formatDateToQuarterYear,
   formatISOToUTCDateTime,
   getDateFromIsoString,
-} from "../../../../utils/date-fns";
-import { AtlasIntegratedObject } from "../../../../views/ComponentAtlasesView/entities";
+} from "@/app/utils/date-fns";
+import { AtlasIntegratedObject } from "@/app/views/ComponentAtlasesView/entities";
+import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
+import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
+import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
+import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
+import {
+  ColumnConfig,
+  ViewContext,
+} from "@databiosphere/findable-ui/lib/config/entities";
+import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
+import {
+  CellContext,
+  ColumnDef,
+  Row,
+  RowData,
+  Table,
+} from "@tanstack/react-table";
+import { BaseSyntheticEvent, ComponentProps, type JSX } from "react";
 import { EXTRA_PROPS } from "./constants";
 import {
   COMPONENT_NAME,

@@ -1,13 +1,13 @@
+import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { CORE_OPTIONS } from "@/app/components/Table/options/core/constants";
+import { SORTING_OPTIONS } from "@/app/components/Table/options/sorting/constants";
+import { useEntity } from "@/app/providers/entity/hook";
+import { COLUMNS } from "@/app/views/SourceStudiesView/components/Table/columns";
+import { TableMeta } from "@/app/views/SourceStudiesView/components/Table/entities";
+import { EntityData } from "@/app/views/SourceStudiesView/entities";
 import { COLUMN_IDENTIFIER } from "@databiosphere/findable-ui/lib/components/Table/common/columnIdentifier";
 import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
 import { useReactTable } from "@tanstack/react-table";
-import { HCAAtlasTrackerSourceStudy } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { CORE_OPTIONS } from "../../../../../../components/Table/options/core/constants";
-import { SORTING_OPTIONS } from "../../../../../../components/Table/options/sorting/constants";
-import { useEntity } from "../../../../../../providers/entity/hook";
-import { EntityData } from "../../../../entities";
-import { COLUMNS } from "../../columns";
-import { TableMeta } from "../../entities";
 import { UseSourceStudiesTable } from "./entities";
 
 export const useSourceStudiesTable = (): UseSourceStudiesTable => {

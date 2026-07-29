@@ -1,6 +1,6 @@
+import { HeroActions as DetailViewActions } from "@/app/components/Layout/components/Detail/components/DetailViewHero/detailViewHero.styles";
 import { bpUpMd } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
-import { HeroActions as DetailViewActions } from "../../../../../Layout/components/Detail/components/DetailViewHero/detailViewHero.styles";
 
 export const HeroActions = styled(DetailViewActions)`
   ${bpUpMd} {

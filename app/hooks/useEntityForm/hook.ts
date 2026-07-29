@@ -1,6 +1,6 @@
+import { EntityContext } from "@/app/providers/entity/context";
+import { EntityContextProps } from "@/app/providers/entity/entities";
 import { useContext } from "react";
-import { EntityContext } from "../../providers/entity/context";
-import { EntityContextProps } from "../../providers/entity/entities";
 
 /**
  * Returns the data, formManager, formMethod, and pathParameter properties from the entity provider.

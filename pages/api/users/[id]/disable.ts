@@ -1,12 +1,12 @@
-import { ROLE } from "app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../../../../app/common/entities";
-import { query } from "../../../../app/services/database";
+import { METHOD } from "@/app/common/entities";
+import { query } from "@/app/services/database";
 import {
   getRequiredParam,
   handler,
   method,
   role,
-} from "../../../../app/utils/api-handler";
+} from "@/app/utils/api-handler";
+import { ROLE } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 
 /**
  * API route for setting a user as disabled.

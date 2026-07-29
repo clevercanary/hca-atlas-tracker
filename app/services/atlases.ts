@@ -1,7 +1,7 @@
+import { InvalidOperationError } from "@/app/utils/api-errors";
+import { getCrossrefPublicationInfo } from "@/app/utils/crossref/crossref";
 import pg from "pg";
 import { ValidationError } from "yup";
-import { InvalidOperationError } from "../../app/utils/api-errors";
-import { getCrossrefPublicationInfo } from "../../app/utils/crossref/crossref";
 import {
   ATLAS_STATUS,
   AtlasStatusSummary,

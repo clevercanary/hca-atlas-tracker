@@ -1,8 +1,8 @@
+import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
+import { useEntity } from "@/app/providers/entity/hook";
+import { EntityData } from "@/app/views/AtlasMetadataCorrectnessView/entities";
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import { JSX } from "react";
-import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
-import { useEntity } from "../../../../providers/entity/hook";
-import { EntityData } from "../../entities";
 import { Table } from "../Table/table";
 import { StyledGrid } from "./tables.styles";
 import { filterClasses } from "./utils";

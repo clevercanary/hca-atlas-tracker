@@ -1,13 +1,13 @@
-import { setAtlasSourceDatasetsSourceStudy } from "app/services/source-datasets";
-import { ROLE } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { sourceDatasetsSetSourceStudySchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../../../../../app/common/entities";
+import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { sourceDatasetsSetSourceStudySchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
 import {
   handler,
   integrationLeadAssociatedAtlasOnly,
   method,
   role,
-} from "../../../../../app/utils/api-handler";
+} from "@/app/utils/api-handler";
+import { setAtlasSourceDatasetsSourceStudy } from "app/services/source-datasets";
 
 /**
  * API route for setting the source study of source datasets for a given atlas.

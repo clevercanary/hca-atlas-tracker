@@ -1,17 +1,17 @@
-import { ElementType, JSX, ReactNode } from "react";
-import { FieldValues } from "react-hook-form";
-import { FormMethod } from "../../../../../../../../hooks/useForm/common/entities";
-import { FormManager } from "../../../../../../../../hooks/useFormManager/common/entities";
-import { ControllerConfig } from "../../../../../../../common/Form/components/Controllers/common/entities";
-import { Controllers } from "../../../../../../../common/Form/components/Controllers/controllers";
-import { SectionContent } from "../../../../../../../Forms/common/entities";
+import { ControllerConfig } from "@/app/components/common/Form/components/Controllers/common/entities";
+import { Controllers } from "@/app/components/common/Form/components/Controllers/controllers";
 import {
   SectionCard as DefaultSectionCard,
   Section,
   SectionHero,
   SectionText,
   SectionTitle,
-} from "../../section.styles";
+} from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
+import { SectionContent } from "@/app/components/Forms/common/entities";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { ElementType, JSX, ReactNode } from "react";
+import { FieldValues } from "react-hook-form";
 import { SlotProps } from "./common/utils";
 
 export interface TrackerFormSectionProps<

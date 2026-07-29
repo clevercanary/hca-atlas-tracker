@@ -1,18 +1,18 @@
-import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
-import { BasicCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/BasicCell/basicCell";
-import { NTagCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/NTagCell/nTagCell";
-import { ColumnDef } from "@tanstack/react-table";
-import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { GroupedRowSelectionCell } from "../../../../../../../../../../components/Table/components/TableCell/components/GroupedRowSelectionCell/groupedRowSelectionCell";
-import { PinnedNTagCell } from "../../../../../../../../../../components/Table/components/TableCell/components/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
-import { RowSelectionCell } from "../../../../../../../../../../components/Table/components/TableCell/components/RowSelectionCell/rowSelectionCell";
+import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { GroupedRowSelectionCell } from "@/app/components/Table/components/TableCell/components/GroupedRowSelectionCell/groupedRowSelectionCell";
+import { PinnedNTagCell } from "@/app/components/Table/components/TableCell/components/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
+import { RowSelectionCell } from "@/app/components/Table/components/TableCell/components/RowSelectionCell/rowSelectionCell";
 import {
   buildAssay,
   buildCellCount,
   buildDisease,
   buildSuspensionType,
   buildTissue,
-} from "../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+} from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
+import { BasicCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/BasicCell/basicCell";
+import { NTagCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/NTagCell/nTagCell";
+import { ColumnDef } from "@tanstack/react-table";
 import {
   buildFileNameSelection,
   buildPublicationStringSelection,

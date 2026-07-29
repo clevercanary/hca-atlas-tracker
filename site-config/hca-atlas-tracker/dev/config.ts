@@ -1,4 +1,4 @@
-import { SiteConfig } from "../../common/entities";
+import { SiteConfig } from "@/site-config/common/entities";
 import { GIT_HUB_REPO_URL, makeConfig, PORTAL_URL } from "../local/config";
 
 // Template constants
