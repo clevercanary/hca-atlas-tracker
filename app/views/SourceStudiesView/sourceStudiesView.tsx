@@ -1,6 +1,5 @@
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { EntityProvider } from "app/providers/entity/provider";
 import { JSX } from "react";
 import { getAtlasName } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
@@ -11,6 +10,7 @@ import { StyledDetailView } from "../../components/Layout/components/Detail/stic
 import { useAtlasTabBackPath } from "../../hooks/useAtlasTabBackPath";
 import { useFetchAtlas } from "../../hooks/useFetchAtlas";
 import { useFormManager } from "../../hooks/useFormManager/useFormManager";
+import { EntityProvider } from "../../providers/entity/provider";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchSourceStudies } from "./hooks/useFetchSourceStudies";
 

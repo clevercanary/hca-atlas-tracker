@@ -1,7 +1,7 @@
-import { HCAAtlasTrackerSourceDataset } from "app/apis/catalog/hca-atlas-tracker/common/entities";
-import { Table as CommonTable } from "app/components/Entity/components/common/Table/table";
-import { FormMethod } from "app/hooks/useForm/common/entities";
 import { JSX } from "react";
+import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { Table as CommonTable } from "../../../../../../../../../../components/Entity/components/common/Table/table";
+import { FormMethod } from "../../../../../../../../../../hooks/useForm/common/entities";
 import { ComponentAtlasSourceDatasetsEditData } from "../../../../../../common/entities";
 import { useComponentAtlasSourceDatasetsSelectionTable } from "./hooks/UseComponentAtlasSourceDatasetsSelectionTable/hook";
 

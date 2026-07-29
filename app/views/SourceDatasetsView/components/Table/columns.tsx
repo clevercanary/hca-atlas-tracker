@@ -2,7 +2,7 @@ import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/comm
 import { BasicCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/BasicCell/basicCell";
 import { NTagCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/NTagCell/nTagCell";
 import { ColumnDef } from "@tanstack/react-table";
-import { HCAAtlasTrackerSourceDataset } from "app/apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerSourceDataset } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FileDownloadCell } from "../../../../components/Entity/components/common/Table/components/TableCell/components/FileDownloadCell/fileDownloadCell";
 import { PinnedNTagCell } from "../../../../components/Table/components/TableCell/components/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
 import {

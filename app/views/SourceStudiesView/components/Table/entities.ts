@@ -1,4 +1,4 @@
-import { PathParameter } from "app/common/entities";
+import { PathParameter } from "../../../../common/entities";
 
 export interface TableMeta {
   pathParameter: PathParameter;
