@@ -1,5 +1,9 @@
+import {
+  Section,
+  SectionHero,
+  SectionText,
+} from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
 import { JSX, ReactNode } from "react";
-import { Section, SectionHero, SectionText } from "../../section.styles";
 
 interface RequestAccessProps {
   children: ReactNode | ReactNode[];

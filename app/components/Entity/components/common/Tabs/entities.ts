@@ -1,6 +1,6 @@
+import { PathParameter } from "@/app/common/entities";
+import { FormAction } from "@/app/hooks/useFormManager/common/entities";
 import { Tab } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
-import { PathParameter } from "../../../../../common/entities";
-import { FormAction } from "../../../../../hooks/useFormManager/common/entities";
 
 export interface Props {
   onNavigate?: FormAction["onNavigate"];

@@ -1,5 +1,5 @@
+import { TARGET_COMPLETION_REGEXP } from "@/app/components/Form/components/Select/components/TargetCompletion/common/constants";
 import { array, object, string } from "yup";
-import { TARGET_COMPLETION_REGEXP } from "../../../../../../../../Form/components/Select/components/TargetCompletion/common/constants";
 import { FIELD_NAME } from "./constants";
 
 export const taskCompletionDatesSchema = object({

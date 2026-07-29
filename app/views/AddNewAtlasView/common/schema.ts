@@ -1,15 +1,15 @@
-import { array, object, string } from "yup";
 import {
   NETWORK_KEYS,
   WAVES,
-} from "../../../apis/catalog/hca-atlas-tracker/common/constants";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ATLAS_SHORT_NAME_REGEX,
   ATLAS_SHORT_NAME_REGEX_MESSAGE,
   CAP_PROJECT_URL_REGEXP,
-} from "../../../apis/catalog/hca-atlas-tracker/common/schema";
-import { CELLXGENE_COLLECTION_ID_REGEX } from "../../../common/constants";
-import { isDoi } from "../../../utils/doi";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { CELLXGENE_COLLECTION_ID_REGEX } from "@/app/common/constants";
+import { isDoi } from "@/app/utils/doi";
+import { array, object, string } from "yup";
 import { FIELD_NAME } from "./constants";
 
 export const newAtlasSchema = object({

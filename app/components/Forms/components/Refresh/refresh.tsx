@@ -1,15 +1,15 @@
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
-import { Button } from "@mui/material";
-import { JSX, useCallback, useEffect, useState } from "react";
-import { METHOD } from "../../../../common/entities";
-import { fetchResource } from "../../../../common/utils";
-import { FormResponseErrors } from "../../../../hooks/useForm/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { fetchResource } from "@/app/common/utils";
+import { FormResponseErrors } from "@/app/hooks/useForm/common/entities";
 import {
   REFRESH_ACTIVITY,
   REFRESH_OUTCOME,
   RefreshServicesStatuses,
   RefreshStatus,
-} from "../../../../services/common/entities";
+} from "@/app/services/common/entities";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { Button } from "@mui/material";
+import { JSX, useCallback, useEffect, useState } from "react";
 
 export const RefreshForm = (): JSX.Element => {
   const [statusIsDisabled, setStatusIsDisabled] = useState(false);

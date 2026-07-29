@@ -1,6 +1,6 @@
+import { METHOD } from "@/app/common/entities";
+import { fetchResource, isFetchStatusOk } from "@/app/common/utils";
 import { useCallback, useState } from "react";
-import { METHOD } from "../../common/entities";
-import { fetchResource, isFetchStatusOk } from "../../common/utils";
 import { OnSubmitOptions, UsePublishAtlas } from "./entities";
 
 export const usePublishAtlas = (): UsePublishAtlas => {

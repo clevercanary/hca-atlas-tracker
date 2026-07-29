@@ -1,10 +1,10 @@
 import {
   FileValidationSummary,
   REPROCESSED_STATUS,
-} from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "../../../../../../../../common/entities";
-import { RouteValue } from "../../../../../../../../routes/entities";
-import { BackOrigin } from "../../../../../../../Layout/components/Detail/components/DetailViewHero/components/BackButton/constants";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "@/app/common/entities";
+import { BackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/constants";
+import { RouteValue } from "@/app/routes/entities";
 
 export interface Props extends PathParameter {
   backOrigin: BackOrigin;

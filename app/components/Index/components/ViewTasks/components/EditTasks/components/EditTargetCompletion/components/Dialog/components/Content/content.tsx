@@ -1,8 +1,11 @@
+import { ContentProps } from "@/app/components/Index/components/ViewTasks/components/EditTasks/common/entities";
+import {
+  DEFAULT_INPUT_PROPS,
+  FIELD_NAME,
+} from "@/app/components/Index/components/ViewTasks/components/EditTasks/components/EditTargetCompletion/common/constants";
+import { TaskCompletionDatesData } from "@/app/components/Index/components/ViewTasks/components/EditTasks/components/EditTargetCompletion/common/entities";
 import { JSX, useEffect } from "react";
 import { Controller as FormController } from "react-hook-form";
-import { ContentProps } from "../../../../../../common/entities";
-import { DEFAULT_INPUT_PROPS, FIELD_NAME } from "../../../../common/constants";
-import { TaskCompletionDatesData } from "../../../../common/entities";
 import { Select } from "./content.styles";
 
 export const Content = ({

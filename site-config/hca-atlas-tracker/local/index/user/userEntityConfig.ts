@@ -1,17 +1,17 @@
+import { HCAAtlasTrackerUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getUserId } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import * as C from "@/app/components";
+import * as V from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import {
+  HCA_ATLAS_TRACKER_CATEGORY_KEY,
+  HCA_ATLAS_TRACKER_CATEGORY_LABEL,
+} from "@/site-config/hca-atlas-tracker/category";
 import {
   ComponentConfig,
   EntityConfig,
   ListConfig,
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode/types";
-import { HCAAtlasTrackerUser } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getUserId } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/utils";
-import * as C from "../../../../../app/components";
-import * as V from "../../../../../app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import {
-  HCA_ATLAS_TRACKER_CATEGORY_KEY,
-  HCA_ATLAS_TRACKER_CATEGORY_LABEL,
-} from "../../../category";
 import { TABLE_OPTIONS } from "./tableOptions";
 
 /**

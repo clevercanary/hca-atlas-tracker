@@ -1,3 +1,4 @@
+import { COLOR_MIXES } from "@/app/styles/common/constants/colorMixes";
 import { DialogTitle as DXDialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
 import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
 import styled from "@emotion/styled";
@@ -6,7 +7,6 @@ import {
   DialogActions as MDialogActions,
   DialogContent as MDialogContent,
 } from "@mui/material";
-import { COLOR_MIXES } from "../../../styles/common/constants/colorMixes";
 
 export const Dialog = styled(MDialog)`
   .MuiBackdrop-root {

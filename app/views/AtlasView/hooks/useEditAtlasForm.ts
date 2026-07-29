@@ -1,15 +1,15 @@
+import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { AtlasEditData as APIAtlasEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { PathParameter } from "@/app/common/entities";
+import { TARGET_COMPLETION_NULL } from "@/app/components/Form/components/Select/components/TargetCompletion/common/constants";
+import { mapTargetCompletion } from "@/app/components/Form/components/Select/components/TargetCompletion/common/utils";
+import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { useForm } from "@/app/hooks/useForm/useForm";
 import {
   ATLAS_ECOSYSTEM_PATHS,
   ATLAS_ECOSYSTEM_URLS,
-} from "../../../../site-config/common/constants";
-import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { AtlasEditData as APIAtlasEditData } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
-import { PathParameter } from "../../../common/entities";
-import { TARGET_COMPLETION_NULL } from "../../../components/Form/components/Select/components/TargetCompletion/common/constants";
-import { mapTargetCompletion } from "../../../components/Form/components/Select/components/TargetCompletion/common/utils";
-import { useFetchAtlas } from "../../../hooks/useFetchAtlas";
-import { FormMethod } from "../../../hooks/useForm/common/entities";
-import { useForm } from "../../../hooks/useForm/useForm";
+} from "@/site-config/common/constants";
 import { FIELD_NAME } from "../common/constants";
 import { AtlasEditData } from "../common/entities";
 import { atlasEditSchema } from "../common/schema";

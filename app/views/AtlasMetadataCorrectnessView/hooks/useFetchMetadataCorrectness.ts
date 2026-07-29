@@ -1,8 +1,8 @@
-import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
-import { Heatmap } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD, PathParameter } from "../../../common/entities";
-import { getRequestURL } from "../../../common/utils";
-import { useFetchData } from "../../../hooks/useFetchData";
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { Heatmap } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD, PathParameter } from "@/app/common/entities";
+import { getRequestURL } from "@/app/common/utils";
+import { useFetchData } from "@/app/hooks/useFetchData";
 
 interface UseFetchMetadataCorrectness {
   heatmap?: Heatmap;

@@ -1,6 +1,6 @@
+import { StyledDialog as CommonDialog } from "@/app/components/common/Dialog/dialog.styles";
 import { bpUpSm } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import styled from "@emotion/styled";
-import { StyledDialog as CommonDialog } from "../../../../components/common/Dialog/dialog.styles";
 
 export const Dialog = styled(CommonDialog)`
   .MuiPaper-root {

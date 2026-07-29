@@ -1,11 +1,11 @@
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { APIValue } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getRequestURL } from "@/app/common/utils";
+import { useEditFileArchived } from "@/app/hooks/UseEditFileArchived/hook";
+import { useEntity } from "@/app/providers/entity/hook";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { Button } from "@mui/material";
 import { JSX } from "react";
-import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
-import { APIValue } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getRequestURL } from "../../../../common/utils";
-import { useEditFileArchived } from "../../../../hooks/UseEditFileArchived/hook";
-import { useEntity } from "../../../../providers/entity/hook";
 import { Props } from "./entities";
 
 export const FileArchivedStatus = ({

@@ -1,14 +1,14 @@
 import {
+  SYSTEM,
+  TASK_STATUS,
+  VALIDATION_DESCRIPTION,
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { HCA_ATLAS_TRACKER_CATEGORY_KEY } from "@/site-config/hca-atlas-tracker/category";
+import {
   SavedFilter,
   SORT_DIRECTION,
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { ColumnSort } from "@tanstack/react-table";
-import {
-  SYSTEM,
-  TASK_STATUS,
-  VALIDATION_DESCRIPTION,
-} from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { HCA_ATLAS_TRACKER_CATEGORY_KEY } from "../../../category";
 
 const SORTING: ColumnSort[] = [
   {

@@ -1,11 +1,11 @@
+import { Table as CommonTable } from "@/app/components/Entity/components/common/Table/table";
+import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
+import { StyledToolbar } from "@/app/components/Table/components/TableToolbar/tableToolbar.styles";
+import { useEntity } from "@/app/providers/entity/hook";
+import { Entity } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
 import { Divider } from "@mui/material";
 import { StyledFluidPaper } from "app/components/Table/components/TablePaper/tablePaper.styles";
 import { Fragment, JSX } from "react";
-import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
-import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
-import { StyledToolbar } from "../../../../components/Table/components/TableToolbar/tableToolbar.styles";
-import { useEntity } from "../../../../providers/entity/hook";
-import { Entity } from "../../entities";
 import { ViewComponentAtlasSourceDatasetsSelection } from "../ViewComponentAtlasSourceDatasetsSelection/viewComponentAtlasSourceDatasetsSelection";
 import { useIntegratedObjectSourceDatasetsTable } from "./hooks/UseIntegratedObjectSourceDatasetsTable/hook";
 

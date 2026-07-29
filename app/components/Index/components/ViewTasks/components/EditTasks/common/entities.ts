@@ -1,14 +1,14 @@
-import { ReactNode } from "react";
-import { FieldValues } from "react-hook-form";
-import { ObjectSchema } from "yup";
-import { API } from "../../../../../../../apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerValidationRecord } from "../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../../../../../../../common/entities";
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { HCAAtlasTrackerValidationRecord } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { FormActionsProps } from "@/app/components/common/Form/components/FormActions/formActions";
 import {
   FormMethod,
   MapApiValuesFn,
-} from "../../../../../../../hooks/useForm/common/entities";
-import { FormActionsProps } from "../../../../../../common/Form/components/FormActions/formActions";
+} from "@/app/hooks/useForm/common/entities";
+import { ReactNode } from "react";
+import { FieldValues } from "react-hook-form";
+import { ObjectSchema } from "yup";
 
 export interface ContentProps<
   T extends FieldValues,

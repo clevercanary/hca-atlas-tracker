@@ -1,12 +1,12 @@
+import {
+  HCAAtlasTrackerListValidationRecord,
+  HCAAtlasTrackerValidationRecord,
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { StyledDialog } from "@/app/components/common/Dialog/dialog.styles";
 import { DropdownMenu } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowSelection/components/DropdownMenu/dropdownMenu";
 import { Row } from "@tanstack/react-table";
 import { Fragment, JSX, useCallback, useMemo, useState } from "react";
 import { FieldValues } from "react-hook-form";
-import {
-  HCAAtlasTrackerListValidationRecord,
-  HCAAtlasTrackerValidationRecord,
-} from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { StyledDialog } from "../../../../../common/Dialog/dialog.styles";
 import { DialogFormValue } from "./common/entities";
 import { DialogForm } from "./components/DialogForm/dialogForm";
 import { TaskCompletionDatesData } from "./components/EditTargetCompletion/common/entities";

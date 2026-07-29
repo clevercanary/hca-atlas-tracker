@@ -1,16 +1,16 @@
 import {
   HCAAtlasTrackerActiveUser,
   ROLE,
-} from "../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../../app/common/entities";
-import { createUser, updateLastLogin } from "../../app/services/users";
-import { UnauthenticatedError } from "../../app/utils/api-errors";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { createUser, updateLastLogin } from "@/app/services/users";
+import { UnauthenticatedError } from "@/app/utils/api-errors";
 import {
   getActiveUser,
   getProvidedUserProfile,
   handler,
   method,
-} from "../../app/utils/api-handler";
+} from "@/app/utils/api-handler";
 
 export default handler(method(METHOD.PUT), async (req, res) => {
   const userProfile = await getProvidedUserProfile(req, res);

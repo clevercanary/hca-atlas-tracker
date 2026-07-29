@@ -1,3 +1,4 @@
+import { METHOD } from "@/app/common/entities";
 import {
   FieldValues,
   UseFormProps,
@@ -5,7 +6,6 @@ import {
   UseFormReturn,
 } from "react-hook-form";
 import { InferType, ObjectSchema } from "yup";
-import { METHOD } from "../../../common/entities";
 import { UseForm } from "../useForm";
 
 export interface CustomUseFormOptions<T extends FieldValues> {

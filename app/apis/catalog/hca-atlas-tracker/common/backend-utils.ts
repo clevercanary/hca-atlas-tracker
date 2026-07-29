@@ -1,10 +1,10 @@
-import savedCellxgeneInfoRaw from "../../../../../catalog/output/cellxgene-info.json";
-import { getCellxGeneCollectionInfoById } from "../../../../services/cellxgene";
+import { getCellxGeneCollectionInfoById } from "@/app/services/cellxgene";
 import {
   normalizeValidationSummary,
   parseS3KeyPath,
   removeFileExtension,
-} from "../../../../utils/files";
+} from "@/app/utils/files";
+import savedCellxgeneInfoRaw from "@/catalog/output/cellxgene-info.json";
 import {
   FILE_PUBLISHED_STATUS,
   HCAAtlasTrackerAtlas,

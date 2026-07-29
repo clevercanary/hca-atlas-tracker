@@ -1,4 +1,4 @@
-import { ArchivedState } from "../../entities";
+import { ArchivedState } from "@/app/components/Entity/providers/archived/entities";
 import { UpdateArchivedPayload } from "./entities";
 
 /**

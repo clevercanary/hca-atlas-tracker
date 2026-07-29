@@ -1,5 +1,5 @@
+import { FormResponseErrors } from "@/app/hooks/useForm/common/entities";
 import { JSX } from "react";
-import { FormResponseErrors } from "../../../../../hooks/useForm/common/entities";
 
 export interface Props {
   errors: FormResponseErrors;

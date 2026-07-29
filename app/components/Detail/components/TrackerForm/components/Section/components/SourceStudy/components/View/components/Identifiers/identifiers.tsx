@@ -1,21 +1,21 @@
-import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { Fragment, JSX } from "react";
-import { Controller } from "react-hook-form";
-import { HCAAtlasTrackerSourceStudy } from "../../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { FormMethod } from "../../../../../../../../../../../../hooks/useForm/common/entities";
-import { FormManager } from "../../../../../../../../../../../../hooks/useFormManager/common/entities";
-import { PUBLICATION_STATUS } from "../../../../../../../../../../../../views/AddNewSourceStudyView/common/entities";
-import { FIELD_NAME } from "../../../../../../../../../../../../views/SourceStudyView/common/constants";
-import { SourceStudyEditData } from "../../../../../../../../../../../../views/SourceStudyView/common/entities";
-import { Input } from "../../../../../../../../../../../common/Form/components/Input/input";
-import { TypographyNoWrap } from "../../../../../../../../../../../common/Typography/components/TypographyNoWrap/typographyNoWrap";
+import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { Input } from "@/app/components/common/Form/components/Input/input";
+import { TypographyNoWrap } from "@/app/components/common/Typography/components/TypographyNoWrap/typographyNoWrap";
+import { DEFAULT_INPUT_PROPS } from "@/app/components/Detail/components/TrackerForm/components/Section/components/SourceStudy/common/constants";
 import {
   Section,
   SectionCard,
   SectionHero,
   SectionTitle,
-} from "../../../../../../section.styles";
-import { DEFAULT_INPUT_PROPS } from "../../../../common/constants";
+} from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { PUBLICATION_STATUS } from "@/app/views/AddNewSourceStudyView/common/entities";
+import { FIELD_NAME } from "@/app/views/SourceStudyView/common/constants";
+import { SourceStudyEditData } from "@/app/views/SourceStudyView/common/entities";
+import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { Fragment, JSX } from "react";
+import { Controller } from "react-hook-form";
 
 export interface IdentifiersProps {
   formManager: FormManager;

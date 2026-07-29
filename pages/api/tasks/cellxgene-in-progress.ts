@@ -2,12 +2,12 @@ import {
   ROLE,
   TASK_STATUS,
   VALIDATION_ID,
-} from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { taskCellxGeneInProgressSchema } from "../../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../../../app/common/entities";
-import { updateSourceStudyTaskStatusesByDois } from "../../../app/services/validations";
-import { handler, method, role } from "../../../app/utils/api-handler";
-import { normalizeDoi } from "../../../app/utils/doi";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { taskCellxGeneInProgressSchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
+import { updateSourceStudyTaskStatusesByDois } from "@/app/services/validations";
+import { handler, method, role } from "@/app/utils/api-handler";
+import { normalizeDoi } from "@/app/utils/doi";
 
 export default handler(
   method(METHOD.PATCH),

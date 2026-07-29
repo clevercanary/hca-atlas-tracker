@@ -1,11 +1,11 @@
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { TaskCompletionDatesData as APITaskCompletionDatesData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
+import { FormActions } from "@/app/components/common/Form/components/FormActions/formActions";
+import { mapTargetCompletion } from "@/app/components/Form/components/Select/components/TargetCompletion/common/utils";
+import { OnEditFn } from "@/app/components/Index/components/ViewTasks/components/EditTasks/common/entities";
 import { MenuItem } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/components/MenuItem/menuItem";
 import { JSX } from "react";
-import { API } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/api";
-import { TaskCompletionDatesData as APITaskCompletionDatesData } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../../../../../../../../common/entities";
-import { FormActions } from "../../../../../../../common/Form/components/FormActions/formActions";
-import { mapTargetCompletion } from "../../../../../../../Form/components/Select/components/TargetCompletion/common/utils";
-import { OnEditFn } from "../../common/entities";
 import { TaskCompletionDatesData } from "./common/entities";
 import { taskCompletionDatesSchema } from "./common/schema";
 import { Content } from "./components/Dialog/components/Content/content";

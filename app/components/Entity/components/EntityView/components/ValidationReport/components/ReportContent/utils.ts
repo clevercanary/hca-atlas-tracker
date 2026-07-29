@@ -1,10 +1,10 @@
-import { SEVERITY } from "@databiosphere/findable-ui/lib/styles/common/mui/alert";
-import { FILE_VALIDATION_STATUS_NAME_LABEL } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
+import { FILE_VALIDATION_STATUS_NAME_LABEL } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_VALIDATION_STATUS,
   FileValidationReports,
   FileValidatorName,
-} from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { SEVERITY } from "@databiosphere/findable-ui/lib/styles/common/mui/alert";
 import { ReportSeverity, ReportSummary } from "./entities";
 
 /**

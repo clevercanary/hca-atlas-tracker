@@ -1,7 +1,7 @@
+import { IntegrationLeadsFromAtlasesView } from "@/app/views/IntegrationLeadsFromAtlasesView/integrationLeadsFromAtlasesView";
 import { Main } from "@databiosphere/findable-ui/lib/components/Layout/components/ContentLayout/components/Main/main";
 import { GetStaticProps } from "next";
 import { JSX } from "react";
-import { IntegrationLeadsFromAtlasesView } from "../../app/views/IntegrationLeadsFromAtlasesView/integrationLeadsFromAtlasesView";
 
 export const getStaticProps: GetStaticProps = async () => {
   return {

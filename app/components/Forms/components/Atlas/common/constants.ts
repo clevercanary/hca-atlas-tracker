@@ -1,14 +1,14 @@
+import { getPublicationCitation } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import { ControllerConfig } from "@/app/components/common/Form/components/Controllers/common/entities";
+import { BioNetwork } from "@/app/components/Form/components/Select/components/BioNetwork/bioNetwork";
+import { Status } from "@/app/components/Form/components/Select/components/Status/status";
+import { TargetCompletion } from "@/app/components/Form/components/Select/components/TargetCompletion/targetCompletion";
+import { Wave } from "@/app/components/Form/components/Select/components/Wave/wave";
+import { getDOILink } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { NewAtlasData } from "@/app/views/AddNewAtlasView/common/entities";
+import { FIELD_NAME } from "@/app/views/AtlasView/common/constants";
+import { AtlasEditData } from "@/app/views/AtlasView/common/entities";
 import { HCAAtlasTrackerAtlas } from "app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getPublicationCitation } from "../../../../../apis/catalog/hca-atlas-tracker/common/utils";
-import { getDOILink } from "../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { NewAtlasData } from "../../../../../views/AddNewAtlasView/common/entities";
-import { FIELD_NAME } from "../../../../../views/AtlasView/common/constants";
-import { AtlasEditData } from "../../../../../views/AtlasView/common/entities";
-import { ControllerConfig } from "../../../../common/Form/components/Controllers/common/entities";
-import { BioNetwork } from "../../../../Form/components/Select/components/BioNetwork/bioNetwork";
-import { Status } from "../../../../Form/components/Select/components/Status/status";
-import { TargetCompletion } from "../../../../Form/components/Select/components/TargetCompletion/targetCompletion";
-import { Wave } from "../../../../Form/components/Select/components/Wave/wave";
 
 type CommonControllerConfig = ControllerConfig<
   NewAtlasData | AtlasEditData,

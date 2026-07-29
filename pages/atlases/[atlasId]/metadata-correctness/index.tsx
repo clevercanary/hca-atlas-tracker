@@ -1,8 +1,8 @@
+import { PathParameter } from "@/app/common/entities";
+import { AtlasMetadataCorrectnessView } from "@/app/views/AtlasMetadataCorrectnessView/atlasMetadataCorrectnessView";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { JSX } from "react";
-import { PathParameter } from "../../../../app/common/entities";
-import { AtlasMetadataCorrectnessView } from "../../../../app/views/AtlasMetadataCorrectnessView/atlasMetadataCorrectnessView";
 
 interface MetadataCorrectnessPageUrlParams extends ParsedUrlQuery {
   atlasId: string;

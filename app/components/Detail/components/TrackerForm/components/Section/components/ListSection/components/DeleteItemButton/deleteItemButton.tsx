@@ -1,8 +1,11 @@
+import { DeleteIcon } from "@/app/components/common/CustomIcon/components/DeleteIcon/deleteIcon";
+import {
+  ICON_BUTTON_PROPS,
+  SVG_ICON_PROPS,
+} from "@/app/components/Detail/components/TrackerForm/components/Section/components/ListSection/constants";
+import { ControllerAction } from "@/app/components/Detail/components/TrackerForm/components/Section/components/ListSection/integrationLeadSection.styles";
 import { IconButton, IconButtonProps } from "@mui/material";
 import { JSX } from "react";
-import { DeleteIcon } from "../../../../../../../../../common/CustomIcon/components/DeleteIcon/deleteIcon";
-import { ICON_BUTTON_PROPS, SVG_ICON_PROPS } from "../../constants";
-import { ControllerAction } from "../../integrationLeadSection.styles";
 
 interface DeleteItemButtonProps extends Partial<IconButtonProps> {
   inputRowsPerItem: number;

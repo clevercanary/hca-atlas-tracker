@@ -1,5 +1,5 @@
+import { MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
 import { TableOptions } from "@tanstack/react-table";
-import { MetadataEntrySheet } from "../../entities";
 
 export interface Props {
   tableOptions: Omit<

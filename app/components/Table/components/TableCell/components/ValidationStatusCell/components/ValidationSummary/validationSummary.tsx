@@ -1,3 +1,10 @@
+import { FILE_VALIDATOR_NAME_LABEL } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
+import {
+  FileValidatorName,
+  ValidatorSummaryStatus,
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { FILE_VALIDATOR_DESCRIPTIONS } from "@/app/apis/catalog/hca-atlas-tracker/common/validatorDescriptions";
+import { getRouteURL } from "@/app/common/utils";
 import {
   ANCHOR_TARGET,
   REL_ATTRIBUTE,
@@ -6,13 +13,6 @@ import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chi
 import { Stack, Tooltip } from "@mui/material";
 import Link from "next/link";
 import { JSX, ReactNode } from "react";
-import { FILE_VALIDATOR_NAME_LABEL } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
-import {
-  FileValidatorName,
-  ValidatorSummaryStatus,
-} from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { FILE_VALIDATOR_DESCRIPTIONS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/validatorDescriptions";
-import { getRouteURL } from "../../../../../../../../common/utils";
 import { ValidationStatusChipCell } from "../ValidationStatusChipCell/validationStatusChipCell";
 import { ValidatorIcon } from "./components/ValidatorIcon/validatorIcon";
 import { INNER_STACK_PROPS, STACK_PROPS } from "./constants";

@@ -1,3 +1,4 @@
+import { ROUTE } from "@/app/routes/constants";
 import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
 import { AlertIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AlertIcon/alertIcon";
 import { SectionActions } from "@databiosphere/findable-ui/lib/components/common/Section/section.styles";
@@ -15,7 +16,6 @@ import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/m
 import { Typography } from "@mui/material";
 import Link from "next/link";
 import { JSX } from "react";
-import { ROUTE } from "../../routes/constants";
 
 export const NotFoundView = (): JSX.Element => {
   return (

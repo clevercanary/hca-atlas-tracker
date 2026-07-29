@@ -1,5 +1,5 @@
+import { PathParameter } from "@/app/common/entities";
 import { useCallback, useEffect, useState } from "react";
-import { PathParameter } from "../../../../common/entities";
 import { AtlasEntrySheetsSyncState, UseAtlasEntrySheetsSync } from "./types";
 import { startAtlasEntrySheetsSync } from "./utils";
 

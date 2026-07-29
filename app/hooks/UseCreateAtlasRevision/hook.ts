@@ -1,6 +1,6 @@
+import { METHOD } from "@/app/common/entities";
+import { fetchResource, isFetchStatusCreated } from "@/app/common/utils";
 import { useCallback, useState } from "react";
-import { METHOD } from "../../common/entities";
-import { fetchResource, isFetchStatusCreated } from "../../common/utils";
 import { OnSubmitOptions, UseCreateAtlasRevision } from "./entities";
 
 export const useCreateAtlasRevision = (): UseCreateAtlasRevision => {

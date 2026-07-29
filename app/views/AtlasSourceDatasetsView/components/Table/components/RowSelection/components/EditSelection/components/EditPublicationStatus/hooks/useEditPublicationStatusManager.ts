@@ -1,19 +1,19 @@
-import { Table } from "@tanstack/react-table";
-import { useCallback } from "react";
-import { API } from "../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/api";
-import { METHOD } from "../../../../../../../../../../../common/entities";
-import { getRequestURL } from "../../../../../../../../../../../common/utils";
-import { useFetchDataState } from "../../../../../../../../../../../hooks/useFetchDataState";
-import { FormMethod } from "../../../../../../../../../../../hooks/useForm/common/entities";
-import { FormManager } from "../../../../../../../../../../../hooks/useFormManager/common/entities";
-import { useFormManager } from "../../../../../../../../../../../hooks/useFormManager/useFormManager";
-import { useEntity } from "../../../../../../../../../../../providers/entity/hook";
-import { fetchData } from "../../../../../../../../../../../providers/fetchDataState/actions/fetchData/dispatch";
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { METHOD } from "@/app/common/entities";
+import { getRequestURL } from "@/app/common/utils";
+import { useFetchDataState } from "@/app/hooks/useFetchDataState";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
+import { useEntity } from "@/app/providers/entity/hook";
+import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
 import {
   AtlasSourceDataset,
   Entity,
-} from "../../../../../../../../../entities";
-import { SOURCE_DATASETS } from "../../../../../../../../../hooks/useFetchAtlasSourceDatasets";
+} from "@/app/views/AtlasSourceDatasetsView/entities";
+import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/useFetchAtlasSourceDatasets";
+import { Table } from "@tanstack/react-table";
+import { useCallback } from "react";
 import { PublicationStatusEditData } from "../common/entities";
 
 export const useEditPublicationStatusFormManager = (

@@ -1,3 +1,7 @@
+import { useEntity } from "@/app/providers/entity/hook";
+import { buildSheetsUrl } from "@/app/utils/google-sheets";
+import { EntityData } from "@/app/views/AtlasMetadataEntrySheetValidationView/entities";
+import { UseEntrySheetSync } from "@/app/views/AtlasMetadataEntrySheetValidationView/hooks/UseEntrySheetSync/types";
 import { OpenInNewIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/OpenInNewIcon/openInNewIcon";
 import {
   ANCHOR_TARGET,
@@ -6,10 +10,6 @@ import {
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
 import { JSX } from "react";
-import { useEntity } from "../../../../providers/entity/hook";
-import { buildSheetsUrl } from "../../../../utils/google-sheets";
-import { EntityData } from "../../entities";
-import { UseEntrySheetSync } from "../../hooks/UseEntrySheetSync/types";
 import { HeroActions } from "./actions.styles";
 
 type Props = UseEntrySheetSync;

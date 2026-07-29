@@ -1,5 +1,5 @@
-import { PUBLICATION_STATUS } from "../../../../../../../../../../../../../views/AddNewSourceStudyView/common/entities";
-import { TabsProps } from "../../../../../../../../Tabs/tabs";
+import { TabsProps } from "@/app/components/Detail/components/TrackerForm/components/Tabs/tabs";
+import { PUBLICATION_STATUS } from "@/app/views/AddNewSourceStudyView/common/entities";
 
 /**
  * Returns tabs for the general info section.

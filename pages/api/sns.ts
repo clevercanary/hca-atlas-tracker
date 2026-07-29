@@ -1,16 +1,16 @@
-import { NextApiRequest } from "next";
-import getRawBody from "raw-body";
-import MessageValidator from "sns-validator";
-import { SNSSignatureValidationError } from "../../app/apis/catalog/hca-atlas-tracker/aws/errors";
+import { SNSSignatureValidationError } from "@/app/apis/catalog/hca-atlas-tracker/aws/errors";
 import {
   SNSMessage,
   snsMessageSchema,
-} from "../../app/apis/catalog/hca-atlas-tracker/aws/schemas";
-import { METHOD } from "../../app/common/entities";
-import { dispatchSNSNotification } from "../../app/services/sns-dispatcher";
-import { handleSNSSubscription } from "../../app/services/sns-subscription";
-import { InvalidOperationError } from "../../app/utils/api-errors";
-import { handler, method } from "../../app/utils/api-handler";
+} from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import { METHOD } from "@/app/common/entities";
+import { dispatchSNSNotification } from "@/app/services/sns-dispatcher";
+import { handleSNSSubscription } from "@/app/services/sns-subscription";
+import { InvalidOperationError } from "@/app/utils/api-errors";
+import { handler, method } from "@/app/utils/api-handler";
+import { NextApiRequest } from "next";
+import getRawBody from "raw-body";
+import MessageValidator from "sns-validator";
 
 /**
  * Validates the incoming SNS request and extracts the message

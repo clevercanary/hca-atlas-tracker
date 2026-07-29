@@ -1,10 +1,10 @@
-import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "../../../common/entities";
-import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
+import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "@/app/common/entities";
+import { Breadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import {
   getAtlasBreadcrumb,
   getAtlasesBreadcrumb,
-} from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
+} from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 
 /**
  * Returns the breadcrumbs for the atlas status view.

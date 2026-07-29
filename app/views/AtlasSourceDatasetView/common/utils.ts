@@ -1,14 +1,14 @@
-import { Tab } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
-import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "../../../common/entities";
-import { Breadcrumb } from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
+import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "@/app/common/entities";
+import { Breadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import {
   getAtlasBreadcrumb,
   getAtlasesBreadcrumb,
   getAtlasSourceDatasetBreadcrumb,
   getAtlasSourceDatasetsBreadcrumb,
-} from "../../../components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
-import { ROUTE } from "../../../routes/constants";
+} from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
+import { ROUTE } from "@/app/routes/constants";
+import { Tab } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 
 /**
  * Returns the breadcrumbs for the source dataset view.

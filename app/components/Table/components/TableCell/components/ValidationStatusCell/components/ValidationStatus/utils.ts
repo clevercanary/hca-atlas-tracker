@@ -1,6 +1,6 @@
+import { FILE_VALIDATION_STATUS_NAME_LABEL } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
+import { FILE_VALIDATION_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { ChipProps } from "@mui/material";
-import { FILE_VALIDATION_STATUS_NAME_LABEL } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
-import { FILE_VALIDATION_STATUS } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { VALIDATION_STATUS_COLOR } from "./constants";
 
 /**

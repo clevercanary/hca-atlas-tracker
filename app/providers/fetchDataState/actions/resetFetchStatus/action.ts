@@ -1,4 +1,4 @@
-import { FetchDataState } from "../../fetchDataState";
+import { FetchDataState } from "@/app/providers/fetchDataState/fetchDataState";
 
 /**
  * Reducer function to handle the "reset fetch status" action.

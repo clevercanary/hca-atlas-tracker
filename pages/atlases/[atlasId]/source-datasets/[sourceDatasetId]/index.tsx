@@ -1,9 +1,9 @@
+import { PathParameter } from "@/app/common/entities";
+import { FetchDataStateProvider } from "@/app/providers/fetchDataState/fetchDataState";
+import { AtlasSourceDatasetView } from "@/app/views/AtlasSourceDatasetView/atlasSourceDatasetView";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { JSX } from "react";
-import { PathParameter } from "../../../../../app/common/entities";
-import { FetchDataStateProvider } from "../../../../../app/providers/fetchDataState/fetchDataState";
-import { AtlasSourceDatasetView } from "../../../../../app/views/AtlasSourceDatasetView/atlasSourceDatasetView";
 
 interface SourceDatasetPageUrlParams extends ParsedUrlQuery {
   atlasId: string;

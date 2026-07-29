@@ -1,6 +1,6 @@
-import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { ControllerConfig } from "../../../../../../../../../../../components/common/Form/components/Controllers/common/entities";
-import { PublicationStatus } from "../../../../../../../../../../../components/Form/components/Select/components/PublicationStatus/publicationStatus";
+import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { ControllerConfig } from "@/app/components/common/Form/components/Controllers/common/entities";
+import { PublicationStatus } from "@/app/components/Form/components/Select/components/PublicationStatus/publicationStatus";
 import { PublicationStatusEditData } from "./entities";
 import { FIELD_NAME } from "./fields";
 

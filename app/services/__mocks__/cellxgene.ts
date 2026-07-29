@@ -1,7 +1,7 @@
 import {
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,
   TEST_CELLXGENE_COLLECTIONS_BY_ID,
-} from "../../../testing/constants";
+} from "@/testing/constants";
 import { CollectionInfo } from "../cellxgene";
 import { RefreshDataResult } from "../common/refresh-service";
 

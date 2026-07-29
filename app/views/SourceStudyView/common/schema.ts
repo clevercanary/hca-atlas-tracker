@@ -1,10 +1,10 @@
-import { object, string } from "yup";
-import { metadataSpreadsheetUrlsSchema } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
+import { metadataSpreadsheetUrlsSchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import {
   CELLXGENE_COLLECTION_ID_REGEX,
   HCA_PROJECT_ID_REGEX,
-} from "../../../common/constants";
-import { newSourceStudySchema } from "../../AddNewSourceStudyView/common/schema";
+} from "@/app/common/constants";
+import { newSourceStudySchema } from "@/app/views/AddNewSourceStudyView/common/schema";
+import { object, string } from "yup";
 import { FIELD_NAME } from "./constants";
 
 export const sourceStudyEditSchema = newSourceStudySchema.concat(

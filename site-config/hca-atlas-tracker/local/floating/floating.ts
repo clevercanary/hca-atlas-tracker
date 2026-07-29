@@ -1,9 +1,9 @@
+import * as C from "@/app/components";
 import { REL_ATTRIBUTE } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import {
   ComponentConfig,
   FloatingConfig,
 } from "@databiosphere/findable-ui/lib/config/entities";
-import * as C from "../../../../app/components";
 
 export const floating: FloatingConfig = {
   components: [

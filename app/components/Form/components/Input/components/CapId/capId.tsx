@@ -1,12 +1,12 @@
-import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { forwardRef, Fragment, JSX } from "react";
-import { CAP_PROJECT_URL_REGEXP } from "../../../../../../apis/catalog/hca-atlas-tracker/common/schema";
+import { CAP_PROJECT_URL_REGEXP } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import {
   Input,
   InputProps,
-} from "../../../../../common/Form/components/Input/input";
-import { TypographyNoWrap } from "../../../../../common/Typography/components/TypographyNoWrap/typographyNoWrap";
-import { isNonEmptyString } from "../../../../common/utils";
+} from "@/app/components/common/Form/components/Input/input";
+import { TypographyNoWrap } from "@/app/components/common/Typography/components/TypographyNoWrap/typographyNoWrap";
+import { isNonEmptyString } from "@/app/components/Form/common/utils";
+import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { forwardRef, Fragment, JSX } from "react";
 
 export const CapId = forwardRef<HTMLInputElement, InputProps>(function CapId(
   {

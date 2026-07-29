@@ -1,14 +1,10 @@
-import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
-import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
-import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
-import { CellContext, ColumnDef } from "@tanstack/react-table";
-import { getApiEntityFileVersion } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
-import { getRouteURL } from "../../../../common/utils";
-import * as C from "../../../../components";
-import { withBackOrigin } from "../../../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
-import { CAPIngestStatusCell } from "../../../../components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
-import { ROUTE } from "../../../../routes/constants";
-import { formatISOToUTCDateTime } from "../../../../utils/date-fns";
+import { getApiEntityFileVersion } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import { getRouteURL } from "@/app/common/utils";
+import * as C from "@/app/components";
+import { withBackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
+import { CAPIngestStatusCell } from "@/app/components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
+import { ROUTE } from "@/app/routes/constants";
+import { formatISOToUTCDateTime } from "@/app/utils/date-fns";
 import {
   buildAssay,
   buildDisease,
@@ -16,8 +12,12 @@ import {
   buildReleaseDate,
   buildSuspensionType,
   buildTissue,
-} from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { AtlasSourceDataset } from "../../entities";
+} from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { AtlasSourceDataset } from "@/app/views/AtlasSourceDatasetsView/entities";
+import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
+import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
+import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
+import { CellContext, ColumnDef } from "@tanstack/react-table";
 import {
   renderCAPUrl,
   renderSourceDatasetCellCount,

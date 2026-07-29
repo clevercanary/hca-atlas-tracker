@@ -1,11 +1,11 @@
-import { FILE_VALIDATOR_NAMES } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/constants";
+import { FILE_VALIDATOR_NAMES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FileValidationSummary,
   FileValidatorName,
   REPROCESSED_STATUS,
   ValidatorSummaryStatus,
-} from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { shouldShowValidator } from "../../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { shouldShowValidator } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 
 /**
  * Returns a human-readable count label for a validator's errors and warnings.

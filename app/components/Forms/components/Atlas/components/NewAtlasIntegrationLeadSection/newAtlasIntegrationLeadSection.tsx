@@ -1,7 +1,7 @@
+import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { SectionContentProps } from "@/app/components/Forms/common/entities";
+import { NewAtlasData } from "@/app/views/AddNewAtlasView/common/entities";
 import { JSX } from "react";
-import { HCAAtlasTrackerAtlas } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { NewAtlasData } from "../../../../../../views/AddNewAtlasView/common/entities";
-import { SectionContentProps } from "../../../../../Forms/common/entities";
 import { IntegrationLeadSection } from "../IntegrationLeadSection/integrationLeadSection";
 
 export const NewAtlasIntegrationLeadSection = ({

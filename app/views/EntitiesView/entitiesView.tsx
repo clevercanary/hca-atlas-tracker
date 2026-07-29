@@ -1,9 +1,9 @@
+import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import {
   ExploreViewProps as DXExploreViewProps,
   ExploreView,
 } from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
 import { JSX } from "react";
-import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { useUpdateExploreState } from "./hooks/useUpdateExploreState";
 
 export const EntitiesView = ({

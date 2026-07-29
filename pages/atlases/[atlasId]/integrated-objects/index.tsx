@@ -1,10 +1,10 @@
+import { PathParameter } from "@/app/common/entities";
+import { ArchivedProvider } from "@/app/components/Entity/providers/archived/provider";
+import { FetchDataStateProvider } from "@/app/providers/fetchDataState/fetchDataState";
+import { ComponentAtlasesView } from "@/app/views/ComponentAtlasesView/componentAtlasesView";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { JSX } from "react";
-import { PathParameter } from "../../../../app/common/entities";
-import { ArchivedProvider } from "../../../../app/components/Entity/providers/archived/provider";
-import { FetchDataStateProvider } from "../../../../app/providers/fetchDataState/fetchDataState";
-import { ComponentAtlasesView } from "../../../../app/views/ComponentAtlasesView/componentAtlasesView";
 
 interface ComponentAtlasesPageUrlParams extends ParsedUrlQuery {
   atlasId: string;

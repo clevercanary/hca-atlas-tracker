@@ -1,12 +1,12 @@
+import { getRouteURL } from "@/app/common/utils";
+import { withBackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
+import { getPartialCellContext } from "@/app/components/Table/components/utils";
+import { ROUTE } from "@/app/routes/constants";
+import { buildSheetsUrl } from "@/app/utils/google-sheets";
 import { KeyValuePairsProps } from "@databiosphere/findable-ui/lib/components/common/KeyValuePairs/keyValuePairs";
 import { LinkProps } from "@mui/material";
 import { CellContext } from "@tanstack/react-table";
 import { formatDistanceToNowStrict } from "date-fns";
-import { getRouteURL } from "../../../common/utils";
-import { withBackOrigin } from "../../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
-import { getPartialCellContext } from "../../../components/Table/components/utils";
-import { ROUTE } from "../../../routes/constants";
-import { buildSheetsUrl } from "../../../utils/google-sheets";
 import { ValidationSummaryCellProps } from "../components/Table/components/TableCell/components/ValidationSummaryCell/types";
 import { MetadataEntrySheet } from "../entities";
 

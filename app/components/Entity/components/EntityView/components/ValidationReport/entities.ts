@@ -3,9 +3,9 @@ import {
   FileValidationReports,
   FileValidatorName,
   REPROCESSED_STATUS,
-} from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "../../../../../../common/entities";
-import { RouteValue } from "../../../../../../routes/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "@/app/common/entities";
+import { RouteValue } from "@/app/routes/entities";
 
 export interface Props {
   pathParameter: PathParameter;

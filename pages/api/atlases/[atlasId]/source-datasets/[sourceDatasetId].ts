@@ -1,20 +1,16 @@
 import {
   dbSourceDatasetToApiSourceDataset,
   dbSourceDatasetToDetailApiSourceDataset,
-} from "../../../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
-import { ROLE_GROUP } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/constants";
-import { ROLE } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { atlasSourceDatasetEditSchema } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../../../../../app/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { ROLE_GROUP } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
+import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { atlasSourceDatasetEditSchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
 import {
   getAtlasSourceDataset,
   updateAtlasSourceDataset,
-} from "../../../../../app/services/source-datasets";
-import {
-  handleByMethod,
-  handler,
-  role,
-} from "../../../../../app/utils/api-handler";
+} from "@/app/services/source-datasets";
+import { handleByMethod, handler, role } from "@/app/utils/api-handler";
 
 const getHandler = handler(role(ROLE_GROUP.READ), async (req, res) => {
   const atlasId = req.query.atlasId as string;

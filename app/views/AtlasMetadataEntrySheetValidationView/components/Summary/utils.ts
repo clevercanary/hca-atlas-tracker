@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerEntrySheetValidation } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerEntrySheetValidation } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 
 /**
  * Builds a summary object from the validation summary.

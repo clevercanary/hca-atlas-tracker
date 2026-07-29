@@ -1,10 +1,10 @@
-import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, JSX, ReactNode } from "react";
-import { ATLAS_STATUS } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { ATLAS_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   Select,
   SelectProps,
-} from "../../../../../common/Form/components/Select/select";
+} from "@/app/components/common/Form/components/Select/select";
+import { MenuItem as MMenuItem } from "@mui/material";
+import { forwardRef, JSX, ReactNode } from "react";
 
 export const Status = forwardRef<HTMLInputElement, SelectProps>(function Status(
   {

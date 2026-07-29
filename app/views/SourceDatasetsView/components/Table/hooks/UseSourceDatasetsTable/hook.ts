@@ -1,12 +1,12 @@
+import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { CORE_OPTIONS } from "@/app/components/Table/options/core/constants";
+import { SORTING_OPTIONS } from "@/app/components/Table/options/sorting/constants";
+import { useEntity } from "@/app/providers/entity/hook";
+import { COLUMNS } from "@/app/views/SourceDatasetsView/components/Table/columns";
+import { EntityData } from "@/app/views/SourceDatasetsView/entities";
 import { COLUMN_IDENTIFIER } from "@databiosphere/findable-ui/lib/components/Table/common/columnIdentifier";
 import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
 import { useReactTable } from "@tanstack/react-table";
-import { HCAAtlasTrackerSourceDataset } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { CORE_OPTIONS } from "../../../../../../components/Table/options/core/constants";
-import { SORTING_OPTIONS } from "../../../../../../components/Table/options/sorting/constants";
-import { useEntity } from "../../../../../../providers/entity/hook";
-import { EntityData } from "../../../../entities";
-import { COLUMNS } from "../../columns";
 import { UseSourceDatasetsTable } from "./entities";
 
 export const useSourceDatasetsTable = (): UseSourceDatasetsTable => {

@@ -1,7 +1,7 @@
+import { Table as CommonTable } from "@/app/components/Entity/components/common/Table/table";
+import { StyledFluidPaper } from "@/app/components/Table/components/TablePaper/tablePaper.styles";
+import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
 import { JSX } from "react";
-import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
-import { StyledFluidPaper } from "../../../../components/Table/components/TablePaper/tablePaper.styles";
-import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
 import { useSourceDatasetsTable } from "../Table/hooks/UseSourceDatasetsTable/hook";
 
 export const ViewSourceDatasets = (): JSX.Element => {

@@ -1,12 +1,12 @@
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
-import { Button } from "@mui/material";
-import { JSX } from "react";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from "../../../../components/common/ConfirmationDialog/confirmationDialog.styles";
+} from "@/app/components/common/ConfirmationDialog/confirmationDialog.styles";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { Button } from "@mui/material";
+import { JSX } from "react";
 
 interface Props {
   onClose: () => void;

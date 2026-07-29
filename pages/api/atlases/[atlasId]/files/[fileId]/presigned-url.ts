@@ -1,12 +1,12 @@
-import { ROLE } from "../../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../../../../../../app/common/entities";
-import { getAtlasFileDownloadUrl } from "../../../../../../app/services/files";
+import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { getAtlasFileDownloadUrl } from "@/app/services/files";
 import {
   handler,
   integrationLeadAssociatedAtlasOnly,
   method,
   role,
-} from "../../../../../../app/utils/api-handler";
+} from "@/app/utils/api-handler";
 
 /**
  * API route for getting a presigned download URL for a given file of a given atlas.

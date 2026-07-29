@@ -1,14 +1,14 @@
-import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
-import { InProgressIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/InProgressIcon/inProgressIcon";
-import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
-import { ChipProps, SvgIconProps } from "@mui/material";
-import { ComponentType } from "react";
 import {
   BADGE_VARIANT,
   BadgeVariant,
   SECTION_STATUS,
   SectionStatus,
-} from "../../types";
+} from "@/app/views/AtlasStatusView/components/StatusDashboard/types";
+import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
+import { InProgressIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/InProgressIcon/inProgressIcon";
+import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
+import { ChipProps, SvgIconProps } from "@mui/material";
+import { ComponentType } from "react";
 
 export const BADGE_COLOR: Record<BadgeVariant, ChipProps["color"]> = {
   [BADGE_VARIANT.CAUTION]: "caution",

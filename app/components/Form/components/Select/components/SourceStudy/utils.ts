@@ -1,7 +1,7 @@
+import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getSourceStudyCitation } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common/constants";
-import { HCAAtlasTrackerSourceStudy } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getSourceStudyCitation } from "../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
 
 /**
  * Returns a map of source study ID to publication string, with UNSPECIFIED option included.

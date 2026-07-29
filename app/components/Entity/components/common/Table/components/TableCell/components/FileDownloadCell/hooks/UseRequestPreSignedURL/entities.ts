@@ -2,7 +2,7 @@ import {
   FileId,
   HCAAtlasTrackerAtlas,
   PresignedUrlInfo,
-} from "../../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 
 export interface EntityData {
   atlas: HCAAtlasTrackerAtlas | undefined;

@@ -1,4 +1,4 @@
-import { AtlasStatusSummary } from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { AtlasStatusSummary } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { ROW_LABEL, SECTION_HEADING, TITLE } from "./constants";
 import {
   BADGE_VARIANT,

@@ -1,6 +1,6 @@
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { AtlasSourceDataset } from "@/app/views/AtlasSourceDatasetsView/entities";
 import { Table } from "@tanstack/react-table";
-import { FormManager } from "../../../../../../hooks/useFormManager/common/entities";
-import { AtlasSourceDataset } from "../../../../entities";
 
 export interface UseSourceDatasetsTable {
   access?: FormManager["access"];

@@ -1,11 +1,10 @@
-import { metadataCoverageTiersSchema } from "app/apis/catalog/hca-atlas-tracker/common/schema";
 import {
   AtlasMetadataCoverageRollup,
   FILE_TYPE,
   MetadataCoverageReportTier,
-} from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../../../app/common/entities";
-import { getAtlasCompletenessRollup } from "../../../app/services/metadata-coverage";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { getAtlasCompletenessRollup } from "@/app/services/metadata-coverage";
 import {
   getMappedOptionalParam,
   handler,
@@ -13,7 +12,8 @@ import {
   paramParserForOneOf,
   parseListParam,
   registeredUser,
-} from "../../../app/utils/api-handler";
+} from "@/app/utils/api-handler";
+import { metadataCoverageTiersSchema } from "app/apis/catalog/hca-atlas-tracker/common/schema";
 
 const ALLOWED_SOURCES = [
   FILE_TYPE.INTEGRATED_OBJECT,

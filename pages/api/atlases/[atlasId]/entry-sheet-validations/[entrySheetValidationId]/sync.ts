@@ -1,10 +1,6 @@
-import { METHOD } from "../../../../../../app/common/entities";
-import { startUpdateForEntrySheetValidation } from "../../../../../../app/services/entry-sheets";
-import {
-  handler,
-  method,
-  registeredUser,
-} from "../../../../../../app/utils/api-handler";
+import { METHOD } from "@/app/common/entities";
+import { startUpdateForEntrySheetValidation } from "@/app/services/entry-sheets";
+import { handler, method, registeredUser } from "@/app/utils/api-handler";
 
 /**
  * API route for triggering an update of an entry sheet validation.

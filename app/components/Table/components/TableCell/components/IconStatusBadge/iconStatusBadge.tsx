@@ -1,10 +1,10 @@
+import { PartiallyCompleteIcon } from "@/app/components/common/CustomIcon/components/PartiallyCompleteIcon/partiallyCompleteIcon";
+import { RequiredIcon } from "@/app/components/common/CustomIcon/components/RequiredIcon/requiredIcon";
 import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
 import { InProgressIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/InProgressIcon/inProgressIcon";
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { ChipProps } from "@mui/material";
 import { JSX } from "react";
-import { PartiallyCompleteIcon } from "../../../../../common/CustomIcon/components/PartiallyCompleteIcon/partiallyCompleteIcon";
-import { RequiredIcon } from "../../../../../common/CustomIcon/components/RequiredIcon/requiredIcon";
 import { Badge } from "./iconStatusBadge.styles";
 
 export enum ICON_STATUS {

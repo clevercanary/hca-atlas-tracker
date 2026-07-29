@@ -2,7 +2,7 @@ import {
   EntrySheetValidationErrorInfo,
   EntrySheetValidationSummary,
   GoogleLastUpdateInfo,
-} from "../../../../utils/hca-validation-tools/hca-validation-tools";
+} from "@/app/utils/hca-validation-tools/hca-validation-tools";
 import { API } from "./api";
 import {
   FILE_METADATA_COVERAGE_ENTITY_TYPES,

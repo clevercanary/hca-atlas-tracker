@@ -1,3 +1,4 @@
+import { isValueString } from "@/app/utils/typeGuards";
 import {
   ANCHOR_TARGET,
   REL_ATTRIBUTE,
@@ -6,7 +7,6 @@ import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/m
 import { Link, Tooltip, Typography } from "@mui/material";
 import { Fragment, JSX } from "react";
 import slugify from "slugify";
-import { isValueString } from "../../../../../../utils/typeGuards";
 import { StyledAlert, StyledDot } from "./alert.styles";
 import { ALERT_PROPS } from "./constants";
 import { Props } from "./entities";

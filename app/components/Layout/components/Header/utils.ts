@@ -1,10 +1,10 @@
+import { ROUTE } from "@/app/routes/constants";
+import { PUBLIC_PATHS } from "@/app/routes/publicPaths";
 import { AUTH_STATUS } from "@databiosphere/findable-ui/lib/auth/types/auth";
 import { Navigation } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/common/entities";
 import type { LogoProps } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/components/Content/components/Logo/logo";
 import { HeaderProps } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header";
 import { cloneElement, isValidElement, ReactNode } from "react";
-import { ROUTE } from "../../../../routes/constants";
-import { PUBLIC_PATHS } from "../../../../routes/publicPaths";
 
 /**
  * Returns the props for the stripped-down header rendered on logged-out

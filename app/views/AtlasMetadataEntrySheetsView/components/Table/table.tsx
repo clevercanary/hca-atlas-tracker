@@ -1,12 +1,12 @@
+import { Table as CommonTable } from "@/app/components/Entity/components/common/Table/table";
+import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
+import { CORE_OPTIONS } from "@/app/components/Table/options/core/constants";
+import { SORTING_OPTIONS } from "@/app/components/Table/options/sorting/constants";
+import { useEntity } from "@/app/providers/entity/hook";
+import { EntityData } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
 import { useReactTable } from "@tanstack/react-table";
 import { StyledFluidPaper } from "app/components/Table/components/TablePaper/tablePaper.styles";
 import { JSX } from "react";
-import { Table as CommonTable } from "../../../../components/Entity/components/common/Table/table";
-import { TablePlaceholder } from "../../../../components/Table/components/TablePlaceholder/tablePlaceholder";
-import { CORE_OPTIONS } from "../../../../components/Table/options/core/constants";
-import { SORTING_OPTIONS } from "../../../../components/Table/options/sorting/constants";
-import { useEntity } from "../../../../providers/entity/hook";
-import { EntityData } from "../../entities";
 import { Props } from "./entities";
 
 export const Table = (props: Props): JSX.Element => {

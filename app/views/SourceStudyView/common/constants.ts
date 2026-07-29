@@ -2,7 +2,7 @@ import {
   FIELD_NAME as NEW_SOURCE_STUDY_FIELD_NAME,
   NO_DOI_FIELDS as NEW_SOURCE_STUDY_NO_DOI_FIELDS,
   PUBLISHED_PREPRINT_FIELDS as NEW_SOURCE_STUDY_PUBLISHED_PREPRINT_FIELDS,
-} from "../../AddNewSourceStudyView/common/constants";
+} from "@/app/views/AddNewSourceStudyView/common/constants";
 import { SourceStudyEditDataKeys } from "./entities";
 
 export const FIELD_NAME = {

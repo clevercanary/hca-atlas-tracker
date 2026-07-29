@@ -1,5 +1,5 @@
+import { HCAAtlasTrackerEntrySheetValidation } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { formatDistanceToNowStrict } from "date-fns";
-import { HCAAtlasTrackerEntrySheetValidation } from "../../apis/catalog/hca-atlas-tracker/common/entities";
 
 /**
  * Returns subtitle for entry sheet validation view.

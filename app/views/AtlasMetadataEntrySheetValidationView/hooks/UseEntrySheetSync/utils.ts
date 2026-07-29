@@ -1,10 +1,6 @@
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { FETCH_STATUS, METHOD, PathParameter } from "@/app/common/entities";
 import { getRequestURL } from "app/common/utils";
-import { API } from "../../../../apis/catalog/hca-atlas-tracker/common/api";
-import {
-  FETCH_STATUS,
-  METHOD,
-  PathParameter,
-} from "../../../../common/entities";
 
 /**
  * Starts the sync process for an entry sheet validation.

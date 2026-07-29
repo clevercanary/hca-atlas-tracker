@@ -1,3 +1,4 @@
+import { isDoi, normalizeDoi } from "@/app/utils/doi";
 import { escapeRegExp } from "@databiosphere/findable-ui/lib/common/utils";
 import {
   array,
@@ -9,7 +10,6 @@ import {
   Schema,
   string,
 } from "yup";
-import { isDoi, normalizeDoi } from "../../../../utils/doi";
 import {
   METADATA_COVERAGE_REPORT_TIERS,
   NETWORK_KEYS,

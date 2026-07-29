@@ -1,12 +1,12 @@
+import { useRequestPreSignedURL } from "@/app/components/Entity/components/common/Table/components/TableCell/components/FileDownloadCell/hooks/UseRequestPreSignedURL/hook";
+import { useFetchDataState } from "@/app/hooks/useFetchDataState";
+import { FetchDataActionKind } from "@/app/providers/fetchDataState/fetchDataState";
 import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { Button, DialogActions, DialogContent, Stack } from "@mui/material";
 import { JSX } from "react";
-import { useFetchDataState } from "../../../../../../../../../../../hooks/useFetchDataState";
-import { FetchDataActionKind } from "../../../../../../../../../../../providers/fetchDataState/fetchDataState";
-import { useRequestPreSignedURL } from "../../hooks/UseRequestPreSignedURL/hook";
 import { CodeSection } from "./components/DialogContent/components/Section/components/CodeSection/codeSection";
 import { Section } from "./components/DialogContent/components/Section/section";
 import { DIALOG_PROPS } from "./constants";

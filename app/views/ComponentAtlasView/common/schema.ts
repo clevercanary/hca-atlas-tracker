@@ -1,6 +1,6 @@
+import { CAP_INGEST_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { CAP_DATASET_URL_REGEXP } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { number, object, string } from "yup";
-import { CAP_INGEST_STATUS } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { CAP_DATASET_URL_REGEXP } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
 import { FIELD_NAME } from "./constants";
 
 export const viewIntegratedObjectSchema = object({

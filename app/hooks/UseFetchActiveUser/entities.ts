@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerActiveUser } from "../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerActiveUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 
 export interface UseFetchActiveUser {
   /**

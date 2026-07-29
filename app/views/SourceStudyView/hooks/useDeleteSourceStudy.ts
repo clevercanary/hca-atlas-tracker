@@ -1,14 +1,14 @@
-import Router from "next/router";
-import { useCallback } from "react";
-import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
-import { METHOD, PathParameter } from "../../../common/entities";
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { METHOD, PathParameter } from "@/app/common/entities";
 import {
   fetchResource,
   getRequestURL,
   getRouteURL,
   isFetchStatusOk,
-} from "../../../common/utils";
-import { ROUTE } from "../../../routes/constants";
+} from "@/app/common/utils";
+import { ROUTE } from "@/app/routes/constants";
+import Router from "next/router";
+import { useCallback } from "react";
 
 export interface UseDeleteSourceStudy {
   onDelete: () => void;

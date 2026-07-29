@@ -1,9 +1,9 @@
-import { dbUserToApiUser } from "../../../app/apis/catalog/hca-atlas-tracker/common/backend-utils";
-import { ROLE } from "../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { newUserSchema } from "../../../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../../../app/common/entities";
-import { createUser } from "../../../app/services/users";
-import { handler, method, role } from "../../../app/utils/api-handler";
+import { dbUserToApiUser } from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { newUserSchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
+import { createUser } from "@/app/services/users";
+import { handler, method, role } from "@/app/utils/api-handler";
 
 /**
  * API route for creating a user. New user information is provided as a JSON body.

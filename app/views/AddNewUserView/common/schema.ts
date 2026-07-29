@@ -1,5 +1,5 @@
+import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { array, object, string } from "yup";
-import { ROLE } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { FIELD_NAME } from "./constants";
 
 export const newUserSchema = object({

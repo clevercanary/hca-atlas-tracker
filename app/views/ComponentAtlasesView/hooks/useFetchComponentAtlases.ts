@@ -1,13 +1,13 @@
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { HCAAtlasTrackerComponentAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getCapIngestStatus } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import { METHOD, PathParameter } from "@/app/common/entities";
+import { getRequestURL } from "@/app/common/utils";
+import { useArchivedState } from "@/app/components/Entity/providers/archived/hook";
+import { useFetchData } from "@/app/hooks/useFetchData";
+import { useFetchDataState } from "@/app/hooks/useFetchDataState";
+import { useResetFetchStatus } from "@/app/hooks/useResetFetchStatus";
 import { useMemo } from "react";
-import { API } from "../../../apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerComponentAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getCapIngestStatus } from "../../../apis/catalog/hca-atlas-tracker/common/utils";
-import { METHOD, PathParameter } from "../../../common/entities";
-import { getRequestURL } from "../../../common/utils";
-import { useArchivedState } from "../../../components/Entity/providers/archived/hook";
-import { useFetchData } from "../../../hooks/useFetchData";
-import { useFetchDataState } from "../../../hooks/useFetchDataState";
-import { useResetFetchStatus } from "../../../hooks/useResetFetchStatus";
 import { AtlasIntegratedObject } from "../entities";
 
 export const INTEGRATED_OBJECTS = "integratedObjects";

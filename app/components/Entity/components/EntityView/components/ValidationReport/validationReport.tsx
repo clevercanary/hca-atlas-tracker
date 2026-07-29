@@ -1,7 +1,7 @@
+import { getRouteURL } from "@/app/common/utils";
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import Router from "next/router";
 import { JSX, useEffect, useMemo } from "react";
-import { getRouteURL } from "../../../../../../common/utils";
 import { ReportContent } from "./components/ReportContent/reportContent";
 import { Tabs } from "./components/Tabs/tabs";
 import { getValidatorNames } from "./components/Tabs/utils";

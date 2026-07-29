@@ -1,5 +1,5 @@
+import { EntityData } from "@/app/views/AtlasMetadataEntrySheetValidationView/entities";
 import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common/constants";
-import { EntityData } from "../../entities";
 import { COLUMN_KEY, MAX_REPORTS_TO_DISPLAY } from "./constants";
 import { EntityType, ValidationErrorInfo } from "./entities";
 

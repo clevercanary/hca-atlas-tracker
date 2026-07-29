@@ -1,4 +1,4 @@
-import { SectionConfig } from "../../../components/Entity/components/EntityView/components/Section/entities";
+import { SectionConfig } from "@/app/components/Entity/components/EntityView/components/Section/entities";
 import { Tables } from "../components/Tables/tables";
 
 export const METADATA_CORRECTNESS_VIEW_TABLES: SectionConfig<typeof Tables> = {

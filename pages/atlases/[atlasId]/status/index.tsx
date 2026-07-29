@@ -1,8 +1,8 @@
+import { PathParameter } from "@/app/common/entities";
+import { AtlasStatusView } from "@/app/views/AtlasStatusView/atlasStatusView";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { JSX } from "react";
-import { PathParameter } from "../../../../app/common/entities";
-import { AtlasStatusView } from "../../../../app/views/AtlasStatusView/atlasStatusView";
 
 interface StatusPageUrlParams extends ParsedUrlQuery {
   atlasId: string;

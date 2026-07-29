@@ -1,6 +1,6 @@
-import { getRouteURL } from "../../../../../../../../../../common/utils";
-import { ROUTE } from "../../../../../../../../../../routes/constants";
-import { BackOrigin } from "../../constants";
+import { getRouteURL } from "@/app/common/utils";
+import { BackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/constants";
+import { ROUTE } from "@/app/routes/constants";
 import { ResolveBackPathInput } from "./entities";
 
 /**

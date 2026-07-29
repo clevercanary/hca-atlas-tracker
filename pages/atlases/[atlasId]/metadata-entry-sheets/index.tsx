@@ -1,9 +1,9 @@
+import { AtlasId } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "@/app/common/entities";
+import { AtlasMetadataEntrySheetsView } from "@/app/views/AtlasMetadataEntrySheetsView/atlasMetadataEntrySheetsView";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { JSX } from "react";
-import { AtlasId } from "../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "../../../../app/common/entities";
-import { AtlasMetadataEntrySheetsView } from "../../../../app/views/AtlasMetadataEntrySheetsView/atlasMetadataEntrySheetsView";
 
 interface MetadataEntrySheetsPageUrlParams extends ParsedUrlQuery {
   atlasId: AtlasId;

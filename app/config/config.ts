@@ -1,8 +1,8 @@
+import { SiteConfig } from "@/site-config/common/entities";
+import hcaAtlasTrackerDev from "@/site-config/hca-atlas-tracker/dev/config";
+import hcaAtlasTrackerLocal from "@/site-config/hca-atlas-tracker/local/config";
+import hcaAtlasTrackerProd from "@/site-config/hca-atlas-tracker/prod/config";
 import { setConfig } from "@databiosphere/findable-ui/lib/config/config";
-import { SiteConfig } from "../../site-config/common/entities";
-import hcaAtlasTrackerDev from "../../site-config/hca-atlas-tracker/dev/config";
-import hcaAtlasTrackerLocal from "../../site-config/hca-atlas-tracker/local/config";
-import hcaAtlasTrackerProd from "../../site-config/hca-atlas-tracker/prod/config";
 
 const CONFIGS: { [k: string]: SiteConfig } = {
   "hca-atlas-tracker-dev": hcaAtlasTrackerDev,

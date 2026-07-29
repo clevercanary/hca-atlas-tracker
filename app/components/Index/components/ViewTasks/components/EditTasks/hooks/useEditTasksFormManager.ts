@@ -1,21 +1,21 @@
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import {
+  HCAAtlasTrackerListValidationRecord,
+  HCAAtlasTrackerValidationRecord,
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import {
+  FormMethod,
+  YupValidatedFormValues,
+} from "@/app/hooks/useForm/common/entities";
+import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityMapper } from "@databiosphere/findable-ui/lib/config/entities";
 import { useEntityService } from "@databiosphere/findable-ui/lib/hooks/useEntityService";
 import { useExploreState } from "@databiosphere/findable-ui/lib/hooks/useExploreState";
 import { ExploreActionKind } from "@databiosphere/findable-ui/lib/providers/exploreState";
 import { useCallback } from "react";
 import { FieldValues } from "react-hook-form";
-import { API } from "../../../../../../../apis/catalog/hca-atlas-tracker/common/api";
-import {
-  HCAAtlasTrackerListValidationRecord,
-  HCAAtlasTrackerValidationRecord,
-} from "../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../../../../../../../common/entities";
-import {
-  FormMethod,
-  YupValidatedFormValues,
-} from "../../../../../../../hooks/useForm/common/entities";
-import { FormManager } from "../../../../../../../hooks/useFormManager/common/entities";
-import { useFormManager } from "../../../../../../../hooks/useFormManager/useFormManager";
 
 export const useEditTasksFormManager = <
   T extends FieldValues,

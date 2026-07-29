@@ -1,6 +1,6 @@
+import { COLOR_MIXES as APP_COLOR_MIXES } from "@/app/styles/common/constants/colorMixes";
 import { COLOR_MIXES } from "@databiosphere/findable-ui/lib/styles/common/constants/colorMixes";
 import { Components, Theme } from "@mui/material";
-import { COLOR_MIXES as APP_COLOR_MIXES } from "../../styles/common/constants/colorMixes";
 
 /**
  * MuiButton Component

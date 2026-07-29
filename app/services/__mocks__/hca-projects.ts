@@ -1,10 +1,10 @@
+import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { getProjectsInfo, ProjectInfo } from "@/app/utils/hca-projects";
 import {
   TEST_HCA_PROJECTS_BY_DOI,
   TEST_HCA_PROJECTS_BY_ID,
   TEST_HCA_PROJECTS_WITH_UNAVAILABLE_SERVICE,
-} from "../../../testing/constants";
-import { ProjectsResponse } from "../../apis/azul/hca-dcp/common/responses";
-import { getProjectsInfo, ProjectInfo } from "../../utils/hca-projects";
+} from "@/testing/constants";
 import { RefreshDataResult } from "../common/refresh-service";
 
 export function areProjectsRefreshing(): boolean {

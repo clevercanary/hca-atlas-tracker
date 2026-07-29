@@ -1,8 +1,8 @@
+import { HCAAtlasTrackerListValidationRecord } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { RowDetail } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowPreview/components/Section/components/RowDetail/rowDetail";
 import { ColumnConfig } from "@databiosphere/findable-ui/lib/config/entities";
 import { Divider } from "@mui/material";
 import { Fragment, JSX } from "react";
-import { HCAAtlasTrackerListValidationRecord } from "../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
 import { Description } from "./components/Section/components/Description/description";
 
 interface PreviewTaskProps {

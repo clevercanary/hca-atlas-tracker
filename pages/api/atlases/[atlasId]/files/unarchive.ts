@@ -1,13 +1,13 @@
-import { filesSetIsArchivedSchema } from "app/apis/catalog/hca-atlas-tracker/common/schema";
-import { ROLE } from "../../../../../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../../../../../app/common/entities";
-import { updateAtlasFilesArchiveStatus } from "../../../../../app/services/files";
+import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { updateAtlasFilesArchiveStatus } from "@/app/services/files";
 import {
   handler,
   integrationLeadAssociatedAtlasOnly,
   method,
   role,
-} from "../../../../../app/utils/api-handler";
+} from "@/app/utils/api-handler";
+import { filesSetIsArchivedSchema } from "app/apis/catalog/hca-atlas-tracker/common/schema";
 
 export default handler(
   method(METHOD.PATCH),

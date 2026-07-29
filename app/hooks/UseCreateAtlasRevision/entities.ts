@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerAtlas } from "../../apis/catalog/hca-atlas-tracker/common/entities";
+import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 
 export type OnSubmitFn = (
   requestURL: string,

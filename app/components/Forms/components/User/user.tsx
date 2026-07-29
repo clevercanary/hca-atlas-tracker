@@ -1,26 +1,26 @@
-import { MenuItem as MMenuItem } from "@mui/material";
-import { JSX } from "react";
-import { Controller } from "react-hook-form";
 import {
   HCAAtlasTrackerUser,
   ROLE,
-} from "../../../../apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { FormManager } from "@/app/components/common/Form/components/FormManager/formManager";
+import { Input } from "@/app/components/common/Form/components/Input/input";
+import { Select } from "@/app/components/common/Form/components/Select/select";
+import { Divider } from "@/app/components/Detail/components/TrackerForm/components/Divider/divider.styles";
 import {
+  Section,
   SectionCard,
   SectionHero,
   SectionTitle,
-} from "../../../../components/Detail/components/TrackerForm/components/Section/section.styles";
-import { useFetchAtlases } from "../../../../hooks/useFetchAtlases";
-import { FormMethod } from "../../../../hooks/useForm/common/entities";
-import { FormManager as FormManagerProps } from "../../../../hooks/useFormManager/common/entities";
-import { FIELD_NAME } from "../../../../views/AddNewUserView/common/constants";
-import { NewUserData } from "../../../../views/AddNewUserView/common/entities";
-import { FormManager } from "../../../common/Form/components/FormManager/formManager";
-import { Input } from "../../../common/Form/components/Input/input";
-import { Select } from "../../../common/Form/components/Select/select";
-import { Divider } from "../../../Detail/components/TrackerForm/components/Divider/divider.styles";
-import { Section } from "../../../Detail/components/TrackerForm/components/Section/section.styles";
-import { TrackerForm } from "../../../Detail/components/TrackerForm/trackerForm";
+} from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
+import { TrackerForm } from "@/app/components/Detail/components/TrackerForm/trackerForm";
+import { useFetchAtlases } from "@/app/hooks/useFetchAtlases";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { FormManager as FormManagerProps } from "@/app/hooks/useFormManager/common/entities";
+import { FIELD_NAME } from "@/app/views/AddNewUserView/common/constants";
+import { NewUserData } from "@/app/views/AddNewUserView/common/entities";
+import { MenuItem as MMenuItem } from "@mui/material";
+import { JSX } from "react";
+import { Controller } from "react-hook-form";
 
 interface UserFormProps {
   formManager: FormManagerProps;

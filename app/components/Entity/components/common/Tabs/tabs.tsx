@@ -1,11 +1,11 @@
+import { getRouteURL } from "@/app/common/utils";
+import { navigateToRoute } from "@/app/hooks/useFormManager/common/utils";
 import {
   Tabs as DXTabs,
   TabValue,
 } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 import { useRouter } from "next/router";
 import { JSX, useCallback } from "react";
-import { getRouteURL } from "../../../../../common/utils";
-import { navigateToRoute } from "../../../../../hooks/useFormManager/common/utils";
 import { Props } from "./entities";
 
 export const Tabs = ({

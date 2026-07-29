@@ -1,4 +1,4 @@
-import { SectionConfig } from "../../../components/Entity/components/EntityView/components/Section/entities";
+import { SectionConfig } from "@/app/components/Entity/components/EntityView/components/Section/entities";
 import { Summary } from "../components/Summary/summary";
 import { ValidationReport } from "../components/ValidationReport/validationReport";
 

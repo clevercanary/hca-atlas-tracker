@@ -1,8 +1,8 @@
+import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { HCAAtlasTrackerActiveUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { AUTH_STATUS } from "@databiosphere/findable-ui/lib/auth/types/auth";
-import { API } from "../../apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerActiveUser } from "../../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../../common/entities";
 import { FETCH_PROGRESS, useFetchData } from "../useFetchData";
 import { UseFetchActiveUser } from "./entities";
 

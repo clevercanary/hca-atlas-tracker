@@ -1,19 +1,19 @@
-import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
-import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
 import {
   FILE_VALIDATION_STATUS_NAME_LABEL,
   UNPUBLISHED,
-} from "../../../apis/catalog/hca-atlas-tracker/common/constants";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   CAP_INGEST_STATUS,
   FILE_VALIDATION_STATUS,
-} from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { Props } from "../../../components/Form/components/Input/inputComponent/Chip/types";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { Props } from "@/app/components/Form/components/Input/inputComponent/Chip/types";
 import {
   CAP_INGEST_STATUS_COLOR,
   CAP_INGEST_STATUS_LABEL,
-} from "../../../components/Table/components/TableCell/components/CAPIngestStatusCell/constants";
-import { VALIDATION_STATUS_COLOR } from "../../../components/Table/components/TableCell/components/ValidationStatusCell/components/ValidationStatus/constants";
+} from "@/app/components/Table/components/TableCell/components/CAPIngestStatusCell/constants";
+import { VALIDATION_STATUS_COLOR } from "@/app/components/Table/components/TableCell/components/ValidationStatusCell/components/ValidationStatus/constants";
+import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
+import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
 
 /**
  * Build props for the CAP ingest status Chip component.

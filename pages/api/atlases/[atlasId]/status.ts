@@ -1,10 +1,6 @@
-import { METHOD } from "../../../../app/common/entities";
-import { getAtlasStatusSummary } from "../../../../app/services/atlases";
-import {
-  handler,
-  method,
-  registeredUser,
-} from "../../../../app/utils/api-handler";
+import { METHOD } from "@/app/common/entities";
+import { getAtlasStatusSummary } from "@/app/services/atlases";
+import { handler, method, registeredUser } from "@/app/utils/api-handler";
 
 /**
  * API route to get an atlas's status summary.

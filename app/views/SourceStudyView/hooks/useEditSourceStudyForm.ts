@@ -1,13 +1,13 @@
+import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { PathParameter } from "@/app/common/entities";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { useForm } from "@/app/hooks/useForm/useForm";
+import { buildSheetsUrl } from "@/app/utils/google-sheets";
+import { PUBLICATION_STATUS } from "@/app/views/AddNewSourceStudyView/common/entities";
 import {
   ATLAS_ECOSYSTEM_PATHS,
   ATLAS_ECOSYSTEM_URLS,
-} from "../../../../site-config/common/constants";
-import { HCAAtlasTrackerSourceStudy } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "../../../common/entities";
-import { FormMethod } from "../../../hooks/useForm/common/entities";
-import { useForm } from "../../../hooks/useForm/useForm";
-import { buildSheetsUrl } from "../../../utils/google-sheets";
-import { PUBLICATION_STATUS } from "../../AddNewSourceStudyView/common/entities";
+} from "@/site-config/common/constants";
 import { FIELD_NAME } from "../common/constants";
 import { SourceStudyEditData } from "../common/entities";
 import { sourceStudyEditSchema } from "../common/schema";

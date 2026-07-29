@@ -1,8 +1,8 @@
-import { BaseComponentProps } from "@databiosphere/findable-ui/lib/components/types";
 import {
   OnSubmitOptions,
   Payload,
-} from "../../../../hooks/UseEditFileArchived/entities";
+} from "@/app/hooks/UseEditFileArchived/entities";
+import { BaseComponentProps } from "@databiosphere/findable-ui/lib/components/types";
 
 export interface Props extends BaseComponentProps {
   isArchived: boolean;

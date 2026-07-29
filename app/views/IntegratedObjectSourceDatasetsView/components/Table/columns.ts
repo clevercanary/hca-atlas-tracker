@@ -1,5 +1,3 @@
-import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
-import { ColumnDef } from "@tanstack/react-table";
 import {
   buildAssay,
   buildDisease,
@@ -7,8 +5,10 @@ import {
   buildTissue,
   renderNTagCell,
   renderPinnedNTagCell,
-} from "../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { IntegratedObjectSourceDataset } from "../../entities";
+} from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
+import { IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
+import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
+import { ColumnDef } from "@tanstack/react-table";
 import { IconButton } from "./components/IconButton/iconButton";
 import { renderFileName, renderPublicationString } from "./viewBuilders";
 

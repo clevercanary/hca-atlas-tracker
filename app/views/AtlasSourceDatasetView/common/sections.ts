@@ -1,7 +1,7 @@
-import { HCAAtlasTrackerSourceDataset } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { Chip } from "../../../components/Form/components/Input/inputComponent/Chip/chip";
-import { SECTION_TITLES } from "../../../components/Forms/common/constants";
-import { SectionConfig } from "../../../components/Forms/common/entities";
+import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { Chip } from "@/app/components/Form/components/Input/inputComponent/Chip/chip";
+import { SECTION_TITLES } from "@/app/components/Forms/common/constants";
+import { SectionConfig } from "@/app/components/Forms/common/entities";
 import {
   CAP_SOURCE_DATASET_CONTROLLERS,
   GENERAL_INFO_SOURCE_DATASET_CONTROLLERS,

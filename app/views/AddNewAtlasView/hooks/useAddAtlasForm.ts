@@ -1,7 +1,7 @@
-import { HCAAtlasTrackerAtlas } from "../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { NewAtlasData as APINewAtlasData } from "../../../apis/catalog/hca-atlas-tracker/common/schema";
-import { FormMethod } from "../../../hooks/useForm/common/entities";
-import { useForm } from "../../../hooks/useForm/useForm";
+import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { NewAtlasData as APINewAtlasData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { useForm } from "@/app/hooks/useForm/useForm";
 import { NewAtlasData } from "../common/entities";
 import { newAtlasSchema } from "../common/schema";
 

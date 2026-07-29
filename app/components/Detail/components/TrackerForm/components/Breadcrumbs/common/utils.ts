@@ -3,11 +3,11 @@ import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerSourceStudy,
   HCAAtlasTrackerUser,
-} from "../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
-import { getAtlasName } from "../../../../../../../apis/catalog/hca-atlas-tracker/common/utils";
-import { PathParameter } from "../../../../../../../common/entities";
-import { getRouteURL } from "../../../../../../../common/utils";
-import { isRouteValue } from "../../../../../../../routes/utils";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getAtlasName } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import { PathParameter } from "@/app/common/entities";
+import { getRouteURL } from "@/app/common/utils";
+import { isRouteValue } from "@/app/routes/utils";
 import { Breadcrumb } from "../breadcrumbs";
 import {
   BREADCRUMB_ATLAS,
