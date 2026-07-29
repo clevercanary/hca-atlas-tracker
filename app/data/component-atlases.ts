@@ -100,6 +100,27 @@ export async function getComponentAtlasesForGlobalApi(): Promise<
               PARTITION BY ar.overview->>'network', ar.overview->>'shortName', ar.generation
             ) AS max_revision
           FROM hat.atlases ar
+        ),
+        -- Aggregate atlases by component atlas version separately from the main
+        -- query, so the component atlases' wide jsonb columns don't have to be
+        -- carried through the aggregation.
+        component_atlas_atlases AS (
+          SELECT
+            comp_version_id AS version_id,
+            ARRAY_AGG(
+              jsonb_build_object(
+                'generation', a.generation,
+                'id', a.id,
+                'isPrimary', TRUE, -- TODO: update this when importing is possible
+                'isLatest', a.revision = a.max_revision,
+                'network', a.overview->>'network',
+                'revision', a.revision,
+                'shortName', a.overview->>'shortName'
+              )
+            ) AS atlases
+          FROM atlases_with_revisions a
+          CROSS JOIN UNNEST(a.component_atlases) AS comp_version_id
+          GROUP BY comp_version_id
         )
         SELECT
           ca.*,
@@ -120,23 +141,12 @@ export async function getComponentAtlasesForGlobalApi(): Promise<
           f.validation_status,
           f.validation_summary,
           con.base_filename,
-          ARRAY_AGG(
-            jsonb_build_object(
-              'generation', a.generation,
-              'id', a.id,
-              'isPrimary', TRUE, -- TODO: update this when importing is possible
-              'isLatest', a.revision = a.max_revision,
-              'network', a.overview->>'network',
-              'revision', a.revision,
-              'shortName', a.overview->>'shortName'
-            )
-          ) as atlases
+          caa.atlases
         FROM hat.component_atlases ca
+        JOIN component_atlas_atlases caa ON caa.version_id = ca.version_id
         JOIN hat.files f ON f.id = ca.file_id
         JOIN hat.concepts con ON con.id = ca.id
-        JOIN atlases_with_revisions a ON ca.version_id = ANY(a.component_atlases)
         WHERE (ca.is_latest OR ca.published_at IS NOT NULL) AND NOT f.is_archived
-        GROUP BY ca.version_id, f.id, con.id
       `,
     );
 
