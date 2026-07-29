@@ -74,7 +74,11 @@ export async function updateSourceDatasetVersionInComponentAtlases(
   client: pg.PoolClient,
 ): Promise<void> {
   await client.query(
-    "UPDATE hat.component_atlases SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2) WHERE is_latest",
+    `
+      UPDATE hat.component_atlases
+      SET source_datasets = ARRAY_REPLACE(source_datasets, $1, $2)
+      WHERE is_latest AND source_datasets @> ARRAY[$1::uuid]
+    `,
     [existingVersionId, newVersionId],
   );
 }
