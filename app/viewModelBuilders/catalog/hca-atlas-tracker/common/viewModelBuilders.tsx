@@ -16,7 +16,6 @@ import {
   Table,
 } from "@tanstack/react-table";
 import { BaseSyntheticEvent, ComponentProps, type JSX } from "react";
-import { HCA_ATLAS_TRACKER_CATEGORY_LABEL } from "../../../../../site-config/hca-atlas-tracker/category";
 import {
   HCA_TIER1_VALIDATION_STATUS_LABEL,
   NETWORKS,
@@ -51,7 +50,6 @@ import {
   getSourceStudyTaskStatus,
   isTask,
 } from "../../../../apis/catalog/hca-atlas-tracker/common/utils";
-import { PathParameter } from "../../../../common/entities";
 import { getRouteURL } from "../../../../common/utils";
 import * as C from "../../../../components";
 import { withBackOrigin } from "../../../../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
@@ -63,7 +61,6 @@ import {
   formatISOToUTCDateTime,
   getDateFromIsoString,
 } from "../../../../utils/date-fns";
-import { buildSheetsUrl } from "../../../../utils/google-sheets";
 import { AtlasIntegratedObject } from "../../../../views/ComponentAtlasesView/entities";
 import { EXTRA_PROPS } from "./constants";
 import {
@@ -504,27 +501,6 @@ export const buildIntegrationLead = (
 };
 
 /**
- * Build props for the "Metadata Entry Sheet" column
- * @param sourceStudy  - Source study entity.
- * @returns Props to be used for the cell
- */
-export function buildMetadataSpreadsheets(
-  sourceStudy: HCAAtlasTrackerSourceStudy,
-): ComponentProps<typeof C.LinksCell> {
-  return {
-    links: sourceStudy.metadataSpreadsheets.map(({ id, title }) => {
-      const url = buildSheetsUrl(id);
-      return {
-        label: title ?? url,
-        noWrap: true,
-        target: ANCHOR_TARGET.BLANK,
-        url,
-      };
-    }),
-  };
-}
-
-/**
  * Build props for the "Metadata Spreadsheet" Link component
  * @param atlas  - Atlas entity.
  * @returns Props to be used for the cell
@@ -839,29 +815,6 @@ export const buildSourceStudySourceDatasetCount = (
 ): ComponentProps<typeof C.BasicCell> => {
   return {
     value: sourceStudy.sourceDatasetCount.toLocaleString(),
-  };
-};
-
-/**
- * Build props for the source study title Link component.
- * @param pathParameter - Path parameter.
- * @param sourceStudy - Source study entity.
- * @returns Props to be used for the Link component.
- */
-export const buildSourceStudyTitle = (
-  pathParameter: PathParameter,
-  sourceStudy: HCAAtlasTrackerSourceStudy,
-): ComponentProps<typeof C.Link> => {
-  const { id: sourceStudyId } = sourceStudy;
-  return {
-    label: getSourceStudyCitation(sourceStudy),
-    url: withBackOrigin(
-      getRouteURL(ROUTE.ATLAS_SOURCE_STUDY, {
-        ...pathParameter,
-        sourceStudyId,
-      }),
-      "ATLAS_SOURCE_STUDIES",
-    ),
   };
 };
 
@@ -1405,113 +1358,6 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
 }
 
 /**
- * Returns the table column definition model for the atlas source datasets table.
- * @returns Table column definition.
- */
-export function getAtlasSourceStudySourceDatasetsTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
-  return [
-    getSourceDatasetDownloadColumnDef(),
-    getSourceDatasetTitleColumnDef(),
-    getAssayColumnDef(),
-    getSuspensionTypeColumnDef(),
-    getTissueColumnDef(),
-    getDiseaseColumnDef(),
-    getCellCountColumnDef(),
-  ];
-}
-
-/**
- * Returns the publication string column definition model for the component atlas source datasets selection table.
- * @returns Column definition.
- */
-function getComponentAtlasSourceDatasetsSelectionPublicationStringColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "publicationString",
-    cell: ({
-      row,
-      table,
-    }: CellContext<HCAAtlasTrackerSourceDataset, unknown>) =>
-      C.GroupedRowSelectionCell({
-        label: row.original.publicationString || UNPUBLISHED,
-        row,
-        table,
-      }),
-    meta: { columnPinned: true },
-  };
-}
-
-/**
- * Returns the file name column definition model for the component atlas source datasets selection table.
- * @returns Column def.
- */
-function getComponentAtlasSourceDatasetsSelectionFileNameColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "baseFileName",
-    cell: ({ row }) =>
-      C.RowSelectionCell({
-        label: row.original.baseFileName,
-        row,
-      }),
-    header: "File Name",
-    meta: { columnPinned: true },
-  };
-}
-
-/**
- * Returns the title column definition model for the component atlas source datasets selection table.
- * @returns Column definition.
- */
-function getComponentAtlasSourceDatasetsSelectionTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "title",
-    cell: ({ row }: CellContext<HCAAtlasTrackerSourceDataset, unknown>) =>
-      C.BasicCell({
-        value: row.original.title,
-      }),
-    header: "Dataset Title",
-  };
-}
-
-/**
- * Returns the table column definition model for the component atlas source datasets selection table.
- * @returns Table column definition.
- */
-export function getComponentAtlasSourceDatasetsSelectionTableColumns(): ColumnDef<HCAAtlasTrackerSourceDataset>[] {
-  return [
-    getComponentAtlasSourceDatasetsSelectionPublicationStringColumnDef(),
-    getComponentAtlasSourceDatasetsSelectionFileNameColumnDef(),
-    getComponentAtlasSourceDatasetsSelectionTitleColumnDef(),
-    getAssayColumnDef(),
-    getSuspensionTypeColumnDef(),
-    getTissueColumnDef(),
-    getDiseaseColumnDef(),
-    getCellCountColumnDef(),
-  ];
-}
-
-/**
- * Returns the table column definition model for the atlas (edit mode) source studies table.
- * @param pathParameter - Path parameter.
- * @param atlasLinkedDatasetsByStudyId - Arrays of atlas-linked datasets indexed by source study.
- * @returns Table column definition.
- */
-export function getAtlasSourceStudiesTableColumns(
-  pathParameter: PathParameter,
-  atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>,
-): ColumnDef<HCAAtlasTrackerSourceStudy>[] {
-  return [
-    getSourceStudyTitleColumnDef(pathParameter),
-    getSourceStudyPublicationColumnDef(),
-    getSourceStudyMetadataSpreadsheetColumnDef(),
-    getSourceStudySourceDatasetCountColumnDef(
-      pathParameter,
-      atlasLinkedDatasetsByStudyId,
-    ),
-    getSourceStudyHCADataRepositoryStatusColumnDef(),
-  ];
-}
-
-/**
  * Attempts to return the bio network with the given key.
  * @param key - Bio network key.
  * @returns bio network, or undefined if not found.
@@ -1734,120 +1580,6 @@ function getIntegratedObjectVersionColumnDef(): ColumnDef<
 function getProgressValue(numerator: number, denominator: number): number {
   if (denominator === 0) return 0;
   return (numerator / denominator) * 100;
-}
-
-/**
- * Returns source dataset download column def.
- * CHECK
- * @returns Column def.
- */
-function getSourceDatasetDownloadColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "download",
-    cell: (ctx): JSX.Element =>
-      C.FileDownloadCell({
-        fileId: ctx.row.original.fileId,
-        fileName: ctx.row.original.baseFileName,
-        sizeBytes: ctx.row.original.sizeBytes,
-      }),
-    enableSorting: false,
-    header: "Download",
-  };
-}
-
-/**
- * Returns source dataset title column def.
- * @returns Column def.
- */
-function getSourceDatasetTitleColumnDef(): ColumnDef<HCAAtlasTrackerSourceDataset> {
-  return {
-    accessorKey: "title",
-    cell: ({ row }) =>
-      C.BasicCell({
-        value: row.original.title,
-      }),
-    header: "Dataset Title",
-    meta: { columnPinned: true },
-  };
-}
-
-/**
- * Returns source study in HCA data repository column def.
- * @returns Column def.
- */
-function getSourceStudyHCADataRepositoryStatusColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
-  return {
-    cell: ({ row }) =>
-      C.IconStatusBadge(buildSourceStudyHcaDataRepositoryStatus(row.original)),
-    header: "HCA Data Repository",
-  };
-}
-
-/**
- * Returns source study metadata spreadsheet column def.
- * @returns Column def.
- */
-function getSourceStudyMetadataSpreadsheetColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
-  return {
-    accessorKey: "metdataSpreadsheets",
-    cell: ({ row }) => C.LinksCell(buildMetadataSpreadsheets(row.original)),
-    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.METADATA_SPREADSHEETS,
-  };
-}
-
-/**
- * Returns source study publication column def.
- * @returns Column def.
- */
-function getSourceStudyPublicationColumnDef(): ColumnDef<HCAAtlasTrackerSourceStudy> {
-  return {
-    accessorKey: "publication",
-    cell: ({ row }) => C.Link(buildSourceStudyPublication(row.original)),
-    header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.PUBLICATION,
-  };
-}
-
-/**
- * Returns source study source datasets count column def.
- * @param pathParameter - Path parameter.
- * @param atlasLinkedDatasetsByStudyId - Arrays of atlas-linked datasets indexed by source study.
- * @returns Column def.
- */
-function getSourceStudySourceDatasetCountColumnDef(
-  pathParameter: PathParameter,
-  atlasLinkedDatasetsByStudyId: Map<string, HCAAtlasTrackerSourceDataset[]>,
-): ColumnDef<HCAAtlasTrackerSourceStudy> {
-  return {
-    cell: ({ row }) =>
-      C.LinkCell({
-        getValue: () => ({
-          children:
-            atlasLinkedDatasetsByStudyId.get(row.original.id)?.length ?? 0,
-          href: getRouteURL(ROUTE.ATLAS_SOURCE_STUDY_SOURCE_DATASETS, {
-            ...pathParameter,
-            sourceStudyId: row.original.id,
-          }),
-        }),
-      }),
-    header: "Datasets",
-  };
-}
-
-/**
- * Returns source study project title column def.
- * @param pathParameter - Path parameter.
- * @returns Column def.
- */
-function getSourceStudyTitleColumnDef(
-  pathParameter: PathParameter,
-): ColumnDef<HCAAtlasTrackerSourceStudy> {
-  return {
-    accessorKey: "title",
-    cell: ({ row }) =>
-      C.Link(buildSourceStudyTitle(pathParameter, row.original)),
-    header: "Source Study",
-    meta: { columnPinned: true },
-  };
 }
 
 /**

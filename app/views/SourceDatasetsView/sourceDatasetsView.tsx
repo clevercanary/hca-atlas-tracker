@@ -3,7 +3,6 @@ import { JSX } from "react";
 import { getSourceStudyCitation } from "../../apis/catalog/hca-atlas-tracker/common/utils";
 import { PathParameter } from "../../common/entities";
 import { Breadcrumbs } from "../../components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
-import { ViewSourceDatasets } from "../../components/Detail/components/ViewSourceDatasets/viewSourceDatasets";
 import { Actions } from "../../components/Detail/components/ViewSourceStudy/components/Actions/actions";
 import { Tabs } from "../../components/Detail/components/ViewSourceStudy/components/Tabs/tabs";
 import { StyledDetailView } from "../../components/Layout/components/Detail/sticky/detailView.styles";
@@ -12,6 +11,7 @@ import { useFormManager } from "../../hooks/useFormManager/useFormManager";
 import { EntityProvider } from "../../providers/entity/provider";
 import { useFetchSourceStudy } from "../SourceStudyView/hooks/useFetchSourceStudy";
 import { getBreadcrumbs } from "./common/utils";
+import { ViewSourceDatasets } from "./components/ViewSourceDatasets/viewSourceDatasets";
 import { useFetchSourceDatasets } from "./hooks/useFetchSourceDatasets";
 
 interface SourceDatasetsViewProps {
@@ -29,7 +29,7 @@ export const SourceDatasetsView = ({
     access: { canEdit },
   } = formManager;
   return (
-    <EntityProvider pathParameter={pathParameter}>
+    <EntityProvider data={{ sourceDatasets }} pathParameter={pathParameter}>
       <ConditionalComponent
         isIn={Boolean(atlas && sourceStudy && sourceDatasets)}
       >
@@ -38,7 +38,7 @@ export const SourceDatasetsView = ({
           breadcrumbs={
             <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
           }
-          mainColumn={<ViewSourceDatasets sourceDatasets={sourceDatasets} />}
+          mainColumn={<ViewSourceDatasets />}
           subTitle={getSourceStudyCitation(sourceStudy)}
           tabs={
             <Tabs pathParameter={pathParameter} sourceStudy={sourceStudy} />

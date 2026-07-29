@@ -1,11 +1,9 @@
-import { Table as CommonTable } from "@databiosphere/findable-ui/lib/components/Detail/components/Table/table";
 import { JSX } from "react";
 import { HCAAtlasTrackerSourceDataset } from "../../../../../../../../../../apis/catalog/hca-atlas-tracker/common/entities";
+import { Table as CommonTable } from "../../../../../../../../../../components/Entity/components/common/Table/table";
 import { FormMethod } from "../../../../../../../../../../hooks/useForm/common/entities";
-import { getComponentAtlasSourceDatasetsSelectionTableColumns } from "../../../../../../../../../../viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { ComponentAtlasSourceDatasetsEditData } from "../../../../../../common/entities";
-import { useComponentAtlasSourceDatasetsSelectionFormState } from "../../../../hooks/useComponentAtlasSourceDatasetsSelectionFormState";
-import { useComponentAtlasSourceDatasetsSelectionTableOptions } from "../../../../hooks/useComponentAtlasSourceDatasetsSelectionTableOptions";
+import { useComponentAtlasSourceDatasetsSelectionTable } from "./hooks/UseComponentAtlasSourceDatasetsSelectionTable/hook";
 
 export interface TableProps {
   atlasSourceDatasets?: HCAAtlasTrackerSourceDataset[];
@@ -19,19 +17,9 @@ export const Table = ({
   atlasSourceDatasets,
   formMethod,
 }: TableProps): JSX.Element => {
-  const tableOptions =
-    useComponentAtlasSourceDatasetsSelectionTableOptions(formMethod);
-  useComponentAtlasSourceDatasetsSelectionFormState(formMethod, tableOptions);
-  return (
-    <CommonTable
-      columns={getComponentAtlasSourceDatasetsSelectionTableColumns()}
-      gridTemplateColumns="minmax(260px, 1fr) minmax(200px, 0.5fr) repeat(4, minmax(120px, 0.4fr)) minmax(100px, 0.4fr)"
-      items={atlasSourceDatasets || []}
-      tableOptions={{
-        ...tableOptions,
-        getRowId: (row) => row.id,
-      }}
-      tableView={{ table: { stickyHeader: true } }}
-    />
+  const { table } = useComponentAtlasSourceDatasetsSelectionTable(
+    formMethod,
+    atlasSourceDatasets,
   );
+  return <CommonTable stickyHeader table={table} />;
 };
