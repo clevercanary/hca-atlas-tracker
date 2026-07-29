@@ -9,7 +9,7 @@ import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { JSX } from "react";
-import { useFetchSourceStudy } from "../SourceStudyView/hooks/useFetchSourceStudy";
+import { useFetchSourceStudy } from "../SourceStudyView/hooks/UseFetchSourceStudy/hook";
 import { getBreadcrumbs } from "./common/utils";
 import { ViewSourceDatasets } from "./components/ViewSourceDatasets/viewSourceDatasets";
 import { useFetchSourceDatasets } from "./hooks/useFetchSourceDatasets";
@@ -22,7 +22,7 @@ export const SourceDatasetsView = ({
   pathParameter,
 }: SourceDatasetsViewProps): JSX.Element => {
   const { data: atlas } = useFetchAtlas(pathParameter);
-  const { sourceStudy } = useFetchSourceStudy(pathParameter);
+  const { data: sourceStudy } = useFetchSourceStudy(pathParameter);
   const { sourceDatasets } = useFetchSourceDatasets(pathParameter);
   const formManager = useFormManager();
   const {

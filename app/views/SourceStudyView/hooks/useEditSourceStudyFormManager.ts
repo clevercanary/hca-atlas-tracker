@@ -7,6 +7,7 @@ import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { ROUTE } from "@/app/routes/constants";
 import { PUBLICATION_STATUS } from "@/app/views/AddNewSourceStudyView/common/entities";
+import { useQueryClient } from "@tanstack/react-query";
 import Router from "next/router";
 import { useCallback } from "react";
 import {
@@ -18,11 +19,13 @@ import {
   SourceStudyEditData,
   SourceStudyEditDataKeys,
 } from "../common/entities";
+import { SOURCE_STUDY } from "./UseFetchSourceStudy/query/constants";
 
 export const useEditSourceStudyFormManager = (
   pathParameter: PathParameter,
   formMethod: FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy>,
 ): FormManager => {
+  const queryClient = useQueryClient();
   const { onSubmit, reset, unregister, watch } = formMethod;
   const publicationStatus = watch(FIELD_NAME.PUBLICATION_STATUS);
   const isDirty = isFormDirty(formMethod, publicationStatus);
@@ -45,11 +48,17 @@ export const useEditSourceStudyFormManager = (
         mapPayload(filterPayload(payload)),
         {
           onReset: reset,
-          onSuccess: (data) => onSuccess(pathParameter, data.id, url),
+          onSuccess: (data) => {
+            queryClient.setQueryData(
+              [SOURCE_STUDY, pathParameter.sourceStudyId],
+              data,
+            );
+            onSuccess(pathParameter, data.id, url);
+          },
         },
       );
     },
-    [onSubmit, pathParameter, reset, unregister],
+    [onSubmit, pathParameter, queryClient, reset, unregister],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave }, isDirty);
