@@ -2,49 +2,22 @@ import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
 import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { PathParameter } from "@/app/common/entities";
 import { getRequestURL } from "@/app/common/utils";
-import { useFetchDataState } from "@/app/hooks/useFetchDataState";
-import { resetFetchStatus } from "@/app/providers/fetchDataState/actions/resetFetchStatus/dispatch";
-import {
-  DefaultError,
-  useQueryClient,
-  UseQueryResult,
-} from "@tanstack/react-query";
-import { useEffect } from "react";
-import { ATLAS } from "./query/constants";
+import { DefaultError, UseQueryResult } from "@tanstack/react-query";
 import { useQuery } from "./query/useQuery";
 
 /**
- * Fetches the atlas for the given path parameter via React Query.
- *
- * Bridges the legacy fetchDataState refetch triggers (`fetchData([ATLAS])` /
- * `fetchKeys={[ATLAS, …]}`) to React Query cache invalidation, so save/delete
- * flows still refresh the atlas without changing their call sites.
+ * Fetches the atlas for the given path parameter via React Query. Mutations
+ * that affect the atlas (e.g. publishing it, archiving/unarchiving its files)
+ * refresh it by invalidating its query key (`[ATLAS, atlasId]`) at the mutation
+ * site.
  * @param pathParameter - Path parameter (atlas ID).
  * @returns React Query result for the atlas (`data` is the atlas).
  */
 export const useFetchAtlas = (
   pathParameter: PathParameter,
 ): UseQueryResult<HCAAtlasTrackerAtlas, DefaultError> => {
-  const { atlasId } = pathParameter;
-
-  const queryResult = useQuery(
-    atlasId,
+  return useQuery(
+    pathParameter.atlasId,
     getRequestURL(API.ATLAS, pathParameter),
   );
-
-  const {
-    fetchDataDispatch,
-    fetchDataState: { shouldFetchByKey },
-  } = useFetchDataState();
-
-  const shouldRefetch = shouldFetchByKey[ATLAS];
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    if (!shouldRefetch) return;
-    queryClient.invalidateQueries({ queryKey: [ATLAS] });
-    fetchDataDispatch(resetFetchStatus([ATLAS]));
-  }, [fetchDataDispatch, queryClient, shouldRefetch]);
-
-  return queryResult;
 };

@@ -11,10 +11,9 @@ import { AtlasStatuses } from "@/app/components/Layout/components/Detail/compone
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
 import { useAtlasTabBackPath } from "@/app/hooks/useAtlasTabBackPath";
 import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
-import { useFetchDataState } from "@/app/hooks/useFetchDataState";
-import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
 import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
+import { useQueryClient } from "@tanstack/react-query";
 import { Fragment, JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
 import { AtlasActionButton } from "./components/AtlasActionButton/atlasActionButton";
@@ -39,8 +38,6 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
     isLoading,
   } = formManager;
   const { data: atlas } = formMethod;
-
-  const { fetchDataDispatch } = useFetchDataState();
   const {
     onClose: closePublishDialog,
     onOpen: openPublishDialog,
@@ -52,10 +49,12 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
     open: revisionDialogOpen,
   } = useDialog();
   const backPath = useAtlasTabBackPath(pathParameter);
+  const queryClient = useQueryClient();
   const isPublished = atlas ? apiEntityIsPublished(atlas) : null;
   const canPublish = canEdit && isPublished === false;
   const canCreateRevision =
     canEdit && isPublished === true && atlas?.isLatest === true;
+  const { atlasId } = pathParameter;
 
   if (isLoading) return <Fragment />;
 
@@ -72,7 +71,9 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
           onCancel={closePublishDialog}
           onPublished={() => {
             closePublishDialog();
-            fetchDataDispatch(fetchData([ATLAS]));
+            queryClient.invalidateQueries({
+              queryKey: [ATLAS, atlasId],
+            });
           }}
           open={publishDialogOpen}
           pathParameter={pathParameter}

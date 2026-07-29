@@ -5,6 +5,7 @@ import { Table as CommonTable } from "@/app/components/Entity/components/common/
 import { StyledFluidPaper } from "@/app/components/Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
 import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
+import { useEntity } from "@/app/providers/entity/hook";
 import { INTEGRATED_OBJECTS } from "@/app/views/ComponentAtlasesView/hooks/useFetchComponentAtlases";
 import { Fragment, JSX } from "react";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
@@ -14,6 +15,8 @@ import { StyledToolbar } from "./viewComponentAtlases.styles";
 export const ViewComponentAtlases = (): JSX.Element => {
   const { access, table } = useIntegratedObjectsTable();
   const { canEdit = false } = access || {};
+  const { pathParameter } = useEntity();
+  const { atlasId } = pathParameter || {};
 
   return (
     <StyledFluidPaper elevation={0}>
@@ -24,7 +27,8 @@ export const ViewComponentAtlases = (): JSX.Element => {
               component={(props) =>
                 EditFileArchivedStatus({
                   ...props,
-                  fetchKeys: [ATLAS, INTEGRATED_OBJECTS],
+                  fetchKeys: [INTEGRATED_OBJECTS],
+                  queryKeys: [[ATLAS, atlasId]],
                 })
               }
               table={table}
