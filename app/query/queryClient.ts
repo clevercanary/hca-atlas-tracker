@@ -7,12 +7,17 @@ import { QueryClient } from "@tanstack/react-query";
  * query keys to refresh. `retry` is disabled to preserve the previous
  * single-request `fetchResource` behavior, so deterministic errors (401/403/
  * 404) surface immediately rather than after React Query's default 3 retries.
+ * `throwOnError` re-throws query errors during render so they reach the
+ * app-level ErrorBoundary, matching the previous `useFetchData` behavior
+ * (queries are gated by `enabled: isAuthenticated`, so a logged-out user never
+ * triggers a throw); individual queries can override it for inline errors.
  */
 export const DEFAULT_QUERY_OPTIONS = {
   queries: {
     refetchOnWindowFocus: false,
     retry: false,
     staleTime: 1000 * 60 * 5, // 5 minutes.
+    throwOnError: true,
   },
 } as const;
 
