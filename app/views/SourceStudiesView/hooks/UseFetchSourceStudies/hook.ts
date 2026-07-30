@@ -16,12 +16,8 @@ import { useQuery } from "./query/useQuery";
 export const useFetchSourceStudies = (
   pathParameter: PathParameter,
 ): UseQueryResult<HCAAtlasTrackerSourceStudy[], DefaultError> => {
-  const { atlasId } = pathParameter;
-  // Build the URL only when atlasId is present; getRequestURL throws on an
-  // unreplaced [atlasId], so an empty pathParameter must be a disabled no-op
-  // (enabled is false, so queryFn never runs) rather than a render-time throw.
   return useQuery(
-    atlasId,
-    atlasId ? getRequestURL(API.ATLAS_SOURCE_STUDIES, pathParameter) : "",
+    pathParameter.atlasId,
+    getRequestURL(API.ATLAS_SOURCE_STUDIES, pathParameter),
   );
 };
