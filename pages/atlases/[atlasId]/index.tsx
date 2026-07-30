@@ -1,5 +1,4 @@
 import { PathParameter } from "@/app/common/entities";
-import { FetchDataStateProvider } from "@/app/providers/fetchDataState/fetchDataState";
 import { AtlasView } from "@/app/views/AtlasView/atlasView";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
@@ -26,11 +25,7 @@ export const getServerSideProps: GetServerSideProps = async (
 };
 
 const AtlasPage = ({ pathParameter }: AtlasPageProps): JSX.Element => {
-  return (
-    <FetchDataStateProvider>
-      <AtlasView pathParameter={pathParameter} />
-    </FetchDataStateProvider>
-  );
+  return <AtlasView pathParameter={pathParameter} />;
 };
 
 export default AtlasPage;

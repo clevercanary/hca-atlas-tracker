@@ -1,5 +1,4 @@
 import { PathParameter } from "@/app/common/entities";
-import { FetchDataStateProvider } from "@/app/providers/fetchDataState/fetchDataState";
 import { AtlasSourceDatasetView } from "@/app/views/AtlasSourceDatasetView/atlasSourceDatasetView";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
@@ -30,11 +29,7 @@ export const getServerSideProps: GetServerSideProps = async (
 const SourceDatasetPage = ({
   pathParameter,
 }: SourceDatasetPageProps): JSX.Element => {
-  return (
-    <FetchDataStateProvider>
-      <AtlasSourceDatasetView pathParameter={pathParameter} />
-    </FetchDataStateProvider>
-  );
+  return <AtlasSourceDatasetView pathParameter={pathParameter} />;
 };
 
 export default SourceDatasetPage;
