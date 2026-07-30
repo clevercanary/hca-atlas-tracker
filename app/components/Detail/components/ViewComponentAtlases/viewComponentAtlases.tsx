@@ -6,7 +6,7 @@ import { StyledFluidPaper } from "@/app/components/Table/components/TablePaper/t
 import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
 import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { useEntity } from "@/app/providers/entity/hook";
-import { INTEGRATED_OBJECTS } from "@/app/views/ComponentAtlasesView/hooks/useFetchComponentAtlases";
+import { INTEGRATED_OBJECTS } from "@/app/views/ComponentAtlasesView/hooks/UseFetchComponentAtlases/query/constants";
 import { Fragment, JSX } from "react";
 import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { useIntegratedObjectsTable } from "./hooks/UseIntegratedObjectsTable/hook";
@@ -27,13 +27,15 @@ export const ViewComponentAtlases = (): JSX.Element => {
               component={(props) =>
                 EditFileArchivedStatus({
                   ...props,
-                  fetchKeys: [INTEGRATED_OBJECTS],
-                  queryKeys: [[ATLAS, atlasId]],
+                  queryKeys: [
+                    [ATLAS, atlasId],
+                    [INTEGRATED_OBJECTS, atlasId],
+                  ],
                 })
               }
               table={table}
             />
-            <ArchivedStatusToggle fetchKeys={[INTEGRATED_OBJECTS]} />
+            <ArchivedStatusToggle />
           </StyledToolbar>
           <Divider />
         </Fragment>

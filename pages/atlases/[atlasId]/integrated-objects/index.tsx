@@ -1,6 +1,5 @@
 import { PathParameter } from "@/app/common/entities";
 import { ArchivedProvider } from "@/app/components/Entity/providers/archived/provider";
-import { FetchDataStateProvider } from "@/app/providers/fetchDataState/fetchDataState";
 import { ComponentAtlasesView } from "@/app/views/ComponentAtlasesView/componentAtlasesView";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
@@ -31,9 +30,7 @@ const ViewComponentAtlasesPage = ({
 }: ComponentAtlasesPageProps): JSX.Element => {
   return (
     <ArchivedProvider>
-      <FetchDataStateProvider>
-        <ComponentAtlasesView pathParameter={pathParameter} />
-      </FetchDataStateProvider>
+      <ComponentAtlasesView pathParameter={pathParameter} />
     </ArchivedProvider>
   );
 };
