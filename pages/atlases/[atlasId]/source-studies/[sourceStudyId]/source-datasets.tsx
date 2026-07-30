@@ -1,5 +1,4 @@
 import { PathParameter } from "@/app/common/entities";
-import { FetchDataStateProvider } from "@/app/providers/fetchDataState/fetchDataState";
 import { SourceDatasetsView } from "@/app/views/SourceDatasetsView/sourceDatasetsView";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
@@ -30,11 +29,7 @@ export const getServerSideProps: GetServerSideProps = async (
 const SourceStudySourceDatasetsPage = ({
   pathParameter,
 }: SourceStudySourceDatasetsPageProps): JSX.Element => {
-  return (
-    <FetchDataStateProvider>
-      <SourceDatasetsView pathParameter={pathParameter} />
-    </FetchDataStateProvider>
-  );
+  return <SourceDatasetsView pathParameter={pathParameter} />;
 };
 
 export default SourceStudySourceDatasetsPage;

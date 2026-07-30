@@ -12,7 +12,7 @@ import { JSX } from "react";
 import { useFetchSourceStudy } from "../SourceStudyView/hooks/UseFetchSourceStudy/hook";
 import { getBreadcrumbs } from "./common/utils";
 import { ViewSourceDatasets } from "./components/ViewSourceDatasets/viewSourceDatasets";
-import { useFetchSourceDatasets } from "./hooks/useFetchSourceDatasets";
+import { useFetchSourceDatasets } from "./hooks/UseFetchSourceDatasets/hook";
 
 interface SourceDatasetsViewProps {
   pathParameter: PathParameter;
@@ -23,7 +23,7 @@ export const SourceDatasetsView = ({
 }: SourceDatasetsViewProps): JSX.Element => {
   const { data: atlas } = useFetchAtlas(pathParameter);
   const { data: sourceStudy } = useFetchSourceStudy(pathParameter);
-  const { sourceDatasets } = useFetchSourceDatasets(pathParameter);
+  const { data: sourceDatasets } = useFetchSourceDatasets(pathParameter);
   const formManager = useFormManager();
   const {
     access: { canEdit },
