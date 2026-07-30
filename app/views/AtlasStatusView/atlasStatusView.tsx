@@ -12,7 +12,7 @@ import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/
 import { JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
 import { StatusDashboard } from "./components/StatusDashboard/statusDashboard";
-import { useFetchAtlasStatus } from "./hooks/useFetchAtlasStatus";
+import { useFetchAtlasStatus } from "./hooks/UseFetchAtlasStatus/hook";
 
 interface AtlasStatusViewProps {
   pathParameter: PathParameter;
@@ -22,7 +22,7 @@ export const AtlasStatusView = ({
   pathParameter,
 }: AtlasStatusViewProps): JSX.Element => {
   const { data: atlas } = useFetchAtlas(pathParameter);
-  const { atlasStatus } = useFetchAtlasStatus(pathParameter);
+  const { data: atlasStatus } = useFetchAtlasStatus(pathParameter);
   // Status is the atlas landing page, so its back arrow returns to the
   // atlases list (honoring an explicit `from` origin when one is provided).
   const backPath = useBackPath(pathParameter) ?? getRouteURL(ROUTE.ATLASES);
