@@ -11,7 +11,7 @@ import { JSX } from "react";
 import { VIEW_METADATA_ENTRY_SHEET_SECTION_CONFIGS } from "./common/config";
 import { Actions } from "./components/Actions/actions";
 import { useEntrySheetSync } from "./hooks/UseEntrySheetSync/hook";
-import { useFetchEntrySheetValidation } from "./hooks/useFetchEntrySheetValidations";
+import { useFetchEntrySheetValidation } from "./hooks/UseFetchEntrySheetValidation/hook";
 import { renderSubTitle, renderTitle } from "./utils";
 
 interface AtlasMetadataEntrySheetValidationViewProps {
@@ -22,7 +22,8 @@ export const AtlasMetadataEntrySheetValidationView = ({
   pathParameter,
 }: AtlasMetadataEntrySheetValidationViewProps): JSX.Element => {
   const { data: atlas } = useFetchAtlas(pathParameter);
-  const { entrySheetValidation } = useFetchEntrySheetValidation(pathParameter);
+  const { data: entrySheetValidation } =
+    useFetchEntrySheetValidation(pathParameter);
   const formManager = useFormManager();
   const syncInfo = useEntrySheetSync(pathParameter);
   return (
