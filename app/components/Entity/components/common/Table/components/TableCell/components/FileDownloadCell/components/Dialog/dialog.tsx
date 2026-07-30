@@ -1,6 +1,4 @@
 import { useRequestPreSignedURL } from "@/app/components/Entity/components/common/Table/components/TableCell/components/FileDownloadCell/hooks/UseRequestPreSignedURL/hook";
-import { useFetchDataState } from "@/app/hooks/useFetchDataState";
-import { FetchDataActionKind } from "@/app/providers/fetchDataState/fetchDataState";
 import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
@@ -20,22 +18,10 @@ export const Dialog = ({
   open,
   sizeBytes = 0,
 }: Props): JSX.Element => {
-  const { fetchDataDispatch } = useFetchDataState();
-  const { filename: downloadFileName, url } = useRequestPreSignedURL({
-    fileId,
-  });
+  const { data } = useRequestPreSignedURL({ fileId, open });
+  const { filename: downloadFileName, url } = data ?? {};
   return (
-    <StyledDialog
-      {...DIALOG_PROPS}
-      onClose={onClose}
-      open={open}
-      onTransitionEnter={() =>
-        fetchDataDispatch({
-          payload: undefined,
-          type: FetchDataActionKind.FetchData,
-        })
-      }
-    >
+    <StyledDialog {...DIALOG_PROPS} onClose={onClose} open={open}>
       <DialogTitle onClose={onClose} title="Download from HCA Atlas Tracker" />
       <DialogContent dividers>
         <Section title="Data Format">.h5ad</Section>
