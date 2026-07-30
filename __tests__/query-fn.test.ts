@@ -1,6 +1,6 @@
 jest.mock("../app/common/utils", () => ({
+  ...jest.requireActual("../app/common/utils"),
   fetchResource: jest.fn(),
-  isFetchStatusOk: jest.fn((status: number) => status >= 200 && status < 300),
 }));
 
 import { QueryFunctionContext } from "@tanstack/react-query";
