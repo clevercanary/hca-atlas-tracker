@@ -21,7 +21,10 @@ export const ArchivedStatusToggle = ({
       onChange={(_, v) => {
         if (v === null) return; // No change to archived state.
         archivedDispatch?.(updateArchived(JSON.parse(v)));
-        fetchDataDispatch(fetchData(fetchKeys));
+        // Legacy fetchDataState refresh; only when fetchKeys are provided.
+        // React Query consumers key their query on the archived state, so the
+        // toggle refetches automatically without a dispatch.
+        if (fetchKeys) fetchDataDispatch(fetchData(fetchKeys));
       }}
       value={String(archived)}
       {...props}
