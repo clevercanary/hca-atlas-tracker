@@ -16,7 +16,7 @@ import { JSX } from "react";
 import { VIEW_METADATA_ENTRY_SHEETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
 import { useAtlasEntrySheetsSync } from "./hooks/UseEntrySheetSync/hook";
-import { useFetchEntrySheetsValidations } from "./hooks/useFetchEntrySheetValidations";
+import { useFetchEntrySheetsValidations } from "./hooks/UseFetchEntrySheetsValidations/hook";
 
 interface AtlasMetadataEntrySheetsViewProps {
   pathParameter: PathParameter;
@@ -26,7 +26,7 @@ export const AtlasMetadataEntrySheetsView = ({
   pathParameter,
 }: AtlasMetadataEntrySheetsViewProps): JSX.Element => {
   const { data: atlas } = useFetchAtlas(pathParameter);
-  const { entrySheets } = useFetchEntrySheetsValidations(pathParameter);
+  const { data: entrySheets } = useFetchEntrySheetsValidations(pathParameter);
   const formManager = useFormManager();
   const { entrySheetSyncState, onSyncEntrySheets } =
     useAtlasEntrySheetsSync(pathParameter);
