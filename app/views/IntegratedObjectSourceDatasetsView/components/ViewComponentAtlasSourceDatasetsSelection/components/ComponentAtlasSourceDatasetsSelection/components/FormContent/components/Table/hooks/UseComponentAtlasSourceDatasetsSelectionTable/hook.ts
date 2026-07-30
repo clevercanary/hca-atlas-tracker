@@ -8,12 +8,17 @@ import { useComponentAtlasSourceDatasetsSelectionTableOptions } from "@/app/view
 import { useReactTable } from "@tanstack/react-table";
 import { UseComponentAtlasSourceDatasetsSelectionTable } from "./entities";
 
+// Stable empty-array fallback so `useReactTable` always gets a referentially
+// stable `data` prop (the associated atlas source datasets can be undefined
+// while pending); a fresh `[]` default would trigger an infinite re-render loop.
+const NO_ATLAS_SOURCE_DATASETS: HCAAtlasTrackerSourceDataset[] = [];
+
 export const useComponentAtlasSourceDatasetsSelectionTable = (
   formMethod: FormMethod<
     ComponentAtlasSourceDatasetsEditData,
     HCAAtlasTrackerSourceDataset[]
   >,
-  atlasSourceDatasets: HCAAtlasTrackerSourceDataset[] = [],
+  atlasSourceDatasets: HCAAtlasTrackerSourceDataset[] = NO_ATLAS_SOURCE_DATASETS,
 ): UseComponentAtlasSourceDatasetsSelectionTable => {
   const tableOptions =
     useComponentAtlasSourceDatasetsSelectionTableOptions(formMethod);

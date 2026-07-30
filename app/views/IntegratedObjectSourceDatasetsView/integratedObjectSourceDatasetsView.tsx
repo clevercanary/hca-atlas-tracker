@@ -13,8 +13,8 @@ import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/UseFetchComp
 import { VIEW_INTEGRATED_OBJECT_SOURCE_DATASETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditIntegratedObjectSourceDatasets } from "./hooks/useEditIntegratedObjectSourceDatasets";
-import { useFetchAssociatedAtlasSourceDatasets } from "./hooks/useFetchAssociatedAtlasSourceDatasets";
-import { useFetchIntegratedObjectSourceDatasets } from "./hooks/useFetchIntegratedObjectSourceDatasets";
+import { useFetchAssociatedAtlasSourceDatasets } from "./hooks/UseFetchAssociatedAtlasSourceDatasets/hook";
+import { useFetchIntegratedObjectSourceDatasets } from "./hooks/UseFetchIntegratedObjectSourceDatasets/hook";
 import { EditIntegratedObjectSourceDatasetsContext } from "./providers/editIntegratedObjectSourceDatasets/context";
 interface Props {
   pathParameter: PathParameter;
@@ -25,10 +25,10 @@ export const IntegratedObjectSourceDatasetsView = ({
 }: Props): JSX.Element => {
   const { onDelete } = useEditIntegratedObjectSourceDatasets(pathParameter);
   const { data: atlas } = useFetchAtlas(pathParameter);
-  const { atlasSourceDatasets } =
+  const { data: atlasSourceDatasets } =
     useFetchAssociatedAtlasSourceDatasets(pathParameter);
   const { data: componentAtlas } = useFetchComponentAtlas(pathParameter);
-  const { integratedObjectSourceDatasets } =
+  const { data: integratedObjectSourceDatasets } =
     useFetchIntegratedObjectSourceDatasets(pathParameter);
   const formManager = useFormManager();
   const { isLoading } = formManager;

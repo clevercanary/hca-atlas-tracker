@@ -2,13 +2,11 @@ import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
 import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD, PathParameter } from "@/app/common/entities";
 import { getRequestURL } from "@/app/common/utils";
-import { useFetchDataState } from "@/app/hooks/useFetchDataState";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
-import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
 import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/constants";
-import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/useFetchIntegratedObjectSourceDatasets";
+import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/UseFetchIntegratedObjectSourceDatasets/query/constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { FormState } from "react-hook-form";
@@ -23,7 +21,6 @@ export const useComponentAtlasSourceDatasetsSelectionFormManager = (
   >,
   onClose: () => void,
 ): FormManager => {
-  const { fetchDataDispatch } = useFetchDataState();
   const queryClient = useQueryClient();
   const {
     formState: { defaultValues },
@@ -42,8 +39,8 @@ export const useComponentAtlasSourceDatasetsSelectionFormManager = (
         filterDefaultValues(payload, defaultValues),
         {
           onSuccess: () => {
-            // The integrated object detail (React Query) and its still-legacy
-            // source datasets list both change when datasets are added.
+            // Both the integrated object detail and its source datasets list
+            // change when datasets are added.
             queryClient.invalidateQueries({
               queryKey: [
                 INTEGRATED_OBJECT,
@@ -51,20 +48,19 @@ export const useComponentAtlasSourceDatasetsSelectionFormManager = (
                 pathParameter.componentAtlasId,
               ],
             });
-            fetchDataDispatch(fetchData([INTEGRATED_OBJECT_SOURCE_DATASETS]));
+            queryClient.invalidateQueries({
+              queryKey: [
+                INTEGRATED_OBJECT_SOURCE_DATASETS,
+                pathParameter.atlasId,
+                pathParameter.componentAtlasId,
+              ],
+            });
             onClose();
           },
         },
       );
     },
-    [
-      defaultValues,
-      fetchDataDispatch,
-      onClose,
-      onSubmit,
-      pathParameter,
-      queryClient,
-    ],
+    [defaultValues, onClose, onSubmit, pathParameter, queryClient],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });

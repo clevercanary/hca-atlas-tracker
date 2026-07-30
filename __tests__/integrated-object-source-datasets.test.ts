@@ -1,38 +1,42 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { renderHook } from "@testing-library/react";
+import { renderHook, waitFor } from "@testing-library/react";
 import { createElement, FunctionComponent, PropsWithChildren } from "react";
 
 // Mock dependencies before imports
+jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
+  useAuth: jest.fn(),
+}));
 jest.mock("../app/hooks/useDeleteData");
-jest.mock("../app/hooks/useFetchDataState");
-jest.mock("../app/hooks/useFetchData");
-jest.mock("../app/hooks/useResetFetchStatus");
 jest.mock("../app/providers/entity/hook");
+jest.mock("../app/common/utils", () => ({
+  ...jest.requireActual("../app/common/utils"),
+  fetchResource: jest.fn(),
+}));
 
+import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { HCAAtlasTrackerSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+import { fetchResource } from "../app/common/utils";
 import { useDeleteData } from "../app/hooks/useDeleteData";
-import { FETCH_PROGRESS, useFetchData } from "../app/hooks/useFetchData";
-import { useFetchDataState } from "../app/hooks/useFetchDataState";
 import { useEntity } from "../app/providers/entity/hook";
+import { INTEGRATED_OBJECT } from "../app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/constants";
 import {
   renderFileName,
   renderPublicationString,
 } from "../app/views/IntegratedObjectSourceDatasetsView/components/Table/viewBuilders";
 import { IntegratedObjectSourceDataset } from "../app/views/IntegratedObjectSourceDatasetsView/entities";
 import { useEditIntegratedObjectSourceDatasets } from "../app/views/IntegratedObjectSourceDatasetsView/hooks/useEditIntegratedObjectSourceDatasets";
-import { useFetchIntegratedObjectSourceDatasets } from "../app/views/IntegratedObjectSourceDatasetsView/hooks/useFetchIntegratedObjectSourceDatasets";
+import { useFetchIntegratedObjectSourceDatasets } from "../app/views/IntegratedObjectSourceDatasetsView/hooks/UseFetchIntegratedObjectSourceDatasets/hook";
+import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "../app/views/IntegratedObjectSourceDatasetsView/hooks/UseFetchIntegratedObjectSourceDatasets/query/constants";
 
 // Type mocks
+const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockUseDeleteData = useDeleteData as jest.MockedFunction<
   typeof useDeleteData
 >;
-const mockUseFetchDataState = useFetchDataState as jest.MockedFunction<
-  typeof useFetchDataState
->;
-const mockUseFetchData = useFetchData as jest.MockedFunction<
-  typeof useFetchData
->;
 const mockUseEntity = useEntity as jest.MockedFunction<typeof useEntity>;
+const mockFetchResource = fetchResource as jest.MockedFunction<
+  typeof fetchResource
+>;
 
 // Test data
 const TEST_ATLAS_ID = "test-atlas-id-123";
@@ -81,18 +85,10 @@ function createQueryWrapper(): FunctionComponent<PropsWithChildren> {
 
 describe("useEditIntegratedObjectSourceDatasets", () => {
   const mockOnDelete = jest.fn().mockResolvedValue(undefined);
-  const mockFetchDataDispatch = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseDeleteData.mockReturnValue({ onDelete: mockOnDelete });
-    mockUseFetchDataState.mockReturnValue({
-      fetchDataDispatch: mockFetchDataDispatch,
-      fetchDataState: {
-        shouldFetch: true,
-        shouldFetchByKey: {},
-      },
-    });
   });
 
   it("returns onDelete function", () => {
@@ -120,108 +116,86 @@ describe("useEditIntegratedObjectSourceDatasets", () => {
     );
   });
 
-  it("dispatches fetchData on successful delete", () => {
+  it("invalidates the integrated object and its source datasets on successful delete", () => {
+    const queryClient = new QueryClient();
+    const invalidateSpy = jest.spyOn(queryClient, "invalidateQueries");
+    const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) =>
+      createElement(QueryClientProvider, { client: queryClient }, children);
+
     renderHook(
       () => useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
-      { wrapper: createQueryWrapper() },
+      { wrapper },
     );
 
     // Get the onSuccess callback passed to useDeleteData
     const onSuccessCallback = mockUseDeleteData.mock.calls[0][2]?.onSuccess;
     expect(onSuccessCallback).toBeDefined();
 
-    // Call the onSuccess callback
+    // Call the onSuccess callback: both the integrated object detail and its
+    // source datasets list are invalidated.
     onSuccessCallback?.();
 
-    expect(mockFetchDataDispatch).toHaveBeenCalled();
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: [INTEGRATED_OBJECT, TEST_ATLAS_ID, TEST_COMPONENT_ATLAS_ID],
+    });
+    expect(invalidateSpy).toHaveBeenCalledWith({
+      queryKey: [
+        INTEGRATED_OBJECT_SOURCE_DATASETS,
+        TEST_ATLAS_ID,
+        TEST_COMPONENT_ATLAS_ID,
+      ],
+    });
   });
 });
 
 describe("useFetchIntegratedObjectSourceDatasets", () => {
-  const mockFetchDataDispatch = jest.fn();
-
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseFetchDataState.mockReturnValue({
-      fetchDataDispatch: mockFetchDataDispatch,
-      fetchDataState: {
-        shouldFetch: true,
-        shouldFetchByKey: { integratedObjectSourceDatasets: true },
-      },
-    });
+    mockUseAuth.mockReturnValue({
+      authState: { isAuthenticated: true },
+    } as ReturnType<typeof useAuth>);
   });
 
-  it("returns source datasets with atlasId mapped", () => {
-    const testData = [TEST_SOURCE_DATASET] as HCAAtlasTrackerSourceDataset[];
+  it("maps atlasId onto each fetched source dataset", async () => {
+    mockFetchResource.mockResolvedValue({
+      json: async () => [
+        { ...TEST_SOURCE_DATASET, id: "dataset-1" },
+        { ...TEST_SOURCE_DATASET, id: "dataset-2" },
+      ],
+      status: 200,
+    } as Response);
 
-    mockUseFetchData.mockReturnValue({
-      data: testData,
-      isSuccess: true,
-      progress: FETCH_PROGRESS.COMPLETED,
-    });
-
-    const { result } = renderHook(() =>
-      useFetchIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
+    const { result } = renderHook(
+      () => useFetchIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
+      { wrapper: createQueryWrapper() },
     );
 
-    expect(result.current.integratedObjectSourceDatasets).toHaveLength(1);
-    expect(result.current.integratedObjectSourceDatasets?.[0].atlasId).toBe(
-      TEST_ATLAS_ID,
-    );
-    expect(result.current.integratedObjectSourceDatasets?.[0].id).toBe(
-      TEST_SOURCE_DATASET_ID,
-    );
-  });
-
-  it("returns empty array when data is undefined", () => {
-    mockUseFetchData.mockReturnValue({
-      data: undefined,
-      isSuccess: false,
-      progress: FETCH_PROGRESS.INACTIVE,
-    });
-
-    const { result } = renderHook(() =>
-      useFetchIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
-    );
-
-    expect(result.current.integratedObjectSourceDatasets).toEqual([]);
-  });
-
-  it("throws error when atlasId is missing", () => {
-    mockUseFetchData.mockReturnValue({
-      data: undefined,
-      isSuccess: false,
-      progress: FETCH_PROGRESS.INACTIVE,
-    });
-
-    expect(() => {
-      renderHook(() =>
-        useFetchIntegratedObjectSourceDatasets({ componentAtlasId: "test" }),
-      );
-    }).toThrow("Atlas ID is required");
-  });
-
-  it("maps atlasId to all source datasets", () => {
-    const testData = [
-      { ...TEST_SOURCE_DATASET, id: "dataset-1" },
-      { ...TEST_SOURCE_DATASET, id: "dataset-2" },
-      { ...TEST_SOURCE_DATASET, id: "dataset-3" },
-    ] as HCAAtlasTrackerSourceDataset[];
-
-    mockUseFetchData.mockReturnValue({
-      data: testData,
-      isSuccess: true,
-      progress: FETCH_PROGRESS.COMPLETED,
-    });
-
-    const { result } = renderHook(() =>
-      useFetchIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
-    );
-
-    expect(result.current.integratedObjectSourceDatasets).toHaveLength(3);
-    result.current.integratedObjectSourceDatasets?.forEach((dataset) => {
+    await waitFor(() => expect(result.current.data).toBeDefined());
+    expect(result.current.data).toHaveLength(2);
+    result.current.data?.forEach((dataset) => {
       expect(dataset.atlasId).toBe(TEST_ATLAS_ID);
     });
+    expect(result.current.data?.map((dataset) => dataset.id)).toEqual([
+      "dataset-1",
+      "dataset-2",
+    ]);
+  });
+
+  it("fetches from the integrated object's source datasets endpoint", async () => {
+    mockFetchResource.mockResolvedValue({
+      json: async () => [],
+      status: 200,
+    } as Response);
+
+    renderHook(
+      () => useFetchIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
+      { wrapper: createQueryWrapper() },
+    );
+
+    await waitFor(() => expect(mockFetchResource).toHaveBeenCalled());
+    const [requestUrl] = mockFetchResource.mock.calls[0];
+    expect(requestUrl).toContain(TEST_ATLAS_ID);
+    expect(requestUrl).toContain(TEST_COMPONENT_ATLAS_ID);
   });
 });
 

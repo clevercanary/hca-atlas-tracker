@@ -1,5 +1,4 @@
 import { PathParameter } from "@/app/common/entities";
-import { FetchDataStateProvider } from "@/app/providers/fetchDataState/fetchDataState";
 import { IntegratedObjectSourceDatasetsView } from "@/app/views/IntegratedObjectSourceDatasetsView/integratedObjectSourceDatasetsView";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
@@ -30,11 +29,7 @@ export const getServerSideProps: GetServerSideProps = async (
 const ViewIntegratedObjectSourceDatasetsPage = ({
   pathParameter,
 }: IntegratedObjectSourceDatasetsPageProps): JSX.Element => {
-  return (
-    <FetchDataStateProvider>
-      <IntegratedObjectSourceDatasetsView pathParameter={pathParameter} />
-    </FetchDataStateProvider>
-  );
+  return <IntegratedObjectSourceDatasetsView pathParameter={pathParameter} />;
 };
 
 export default ViewIntegratedObjectSourceDatasetsPage;
