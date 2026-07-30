@@ -12,7 +12,7 @@ import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Br
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
-import { useFetchSourceStudies } from "./hooks/useFetchSourceStudies";
+import { useFetchSourceStudies } from "./hooks/UseFetchSourceStudies/hook";
 
 interface SourceStudiesViewProps {
   pathParameter: PathParameter;
@@ -22,7 +22,7 @@ export const SourceStudiesView = ({
   pathParameter,
 }: SourceStudiesViewProps): JSX.Element => {
   const { data: atlas } = useFetchAtlas(pathParameter);
-  const { sourceStudies } = useFetchSourceStudies(pathParameter);
+  const { data: sourceStudies } = useFetchSourceStudies(pathParameter);
   const formManager = useFormManager();
   const backPath = useAtlasTabBackPath(pathParameter);
   return (

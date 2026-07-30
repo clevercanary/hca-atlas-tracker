@@ -11,7 +11,6 @@ import { EntityProvider } from "@/app/providers/entity/provider";
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment, JSX } from "react";
-import { useFetchSourceStudies } from "../SourceStudiesView/hooks/useFetchSourceStudies";
 import { VIEW_ATLAS_SOURCE_DATASETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchAtlasSourceDatasets } from "./hooks/useFetchAtlasSourceDatasets";
@@ -27,14 +26,13 @@ export const AtlasSourceDatasetsView = ({
   const { isLoading } = formManager;
   const { data: atlas } = useFetchAtlas(pathParameter);
   const { atlasSourceDatasets } = useFetchAtlasSourceDatasets(pathParameter);
-  const { sourceStudies } = useFetchSourceStudies(pathParameter);
   const backPath = useAtlasTabBackPath(pathParameter);
 
   if (isLoading) return <Fragment />;
 
   return (
     <EntityProvider
-      data={{ atlas, atlasSourceDatasets, sourceStudies }}
+      data={{ atlas, atlasSourceDatasets }}
       formManager={formManager}
       pathParameter={pathParameter}
     >

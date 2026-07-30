@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
+import { createElement, FunctionComponent, PropsWithChildren } from "react";
 
 // Mock dependencies before imports
 jest.mock("../app/hooks/useDeleteData");
@@ -61,6 +63,22 @@ const TEST_INTEGRATED_OBJECT_SOURCE_DATASET = {
   atlasId: TEST_ATLAS_ID,
 } satisfies Partial<IntegratedObjectSourceDataset>;
 
+/**
+ * Wraps a rendered hook in a QueryClientProvider so hooks that call
+ * useQueryClient (e.g. for invalidation) have a client available.
+ * @returns Wrapper component providing a fresh QueryClient.
+ */
+function createQueryWrapper(): FunctionComponent<PropsWithChildren> {
+  const queryClient = new QueryClient();
+  return function QueryWrapper({ children }: PropsWithChildren) {
+    return createElement(
+      QueryClientProvider,
+      { client: queryClient },
+      children,
+    );
+  };
+}
+
 describe("useEditIntegratedObjectSourceDatasets", () => {
   const mockOnDelete = jest.fn().mockResolvedValue(undefined);
   const mockFetchDataDispatch = jest.fn();
@@ -78,8 +96,9 @@ describe("useEditIntegratedObjectSourceDatasets", () => {
   });
 
   it("returns onDelete function", () => {
-    const { result } = renderHook(() =>
-      useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
+    const { result } = renderHook(
+      () => useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
+      { wrapper: createQueryWrapper() },
     );
 
     expect(result.current.onDelete).toBeDefined();
@@ -87,8 +106,9 @@ describe("useEditIntegratedObjectSourceDatasets", () => {
   });
 
   it("calls useDeleteData with correct API URL", () => {
-    renderHook(() =>
-      useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
+    renderHook(
+      () => useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
+      { wrapper: createQueryWrapper() },
     );
 
     expect(mockUseDeleteData).toHaveBeenCalledWith(
@@ -101,8 +121,9 @@ describe("useEditIntegratedObjectSourceDatasets", () => {
   });
 
   it("dispatches fetchData on successful delete", () => {
-    renderHook(() =>
-      useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
+    renderHook(
+      () => useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
+      { wrapper: createQueryWrapper() },
     );
 
     // Get the onSuccess callback passed to useDeleteData
