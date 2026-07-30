@@ -29,7 +29,10 @@ export const EditFileArchivedStatus = <T extends RowData>({
           queryKeys?.forEach((queryKey) =>
             queryClient.invalidateQueries({ queryKey }),
           );
-          fetchDataDispatch(fetchData(fetchKeys));
+          // Only dispatch when fetchKeys are provided; fetchData(undefined)
+          // refetches everything (shouldFetch defaults true), which a
+          // queryKeys-only caller would trigger unintentionally.
+          if (fetchKeys) fetchDataDispatch(fetchData(fetchKeys));
         },
       }}
     />
