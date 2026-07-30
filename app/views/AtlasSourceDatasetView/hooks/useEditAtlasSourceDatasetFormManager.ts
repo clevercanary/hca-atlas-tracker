@@ -46,7 +46,11 @@ export const useEditAtlasSourceDatasetFormManager = (
           onReset: reset,
           onSuccess: () => {
             queryClient.invalidateQueries({
-              queryKey: [SOURCE_DATASET, pathParameter.sourceDatasetId],
+              queryKey: [
+                SOURCE_DATASET,
+                pathParameter.atlasId,
+                pathParameter.sourceDatasetId,
+              ],
             });
             if (url) Router.push(url);
           },

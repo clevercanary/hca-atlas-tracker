@@ -50,7 +50,11 @@ export const useEditSourceStudyFormManager = (
           onReset: reset,
           onSuccess: (data) => {
             queryClient.setQueryData(
-              [SOURCE_STUDY, pathParameter.sourceStudyId],
+              [
+                SOURCE_STUDY,
+                pathParameter.atlasId,
+                pathParameter.sourceStudyId,
+              ],
               data,
             );
             onSuccess(pathParameter, data.id, url);

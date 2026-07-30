@@ -1,4 +1,5 @@
 import {
+  AtlasId,
   HCAAtlasTrackerDetailSourceDataset,
   SourceDatasetId,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -15,11 +16,13 @@ import { QueryKey } from "./types";
 
 /**
  * Fetches a single atlas source dataset via React Query.
+ * @param atlasId - Atlas ID (query key; the fetch is atlas-scoped).
  * @param sourceDatasetId - Source dataset ID (query key).
  * @param requestUrl - Source dataset request URL.
  * @returns Query result for the source dataset.
  */
 export const useQuery = (
+  atlasId: AtlasId | undefined,
   sourceDatasetId: SourceDatasetId | undefined,
   requestUrl: string,
 ): UseQueryResult<HCAAtlasTrackerDetailSourceDataset, DefaultError> => {
@@ -33,11 +36,11 @@ export const useQuery = (
     HCAAtlasTrackerDetailSourceDataset,
     QueryKey
   >({
-    enabled: isAuthenticated && Boolean(sourceDatasetId),
+    enabled: isAuthenticated && Boolean(atlasId) && Boolean(sourceDatasetId),
     queryFn: queryFn<HCAAtlasTrackerDetailSourceDataset, QueryKey>(
       requestUrl,
       METHOD.GET,
     ),
-    queryKey: [SOURCE_DATASET, sourceDatasetId],
+    queryKey: [SOURCE_DATASET, atlasId, sourceDatasetId],
   });
 };

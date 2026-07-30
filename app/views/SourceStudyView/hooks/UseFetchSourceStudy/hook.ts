@@ -7,15 +7,16 @@ import { useQuery } from "./query/useQuery";
 
 /**
  * Fetches the source study for the given path parameter via React Query.
- * Editing the source study refreshes it by invalidating its query key
- * (`[SOURCE_STUDY, sourceStudyId]`) at the mutation site.
- * @param pathParameter - Path parameter (source study ID).
+ * Editing the source study refreshes it by seeding its query key
+ * (`[SOURCE_STUDY, atlasId, sourceStudyId]`) at the mutation site.
+ * @param pathParameter - Path parameter (atlas ID + source study ID).
  * @returns React Query result for the source study (`data` is the source study).
  */
 export const useFetchSourceStudy = (
   pathParameter: PathParameter,
 ): UseQueryResult<HCAAtlasTrackerSourceStudy, DefaultError> => {
   return useQuery(
+    pathParameter.atlasId,
     pathParameter.sourceStudyId,
     getRequestURL(API.ATLAS_SOURCE_STUDY, pathParameter),
   );
