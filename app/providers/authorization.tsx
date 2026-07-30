@@ -1,5 +1,6 @@
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
+import { useQueryClient } from "@tanstack/react-query";
 import { createContext, JSX, ReactNode, useEffect } from "react";
 import {
   HCAAtlasTrackerActiveUser,
@@ -25,9 +26,21 @@ export function AuthorizationProvider({ children }: Props): JSX.Element {
     authState: { isAuthenticated },
     service,
   } = useAuth();
+  const queryClient = useQueryClient();
   const { isSettled, user } = useFetchActiveUser();
   const { disabled, role } = user || {};
   const isAuthorized = isUserAuthorized(role, disabled);
+
+  // Clear the React Query cache when the user becomes unauthenticated. The
+  // QueryClient is created once in _app and survives client-side logout
+  // (which navigates without a hard reload), and `enabled: false` only stops
+  // fetching — it doesn't evict cached data. Without this, a subsequent login
+  // (e.g. a different user on a shared machine) could briefly be served the
+  // previous session's cached data. Restores the pre-React-Query behavior
+  // where useFetchData reset its data on logout.
+  useEffect(() => {
+    if (!isAuthenticated) queryClient.clear();
+  }, [isAuthenticated, queryClient]);
 
   useEffect(() => {
     if (disabled) {
