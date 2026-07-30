@@ -4,7 +4,7 @@ import {
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { UserEditData as ApiUserEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { PathParameter } from "@/app/common/entities";
-import { useFetchUser } from "@/app/hooks/useFetchUser";
+import { useFetchUser } from "@/app/hooks/UseFetchUser/hook";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { useForm } from "@/app/hooks/useForm/useForm";
 import { FIELD_NAME } from "../common/constants";
@@ -16,7 +16,7 @@ const SCHEMA = userEditSchema;
 export const useEditUserForm = (
   pathParameter: PathParameter,
 ): FormMethod<UserEditData, HCAAtlasTrackerUser> => {
-  const { user } = useFetchUser(pathParameter);
+  const { data: user } = useFetchUser(pathParameter);
   return useForm<UserEditData, HCAAtlasTrackerUser>(
     SCHEMA,
     user,
