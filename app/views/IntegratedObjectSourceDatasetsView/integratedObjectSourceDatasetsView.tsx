@@ -9,7 +9,7 @@ import { EntityProvider } from "@/app/providers/entity/provider";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment, JSX } from "react";
 import { getTabs } from "../ComponentAtlasView/common/utils";
-import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/useFetchComponentAtlas";
+import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/UseFetchComponentAtlas/hook";
 import { VIEW_INTEGRATED_OBJECT_SOURCE_DATASETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditIntegratedObjectSourceDatasets } from "./hooks/useEditIntegratedObjectSourceDatasets";
@@ -27,7 +27,7 @@ export const IntegratedObjectSourceDatasetsView = ({
   const { data: atlas } = useFetchAtlas(pathParameter);
   const { atlasSourceDatasets } =
     useFetchAssociatedAtlasSourceDatasets(pathParameter);
-  const { componentAtlas } = useFetchComponentAtlas(pathParameter);
+  const { data: componentAtlas } = useFetchComponentAtlas(pathParameter);
   const { integratedObjectSourceDatasets } =
     useFetchIntegratedObjectSourceDatasets(pathParameter);
   const formManager = useFormManager();

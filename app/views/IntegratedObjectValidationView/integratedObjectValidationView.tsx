@@ -11,7 +11,7 @@ import { EntityProvider } from "@/app/providers/entity/provider";
 import { ROUTE } from "@/app/routes/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment, JSX } from "react";
-import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/useFetchComponentAtlas";
+import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/UseFetchComponentAtlas/hook";
 import { VIEW_INTEGRATED_OBJECT_VALIDATION_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs, getTabs } from "./common/utils";
 
@@ -23,7 +23,7 @@ export const IntegratedObjectValidationView = ({
   pathParameter,
 }: Props): JSX.Element => {
   const { data: atlas } = useFetchAtlas(pathParameter);
-  const { componentAtlas } = useFetchComponentAtlas(pathParameter);
+  const { data: componentAtlas } = useFetchComponentAtlas(pathParameter);
   const formManager = useFormManager();
   const { isLoading } = formManager;
   // Deep-link fallback: integrated-object detail (not URL-trim, which would

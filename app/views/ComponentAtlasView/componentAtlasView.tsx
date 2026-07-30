@@ -7,16 +7,15 @@ import { useBackPath } from "@/app/components/Layout/components/Detail/component
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
 import { Payload } from "@/app/hooks/UseEditFileArchived/entities";
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
-import { useFetchDataState } from "@/app/hooks/useFetchDataState";
 import { EntityProvider } from "@/app/providers/entity/provider";
-import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
+import { useQueryClient } from "@tanstack/react-query";
 import { Fragment, JSX } from "react";
 import { VIEW_INTEGRATED_OBJECT_SECTION_CONFIGS } from "./common/sections";
 import { getBreadcrumbs, getTabs } from "./common/utils";
 import { StyledFileArchivedStatus } from "./componentAtlasView.styles";
 import { useEditIntegratedObjectFormManager } from "./hooks/useEditIntegratedObjectFormManager";
-import { INTEGRATED_OBJECT } from "./hooks/useFetchComponentAtlas";
+import { INTEGRATED_OBJECT } from "./hooks/UseFetchComponentAtlas/query/constants";
 import { useViewComponentAtlasForm } from "./hooks/useViewComponentAtlasForm";
 
 interface ComponentAtlasViewProps {
@@ -27,7 +26,7 @@ export const ComponentAtlasView = ({
   pathParameter,
 }: ComponentAtlasViewProps): JSX.Element => {
   const { data: atlas } = useFetchAtlas(pathParameter);
-  const { fetchDataDispatch } = useFetchDataState();
+  const queryClient = useQueryClient();
   const formMethod = useViewComponentAtlasForm(pathParameter);
   const formManager = useEditIntegratedObjectFormManager(
     pathParameter,
@@ -59,7 +58,13 @@ export const ComponentAtlasView = ({
                 payload={mapPayload(componentAtlas)}
                 options={{
                   onSuccess: () =>
-                    fetchDataDispatch(fetchData([INTEGRATED_OBJECT])),
+                    queryClient.invalidateQueries({
+                      queryKey: [
+                        INTEGRATED_OBJECT,
+                        pathParameter.atlasId,
+                        pathParameter.componentAtlasId,
+                      ],
+                    }),
                 }}
               />
             )

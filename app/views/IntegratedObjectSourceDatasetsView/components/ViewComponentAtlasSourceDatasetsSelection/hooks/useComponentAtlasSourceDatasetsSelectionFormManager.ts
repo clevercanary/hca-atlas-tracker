@@ -7,8 +7,9 @@ import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
-import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/useFetchComponentAtlas";
+import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/constants";
 import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/useFetchIntegratedObjectSourceDatasets";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { FormState } from "react-hook-form";
 import { FIELD_NAME } from "../common/constants";
@@ -23,6 +24,7 @@ export const useComponentAtlasSourceDatasetsSelectionFormManager = (
   onClose: () => void,
 ): FormManager => {
   const { fetchDataDispatch } = useFetchDataState();
+  const queryClient = useQueryClient();
   const {
     formState: { defaultValues },
     onSubmit,
@@ -40,15 +42,29 @@ export const useComponentAtlasSourceDatasetsSelectionFormManager = (
         filterDefaultValues(payload, defaultValues),
         {
           onSuccess: () => {
-            fetchDataDispatch(
-              fetchData([INTEGRATED_OBJECT, INTEGRATED_OBJECT_SOURCE_DATASETS]),
-            );
+            // The integrated object detail (React Query) and its still-legacy
+            // source datasets list both change when datasets are added.
+            queryClient.invalidateQueries({
+              queryKey: [
+                INTEGRATED_OBJECT,
+                pathParameter.atlasId,
+                pathParameter.componentAtlasId,
+              ],
+            });
+            fetchDataDispatch(fetchData([INTEGRATED_OBJECT_SOURCE_DATASETS]));
             onClose();
           },
         },
       );
     },
-    [defaultValues, fetchDataDispatch, onClose, onSubmit, pathParameter],
+    [
+      defaultValues,
+      fetchDataDispatch,
+      onClose,
+      onSubmit,
+      pathParameter,
+      queryClient,
+    ],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });
