@@ -2,11 +2,13 @@ import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
 import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD, PathParameter } from "@/app/common/entities";
 import { getRequestURL, getRouteURL } from "@/app/common/utils";
+import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { ROUTE } from "@/app/routes/constants";
 import { getIdentifierId } from "@/app/views/AddNewAtlasView/common/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import Router from "next/router";
 import { useCallback } from "react";
 import { AtlasEditData } from "../common/entities";
@@ -15,6 +17,7 @@ export const useEditAtlasFormManager = (
   pathParameter: PathParameter,
   formMethod: FormMethod<AtlasEditData, HCAAtlasTrackerAtlas>,
 ): FormManager => {
+  const queryClient = useQueryClient();
   const { onSubmit, reset } = formMethod;
 
   const onDiscard = useCallback((url?: string) => {
@@ -29,11 +32,20 @@ export const useEditAtlasFormManager = (
         mapPayload(payload),
         {
           onReset: reset,
-          onSuccess: (data) => onSuccess(data.id, url),
+          onSuccess: (data) => {
+            // The edit is saved via fetchResource, which bypasses React Query,
+            // so invalidate the cached atlas; without this the detail view and
+            // edit form re-initialize from the pre-edit cache within the
+            // staleTime window (and re-saving could revert the edit).
+            queryClient.invalidateQueries({
+              queryKey: [ATLAS, pathParameter.atlasId],
+            });
+            onSuccess(data.id, url);
+          },
         },
       );
     },
-    [onSubmit, pathParameter, reset],
+    [onSubmit, pathParameter, queryClient, reset],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });

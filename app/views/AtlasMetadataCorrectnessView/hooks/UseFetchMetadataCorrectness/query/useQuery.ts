@@ -31,5 +31,8 @@ export const useQuery = (
     enabled: isAuthenticated && Boolean(atlasId),
     queryFn: queryFn<Heatmap, QueryKey>(requestUrl, METHOD.GET),
     queryKey: [METADATA_CORRECTNESS, atlasId],
+    // Heatmap changes out-of-band (Sync) without invalidating this key, so
+    // refetch on mount rather than serve stale results.
+    staleTime: 0,
   });
 };

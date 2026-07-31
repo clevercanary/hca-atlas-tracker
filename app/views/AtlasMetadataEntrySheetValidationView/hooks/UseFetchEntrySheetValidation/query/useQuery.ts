@@ -43,5 +43,8 @@ export const useQuery = (
       METHOD.GET,
     ),
     queryKey: [ENTRY_SHEET_VALIDATION, atlasId, entrySheetValidationId],
+    // Results change out-of-band (Sync) without invalidating this key, so
+    // refetch on mount rather than contradict the post-sync list.
+    staleTime: 0,
   });
 };

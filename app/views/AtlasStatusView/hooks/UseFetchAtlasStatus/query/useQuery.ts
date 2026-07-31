@@ -35,5 +35,8 @@ export const useQuery = (
     enabled: isAuthenticated && Boolean(atlasId),
     queryFn: queryFn<AtlasStatusSummary, QueryKey>(requestUrl, METHOD.GET),
     queryKey: [ATLAS_STATUS, atlasId],
+    // Status counts change out-of-band (uploads, validations) and nothing
+    // invalidates this key, so refetch on mount rather than serve stale counts.
+    staleTime: 0,
   });
 };

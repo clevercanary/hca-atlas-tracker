@@ -7,6 +7,7 @@ import { useBackPath } from "@/app/components/Layout/components/Detail/component
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
 import { Payload } from "@/app/hooks/UseEditFileArchived/entities";
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
+import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { useQueryClient } from "@tanstack/react-query";
@@ -57,14 +58,21 @@ export const ComponentAtlasView = ({
                 isArchived={componentAtlas.isArchived}
                 payload={mapPayload(componentAtlas)}
                 options={{
-                  onSuccess: () =>
+                  onSuccess: () => {
                     queryClient.invalidateQueries({
                       queryKey: [
                         INTEGRATED_OBJECT,
                         pathParameter.atlasId,
                         pathParameter.componentAtlasId,
                       ],
-                    }),
+                    });
+                    // Archiving changes atlas-derived data, so the atlas detail
+                    // must refetch too (matches the source-dataset archive
+                    // flows). The atlas list is staleTime:0 and self-refreshes.
+                    queryClient.invalidateQueries({
+                      queryKey: [ATLAS, pathParameter.atlasId],
+                    });
+                  },
                 }}
               />
             )
