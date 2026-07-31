@@ -5,13 +5,13 @@ import { Tabs } from "@/app/components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "@/app/components/Entity/components/EntityView/entityView";
 import { useBackPath } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { ROUTE } from "@/app/routes/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment, JSX } from "react";
-import { useFetchAtlasSourceDataset } from "../AtlasSourceDatasetView/hooks/useFetchAtlasSourceDataset";
+import { useFetchAtlasSourceDataset } from "../AtlasSourceDatasetView/hooks/UseFetchAtlasSourceDataset/hook";
 import { VIEW_SOURCE_DATASET_VALIDATION_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs, getTabs } from "./common/utils";
 
@@ -22,8 +22,8 @@ interface Props {
 export const AtlasSourceDatasetValidationView = ({
   pathParameter,
 }: Props): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
-  const { sourceDataset } = useFetchAtlasSourceDataset(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
+  const { data: sourceDataset } = useFetchAtlasSourceDataset(pathParameter);
   const formManager = useFormManager();
   const { isLoading } = formManager;
   // Deep-link fallback: source-dataset detail (not URL-trim, which would

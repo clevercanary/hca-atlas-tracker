@@ -1,5 +1,3 @@
 import { ToggleButtonGroupProps } from "@mui/material";
 
-export interface Props extends ToggleButtonGroupProps {
-  fetchKeys?: string[];
-}
+export type Props = ToggleButtonGroupProps;

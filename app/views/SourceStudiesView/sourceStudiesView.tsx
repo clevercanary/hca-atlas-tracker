@@ -5,14 +5,14 @@ import { ViewSourceStudies } from "@/app/components/Detail/components/ViewSource
 import { AtlasStatuses } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { StyledDetailView } from "@/app/components/Layout/components/Detail/sticky/detailView.styles";
 import { useAtlasTabBackPath } from "@/app/hooks/useAtlasTabBackPath";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
-import { useFetchSourceStudies } from "./hooks/useFetchSourceStudies";
+import { useFetchSourceStudies } from "./hooks/UseFetchSourceStudies/hook";
 
 interface SourceStudiesViewProps {
   pathParameter: PathParameter;
@@ -21,8 +21,8 @@ interface SourceStudiesViewProps {
 export const SourceStudiesView = ({
   pathParameter,
 }: SourceStudiesViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
-  const { sourceStudies } = useFetchSourceStudies(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
+  const { data: sourceStudies } = useFetchSourceStudies(pathParameter);
   const formManager = useFormManager();
   const backPath = useAtlasTabBackPath(pathParameter);
   return (

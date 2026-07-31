@@ -3,18 +3,18 @@ import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/comp
 import { Tabs } from "@/app/components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "@/app/components/Entity/components/EntityView/entityView";
 import { StyledDetailView } from "@/app/components/Layout/components/Detail/sticky/detailView.styles";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment, JSX } from "react";
 import { getTabs } from "../ComponentAtlasView/common/utils";
-import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/useFetchComponentAtlas";
+import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/UseFetchComponentAtlas/hook";
 import { VIEW_INTEGRATED_OBJECT_SOURCE_DATASETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditIntegratedObjectSourceDatasets } from "./hooks/useEditIntegratedObjectSourceDatasets";
-import { useFetchAssociatedAtlasSourceDatasets } from "./hooks/useFetchAssociatedAtlasSourceDatasets";
-import { useFetchIntegratedObjectSourceDatasets } from "./hooks/useFetchIntegratedObjectSourceDatasets";
+import { useFetchAssociatedAtlasSourceDatasets } from "./hooks/UseFetchAssociatedAtlasSourceDatasets/hook";
+import { useFetchIntegratedObjectSourceDatasets } from "./hooks/UseFetchIntegratedObjectSourceDatasets/hook";
 import { EditIntegratedObjectSourceDatasetsContext } from "./providers/editIntegratedObjectSourceDatasets/context";
 interface Props {
   pathParameter: PathParameter;
@@ -24,11 +24,11 @@ export const IntegratedObjectSourceDatasetsView = ({
   pathParameter,
 }: Props): JSX.Element => {
   const { onDelete } = useEditIntegratedObjectSourceDatasets(pathParameter);
-  const { atlas } = useFetchAtlas(pathParameter);
-  const { atlasSourceDatasets } =
+  const { data: atlas } = useFetchAtlas(pathParameter);
+  const { data: atlasSourceDatasets } =
     useFetchAssociatedAtlasSourceDatasets(pathParameter);
-  const { componentAtlas } = useFetchComponentAtlas(pathParameter);
-  const { integratedObjectSourceDatasets } =
+  const { data: componentAtlas } = useFetchComponentAtlas(pathParameter);
+  const { data: integratedObjectSourceDatasets } =
     useFetchIntegratedObjectSourceDatasets(pathParameter);
   const formManager = useFormManager();
   const { isLoading } = formManager;

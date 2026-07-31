@@ -2,16 +2,15 @@ import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
 import { HCAAtlasTrackerComponentAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD, PathParameter } from "@/app/common/entities";
 import { getRequestURL, getRouteURL } from "@/app/common/utils";
-import { useFetchDataState } from "@/app/hooks/useFetchDataState";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
-import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
 import { ROUTE } from "@/app/routes/constants";
+import { useQueryClient } from "@tanstack/react-query";
 import Router from "next/router";
 import { useCallback } from "react";
 import { ViewIntegratedObjectData } from "../common/entities";
-import { INTEGRATED_OBJECT } from "./useFetchComponentAtlas";
+import { INTEGRATED_OBJECT } from "./UseFetchComponentAtlas/query/constants";
 
 type Payload = {
   capUrl: string | null;
@@ -25,7 +24,7 @@ export const useEditIntegratedObjectFormManager = (
     HCAAtlasTrackerComponentAtlas
   >,
 ): FormManager => {
-  const { fetchDataDispatch } = useFetchDataState();
+  const queryClient = useQueryClient();
   const { onSubmit, reset } = formMethod;
 
   const onDiscard = useCallback(
@@ -43,14 +42,22 @@ export const useEditIntegratedObjectFormManager = (
         mapPayload(payload),
         {
           onReset: reset,
-          onSuccess: () =>
-            url
-              ? Router.push(url)
-              : fetchDataDispatch(fetchData([INTEGRATED_OBJECT])),
+          onSuccess: () => {
+            // Always invalidate so returning to the detail shows fresh data;
+            // navigate away only when an onward URL is provided.
+            queryClient.invalidateQueries({
+              queryKey: [
+                INTEGRATED_OBJECT,
+                pathParameter.atlasId,
+                pathParameter.componentAtlasId,
+              ],
+            });
+            if (url) Router.push(url);
+          },
         },
       );
     },
-    [fetchDataDispatch, onSubmit, pathParameter, reset],
+    [onSubmit, pathParameter, queryClient, reset],
   );
 
   return useFormManager(formMethod, { onDiscard, onSave });

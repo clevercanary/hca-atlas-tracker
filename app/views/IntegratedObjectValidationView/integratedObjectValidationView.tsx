@@ -5,13 +5,13 @@ import { Tabs } from "@/app/components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "@/app/components/Entity/components/EntityView/entityView";
 import { useBackPath } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { ROUTE } from "@/app/routes/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment, JSX } from "react";
-import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/useFetchComponentAtlas";
+import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/UseFetchComponentAtlas/hook";
 import { VIEW_INTEGRATED_OBJECT_VALIDATION_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs, getTabs } from "./common/utils";
 
@@ -22,8 +22,8 @@ interface Props {
 export const IntegratedObjectValidationView = ({
   pathParameter,
 }: Props): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
-  const { componentAtlas } = useFetchComponentAtlas(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
+  const { data: componentAtlas } = useFetchComponentAtlas(pathParameter);
   const formManager = useFormManager();
   const { isLoading } = formManager;
   // Deep-link fallback: integrated-object detail (not URL-trim, which would

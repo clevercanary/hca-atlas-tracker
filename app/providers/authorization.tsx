@@ -1,11 +1,13 @@
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
+import { useQueryClient } from "@tanstack/react-query";
 import { createContext, JSX, ReactNode, useEffect } from "react";
 import {
   HCAAtlasTrackerActiveUser,
   ROLE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { useFetchActiveUser } from "../hooks/UseFetchActiveUser/hook";
+import { useIsomorphicLayoutEffect } from "../hooks/useIsomorphicLayoutEffect";
 import { ROUTE } from "../routes/constants";
 
 export interface AuthorizationContextProps {
@@ -25,9 +27,24 @@ export function AuthorizationProvider({ children }: Props): JSX.Element {
     authState: { isAuthenticated },
     service,
   } = useAuth();
+  const queryClient = useQueryClient();
   const { isSettled, user } = useFetchActiveUser();
   const { disabled, role } = user || {};
   const isAuthorized = isUserAuthorized(role, disabled);
+
+  // Clear the React Query cache when the user becomes unauthenticated. The
+  // QueryClient is created once in _app and survives client-side logout
+  // (which navigates without a hard reload), and `enabled: false` only stops
+  // fetching — it doesn't evict cached data. Without this, a subsequent login
+  // (e.g. a different user on a shared machine) could briefly be served the
+  // previous session's cached data. Runs in an isomorphic layout effect so the
+  // clear happens before paint on the client: React Query preserves cached data
+  // across the `enabled: false` flip, so a plain effect would let the logout
+  // render briefly paint the prior session's data before clearing. Restores the
+  // pre-React-Query behavior where useFetchData reset its data on logout.
+  useIsomorphicLayoutEffect(() => {
+    if (!isAuthenticated) queryClient.clear();
+  }, [isAuthenticated, queryClient]);
 
   useEffect(() => {
     if (disabled) {

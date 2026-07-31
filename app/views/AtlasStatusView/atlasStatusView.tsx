@@ -5,14 +5,14 @@ import { Tabs } from "@/app/components/Detail/components/ViewAtlas/components/Ta
 import { AtlasStatuses } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { useBackPath } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { ROUTE } from "@/app/routes/constants";
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
 import { StatusDashboard } from "./components/StatusDashboard/statusDashboard";
-import { useFetchAtlasStatus } from "./hooks/useFetchAtlasStatus";
+import { useFetchAtlasStatus } from "./hooks/UseFetchAtlasStatus/hook";
 
 interface AtlasStatusViewProps {
   pathParameter: PathParameter;
@@ -21,8 +21,8 @@ interface AtlasStatusViewProps {
 export const AtlasStatusView = ({
   pathParameter,
 }: AtlasStatusViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
-  const { atlasStatus } = useFetchAtlasStatus(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
+  const { data: atlasStatus } = useFetchAtlasStatus(pathParameter);
   // Status is the atlas landing page, so its back arrow returns to the
   // atlases list (honoring an explicit `from` origin when one is provided).
   const backPath = useBackPath(pathParameter) ?? getRouteURL(ROUTE.ATLASES);

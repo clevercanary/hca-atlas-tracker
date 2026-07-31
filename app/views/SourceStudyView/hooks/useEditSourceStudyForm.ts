@@ -11,14 +11,14 @@ import {
 import { FIELD_NAME } from "../common/constants";
 import { SourceStudyEditData } from "../common/entities";
 import { sourceStudyEditSchema } from "../common/schema";
-import { useFetchSourceStudy } from "./useFetchSourceStudy";
+import { useFetchSourceStudy } from "./UseFetchSourceStudy/hook";
 
 const SCHEMA = sourceStudyEditSchema;
 
 export const useEditSourceStudyForm = (
   pathParameter: PathParameter,
 ): FormMethod<SourceStudyEditData, HCAAtlasTrackerSourceStudy> => {
-  const { sourceStudy } = useFetchSourceStudy(pathParameter);
+  const { data: sourceStudy } = useFetchSourceStudy(pathParameter);
   return useForm<SourceStudyEditData, HCAAtlasTrackerSourceStudy>(
     SCHEMA,
     sourceStudy,

@@ -3,15 +3,24 @@ import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceho
 import { CORE_OPTIONS } from "@/app/components/Table/options/core/constants";
 import { SORTING_OPTIONS } from "@/app/components/Table/options/sorting/constants";
 import { useEntity } from "@/app/providers/entity/hook";
-import { EntityData } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
+import {
+  EntityData,
+  MetadataEntrySheet,
+} from "@/app/views/AtlasMetadataEntrySheetsView/entities";
 import { useReactTable } from "@tanstack/react-table";
 import { StyledFluidPaper } from "app/components/Table/components/TablePaper/tablePaper.styles";
 import { JSX } from "react";
 import { Props } from "./entities";
 
+// Stable empty-array fallback: `useReactTable` requires a referentially stable
+// `data` prop, and the query returns `undefined` while pending. The view mounts
+// this table on `atlas` alone (not on the list), so a fresh `[]` default here
+// would give the table a new reference every render.
+const NO_ENTRY_SHEETS: MetadataEntrySheet[] = [];
+
 export const Table = (props: Props): JSX.Element => {
   const { data } = useEntity();
-  const { entrySheets = [] } = data as EntityData;
+  const { entrySheets = NO_ENTRY_SHEETS } = data as EntityData;
   const { tableOptions } = props;
 
   // Create table instance.

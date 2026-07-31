@@ -10,14 +10,14 @@ import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileS
 import { FIELD_NAME } from "../common/constants";
 import { ViewAtlasSourceDatasetData } from "../common/entities";
 import { viewAtlasSourceDatasetSchema } from "../common/schema";
-import { useFetchAtlasSourceDataset } from "./useFetchAtlasSourceDataset";
+import { useFetchAtlasSourceDataset } from "./UseFetchAtlasSourceDataset/hook";
 
 const SCHEMA = viewAtlasSourceDatasetSchema;
 
 export const useEditAtlasSourceDatasetForm = (
   pathParameter: PathParameter,
 ): FormMethod<ViewAtlasSourceDatasetData, HCAAtlasTrackerSourceDataset> => {
-  const { sourceDataset } = useFetchAtlasSourceDataset(pathParameter);
+  const { data: sourceDataset } = useFetchAtlasSourceDataset(pathParameter);
   return useForm<ViewAtlasSourceDatasetData, HCAAtlasTrackerSourceDataset>(
     SCHEMA,
     sourceDataset,

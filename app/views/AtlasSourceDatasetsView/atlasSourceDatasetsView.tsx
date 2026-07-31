@@ -5,16 +5,15 @@ import { EntityView } from "@/app/components/Entity/components/EntityView/entity
 import { AtlasStatuses } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { StyledDetailView } from "@/app/components/Layout/components/Detail/sticky/detailView.styles";
 import { useAtlasTabBackPath } from "@/app/hooks/useAtlasTabBackPath";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment, JSX } from "react";
-import { useFetchSourceStudies } from "../SourceStudiesView/hooks/useFetchSourceStudies";
 import { VIEW_ATLAS_SOURCE_DATASETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
-import { useFetchAtlasSourceDatasets } from "./hooks/useFetchAtlasSourceDatasets";
+import { useFetchAtlasSourceDatasets } from "./hooks/UseFetchAtlasSourceDatasets/hook";
 
 interface AtlasSourceDatasetsViewProps {
   pathParameter: PathParameter;
@@ -25,20 +24,24 @@ export const AtlasSourceDatasetsView = ({
 }: AtlasSourceDatasetsViewProps): JSX.Element => {
   const formManager = useFormManager();
   const { isLoading } = formManager;
-  const { atlas } = useFetchAtlas(pathParameter);
-  const { atlasSourceDatasets } = useFetchAtlasSourceDatasets(pathParameter);
-  const { sourceStudies } = useFetchSourceStudies(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
+  const { data: atlasSourceDatasets } =
+    useFetchAtlasSourceDatasets(pathParameter);
   const backPath = useAtlasTabBackPath(pathParameter);
 
   if (isLoading) return <Fragment />;
 
   return (
     <EntityProvider
-      data={{ atlas, atlasSourceDatasets, sourceStudies }}
+      data={{ atlas, atlasSourceDatasets }}
       formManager={formManager}
       pathParameter={pathParameter}
     >
-      <ConditionalComponent isIn={Boolean(atlas && atlasSourceDatasets)}>
+      {/* Gated on atlas only: the table defaults its data to [] and renders
+      its own placeholder, so the chrome must not blank while the source
+      datasets (re)fetch — e.g. when the archived toggle changes the query key.
+      Matches the previous hook, whose mapped list was always at least []. */}
+      <ConditionalComponent isIn={Boolean(atlas)}>
         <StyledDetailView
           backPath={backPath}
           breadcrumbs={

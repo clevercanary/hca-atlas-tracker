@@ -5,7 +5,7 @@ import { EntityView } from "@/app/components/Entity/components/EntityView/entity
 import { AtlasStatuses } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { StyledDetailView } from "@/app/components/Layout/components/Detail/sticky/detailView.styles";
 import { useAtlasTabBackPath } from "@/app/hooks/useAtlasTabBackPath";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
@@ -16,7 +16,7 @@ import { JSX } from "react";
 import { VIEW_METADATA_ENTRY_SHEETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
 import { useAtlasEntrySheetsSync } from "./hooks/UseEntrySheetSync/hook";
-import { useFetchEntrySheetsValidations } from "./hooks/useFetchEntrySheetValidations";
+import { useFetchEntrySheetsValidations } from "./hooks/UseFetchEntrySheetsValidations/hook";
 
 interface AtlasMetadataEntrySheetsViewProps {
   pathParameter: PathParameter;
@@ -25,8 +25,8 @@ interface AtlasMetadataEntrySheetsViewProps {
 export const AtlasMetadataEntrySheetsView = ({
   pathParameter,
 }: AtlasMetadataEntrySheetsViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
-  const { entrySheets } = useFetchEntrySheetsValidations(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
+  const { data: entrySheets } = useFetchEntrySheetsValidations(pathParameter);
   const formManager = useFormManager();
   const { entrySheetSyncState, onSyncEntrySheets } =
     useAtlasEntrySheetsSync(pathParameter);

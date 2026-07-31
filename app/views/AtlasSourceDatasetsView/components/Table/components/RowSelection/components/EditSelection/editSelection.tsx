@@ -1,7 +1,8 @@
 import { EditFileArchivedStatus } from "@/app/components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/editFileArchivedStatus";
 import { useArchivedState } from "@/app/components/Entity/providers/archived/hook";
-import { ATLAS } from "@/app/hooks/useFetchAtlas";
-import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/useFetchAtlasSourceDatasets";
+import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
+import { useEntity } from "@/app/providers/entity/hook";
+import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/UseFetchAtlasSourceDatasets/query/constants";
 import { DropdownMenu } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowSelection/components/DropdownMenu/dropdownMenu";
 import { Stack } from "@mui/material";
 import { JSX } from "react";
@@ -13,6 +14,9 @@ import { Props } from "./entities";
 export const EditSelection = ({ rows, table }: Props): JSX.Element => {
   const { archivedState } = useArchivedState();
   const { archived } = archivedState;
+  const { pathParameter } = useEntity();
+  const { atlasId } = pathParameter || {};
+
   return (
     <Stack direction="row" gap={2} useFlexGap>
       {!archived && (
@@ -40,7 +44,10 @@ export const EditSelection = ({ rows, table }: Props): JSX.Element => {
         </DropdownMenu>
       )}
       <EditFileArchivedStatus
-        fetchKeys={[ATLAS, SOURCE_DATASETS]}
+        queryKeys={[
+          [ATLAS, atlasId],
+          [SOURCE_DATASETS, atlasId],
+        ]}
         rows={rows}
         table={table}
       />

@@ -13,7 +13,7 @@ import {
   SectionTitle,
 } from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
 import { TrackerForm } from "@/app/components/Detail/components/TrackerForm/trackerForm";
-import { useFetchAtlases } from "@/app/hooks/useFetchAtlases";
+import { useFetchAtlases } from "@/app/hooks/UseFetchAtlases/hook";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "@/app/hooks/useFormManager/common/entities";
 import { FIELD_NAME } from "@/app/views/AddNewUserView/common/constants";
@@ -31,7 +31,7 @@ export const UserForm = ({
   formManager,
   formMethod,
 }: UserFormProps): JSX.Element => {
-  const { atlases } = useFetchAtlases();
+  const { data: atlases } = useFetchAtlases();
   const selectedRole = formMethod.watch(FIELD_NAME.ROLE);
   const {
     formStatus: { isReadOnly },

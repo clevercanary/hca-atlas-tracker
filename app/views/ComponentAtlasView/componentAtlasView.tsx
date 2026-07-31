@@ -6,17 +6,17 @@ import { EntityForm } from "@/app/components/Entity/components/EntityForm/entity
 import { useBackPath } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
 import { Payload } from "@/app/hooks/UseEditFileArchived/entities";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
-import { useFetchDataState } from "@/app/hooks/useFetchDataState";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
+import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { EntityProvider } from "@/app/providers/entity/provider";
-import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
+import { useQueryClient } from "@tanstack/react-query";
 import { Fragment, JSX } from "react";
 import { VIEW_INTEGRATED_OBJECT_SECTION_CONFIGS } from "./common/sections";
 import { getBreadcrumbs, getTabs } from "./common/utils";
 import { StyledFileArchivedStatus } from "./componentAtlasView.styles";
 import { useEditIntegratedObjectFormManager } from "./hooks/useEditIntegratedObjectFormManager";
-import { INTEGRATED_OBJECT } from "./hooks/useFetchComponentAtlas";
+import { INTEGRATED_OBJECT } from "./hooks/UseFetchComponentAtlas/query/constants";
 import { useViewComponentAtlasForm } from "./hooks/useViewComponentAtlasForm";
 
 interface ComponentAtlasViewProps {
@@ -26,8 +26,8 @@ interface ComponentAtlasViewProps {
 export const ComponentAtlasView = ({
   pathParameter,
 }: ComponentAtlasViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
-  const { fetchDataDispatch } = useFetchDataState();
+  const { data: atlas } = useFetchAtlas(pathParameter);
+  const queryClient = useQueryClient();
   const formMethod = useViewComponentAtlasForm(pathParameter);
   const formManager = useEditIntegratedObjectFormManager(
     pathParameter,
@@ -58,8 +58,21 @@ export const ComponentAtlasView = ({
                 isArchived={componentAtlas.isArchived}
                 payload={mapPayload(componentAtlas)}
                 options={{
-                  onSuccess: () =>
-                    fetchDataDispatch(fetchData([INTEGRATED_OBJECT])),
+                  onSuccess: () => {
+                    queryClient.invalidateQueries({
+                      queryKey: [
+                        INTEGRATED_OBJECT,
+                        pathParameter.atlasId,
+                        pathParameter.componentAtlasId,
+                      ],
+                    });
+                    // Archiving changes atlas-derived data, so the atlas detail
+                    // must refetch too (matches the source-dataset archive
+                    // flows). The atlas list is staleTime:0 and self-refreshes.
+                    queryClient.invalidateQueries({
+                      queryKey: [ATLAS, pathParameter.atlasId],
+                    });
+                  },
                 }}
               />
             )

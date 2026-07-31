@@ -3,7 +3,7 @@ import { AtlasEditData as APIAtlasEditData } from "@/app/apis/catalog/hca-atlas-
 import { PathParameter } from "@/app/common/entities";
 import { TARGET_COMPLETION_NULL } from "@/app/components/Form/components/Select/components/TargetCompletion/common/constants";
 import { mapTargetCompletion } from "@/app/components/Form/components/Select/components/TargetCompletion/common/utils";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { useForm } from "@/app/hooks/useForm/useForm";
 import {
@@ -19,7 +19,7 @@ const SCHEMA = atlasEditSchema;
 export const useEditAtlasForm = (
   pathParameter: PathParameter,
 ): FormMethod<AtlasEditData, HCAAtlasTrackerAtlas> => {
-  const { atlas } = useFetchAtlas(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
   return useForm<AtlasEditData, HCAAtlasTrackerAtlas>(
     SCHEMA,
     atlas,

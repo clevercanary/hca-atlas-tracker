@@ -1,8 +1,6 @@
 import { PathParameter } from "@/app/common/entities";
 import { ArchivedProvider } from "@/app/components/Entity/providers/archived/provider";
-import { FetchDataStateProvider } from "@/app/providers/fetchDataState/fetchDataState";
 import { AtlasSourceDatasetsView } from "@/app/views/AtlasSourceDatasetsView/atlasSourceDatasetsView";
-import { SOURCE_STUDIES } from "@/app/views/SourceStudiesView/hooks/useFetchSourceStudies";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { JSX } from "react";
@@ -32,11 +30,7 @@ const ViewSourceDatasetsPage = ({
 }: SourceDatasetsPageProps): JSX.Element => {
   return (
     <ArchivedProvider>
-      <FetchDataStateProvider
-        initialState={{ shouldFetchByKey: { [SOURCE_STUDIES]: false } }}
-      >
-        <AtlasSourceDatasetsView pathParameter={pathParameter} />
-      </FetchDataStateProvider>
+      <AtlasSourceDatasetsView pathParameter={pathParameter} />
     </ArchivedProvider>
   );
 };

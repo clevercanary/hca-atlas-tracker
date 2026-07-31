@@ -1,4 +1,3 @@
-import { FetchDataStateProvider } from "@/app/providers/fetchDataState/fetchDataState";
 import { DownloadIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/DownloadIcon/downloadIcon";
 import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
 import { IconButton } from "@mui/material";
@@ -25,15 +24,13 @@ export const FileDownloadCell = ({
       >
         <DownloadIcon {...SVG_ICON_PROPS} />
       </IconButton>
-      <FetchDataStateProvider initialState={{ shouldFetch: false }}>
-        <Dialog
-          fileId={fileId}
-          fileName={fileName}
-          onClose={onClose}
-          open={open}
-          sizeBytes={sizeBytes}
-        />
-      </FetchDataStateProvider>
+      <Dialog
+        fileId={fileId}
+        fileName={fileName}
+        onClose={onClose}
+        open={open}
+        sizeBytes={sizeBytes}
+      />
     </Fragment>
   );
 };

@@ -10,14 +10,14 @@ import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileS
 import { FIELD_NAME } from "../common/constants";
 import { ViewIntegratedObjectData } from "../common/entities";
 import { viewIntegratedObjectSchema } from "../common/schema";
-import { useFetchComponentAtlas } from "./useFetchComponentAtlas";
+import { useFetchComponentAtlas } from "./UseFetchComponentAtlas/hook";
 
 const SCHEMA = viewIntegratedObjectSchema;
 
 export const useViewComponentAtlasForm = (
   pathParameter: PathParameter,
 ): FormMethod<ViewIntegratedObjectData, HCAAtlasTrackerComponentAtlas> => {
-  const { componentAtlas } = useFetchComponentAtlas(pathParameter);
+  const { data: componentAtlas } = useFetchComponentAtlas(pathParameter);
   return useForm<ViewIntegratedObjectData, HCAAtlasTrackerComponentAtlas>(
     SCHEMA,
     componentAtlas,

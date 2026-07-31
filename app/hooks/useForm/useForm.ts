@@ -60,9 +60,9 @@ export const useForm = <T extends FieldValues, R = undefined>(
   // previous effect keyed on [apiData]: track every reference change (compared
   // with Object.is, matching React's dependency semantics) but only overwrite
   // data when apiData is truthy. apiData must be referentially stable across
-  // renders (it is — it comes from useFetchData's state); a caller passing a
-  // freshly-built apiData each render would loop here, just as the prior
-  // [apiData] effect would have.
+  // renders (it is — React Query preserves the reference via structural
+  // sharing); a caller passing a freshly-built apiData each render would loop
+  // here, just as the prior [apiData] effect would have.
   if (!Object.is(prevApiData, apiData)) {
     setPrevApiData(apiData);
     if (apiData) setData(apiData);

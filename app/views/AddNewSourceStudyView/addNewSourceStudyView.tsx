@@ -2,7 +2,7 @@ import { PathParameter } from "@/app/common/entities";
 import { AddSourceStudy } from "@/app/components/Detail/components/AddSourceStudy/addSourceStudy";
 import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment, JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
@@ -16,7 +16,7 @@ interface AddNewSourceStudyViewProps {
 export const AddNewSourceStudyView = ({
   pathParameter,
 }: AddNewSourceStudyViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
   const formMethod = useAddSourceStudyForm();
   const formManager = useAddSourceStudyFormManager(pathParameter, formMethod);
   const { formAction, isLoading } = formManager;

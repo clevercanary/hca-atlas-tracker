@@ -3,7 +3,6 @@ import { ArchivedStatusToggle } from "@/app/components/Entity/components/common/
 import { Table as CommonTable } from "@/app/components/Entity/components/common/Table/table";
 import { StyledFluidPaper } from "@/app/components/Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
-import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/useFetchAtlasSourceDatasets";
 import { Divider } from "@mui/material";
 import { Fragment, JSX } from "react";
 import { EditSelection } from "./components/RowSelection/components/EditSelection/editSelection";
@@ -20,7 +19,7 @@ export const Table = (): JSX.Element => {
         <Fragment>
           <StyledToolbar>
             <RowSelection component={EditSelection} table={table} />
-            <ArchivedStatusToggle fetchKeys={[SOURCE_DATASETS]} />
+            <ArchivedStatusToggle />
           </StyledToolbar>
           <Divider />
         </Fragment>

@@ -1,17 +1,16 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
 import { METHOD } from "@/app/common/entities";
 import { getRequestURL } from "@/app/common/utils";
-import { useFetchDataState } from "@/app/hooks/useFetchDataState";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { useEntity } from "@/app/providers/entity/hook";
-import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
 import {
   AtlasSourceDataset,
   Entity,
 } from "@/app/views/AtlasSourceDatasetsView/entities";
-import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/useFetchAtlasSourceDatasets";
+import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/UseFetchAtlasSourceDatasets/query/constants";
+import { useQueryClient } from "@tanstack/react-query";
 import { Table } from "@tanstack/react-table";
 import { useCallback } from "react";
 import { ReprocessedStatusEditData } from "../common/entities";
@@ -22,7 +21,7 @@ export const useEditReprocessedStatusFormManager = (
   table: Table<AtlasSourceDataset>,
 ): FormManager => {
   const { pathParameter } = useEntity() as Entity;
-  const { fetchDataDispatch } = useFetchDataState();
+  const queryClient = useQueryClient();
   const { onSubmit, reset } = formMethod;
 
   const onDiscard = useCallback(() => {
@@ -30,10 +29,12 @@ export const useEditReprocessedStatusFormManager = (
   }, [onClose]);
 
   const onSuccess = useCallback(() => {
-    fetchDataDispatch(fetchData([SOURCE_DATASETS]));
+    queryClient.invalidateQueries({
+      queryKey: [SOURCE_DATASETS, pathParameter.atlasId],
+    });
     table.resetRowSelection();
     onClose();
-  }, [fetchDataDispatch, onClose, table]);
+  }, [onClose, pathParameter, queryClient, table]);
 
   const onSave = useCallback(
     (payload: ReprocessedStatusEditData) => {

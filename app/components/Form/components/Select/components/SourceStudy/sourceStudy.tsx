@@ -2,13 +2,10 @@ import {
   Select,
   SelectProps,
 } from "@/app/components/common/Form/components/Select/select";
-import { useFetchDataState } from "@/app/hooks/useFetchDataState";
 import { useEntity } from "@/app/providers/entity/hook";
-import { fetchData } from "@/app/providers/fetchDataState/actions/fetchData/dispatch";
-import { Entity } from "@/app/views/AtlasSourceDatasetsView/entities";
-import { SOURCE_STUDIES } from "@/app/views/SourceStudiesView/hooks/useFetchSourceStudies";
+import { useFetchSourceStudies } from "@/app/views/SourceStudiesView/hooks/UseFetchSourceStudies/hook";
 import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, JSX, ReactNode, useEffect, useMemo } from "react";
+import { forwardRef, JSX, ReactNode, useMemo } from "react";
 import {
   buildPublicationStringMap,
   getPublicationStringOptions,
@@ -19,10 +16,11 @@ export const SourceStudy = forwardRef<HTMLInputElement, SelectProps>(
     { className, ...props }: SelectProps,
     ref,
   ): JSX.Element | null {
-    const {
-      data: { sourceStudies },
-    } = useEntity() as Entity;
-    const { fetchDataDispatch } = useFetchDataState();
+    const { pathParameter } = useEntity();
+    // Fetches lazily: this Select only mounts when the user opens the row-edit
+    // dropdown, so the source studies are fetched on demand (React Query
+    // caches/dedupes the result).
+    const { data: sourceStudies } = useFetchSourceStudies(pathParameter ?? {});
     const publicationStringById = useMemo(
       () => buildPublicationStringMap(sourceStudies),
       [sourceStudies],
@@ -31,11 +29,6 @@ export const SourceStudy = forwardRef<HTMLInputElement, SelectProps>(
       () => getPublicationStringOptions(publicationStringById),
       [publicationStringById],
     );
-
-    useEffect(() => {
-      if (sourceStudies) return;
-      fetchDataDispatch(fetchData([SOURCE_STUDIES]));
-    }, [fetchDataDispatch, sourceStudies]);
 
     return (
       <Select

@@ -1,7 +1,7 @@
 import { PathParameter } from "@/app/common/entities";
 import { EntityView } from "@/app/components/Entity/components/EntityView/entityView";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
-import { useFetchAtlas } from "@/app/hooks/useFetchAtlas";
+import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
@@ -11,7 +11,7 @@ import { JSX } from "react";
 import { VIEW_METADATA_ENTRY_SHEET_SECTION_CONFIGS } from "./common/config";
 import { Actions } from "./components/Actions/actions";
 import { useEntrySheetSync } from "./hooks/UseEntrySheetSync/hook";
-import { useFetchEntrySheetValidation } from "./hooks/useFetchEntrySheetValidations";
+import { useFetchEntrySheetValidation } from "./hooks/UseFetchEntrySheetValidation/hook";
 import { renderSubTitle, renderTitle } from "./utils";
 
 interface AtlasMetadataEntrySheetValidationViewProps {
@@ -21,8 +21,9 @@ interface AtlasMetadataEntrySheetValidationViewProps {
 export const AtlasMetadataEntrySheetValidationView = ({
   pathParameter,
 }: AtlasMetadataEntrySheetValidationViewProps): JSX.Element => {
-  const { atlas } = useFetchAtlas(pathParameter);
-  const { entrySheetValidation } = useFetchEntrySheetValidation(pathParameter);
+  const { data: atlas } = useFetchAtlas(pathParameter);
+  const { data: entrySheetValidation } =
+    useFetchEntrySheetValidation(pathParameter);
   const formManager = useFormManager();
   const syncInfo = useEntrySheetSync(pathParameter);
   return (

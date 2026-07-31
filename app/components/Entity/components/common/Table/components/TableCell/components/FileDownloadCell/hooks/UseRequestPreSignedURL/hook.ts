@@ -1,37 +1,29 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
-import { METHOD } from "@/app/common/entities";
+import { PresignedUrlInfo } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getRequestURL } from "@/app/common/utils";
-import { useFetchData } from "@/app/hooks/useFetchData";
-import { useFetchDataState } from "@/app/hooks/useFetchDataState";
-import { useResetFetchStatus } from "@/app/hooks/useResetFetchStatus";
-import { useEntity } from "app/providers/entity/hook";
-import { Props, Response, UseRequestPreSignedURL } from "./entities";
+import { useEntity } from "@/app/providers/entity/hook";
+import { DefaultError, UseQueryResult } from "@tanstack/react-query";
+import { Props } from "./entities";
+import { useQuery } from "./query/useQuery";
 
+/**
+ * Requests a presigned download URL for a file via React Query, gated on the
+ * download dialog being open.
+ * @param props - Props.
+ * @param props.fileId - File ID.
+ * @param props.open - Whether the download dialog is open.
+ * @returns React Query result for the presigned URL info (`data` is `{ filename, url }`).
+ */
 export const useRequestPreSignedURL = ({
   fileId,
-}: Props): UseRequestPreSignedURL => {
+  open,
+}: Props): UseQueryResult<PresignedUrlInfo, DefaultError> => {
   const { pathParameter } = useEntity();
-
-  // Validate atlasId - required for API request.
-  if (!pathParameter?.atlasId) throw new Error("Atlas ID is required");
-  // Validate fileId - required for API request.
-  if (!fileId) throw new Error("File ID is required");
-
-  const { atlasId } = pathParameter;
-
-  const {
-    fetchDataState: { shouldFetch },
-  } = useFetchDataState();
-
-  const { data: { filename, url } = {}, progress } = useFetchData<
-    Response | undefined
-  >(
+  const atlasId = pathParameter?.atlasId;
+  return useQuery(
+    atlasId,
+    fileId,
+    open,
     getRequestURL(API.ATLAS_FILE_PRESIGNED_URL, { atlasId, fileId }),
-    METHOD.POST,
-    shouldFetch,
   );
-
-  useResetFetchStatus(progress);
-
-  return { filename, url };
 };
