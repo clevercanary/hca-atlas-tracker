@@ -2,14 +2,8 @@ import {
   AtlasId,
   Heatmap,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "@/app/common/entities";
-import { queryFn } from "@/app/query/queryFn";
-import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
-import {
-  DefaultError,
-  UseQueryResult,
-  useQuery as useReactQuery,
-} from "@tanstack/react-query";
+import { useAuthedQuery } from "@/app/query/useAuthedQuery";
+import { DefaultError, UseQueryResult } from "@tanstack/react-query";
 import { METADATA_CORRECTNESS } from "./constants";
 import { QueryKey } from "./types";
 
@@ -22,17 +16,12 @@ import { QueryKey } from "./types";
 export const useQuery = (
   atlasId: AtlasId | undefined,
   requestUrl: string,
-): UseQueryResult<Heatmap, DefaultError> => {
-  const {
-    authState: { isAuthenticated },
-  } = useAuth();
-
-  return useReactQuery<Heatmap, DefaultError, Heatmap, QueryKey>({
-    enabled: isAuthenticated && Boolean(atlasId),
-    queryFn: queryFn<Heatmap, QueryKey>(requestUrl, METHOD.GET),
+): UseQueryResult<Heatmap, DefaultError> =>
+  useAuthedQuery<Heatmap, QueryKey>({
+    enabled: Boolean(atlasId),
     queryKey: [METADATA_CORRECTNESS, atlasId],
+    requestUrl,
     // Heatmap changes out-of-band (Sync) without invalidating this key, so
     // refetch on mount rather than serve stale results.
     staleTime: 0,
   });
-};

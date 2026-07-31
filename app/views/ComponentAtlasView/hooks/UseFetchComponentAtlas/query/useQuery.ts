@@ -3,14 +3,8 @@ import {
   ComponentAtlasId,
   HCAAtlasTrackerDetailComponentAtlas,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "@/app/common/entities";
-import { queryFn } from "@/app/query/queryFn";
-import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
-import {
-  DefaultError,
-  UseQueryResult,
-  useQuery as useReactQuery,
-} from "@tanstack/react-query";
+import { useAuthedQuery } from "@/app/query/useAuthedQuery";
+import { DefaultError, UseQueryResult } from "@tanstack/react-query";
 import { INTEGRATED_OBJECT } from "./constants";
 import { QueryKey } from "./types";
 
@@ -25,22 +19,9 @@ export const useQuery = (
   atlasId: AtlasId | undefined,
   componentAtlasId: ComponentAtlasId | undefined,
   requestUrl: string,
-): UseQueryResult<HCAAtlasTrackerDetailComponentAtlas, DefaultError> => {
-  const {
-    authState: { isAuthenticated },
-  } = useAuth();
-
-  return useReactQuery<
-    HCAAtlasTrackerDetailComponentAtlas,
-    DefaultError,
-    HCAAtlasTrackerDetailComponentAtlas,
-    QueryKey
-  >({
-    enabled: isAuthenticated && Boolean(atlasId) && Boolean(componentAtlasId),
-    queryFn: queryFn<HCAAtlasTrackerDetailComponentAtlas, QueryKey>(
-      requestUrl,
-      METHOD.GET,
-    ),
+): UseQueryResult<HCAAtlasTrackerDetailComponentAtlas, DefaultError> =>
+  useAuthedQuery<HCAAtlasTrackerDetailComponentAtlas, QueryKey>({
+    enabled: Boolean(atlasId) && Boolean(componentAtlasId),
     queryKey: [INTEGRATED_OBJECT, atlasId, componentAtlasId],
+    requestUrl,
   });
-};

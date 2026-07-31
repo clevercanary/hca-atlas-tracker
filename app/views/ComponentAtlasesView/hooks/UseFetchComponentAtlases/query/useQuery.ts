@@ -3,15 +3,9 @@ import {
   HCAAtlasTrackerComponentAtlas,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getCapIngestStatus } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
-import { METHOD } from "@/app/common/entities";
-import { queryFn } from "@/app/query/queryFn";
+import { useAuthedQuery } from "@/app/query/useAuthedQuery";
 import { AtlasIntegratedObject } from "@/app/views/ComponentAtlasesView/entities";
-import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
-import {
-  DefaultError,
-  UseQueryResult,
-  useQuery as useReactQuery,
-} from "@tanstack/react-query";
+import { DefaultError, UseQueryResult } from "@tanstack/react-query";
 import { INTEGRATED_OBJECTS } from "./constants";
 import { QueryKey } from "./types";
 
@@ -27,30 +21,21 @@ export const useQuery = (
   atlasId: AtlasId | undefined,
   archived: boolean,
   requestUrl: string,
-): UseQueryResult<AtlasIntegratedObject[], DefaultError> => {
-  const {
-    authState: { isAuthenticated },
-  } = useAuth();
-
-  return useReactQuery<
+): UseQueryResult<AtlasIntegratedObject[], DefaultError> =>
+  useAuthedQuery<
     HCAAtlasTrackerComponentAtlas[],
-    DefaultError,
-    AtlasIntegratedObject[],
-    QueryKey
+    QueryKey,
+    AtlasIntegratedObject[]
   >({
-    enabled: isAuthenticated && Boolean(atlasId),
-    queryFn: queryFn<HCAAtlasTrackerComponentAtlas[], QueryKey>(
-      requestUrl,
-      METHOD.GET,
-    ),
+    enabled: Boolean(atlasId),
     queryKey: [INTEGRATED_OBJECTS, atlasId, archived],
+    requestUrl,
     select: (data) => (atlasId ? mapData(atlasId, data) : []),
     // The list's columns can change out-of-band, so refetch on every mount to
     // match the previous always-fresh behavior; the archive toggle invalidates
     // via the archived-scoped key change.
     staleTime: 0,
   });
-};
 
 /**
  * Maps HCAAtlasTrackerComponentAtlas[] to AtlasIntegratedObject[].

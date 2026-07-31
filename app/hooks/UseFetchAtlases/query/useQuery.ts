@@ -1,12 +1,6 @@
 import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "@/app/common/entities";
-import { queryFn } from "@/app/query/queryFn";
-import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
-import {
-  DefaultError,
-  UseQueryResult,
-  useQuery as useReactQuery,
-} from "@tanstack/react-query";
+import { useAuthedQuery } from "@/app/query/useAuthedQuery";
+import { DefaultError, UseQueryResult } from "@tanstack/react-query";
 import { ATLASES } from "./constants";
 import { QueryKey } from "./types";
 
@@ -17,21 +11,10 @@ import { QueryKey } from "./types";
  */
 export const useQuery = (
   requestUrl: string,
-): UseQueryResult<HCAAtlasTrackerAtlas[], DefaultError> => {
-  const {
-    authState: { isAuthenticated },
-  } = useAuth();
-
-  return useReactQuery<
-    HCAAtlasTrackerAtlas[],
-    DefaultError,
-    HCAAtlasTrackerAtlas[],
-    QueryKey
-  >({
-    enabled: isAuthenticated,
-    queryFn: queryFn<HCAAtlasTrackerAtlas[], QueryKey>(requestUrl, METHOD.GET),
+): UseQueryResult<HCAAtlasTrackerAtlas[], DefaultError> =>
+  useAuthedQuery<HCAAtlasTrackerAtlas[], QueryKey>({
     queryKey: [ATLASES],
+    requestUrl,
     // Refetch on mount to match the previous always-fresh behavior.
     staleTime: 0,
   });
-};

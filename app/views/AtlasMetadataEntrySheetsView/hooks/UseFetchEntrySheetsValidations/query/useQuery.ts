@@ -2,15 +2,9 @@ import {
   AtlasId,
   HCAAtlasTrackerListEntrySheetValidation,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "@/app/common/entities";
-import { queryFn } from "@/app/query/queryFn";
+import { useAuthedQuery } from "@/app/query/useAuthedQuery";
 import { MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
-import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
-import {
-  DefaultError,
-  UseQueryResult,
-  useQuery as useReactQuery,
-} from "@tanstack/react-query";
+import { DefaultError, UseQueryResult } from "@tanstack/react-query";
 import { ENTRY_SHEET_VALIDATIONS } from "./constants";
 import { QueryKey } from "./types";
 
@@ -24,28 +18,19 @@ import { QueryKey } from "./types";
 export const useQuery = (
   atlasId: AtlasId | undefined,
   requestUrl: string,
-): UseQueryResult<MetadataEntrySheet[], DefaultError> => {
-  const {
-    authState: { isAuthenticated },
-  } = useAuth();
-
-  return useReactQuery<
+): UseQueryResult<MetadataEntrySheet[], DefaultError> =>
+  useAuthedQuery<
     HCAAtlasTrackerListEntrySheetValidation[],
-    DefaultError,
-    MetadataEntrySheet[],
-    QueryKey
+    QueryKey,
+    MetadataEntrySheet[]
   >({
-    enabled: isAuthenticated && Boolean(atlasId),
-    queryFn: queryFn<HCAAtlasTrackerListEntrySheetValidation[], QueryKey>(
-      requestUrl,
-      METHOD.GET,
-    ),
+    enabled: Boolean(atlasId),
     queryKey: [ENTRY_SHEET_VALIDATIONS, atlasId],
+    requestUrl,
     select: (data) => (atlasId ? mapData(atlasId, data) : []),
     // Refetch on mount to match the previous always-fresh behavior.
     staleTime: 0,
   });
-};
 
 /**
  * Maps HCAAtlasTrackerListEntrySheetValidation[] to MetadataEntrySheet[],

@@ -3,14 +3,8 @@ import {
   EntrySheetValidationId,
   HCAAtlasTrackerEntrySheetValidation,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "@/app/common/entities";
-import { queryFn } from "@/app/query/queryFn";
-import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
-import {
-  DefaultError,
-  UseQueryResult,
-  useQuery as useReactQuery,
-} from "@tanstack/react-query";
+import { useAuthedQuery } from "@/app/query/useAuthedQuery";
+import { DefaultError, UseQueryResult } from "@tanstack/react-query";
 import { ENTRY_SHEET_VALIDATION } from "./constants";
 import { QueryKey } from "./types";
 
@@ -25,26 +19,12 @@ export const useQuery = (
   atlasId: AtlasId | undefined,
   entrySheetValidationId: EntrySheetValidationId | undefined,
   requestUrl: string,
-): UseQueryResult<HCAAtlasTrackerEntrySheetValidation, DefaultError> => {
-  const {
-    authState: { isAuthenticated },
-  } = useAuth();
-
-  return useReactQuery<
-    HCAAtlasTrackerEntrySheetValidation,
-    DefaultError,
-    HCAAtlasTrackerEntrySheetValidation,
-    QueryKey
-  >({
-    enabled:
-      isAuthenticated && Boolean(atlasId) && Boolean(entrySheetValidationId),
-    queryFn: queryFn<HCAAtlasTrackerEntrySheetValidation, QueryKey>(
-      requestUrl,
-      METHOD.GET,
-    ),
+): UseQueryResult<HCAAtlasTrackerEntrySheetValidation, DefaultError> =>
+  useAuthedQuery<HCAAtlasTrackerEntrySheetValidation, QueryKey>({
+    enabled: Boolean(atlasId) && Boolean(entrySheetValidationId),
     queryKey: [ENTRY_SHEET_VALIDATION, atlasId, entrySheetValidationId],
+    requestUrl,
     // Results change out-of-band (Sync) without invalidating this key, so
     // refetch on mount rather than contradict the post-sync list.
     staleTime: 0,
   });
-};

@@ -4,13 +4,8 @@ import {
   PresignedUrlInfo,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
-import { queryFn } from "@/app/query/queryFn";
-import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
-import {
-  DefaultError,
-  UseQueryResult,
-  useQuery as useReactQuery,
-} from "@tanstack/react-query";
+import { useAuthedQuery } from "@/app/query/useAuthedQuery";
+import { DefaultError, UseQueryResult } from "@tanstack/react-query";
 import { PRESIGNED_URL } from "./constants";
 import { QueryKey } from "./types";
 
@@ -29,24 +24,15 @@ export const useQuery = (
   fileId: FileId | undefined,
   open: boolean,
   requestUrl: string,
-): UseQueryResult<PresignedUrlInfo, DefaultError> => {
-  const {
-    authState: { isAuthenticated },
-  } = useAuth();
-
-  return useReactQuery<
-    PresignedUrlInfo,
-    DefaultError,
-    PresignedUrlInfo,
-    QueryKey
-  >({
+): UseQueryResult<PresignedUrlInfo, DefaultError> =>
+  useAuthedQuery<PresignedUrlInfo, QueryKey>({
     // Gate on the ids too: without them the request URL would contain the
     // literal "undefined" (getRequestURL coerces rather than throws).
-    enabled: isAuthenticated && open && Boolean(atlasId) && Boolean(fileId),
-    queryFn: queryFn<PresignedUrlInfo, QueryKey>(requestUrl, METHOD.POST),
+    enabled: open && Boolean(atlasId) && Boolean(fileId),
+    method: METHOD.POST,
     queryKey: [PRESIGNED_URL, atlasId, fileId],
+    requestUrl,
     // A presigned URL is generated per request, so refetch each time the dialog
     // opens rather than serving a stale one.
     staleTime: 0,
   });
-};

@@ -3,15 +3,9 @@ import {
   HCAAtlasTrackerLocalListSourceDataset,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getCapIngestStatus } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
-import { METHOD } from "@/app/common/entities";
-import { queryFn } from "@/app/query/queryFn";
+import { useAuthedQuery } from "@/app/query/useAuthedQuery";
 import { AtlasSourceDataset } from "@/app/views/AtlasSourceDatasetsView/entities";
-import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
-import {
-  DefaultError,
-  UseQueryResult,
-  useQuery as useReactQuery,
-} from "@tanstack/react-query";
+import { DefaultError, UseQueryResult } from "@tanstack/react-query";
 import { SOURCE_DATASETS } from "./constants";
 import { QueryKey } from "./types";
 
@@ -27,23 +21,15 @@ export const useQuery = (
   atlasId: AtlasId | undefined,
   archived: boolean,
   requestUrl: string,
-): UseQueryResult<AtlasSourceDataset[], DefaultError> => {
-  const {
-    authState: { isAuthenticated },
-  } = useAuth();
-
-  return useReactQuery<
+): UseQueryResult<AtlasSourceDataset[], DefaultError> =>
+  useAuthedQuery<
     HCAAtlasTrackerLocalListSourceDataset[],
-    DefaultError,
-    AtlasSourceDataset[],
-    QueryKey
+    QueryKey,
+    AtlasSourceDataset[]
   >({
-    enabled: isAuthenticated && Boolean(atlasId),
-    queryFn: queryFn<HCAAtlasTrackerLocalListSourceDataset[], QueryKey>(
-      requestUrl,
-      METHOD.GET,
-    ),
+    enabled: Boolean(atlasId),
     queryKey: [SOURCE_DATASETS, atlasId, archived],
+    requestUrl,
     select: (data) => (atlasId ? mapData(atlasId, data) : []),
     // The list's columns can change out-of-band (e.g. server-side validation),
     // so refetch on every mount to match the previous always-fresh behavior;
@@ -51,7 +37,6 @@ export const useQuery = (
     // list.
     staleTime: 0,
   });
-};
 
 /**
  * Maps HCAAtlasTrackerLocalListSourceDataset[] to AtlasSourceDataset[].
