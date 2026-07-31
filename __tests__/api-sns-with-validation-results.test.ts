@@ -15,12 +15,44 @@ import {
   validateTestSnsMessage,
   ValidationResultsMetadataOptions,
   ValidationResultsOptions,
-} from "../testing/sns-testing";
+} from "@/testing/sns-testing";
 
 // Set up AWS resource configuration BEFORE any other imports
 setUpAwsConfig();
 
 // Imports
+import {
+  DatasetValidatorMetadataCoverage,
+  DatasetValidatorMetadataCoverageEntity,
+  DatasetValidatorResults,
+  DatasetValidatorResultsMetadata,
+  DatasetValidatorToolReports,
+  SNSMessage,
+} from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import {
+  FILE_VALIDATION_STATUS,
+  FileValidationSummary,
+  HCAAtlasTrackerDBFileDatasetInfo,
+  INTEGRITY_STATUS,
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { resetConfigCache } from "@/app/config/aws-resources";
+import { endPgPool } from "@/app/services/database";
+import {
+  COMPONENT_ATLAS_DRAFT_FOO,
+  SOURCE_DATASET_BAR,
+  SOURCE_DATASET_BAZ,
+  SOURCE_DATASET_FOO,
+  SOURCE_DATASET_FOOBAR,
+  SOURCE_DATASET_FOOFOO,
+} from "@/testing/constants";
+import { getFileFromDatabase, resetDatabase } from "@/testing/db-utils";
+import {
+  ConsoleMessageOutputArrays,
+  fillTestFileDefaults,
+  getTestFileKey,
+  withConsoleMessageHiding,
+} from "@/testing/utils";
 import {
   DeleteObjectCommand,
   GetObjectCommand,
@@ -33,46 +65,14 @@ import { mockClient } from "aws-sdk-client-mock";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { Readable } from "stream";
-import {
-  DatasetValidatorMetadataCoverage,
-  DatasetValidatorMetadataCoverageEntity,
-  DatasetValidatorResults,
-  DatasetValidatorResultsMetadata,
-  DatasetValidatorToolReports,
-  SNSMessage,
-} from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
-import {
-  FILE_VALIDATION_STATUS,
-  FileValidationSummary,
-  HCAAtlasTrackerDBFileDatasetInfo,
-  INTEGRITY_STATUS,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../app/common/entities";
-import { resetConfigCache } from "../app/config/aws-resources";
-import { endPgPool } from "../app/services/database";
-import {
-  COMPONENT_ATLAS_DRAFT_FOO,
-  SOURCE_DATASET_BAR,
-  SOURCE_DATASET_BAZ,
-  SOURCE_DATASET_FOO,
-  SOURCE_DATASET_FOOBAR,
-  SOURCE_DATASET_FOOFOO,
-} from "../testing/constants";
-import { getFileFromDatabase, resetDatabase } from "../testing/db-utils";
-import {
-  ConsoleMessageOutputArrays,
-  fillTestFileDefaults,
-  getTestFileKey,
-  withConsoleMessageHiding,
-} from "../testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/crossref/crossref-api");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/crossref/crossref-api");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 
@@ -108,7 +108,7 @@ jest.mock("sns-validator", () => {
 
 const TEST_ROUTE = "/api/sns";
 
-import snsHandler from "../pages/api/sns";
+import snsHandler from "@/pages/api/sns";
 
 const FILE_SOURCE_DATASET_FOO = fillTestFileDefaults(SOURCE_DATASET_FOO.file);
 const FILE_SOURCE_DATASET_BAR = fillTestFileDefaults(SOURCE_DATASET_BAR.file);

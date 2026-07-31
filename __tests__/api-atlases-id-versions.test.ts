@@ -1,9 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../app/common/entities";
-import { endPgPool } from "../app/services/database";
-import versionsHandler from "../pages/api/atlases/[atlasId]/versions";
+import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool } from "@/app/services/database";
+import versionsHandler from "@/pages/api/atlases/[atlasId]/versions";
 import {
   ATLAS_PUBLISHED,
   ATLAS_PUBLISHED_R6,
@@ -15,14 +13,14 @@ import {
   USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_PUBLISHED,
   USER_UNREGISTERED,
-} from "../testing/constants";
+} from "@/testing/constants";
 import {
   getExistingAtlasFromDatabase,
   getUserFromDatabaseByEmail,
   getValidationsByEntityId,
   resetDatabase,
-} from "../testing/db-utils";
-import { TestUser } from "../testing/entities";
+} from "@/testing/db-utils";
+import { TestUser } from "@/testing/entities";
 import {
   assertExpectDefined,
   delay,
@@ -30,15 +28,17 @@ import {
   expectDbAtlasToMatchApi,
   testApiRole,
   withConsoleErrorHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/crossref/crossref-api");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/crossref/crossref-api");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 jest.mock("googleapis");
 jest.mock("next-auth");

@@ -1,4 +1,3 @@
-import pg from "pg";
 import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
@@ -6,10 +5,11 @@ import {
   HCAAtlasTrackerDBComponentAtlasForDetailAPI,
   HCAAtlasTrackerDBComponentAtlasInfo,
   HCAAtlasTrackerDBFile,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { ComponentAtlasEditData } from "../apis/catalog/hca-atlas-tracker/common/schema";
-import { getSourceDatasetVersionsForAtlas } from "../data/source-datasets";
-import { InvalidOperationError, NotFoundError } from "../utils/api-errors";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { ComponentAtlasEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { getSourceDatasetVersionsForAtlas } from "@/app/data/source-datasets";
+import { InvalidOperationError, NotFoundError } from "@/app/utils/api-errors";
+import pg from "pg";
 import { updateDownloadNameIfChanged } from "./concepts";
 import { doTransaction, query } from "./database";
 

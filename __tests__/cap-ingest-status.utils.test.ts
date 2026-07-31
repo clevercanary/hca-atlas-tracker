@@ -4,8 +4,8 @@ import {
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerSourceDataset,
   REPROCESSED_STATUS,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getCapIngestStatus } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getCapIngestStatus } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 
 describe("getCapIngestStatus", () => {
   it("returns NOT_REQUIRED for reprocessed source datasets", () => {

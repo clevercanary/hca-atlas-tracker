@@ -1,6 +1,4 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
+import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
 import {
   DOI_STATUS,
   FILE_PUBLISHED_STATUS,
@@ -34,22 +32,24 @@ import {
   REPROCESSED_STATUS,
   ROLE,
   SYSTEM,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewUserData,
   UserEditData,
-} from "../app/apis/catalog/hca-atlas-tracker/common/schema";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import {
   getPublishedCitation,
   getUnpublishedCitation,
-} from "../app/apis/catalog/hca-atlas-tracker/common/utils";
-import { METHOD } from "../app/common/entities";
-import { Handler } from "../app/utils/api-handler";
-import { slugifyAtlasShortName } from "../app/utils/atlases";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import { METHOD } from "@/app/common/entities";
+import { Handler } from "@/app/utils/api-handler";
+import { slugifyAtlasShortName } from "@/app/utils/atlases";
 import {
   normalizeValidationSummary,
   removeFileExtension,
-} from "../app/utils/files";
+} from "@/app/utils/files";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 import {
   ATLAS_DRAFT,
   DEFAULT_USERS_BY_ROLE,

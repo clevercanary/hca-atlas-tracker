@@ -1,13 +1,13 @@
 import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { sourceDatasetsSetReprocessedStatusSchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "@/app/common/entities";
+import { setAtlasSourceDatasetsReprocessedStatus } from "@/app/services/source-datasets";
 import {
   handler,
   integrationLeadAssociatedAtlasOnly,
   method,
   role,
 } from "@/app/utils/api-handler";
-import { setAtlasSourceDatasetsReprocessedStatus } from "app/services/source-datasets";
 
 /**
  * API route for setting the reprocessed status of source datasets for a given atlas.

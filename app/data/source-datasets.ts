@@ -1,4 +1,3 @@
-import pg from "pg";
 import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBComponentAtlas,
@@ -8,12 +7,13 @@ import {
   HCAAtlasTrackerDBSourceDatasetForListAPI,
   HCAAtlasTrackerDBSourceDatasetInfo,
   PUBLICATION_STATUS,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { confirmAtlasExists } from "../services/atlases";
-import { doTransaction, query } from "../services/database";
-import { confirmSourceStudyExists } from "../services/source-studies";
-import { InvalidOperationError, NotFoundError } from "../utils/api-errors";
-import { confirmQueryRowsContainVersionIds } from "../utils/database";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { confirmAtlasExists } from "@/app/services/atlases";
+import { doTransaction, query } from "@/app/services/database";
+import { confirmSourceStudyExists } from "@/app/services/source-studies";
+import { InvalidOperationError, NotFoundError } from "@/app/utils/api-errors";
+import { confirmQueryRowsContainVersionIds } from "@/app/utils/database";
+import pg from "pg";
 
 const PLURAL_ENTITY_NAME = "source datasets";
 

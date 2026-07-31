@@ -1,12 +1,12 @@
 import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { FormManager } from "@/app/components/common/Form/components/FormManager/formManager";
+import { Divider } from "@/app/components/Detail/components/TrackerForm/components/Divider/divider.styles";
+import { GeneralInfo } from "@/app/components/Detail/components/TrackerForm/components/Section/components/SourceStudy/components/Add/components/GeneralInfo/generalInfo";
+import { TrackerForm } from "@/app/components/Detail/components/TrackerForm/trackerForm";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { FormManager as FormManagerProps } from "@/app/hooks/useFormManager/common/entities";
 import { NewSourceStudyData } from "@/app/views/AddNewSourceStudyView/common/entities";
 import { JSX } from "react";
-import { Divider } from "../TrackerForm/components/Divider/divider.styles";
-import { GeneralInfo } from "../TrackerForm/components/Section/components/SourceStudy/components/Add/components/GeneralInfo/generalInfo";
-import { TrackerForm } from "../TrackerForm/trackerForm";
 import { NoAccess } from "./components/NoAccess/noAccess";
 
 interface AddSourceStudyProps {

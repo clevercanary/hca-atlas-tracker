@@ -4,20 +4,20 @@ import { render, screen, waitFor } from "@testing-library/react";
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
 }));
-jest.mock("../app/providers/entity/hook", () => ({
+jest.mock("@/app/providers/entity/hook", () => ({
   useEntity: jest.fn(),
 }));
-jest.mock("../app/common/utils", () => ({
-  ...jest.requireActual("../app/common/utils"),
+jest.mock("@/app/common/utils", () => ({
+  ...jest.requireActual("@/app/common/utils"),
   fetchResource: jest.fn(),
 }));
 
+import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getSourceStudyCitation } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import { fetchResource } from "@/app/common/utils";
+import { SourceStudy } from "@/app/components/Form/components/Select/components/SourceStudy/sourceStudy";
+import { useEntity } from "@/app/providers/entity/hook";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
-import { HCAAtlasTrackerSourceStudy } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getSourceStudyCitation } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
-import { fetchResource } from "../app/common/utils";
-import { SourceStudy } from "../app/components/Form/components/Select/components/SourceStudy/sourceStudy";
-import { useEntity } from "../app/providers/entity/hook";
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockUseEntity = useEntity as jest.MockedFunction<typeof useEntity>;

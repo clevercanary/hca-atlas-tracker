@@ -1,6 +1,6 @@
+import { useCurrentPath } from "@/app/hooks/UseCurrentPath/hook";
 import { ROUTE } from "@/app/routes/constants";
 import { PUBLIC_PATHS } from "@/app/routes/publicPaths";
-import { useCurrentPath } from "../UseCurrentPath/hook";
 
 /**
  * Returns the `logoutCallbackUrl` to pass to `NextAuthAuthenticationProvider`.

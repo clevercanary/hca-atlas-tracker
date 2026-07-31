@@ -1,7 +1,7 @@
 import { ROUTE } from "@/app/routes/constants";
+import { ActionButton } from "@/app/views/EntitiesView/components/ActionButton/actionButton";
 import Link from "next/link";
 import { JSX } from "react";
-import { ActionButton } from "../ActionButton/actionButton";
 
 export const AddAtlas = (): JSX.Element | null => {
   return (

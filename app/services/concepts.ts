@@ -1,21 +1,21 @@
-import { getFileBaseName, getFileExtension } from "app/utils/files";
-import pg from "pg";
 import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBConcept,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   createConcept,
   getAtlasesMatchingConceptAndRevision,
   getConcept,
   getConceptIdByInfo,
   setConceptBaseFilename,
-} from "../data/concepts";
+} from "@/app/data/concepts";
 import {
   ConflictError,
   InvalidOperationError,
   NotFoundError,
-} from "../utils/api-errors";
+} from "@/app/utils/api-errors";
+import { getFileBaseName, getFileExtension } from "@/app/utils/files";
+import pg from "pg";
 import { mapDatabaseError } from "./database";
 
 /**

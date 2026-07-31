@@ -1,12 +1,12 @@
 import { Table as CommonTable } from "@/app/components/Entity/components/common/Table/table";
+import { StyledFluidPaper } from "@/app/components/Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
 import { StyledToolbar } from "@/app/components/Table/components/TableToolbar/tableToolbar.styles";
 import { useEntity } from "@/app/providers/entity/hook";
+import { ViewComponentAtlasSourceDatasetsSelection } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/viewComponentAtlasSourceDatasetsSelection";
 import { Entity } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
 import { Divider } from "@mui/material";
-import { StyledFluidPaper } from "app/components/Table/components/TablePaper/tablePaper.styles";
 import { Fragment, JSX } from "react";
-import { ViewComponentAtlasSourceDatasetsSelection } from "../ViewComponentAtlasSourceDatasetsSelection/viewComponentAtlasSourceDatasetsSelection";
 import { useIntegratedObjectSourceDatasetsTable } from "./hooks/UseIntegratedObjectSourceDatasetsTable/hook";
 
 export const Table = (): JSX.Element => {

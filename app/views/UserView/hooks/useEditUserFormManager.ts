@@ -7,10 +7,10 @@ import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { ROUTE } from "@/app/routes/constants";
+import { UserEditData } from "@/app/views/UserView/common/entities";
 import { useQueryClient } from "@tanstack/react-query";
 import Router from "next/router";
 import { useCallback } from "react";
-import { UserEditData } from "../common/entities";
 
 export const useEditUserFormManager = (
   pathParameter: PathParameter,

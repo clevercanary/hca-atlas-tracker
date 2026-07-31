@@ -1,6 +1,6 @@
 import { SectionConfig } from "@/app/components/Entity/components/EntityView/components/Section/entities";
-import { Alert } from "../components/Alert/alert";
-import { Table } from "../components/Table/table";
+import { Alert } from "@/app/views/AtlasSourceDatasetsView/components/Alert/alert";
+import { Table } from "@/app/views/AtlasSourceDatasetsView/components/Table/table";
 
 export const VIEW_SOURCE_DATASETS_INFO: SectionConfig<typeof Alert> = {
   Component: Alert,

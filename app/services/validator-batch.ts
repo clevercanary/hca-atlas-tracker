@@ -1,8 +1,8 @@
-import { BatchClient, SubmitJobCommand } from "@aws-sdk/client-batch";
 import {
   validateS3BucketAuthorization,
   validateSNSTopicAuthorization,
-} from "../config/aws-resources";
+} from "@/app/config/aws-resources";
+import { BatchClient, SubmitJobCommand } from "@aws-sdk/client-batch";
 
 export interface SubmitDatasetValidationJobParams {
   fileId: string;

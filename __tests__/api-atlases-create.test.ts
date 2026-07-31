@@ -1,18 +1,16 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
 import {
   ATLAS_STATUS,
   HCAAtlasTrackerAtlas,
   HCAAtlasTrackerDBAtlas,
   PublicationInfo,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { NewAtlasData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../app/common/entities";
-import { FormResponseErrors } from "../app/hooks/useForm/common/entities";
-import { endPgPool, query } from "../app/services/database";
-import { slugifyAtlasShortName } from "../app/utils/atlases";
-import { getSheetTitleForApi } from "../app/utils/google-sheets-api";
-import createHandler from "../pages/api/atlases/create";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { NewAtlasData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
+import { FormResponseErrors } from "@/app/hooks/useForm/common/entities";
+import { endPgPool, query } from "@/app/services/database";
+import { slugifyAtlasShortName } from "@/app/utils/atlases";
+import { getSheetTitleForApi } from "@/app/utils/google-sheets-api";
+import createHandler from "@/pages/api/atlases/create";
 import {
   DOI_NONEXISTENT,
   DOI_PREPRINT_NO_JOURNAL,
@@ -21,31 +19,33 @@ import {
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
-} from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
-import { TestUser } from "../testing/entities";
+} from "@/testing/constants";
+import { resetDatabase } from "@/testing/db-utils";
+import { TestUser } from "@/testing/entities";
 import {
   expectDbAtlasToMatchApi,
   testApiRole,
   withConsoleErrorHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/crossref/crossref-api");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/crossref/crossref-api");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 jest.mock("googleapis");
 
 const getSheetTitleMock = getSheetTitleForApi as jest.Mock;
 
-jest.mock("../app/utils/google-sheets-api", () => {
-  const googleSheetsApi: typeof import("../app/utils/google-sheets-api") =
-    jest.requireActual("../app/utils/google-sheets-api");
+jest.mock("@/app/utils/google-sheets-api", () => {
+  const googleSheetsApi: typeof import("@/app/utils/google-sheets-api") =
+    jest.requireActual("@/app/utils/google-sheets-api");
 
   return {
     getSheetTitleForApi: jest.fn(googleSheetsApi.getSheetTitleForApi),

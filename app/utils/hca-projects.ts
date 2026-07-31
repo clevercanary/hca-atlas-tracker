@@ -1,5 +1,5 @@
-import { ProjectsResponse } from "../apis/azul/hca-dcp/common/responses";
-import { normalizeDoi } from "../utils/doi";
+import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { normalizeDoi } from "./doi";
 
 export interface ProjectInfo {
   atlases: { shortName: string; version: string | null }[];

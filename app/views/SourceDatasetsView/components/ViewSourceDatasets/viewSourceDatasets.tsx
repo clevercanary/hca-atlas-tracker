@@ -1,8 +1,8 @@
 import { Table as CommonTable } from "@/app/components/Entity/components/common/Table/table";
 import { StyledFluidPaper } from "@/app/components/Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
+import { useSourceDatasetsTable } from "@/app/views/SourceDatasetsView/components/Table/hooks/UseSourceDatasetsTable/hook";
 import { JSX } from "react";
-import { useSourceDatasetsTable } from "../Table/hooks/UseSourceDatasetsTable/hook";
 
 export const ViewSourceDatasets = (): JSX.Element => {
   const { table } = useSourceDatasetsTable();

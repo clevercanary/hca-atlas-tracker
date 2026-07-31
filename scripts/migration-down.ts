@@ -1,6 +1,6 @@
+import { getPoolConfig } from "@/app/utils/pg-migrate-connect-config";
 import migrate from "node-pg-migrate";
 import pg from "pg";
-import { getPoolConfig } from "../app/utils/pg-migrate-connect-config";
 import { assertMigrationDownAllowed } from "./migration-down-guard";
 
 // Block destructive migration rollbacks in deployed (AWS dev/prod) environments.

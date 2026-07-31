@@ -1,9 +1,9 @@
 import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { useForm } from "@/app/hooks/useForm/useForm";
-import { FIELD_NAME } from "../common/constants";
-import { ComponentAtlasSourceDatasetsEditData } from "../common/entities";
-import { componentAtlasSourceDatasetsEditSchema } from "../common/schema";
+import { FIELD_NAME } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/constants";
+import { ComponentAtlasSourceDatasetsEditData } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/entities";
+import { componentAtlasSourceDatasetsEditSchema } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/schema";
 
 const SCHEMA = componentAtlasSourceDatasetsEditSchema;
 

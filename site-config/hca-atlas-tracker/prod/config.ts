@@ -1,5 +1,8 @@
 import { SiteConfig } from "@/site-config/common/entities";
-import { GIT_HUB_REPO_URL, makeConfig } from "../local/config";
+import {
+  GIT_HUB_REPO_URL,
+  makeConfig,
+} from "@/site-config/hca-atlas-tracker/local/config";
 import { authenticationConfig } from "./authentication/authentication";
 
 // Template constants

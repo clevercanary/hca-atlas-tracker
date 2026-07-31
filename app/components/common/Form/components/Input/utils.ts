@@ -1,9 +1,9 @@
-import { InputBaseComponentProps } from "@mui/material";
-import { ElementType } from "react";
 import {
   ControllerViewBuilder,
   ViewPropsOf,
-} from "../Controllers/common/entities";
+} from "@/app/components/common/Form/components/Controllers/common/entities";
+import { InputBaseComponentProps } from "@mui/material";
+import { ElementType } from "react";
 
 /**
  * Resolve the input component to render. The convention is:

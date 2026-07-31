@@ -2,11 +2,11 @@ import {
   HCAAtlasTrackerActiveUser,
   ROLE,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { useAuthorization } from "@/app/hooks/useAuthorization";
 import { isRouteValue } from "@/app/routes/utils";
 import { useRouter } from "next/router";
 import type { ParsedUrlQuery } from "querystring";
 import { useMemo } from "react";
-import { useAuthorization } from "../useAuthorization";
 import { ROUTES } from "./common/constants";
 
 export interface UseUserHasEditAuthorization {

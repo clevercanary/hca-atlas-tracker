@@ -1,15 +1,10 @@
-import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
-import { ThemeProvider } from "@mui/material";
-import "@testing-library/jest-dom";
-import { render, screen } from "@testing-library/react";
-import { JSX, ReactNode } from "react";
-import { AtlasStatusSummary } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { mergeAppTheme } from "../app/theme/theme";
-import { StatusDashboard } from "../app/views/AtlasStatusView/components/StatusDashboard/statusDashboard";
+import { AtlasStatusSummary } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { mergeAppTheme } from "@/app/theme/theme";
+import { StatusDashboard } from "@/app/views/AtlasStatusView/components/StatusDashboard/statusDashboard";
 import {
   BADGE_VARIANT,
   SECTION_STATUS,
-} from "../app/views/AtlasStatusView/components/StatusDashboard/types";
+} from "@/app/views/AtlasStatusView/components/StatusDashboard/types";
 import {
   buildIntegratedObjectsCard,
   buildSourceDatasetsCard,
@@ -18,7 +13,12 @@ import {
   getMinValidBadge,
   getValidationStatus,
   getWarningStatus,
-} from "../app/views/AtlasStatusView/components/StatusDashboard/utils";
+} from "@/app/views/AtlasStatusView/components/StatusDashboard/utils";
+import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
+import { ThemeProvider } from "@mui/material";
+import "@testing-library/jest-dom";
+import { render, screen } from "@testing-library/react";
+import { JSX, ReactNode } from "react";
 
 // Theme must include the app-only "caution" palette because mergeAppTheme's
 // MuiChip override reads theme.palette.caution when the theme is built.

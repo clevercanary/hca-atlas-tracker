@@ -17,7 +17,7 @@ Object.defineProperty(globalThis, "crypto", {
   },
 });
 
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 process.env.GOOGLE_SERVICE_ACCOUNT =
   '"TEST_GOOGLE_SERVICE_ACCOUNT_CREDENTIALS"';
@@ -33,6 +33,6 @@ process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
 
 // Loaded via setupFilesAfterEnv: hooks are available synchronously.
 afterAll(async () => {
-  const { endPgPool } = await import("../app/services/database");
+  const { endPgPool } = await import("@/app/services/database");
   await endPgPool();
 });

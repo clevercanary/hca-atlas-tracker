@@ -1,6 +1,6 @@
+import { TEST_USERS } from "@/testing/constants";
 import { NextApiRequest } from "next";
 import { Session } from "next-auth";
-import { TEST_USERS } from "../testing/constants";
 
 export async function getServerSession(
   req: NextApiRequest,

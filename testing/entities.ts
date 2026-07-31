@@ -20,7 +20,7 @@ import {
   REPROCESSED_STATUS,
   ROLE,
   Wave,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 
 export interface TestUser {
   authorization: string;

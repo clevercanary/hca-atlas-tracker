@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 
-jest.mock("../app/hooks/useFormManager/useFormManager", () => ({
+jest.mock("@/app/hooks/useFormManager/useFormManager", () => ({
   useFormManager: jest.fn(),
 }));
 
-import { useFormManager } from "../app/hooks/useFormManager/useFormManager";
-import { ActionButton } from "../app/views/EntitiesView/components/ActionButton/actionButton";
+import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
+import { ActionButton } from "@/app/views/EntitiesView/components/ActionButton/actionButton";
 
 const mockUseFormManager = useFormManager as jest.MockedFunction<
   typeof useFormManager

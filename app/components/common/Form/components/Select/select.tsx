@@ -1,8 +1,8 @@
+import { FormControl } from "@/app/components/common/Form/components/FormControl/formControl.styles";
+import { FormHelperText } from "@/app/components/common/Form/components/FormHelperText/formHelperText";
+import { FormLabel } from "@/app/components/common/Form/components/FormLabel/formLabel";
 import { Select as MSelect, SelectProps as MSelectProps } from "@mui/material";
 import { forwardRef, JSX, ReactNode } from "react";
-import { FormControl } from "../FormControl/formControl.styles";
-import { FormHelperText } from "../FormHelperText/formHelperText";
-import { FormLabel } from "../FormLabel/formLabel";
 import { SELECT_PROPS } from "./constants";
 
 export type SelectProps = MSelectProps & {

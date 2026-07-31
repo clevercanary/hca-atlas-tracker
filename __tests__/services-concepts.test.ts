@@ -1,9 +1,9 @@
-import { FILE_TYPE } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getOrCreateConceptId } from "../app/services/concepts";
-import { doTransaction, endPgPool } from "../app/services/database";
-import { resetDatabase } from "../testing/db-utils";
+import { FILE_TYPE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getOrCreateConceptId } from "@/app/services/concepts";
+import { doTransaction, endPgPool } from "@/app/services/database";
+import { resetDatabase } from "@/testing/db-utils";
 
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 beforeAll(async () => {
   await resetDatabase(false);

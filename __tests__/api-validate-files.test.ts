@@ -1,11 +1,8 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { resetDatabase } from "testing/db-utils";
-import { FILE_TYPE } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../app/common/entities";
-import { endPgPool } from "../app/services/database";
-import { validateAllFiles } from "../app/services/files";
-import validateFilesHandler from "../pages/api/validate-files";
+import { FILE_TYPE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool } from "@/app/services/database";
+import { validateAllFiles } from "@/app/services/files";
+import validateFilesHandler from "@/pages/api/validate-files";
 import {
   FILE_A_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
@@ -14,39 +11,42 @@ import {
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
-} from "../testing/constants";
-import { TestFile, TestUser } from "../testing/entities";
+} from "@/testing/constants";
+import { resetDatabase } from "@/testing/db-utils";
+import { TestFile, TestUser } from "@/testing/entities";
 import {
   getAllTestFiles,
   testApiRole,
   withConsoleErrorHiding,
   withConsoleMessageHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/services/validator-batch");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
+jest.mock("@/app/services/validator-batch");
 
 jest.mock("next-auth");
 
 const validateMock = validateAllFiles as jest.Mock;
 
-jest.mock("../app/services/files", () => {
+jest.mock("@/app/services/files", () => {
   const filesServices = jest.requireActual<
-    typeof import("../app/services/files")
-  >("../app/services/files");
+    typeof import("@/app/services/files")
+  >("@/app/services/files");
   return {
     validateAllFiles: jest.fn(filesServices.validateAllFiles),
   };
 });
 
 const mockSubmitJob = jest.requireMock<
-  typeof import("../app/services/__mocks__/validator-batch")
->("../app/services/validator-batch").submitDatasetValidationJob;
+  typeof import("@/app/services/__mocks__/validator-batch")
+>("@/app/services/validator-batch").submitDatasetValidationJob;
 
 beforeAll(async () => {
   await resetDatabase();

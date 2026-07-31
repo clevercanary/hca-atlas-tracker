@@ -1,17 +1,15 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
 import {
   HCAAtlasTrackerDBComponentAtlas,
   HCAAtlasTrackerLocalListSourceDataset,
   HCAAtlasTrackerSourceDataset,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   ComponentAtlasAddSourceDatasetsData,
   ComponentAtlasDeleteSourceDatasetsData,
-} from "../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../app/common/entities";
-import { endPgPool, query } from "../app/services/database";
-import sourceDatasetsHandler from "../pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool, query } from "@/app/services/database";
+import sourceDatasetsHandler from "@/pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
@@ -57,14 +55,14 @@ import {
   USER_INTEGRATION_LEAD_DRAFT,
   USER_INTEGRATION_LEAD_PUBLIC,
   USER_UNREGISTERED,
-} from "../testing/constants";
+} from "@/testing/constants";
 import {
   expectComponentAtlasToHaveSourceDatasets,
   getComponentAtlasSourceDatasets,
   resetDatabase,
   setComponentAtlasDatasets,
-} from "../testing/db-utils";
-import { TestComponentAtlas, TestUser } from "../testing/entities";
+} from "@/testing/db-utils";
+import { TestComponentAtlas, TestUser } from "@/testing/entities";
 import {
   assertExpectDefined,
   expectApiSourceDatasetsToHaveComponentAtlases,
@@ -72,14 +70,16 @@ import {
   getTestEntityDownloadName,
   testApiRole,
   withConsoleErrorHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 

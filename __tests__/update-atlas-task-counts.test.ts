@@ -1,26 +1,26 @@
 import {
   IngestionTaskCounts,
   SYSTEM,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { updateTaskCounts } from "../app/services/atlases";
-import { endPgPool } from "../app/services/database";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { updateTaskCounts } from "@/app/services/atlases";
+import { endPgPool } from "@/app/services/database";
 import {
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
-} from "../testing/constants";
+} from "@/testing/constants";
 import {
   getExistingAtlasFromDatabase,
   resetDatabase,
-} from "../testing/db-utils";
-import { TestAtlas } from "../testing/entities";
+} from "@/testing/db-utils";
+import { TestAtlas } from "@/testing/entities";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/crossref/crossref-api");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/crossref/crossref-api");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 beforeAll(async () => {
   await resetDatabase();

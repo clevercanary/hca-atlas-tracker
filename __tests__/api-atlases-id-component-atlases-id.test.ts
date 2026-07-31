@@ -1,14 +1,12 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
 import {
   FileValidationSummary,
   HCAAtlasTrackerDetailComponentAtlas,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { ComponentAtlasEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../app/common/entities";
-import { FormResponseErrors } from "../app/hooks/useForm/common/entities";
-import { endPgPool } from "../app/services/database";
-import componentAtlasHandler from "../pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { ComponentAtlasEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
+import { FormResponseErrors } from "@/app/hooks/useForm/common/entities";
+import { endPgPool } from "@/app/services/database";
+import componentAtlasHandler from "@/pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
@@ -40,9 +38,9 @@ import {
   USER_INTEGRATION_LEAD_PUBLIC,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_UNREGISTERED,
-} from "../testing/constants";
-import { getConceptFromDatabase, resetDatabase } from "../testing/db-utils";
-import { TestUser } from "../testing/entities";
+} from "@/testing/constants";
+import { getConceptFromDatabase, resetDatabase } from "@/testing/db-utils";
+import { TestUser } from "@/testing/entities";
 import {
   assertExpectDefined,
   delay,
@@ -50,14 +48,16 @@ import {
   getTestEntityDownloadName,
   testApiRole,
   withConsoleErrorHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 

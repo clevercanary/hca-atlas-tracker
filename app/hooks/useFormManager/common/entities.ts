@@ -1,5 +1,5 @@
+import { UseFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { RouteValue } from "@/app/routes/entities";
-import { UseFormManager } from "../useFormManager";
 
 export interface FormAccess {
   canEdit: boolean;

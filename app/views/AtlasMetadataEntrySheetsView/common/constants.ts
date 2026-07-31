@@ -1,8 +1,8 @@
 import { SectionConfig } from "@/app/components/Entity/components/EntityView/components/Section/entities";
+import { Alert } from "@/app/views/AtlasMetadataEntrySheetsView/components/Alert/alert";
+import { Summary } from "@/app/views/AtlasMetadataEntrySheetsView/components/Summary/summary";
+import { Table } from "@/app/views/AtlasMetadataEntrySheetsView/components/Table/table";
 import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
-import { Alert } from "../components/Alert/alert";
-import { Summary } from "../components/Summary/summary";
-import { Table } from "../components/Table/table";
 import { COLUMNS } from "./columns";
 
 export const METADATA_ENTRY_SHEETS_INFO: SectionConfig<typeof Alert> = {

@@ -1,5 +1,4 @@
-import pg from "pg";
-import { METADATA_COVERAGE_REPORT_CLASSES } from "../apis/catalog/hca-atlas-tracker/common/constants";
+import { METADATA_COVERAGE_REPORT_CLASSES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   AtlasMetadataCoverage,
   AtlasMetadataCoverageClass,
@@ -8,12 +7,13 @@ import {
   HCAAtlasTrackerDBAtlasForMetadataCoverage,
   MetadataCoverageReportClass,
   MetadataCoverageReportTier,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getAtlasComponentAtlasMetadataCoverage,
   getAtlasSourceDatasetMetadataCoverage,
-} from "../data/metadata-coverage";
-import { getDataDictionaryClass } from "../utils/data-dictionary";
+} from "@/app/data/metadata-coverage";
+import { getDataDictionaryClass } from "@/app/utils/data-dictionary";
+import pg from "pg";
 
 type FieldCatalog = Record<MetadataCoverageReportClass, Set<string>>;
 

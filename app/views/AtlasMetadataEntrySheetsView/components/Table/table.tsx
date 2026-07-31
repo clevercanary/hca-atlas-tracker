@@ -1,4 +1,5 @@
 import { Table as CommonTable } from "@/app/components/Entity/components/common/Table/table";
+import { StyledFluidPaper } from "@/app/components/Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
 import { CORE_OPTIONS } from "@/app/components/Table/options/core/constants";
 import { SORTING_OPTIONS } from "@/app/components/Table/options/sorting/constants";
@@ -8,7 +9,6 @@ import {
   MetadataEntrySheet,
 } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
 import { useReactTable } from "@tanstack/react-table";
-import { StyledFluidPaper } from "app/components/Table/components/TablePaper/tablePaper.styles";
 import { JSX } from "react";
 import { Props } from "./entities";
 

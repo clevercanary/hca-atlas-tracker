@@ -2,11 +2,11 @@ jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
 }));
 
+import { useAuthedQuery } from "@/app/query/useAuthedQuery";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { createElement, FunctionComponent, PropsWithChildren } from "react";
-import { useAuthedQuery } from "../app/query/useAuthedQuery";
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 

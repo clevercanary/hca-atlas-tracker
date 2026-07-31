@@ -1,7 +1,3 @@
-import { InvalidOperationError } from "@/app/utils/api-errors";
-import { getCrossrefPublicationInfo } from "@/app/utils/crossref/crossref";
-import pg from "pg";
-import { ValidationError } from "yup";
 import {
   ATLAS_STATUS,
   AtlasStatusSummary,
@@ -13,16 +9,16 @@ import {
   HCAAtlasTrackerDBAtlasOverview,
   REPROCESSED_STATUS,
   SYSTEM,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   AtlasEditData,
   NewAtlasData,
-} from "../apis/catalog/hca-atlas-tracker/common/schema";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import {
   getCapIngestStatusFromParameters,
   getPublishedFromPublishedAt,
   isUuid,
-} from "../apis/catalog/hca-atlas-tracker/common/utils";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import {
   atlasIsLatestRevision,
   changeAtlasToPublished,
@@ -35,14 +31,21 @@ import {
   getAtlasNotFoundError,
   getAtlasPublishedAt,
   getAtlasSourceStudyIds,
-} from "../data/atlases";
-import { publishUnpublishedComponentAtlasesOfAtlas } from "../data/component-atlases";
-import { publishUnpublishedSourceDatasetsOfAtlas } from "../data/source-datasets";
-import { addAssociatedEntityToUsersAssociatedWith } from "../data/users";
-import { parseAtlasNameUrlSlug, slugifyAtlasShortName } from "../utils/atlases";
-import { normalizeDoi } from "../utils/doi";
-import { normalizeValidationSummary } from "../utils/files";
-import { getSheetTitleForApi } from "../utils/google-sheets-api";
+} from "@/app/data/atlases";
+import { publishUnpublishedComponentAtlasesOfAtlas } from "@/app/data/component-atlases";
+import { publishUnpublishedSourceDatasetsOfAtlas } from "@/app/data/source-datasets";
+import { addAssociatedEntityToUsersAssociatedWith } from "@/app/data/users";
+import { InvalidOperationError } from "@/app/utils/api-errors";
+import {
+  parseAtlasNameUrlSlug,
+  slugifyAtlasShortName,
+} from "@/app/utils/atlases";
+import { getCrossrefPublicationInfo } from "@/app/utils/crossref/crossref";
+import { normalizeDoi } from "@/app/utils/doi";
+import { normalizeValidationSummary } from "@/app/utils/files";
+import { getSheetTitleForApi } from "@/app/utils/google-sheets-api";
+import pg from "pg";
+import { ValidationError } from "yup";
 import { doTransaction, mapDatabaseError, query } from "./database";
 import { updateSourceStudyValidationsByEntityIds } from "./source-studies";
 

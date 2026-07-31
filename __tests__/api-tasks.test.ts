@@ -1,10 +1,8 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
-import { HCAAtlasTrackerValidationRecord } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../app/common/entities";
-import { endPgPool } from "../app/services/database";
-import tasksHandler from "../pages/api/tasks";
+import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { HCAAtlasTrackerValidationRecord } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool } from "@/app/services/database";
+import tasksHandler from "@/pages/api/tasks";
 import {
   INITIAL_TEST_ATLASES_BY_SOURCE_STUDY,
   INITIAL_TEST_SOURCE_STUDIES,
@@ -17,17 +15,19 @@ import {
   USER_DISABLED_CONTENT_ADMIN,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
-} from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
-import { TestSourceStudy, TestUser } from "../testing/entities";
-import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
+} from "@/testing/constants";
+import { resetDatabase } from "@/testing/db-utils";
+import { TestSourceStudy, TestUser } from "@/testing/entities";
+import { testApiRole, withConsoleErrorHiding } from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
 
 jest.mock("next-auth");
 

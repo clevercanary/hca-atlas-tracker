@@ -4,14 +4,14 @@ import { renderHook } from "@testing-library/react";
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
 }));
-jest.mock("../app/hooks/UseFetchActiveUser/query/useQuery", () => ({
+jest.mock("@/app/hooks/UseFetchActiveUser/query/useQuery", () => ({
   useQuery: jest.fn(),
 }));
 
+import { HCAAtlasTrackerActiveUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { useFetchActiveUser } from "@/app/hooks/UseFetchActiveUser/hook";
+import { useQuery } from "@/app/hooks/UseFetchActiveUser/query/useQuery";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
-import { HCAAtlasTrackerActiveUser } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { useFetchActiveUser } from "../app/hooks/UseFetchActiveUser/hook";
-import { useQuery } from "../app/hooks/UseFetchActiveUser/query/useQuery";
 
 const AUTH_STATUS_PENDING = "PENDING" as const;
 const AUTH_STATUS_SETTLED = "SETTLED" as const;

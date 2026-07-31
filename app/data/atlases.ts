@@ -1,11 +1,11 @@
-import pg from "pg";
 import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasForStatusSummary,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { query } from "../services/database";
-import { InvalidOperationError, NotFoundError } from "../utils/api-errors";
-import { AtlasSlugNameAndVersion } from "../utils/atlases";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { query } from "@/app/services/database";
+import { InvalidOperationError, NotFoundError } from "@/app/utils/api-errors";
+import { AtlasSlugNameAndVersion } from "@/app/utils/atlases";
+import pg from "pg";
 
 export const CONSTRAINT_ATLAS_SLUG_VERSION_UNIQUE =
   "atlases_slug_version_unique";

@@ -1,5 +1,4 @@
 import { METHOD } from "@/app/common/entities";
-import { queryFn } from "@/app/query/queryFn";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import {
   DefaultError,
@@ -7,6 +6,7 @@ import {
   UseQueryResult,
   useQuery as useReactQuery,
 } from "@tanstack/react-query";
+import { queryFn } from "./queryFn";
 
 export interface AuthedQueryOptions<TData, TView, TQueryKey extends QueryKey> {
   enabled?: boolean;

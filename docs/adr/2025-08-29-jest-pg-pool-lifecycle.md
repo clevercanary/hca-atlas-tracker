@@ -55,7 +55,7 @@ Adopt a lazy singleton `pg.Pool` in application code and standardize Jest setup/
 
 - `testing/setup.ts`
   - Registered via Jest `setupFilesAfterEnv`.
-  - `afterAll(async () => { const { endPgPool } = await import("../app/services/database"); await endPgPool(); });`
+  - `afterAll(async () => { const { endPgPool } = await import("@/app/services/database"); await endPgPool(); });`
   - Ensures the pool is closed exactly once after the entire test run.
 
 - `testing/db-utils.ts`

@@ -1,4 +1,4 @@
-import { UnauthorizedAWSResourceError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
+import { UnauthorizedAWSResourceError } from "@/app/apis/catalog/hca-atlas-tracker/aws/errors";
 
 interface AWSResourceConfig {
   s3_buckets: string[];

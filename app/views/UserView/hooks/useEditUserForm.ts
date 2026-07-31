@@ -7,9 +7,9 @@ import { PathParameter } from "@/app/common/entities";
 import { useFetchUser } from "@/app/hooks/UseFetchUser/hook";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { useForm } from "@/app/hooks/useForm/useForm";
-import { FIELD_NAME } from "../common/constants";
-import { UserEditData } from "../common/entities";
-import { userEditSchema } from "../common/schema";
+import { FIELD_NAME } from "@/app/views/UserView/common/constants";
+import { UserEditData } from "@/app/views/UserView/common/entities";
+import { userEditSchema } from "@/app/views/UserView/common/schema";
 
 const SCHEMA = userEditSchema;
 

@@ -1,5 +1,5 @@
+import type { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import type { DefaultSession } from "next-auth";
-import type { ROLE } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
 
 // Augment NextAuth's Session/JWT with the user's role so middleware and SSR
 // can read it from the JWT without a DB call. Populated by the `jwt`/`session`

@@ -5,14 +5,14 @@ import { JSX, ReactNode } from "react";
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
 }));
-jest.mock("../app/hooks/UseFetchActiveUser/hook", () => ({
+jest.mock("@/app/hooks/UseFetchActiveUser/hook", () => ({
   useFetchActiveUser: jest.fn(),
 }));
 
+import { HCAAtlasTrackerActiveUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { useFetchActiveUser } from "@/app/hooks/UseFetchActiveUser/hook";
+import { AuthorizationProvider } from "@/app/providers/authorization";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
-import { HCAAtlasTrackerActiveUser } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { useFetchActiveUser } from "../app/hooks/UseFetchActiveUser/hook";
-import { AuthorizationProvider } from "../app/providers/authorization";
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockUseFetchActiveUser = useFetchActiveUser as jest.MockedFunction<

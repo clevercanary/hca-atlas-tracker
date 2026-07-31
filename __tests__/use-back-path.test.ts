@@ -4,8 +4,8 @@ jest.mock("next/router", () => ({
   useRouter: jest.fn(),
 }));
 
+import { useBackPath } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { useRouter } from "next/router";
-import { useBackPath } from "../app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
 

@@ -1,4 +1,4 @@
-import { ArchivedActionKind } from "../entities";
+import { ArchivedActionKind } from "@/app/components/Entity/providers/archived/actions/entities";
 
 export type UpdateArchivedAction = {
   payload: UpdateArchivedPayload;

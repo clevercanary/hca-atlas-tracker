@@ -3,8 +3,8 @@ import { PathParameter } from "@/app/common/entities";
 import { getRequestURL } from "@/app/common/utils";
 import { useDeleteData } from "@/app/hooks/useDeleteData";
 import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/constants";
+import { IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
 import { useQueryClient } from "@tanstack/react-query";
-import { IntegratedObjectSourceDataset } from "../entities";
 import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "./UseFetchIntegratedObjectSourceDatasets/query/constants";
 
 export interface UseEditIntegratedObjectSourceDatasets {

@@ -1,16 +1,12 @@
-import { NewCommentThreadData } from "app/apis/catalog/hca-atlas-tracker/common/schema";
-import { dequal } from "dequal";
-import DOMPurify from "isomorphic-dompurify";
-import pg from "pg";
 import {
   getDbEntityCitation,
   getDbSourceStudyTierOneMetadataStatus,
-} from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import {
   ALLOWED_TASK_STATUSES_BY_VALIDATION_STATUS,
   DEFAULT_TASK_STATUS_BY_VALIDATION_STATUS,
   VALIDATION_STATUS_BY_TASK_STATUS,
-} from "../apis/catalog/hca-atlas-tracker/common/constants";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ENTITY_TYPE,
   HCAAtlasTrackerDBAtlas,
@@ -34,9 +30,13 @@ import {
   VALIDATION_VARIABLE,
   ValidationDBEntityOfType,
   ValidationDifference,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { ForbiddenError, NotFoundError } from "../utils/api-errors";
-import { ProjectInfo } from "../utils/hca-projects";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { NewCommentThreadData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { ForbiddenError, NotFoundError } from "@/app/utils/api-errors";
+import { ProjectInfo } from "@/app/utils/hca-projects";
+import { dequal } from "dequal";
+import DOMPurify from "isomorphic-dompurify";
+import pg from "pg";
 import { updateTaskCounts } from "./atlases";
 import { createCommentThread, deleteCommentThread } from "./comments";
 import { doTransaction, getPoolClient, query } from "./database";

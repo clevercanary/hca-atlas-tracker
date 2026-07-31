@@ -1,5 +1,5 @@
-import { endPgPool } from "../app/services/database";
-import { updateSourceStudyExternalIds } from "../app/services/source-studies";
+import { endPgPool } from "@/app/services/database";
+import { updateSourceStudyExternalIds } from "@/app/services/source-studies";
 import {
   CELLXGENE_ID_PUBLISHED_WITH_CHANGING_IDS,
   CELLXGENE_ID_PUBLISHED_WITH_NEW_CELLXGENE_ID,
@@ -19,18 +19,18 @@ import {
   SOURCE_STUDY_PUBLISHED_WITH_UPDATED_CELLXGENE_ID,
   SOURCE_STUDY_PUBLISHED_WITH_UPDATED_HCA_ID,
   SOURCE_STUDY_UNPUBLISHED_WITH_HCA,
-} from "../testing/constants";
+} from "@/testing/constants";
 import {
   getExistingSourceStudyFromDatabase,
   resetDatabase,
-} from "../testing/db-utils";
+} from "@/testing/db-utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 beforeAll(async () => {
   await resetDatabase();

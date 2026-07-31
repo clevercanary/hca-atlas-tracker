@@ -1,9 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { METHOD } from "../app/common/entities";
-import { endPgPool } from "../app/services/database";
-import { startUpdateForEntrySheetValidation } from "../app/services/entry-sheets";
-import syncHandler from "../pages/api/atlases/[atlasId]/entry-sheet-validations/[entrySheetValidationId]/sync";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool } from "@/app/services/database";
+import { startUpdateForEntrySheetValidation } from "@/app/services/entry-sheets";
+import syncHandler from "@/pages/api/atlases/[atlasId]/entry-sheet-validations/[entrySheetValidationId]/sync";
 import {
   ATLAS_NONEXISTENT,
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_A,
@@ -15,36 +13,38 @@ import {
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
-} from "../testing/constants";
+} from "@/testing/constants";
 import {
   deleteEntrySheetValidationFromDatabase,
   getEntrySheetValidationFromDatabase,
   initEntrySheetValidation,
   resetDatabase,
-} from "../testing/db-utils";
-import { TestUser } from "../testing/entities";
+} from "@/testing/db-utils";
+import { TestUser } from "@/testing/entities";
 import {
   expectIsDefined,
   testApiRole,
   withConsoleErrorHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/utils/hca-validation-tools/hca-validation-tools-api");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/hca-validation-tools/hca-validation-tools-api");
 
 jest.mock("next-auth");
 
 const updateMock = startUpdateForEntrySheetValidation as jest.Mock;
 
-jest.mock("../app/services/entry-sheets", () => {
+jest.mock("@/app/services/entry-sheets", () => {
   const hcaValidationTools = jest.requireActual<
-    typeof import("../app/services/entry-sheets")
-  >("../app/services/entry-sheets");
+    typeof import("@/app/services/entry-sheets")
+  >("@/app/services/entry-sheets");
   return {
     startUpdateForEntrySheetValidation: jest.fn(
       hcaValidationTools.startUpdateForEntrySheetValidation,

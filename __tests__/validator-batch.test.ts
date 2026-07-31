@@ -1,18 +1,18 @@
+import { resetConfigCache } from "@/app/config/aws-resources";
+import { submitDatasetValidationJob } from "@/app/services/validator-batch";
+import {
+  TEST_S3_BUCKET,
+  TEST_VALIDATION_RESULTS_BUCKET,
+} from "@/testing/constants";
 import {
   BatchClient,
   SubmitJobCommand,
   SubmitJobCommandInput,
 } from "@aws-sdk/client-batch";
-import { resetConfigCache } from "app/config/aws-resources";
-import { submitDatasetValidationJob } from "app/services/validator-batch";
 import { mockClient } from "aws-sdk-client-mock";
-import {
-  TEST_S3_BUCKET,
-  TEST_VALIDATION_RESULTS_BUCKET,
-} from "testing/constants";
 
 // Project-wide mocks for DB connection etc.
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 const batchMock = mockClient(BatchClient);
 

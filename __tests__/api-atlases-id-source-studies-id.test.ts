@@ -1,21 +1,19 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
 import {
   DOI_STATUS,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerSourceStudy,
   VALIDATION_ID,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   SourceStudyEditData,
   UnpublishedSourceStudyEditData,
-} from "../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../app/common/entities";
-import { endPgPool, query } from "../app/services/database";
-import { startEntrySheetValidationsUpdate } from "../app/services/entry-sheets";
-import { getSpreadsheetIdFromUrl } from "../app/utils/google-sheets";
-import studyHandler from "../pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool, query } from "@/app/services/database";
+import { startEntrySheetValidationsUpdate } from "@/app/services/entry-sheets";
+import { getSpreadsheetIdFromUrl } from "@/app/utils/google-sheets";
+import studyHandler from "@/pages/api/atlases/[atlasId]/source-studies/[sourceStudyId]";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLIC,
@@ -70,7 +68,7 @@ import {
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
-} from "../testing/constants";
+} from "@/testing/constants";
 import {
   expectApiSourceStudyToHaveMatchingDbValidations,
   expectSourceDatasetsToHaveSourceStudy,
@@ -87,31 +85,33 @@ import {
   getStudySourceDatasets,
   getValidationsByEntityId,
   resetDatabase,
-} from "../testing/db-utils";
-import { TestSourceStudy, TestUser } from "../testing/entities";
+} from "@/testing/db-utils";
+import { TestSourceStudy, TestUser } from "@/testing/entities";
 import {
   expectApiValidationsToMatchDb,
   expectSourceStudyToMatch,
   makeTestSourceStudyOverview,
   testApiRole,
   withConsoleErrorHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/utils/crossref/crossref-api");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/crossref/crossref-api");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
 
 jest.mock("next-auth");
 
 const entrySheetsUpdateMock = startEntrySheetValidationsUpdate as jest.Mock;
-let actualEntrySheetsModule: typeof import("../app/services/entry-sheets");
+let actualEntrySheetsModule: typeof import("@/app/services/entry-sheets");
 
-jest.mock("../app/services/entry-sheets", () => {
-  const unchangedItems: Partial<typeof import("../app/services/entry-sheets")> =
+jest.mock("@/app/services/entry-sheets", () => {
+  const unchangedItems: Partial<typeof import("@/app/services/entry-sheets")> =
     {
       deleteEntrySheetValidationsBySpreadsheet(...args) {
         return actualEntrySheetsModule.deleteEntrySheetValidationsBySpreadsheet(
@@ -202,8 +202,8 @@ const SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE_EDIT: SourceStudyEditData = {
 
 beforeAll(async () => {
   actualEntrySheetsModule = jest.requireActual<
-    typeof import("../app/services/entry-sheets")
-  >("../app/services/entry-sheets");
+    typeof import("@/app/services/entry-sheets")
+  >("@/app/services/entry-sheets");
 
   await resetDatabase();
 });

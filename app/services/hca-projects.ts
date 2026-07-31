@@ -1,6 +1,6 @@
+import { getAllProjects, getLatestCatalog } from "@/app/utils/hca-api";
+import { getProjectsInfo, ProjectInfo } from "@/app/utils/hca-projects";
 import { Options as KyOptions } from "ky";
-import { getAllProjects, getLatestCatalog } from "../utils/hca-api";
-import { getProjectsInfo, ProjectInfo } from "../utils/hca-projects";
 import {
   makeRefreshService,
   RefreshDataResult,

@@ -1,7 +1,7 @@
+import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { nextAuthOptions } from "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config";
 import { GetServerSidePropsContext, Redirect } from "next";
 import { getServerSession } from "next-auth";
-import { ROLE } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { ROUTE } from "./constants";
 
 /**

@@ -5,6 +5,7 @@ import {
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { FILE_VALIDATOR_DESCRIPTIONS } from "@/app/apis/catalog/hca-atlas-tracker/common/validatorDescriptions";
 import { getRouteURL } from "@/app/common/utils";
+import { ValidationStatusChipCell } from "@/app/components/Table/components/TableCell/components/ValidationStatusCell/components/ValidationStatusChipCell/validationStatusChipCell";
 import {
   ANCHOR_TARGET,
   REL_ATTRIBUTE,
@@ -13,7 +14,6 @@ import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chi
 import { Stack, Tooltip } from "@mui/material";
 import Link from "next/link";
 import { JSX, ReactNode } from "react";
-import { ValidationStatusChipCell } from "../ValidationStatusChipCell/validationStatusChipCell";
 import { ValidatorIcon } from "./components/ValidatorIcon/validatorIcon";
 import { INNER_STACK_PROPS, STACK_PROPS } from "./constants";
 import { Props } from "./entities";

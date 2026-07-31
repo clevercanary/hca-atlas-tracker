@@ -2,10 +2,10 @@
 
 declare var hcaAtlasTrackerProjectsInfoCache:
   | undefined
-  | import("../app/services/hca-projects").ProjectsInfo;
+  | import("@/app/services/hca-projects").ProjectsInfo;
 
 declare var hcaAtlasTrackerCellxGeneInfoCache:
   | undefined
-  | import("../app/services/cellxgene").CellxGeneInfo;
+  | import("@/app/services/cellxgene").CellxGeneInfo;
 
 /* eslint-enable no-var -- Paired enable for above disable */

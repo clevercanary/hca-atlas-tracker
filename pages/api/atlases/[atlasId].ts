@@ -1,5 +1,7 @@
+import { dbAtlasToApiAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE_GROUP } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { atlasEditSchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "@/app/common/entities";
 import { getAtlas, updateAtlas } from "@/app/services/atlases";
 import {
@@ -9,8 +11,6 @@ import {
   resolveAtlasId,
   role,
 } from "@/app/utils/api-handler";
-import { dbAtlasToApiAtlas } from "app/apis/catalog/hca-atlas-tracker/common/backend-utils";
-import { atlasEditSchema } from "app/apis/catalog/hca-atlas-tracker/common/schema";
 import { NextApiRequest, NextApiResponse } from "next";
 
 /**

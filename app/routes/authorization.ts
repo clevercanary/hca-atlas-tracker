@@ -1,4 +1,4 @@
-import { ROLE } from "../apis/catalog/hca-atlas-tracker/common/entities";
+import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { ROUTE } from "./constants";
 import { PUBLIC_PATHS } from "./publicPaths";
 

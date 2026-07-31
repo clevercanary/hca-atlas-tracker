@@ -1,7 +1,7 @@
 import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
+import { validateAllFiles } from "@/app/services/files";
 import { handler, method, role } from "@/app/utils/api-handler";
-import { validateAllFiles } from "app/services/files";
 
 export default handler(
   method(METHOD.POST),

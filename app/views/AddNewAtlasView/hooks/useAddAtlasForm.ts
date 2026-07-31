@@ -2,8 +2,8 @@ import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/commo
 import { NewAtlasData as APINewAtlasData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { useForm } from "@/app/hooks/useForm/useForm";
-import { NewAtlasData } from "../common/entities";
-import { newAtlasSchema } from "../common/schema";
+import { NewAtlasData } from "@/app/views/AddNewAtlasView/common/entities";
+import { newAtlasSchema } from "@/app/views/AddNewAtlasView/common/schema";
 
 const SCHEMA = newAtlasSchema;
 

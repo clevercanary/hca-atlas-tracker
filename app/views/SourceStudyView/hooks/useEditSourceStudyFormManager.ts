@@ -7,18 +7,18 @@ import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { ROUTE } from "@/app/routes/constants";
 import { PUBLICATION_STATUS } from "@/app/views/AddNewSourceStudyView/common/entities";
-import { useQueryClient } from "@tanstack/react-query";
-import Router from "next/router";
-import { useCallback } from "react";
 import {
   FIELD_NAME,
   NO_DOI_FIELDS,
   PUBLISHED_PREPRINT_FIELDS,
-} from "../common/constants";
+} from "@/app/views/SourceStudyView/common/constants";
 import {
   SourceStudyEditData,
   SourceStudyEditDataKeys,
-} from "../common/entities";
+} from "@/app/views/SourceStudyView/common/entities";
+import { useQueryClient } from "@tanstack/react-query";
+import Router from "next/router";
+import { useCallback } from "react";
 import { SOURCE_STUDY } from "./UseFetchSourceStudy/query/constants";
 
 export const useEditSourceStudyFormManager = (

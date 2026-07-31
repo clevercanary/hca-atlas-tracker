@@ -1,4 +1,3 @@
-import pg from "pg";
 import {
   HCAAtlasTrackerDBSourceDataset,
   HCAAtlasTrackerDBSourceDatasetForAPI,
@@ -6,13 +5,13 @@ import {
   HCAAtlasTrackerDBSourceDatasetForListAPI,
   HCAAtlasTrackerDBSourceDatasetInfo,
   PUBLICATION_STATUS,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   AtlasSourceDatasetEditData,
   SourceDatasetsSetPublicationStatusData,
   SourceDatasetsSetReprocessedStatusData,
   SourceDatasetsSetSourceStudyData,
-} from "../apis/catalog/hca-atlas-tracker/common/schema";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import {
   confirmSourceDatasetsAreEditable,
   getAtlasSourceDatasetVersionIds,
@@ -24,9 +23,10 @@ import {
   getSourceStudySourceDatasetVersionIds,
   setSourceDatasetsPublicationStatus,
   setSourceDatasetsSourceStudy,
-} from "../data/source-datasets";
-import { NotFoundError } from "../utils/api-errors";
-import { getSheetTitleForApi } from "../utils/google-sheets-api";
+} from "@/app/data/source-datasets";
+import { NotFoundError } from "@/app/utils/api-errors";
+import { getSheetTitleForApi } from "@/app/utils/google-sheets-api";
+import pg from "pg";
 import { getComponentAtlasVersionForAtlas } from "./component-atlases";
 import { updateDownloadNameIfChanged } from "./concepts";
 import { doTransaction, query } from "./database";

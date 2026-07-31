@@ -1,6 +1,3 @@
-import { confirmQueryRowsContainIds } from "app/utils/database";
-import pg from "pg";
-import { ValidationError } from "yup";
 import {
   ATLAS_STATUS,
   DOI_STATUS,
@@ -15,7 +12,7 @@ import {
   HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
   HCAAtlasTrackerDBSourceStudyWithSourceDatasets,
   HCAAtlasTrackerDBValidation,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   NewPublishedSourceStudyData,
   NewSourceStudyData,
@@ -23,24 +20,27 @@ import {
   PublishedSourceStudyEditData,
   SourceStudyEditData,
   UnpublishedSourceStudyEditData,
-} from "../apis/catalog/hca-atlas-tracker/common/schema";
-import { getPublicationDois } from "../apis/catalog/hca-atlas-tracker/common/utils";
-import { replaceSourceStudyInAtlases } from "../data/atlases";
-import { replaceEntrySheetValidationsSourceStudy } from "../data/entry-sheets";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { getPublicationDois } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import { replaceSourceStudyInAtlases } from "@/app/data/atlases";
+import { replaceEntrySheetValidationsSourceStudy } from "@/app/data/entry-sheets";
 import {
   getAtlasSourceDatasetVersionIds,
   replaceSourceDatasetsSourceStudy,
   unlinkAllSourceDatasetsFromSourceStudy,
-} from "../data/source-datasets";
+} from "@/app/data/source-datasets";
 import {
   getInitialJoinSourceStudiesForGlobalApi,
   setSourceStudyMetadataSpreadsheets,
-} from "../data/source-studies";
-import { AccessError, NotFoundError } from "../utils/api-errors";
-import { getCrossrefPublicationInfo } from "../utils/crossref/crossref";
-import { normalizeDoi } from "../utils/doi";
-import { getSpreadsheetIdFromUrl } from "../utils/google-sheets";
-import { getSheetTitleForApi } from "../utils/google-sheets-api";
+} from "@/app/data/source-studies";
+import { AccessError, NotFoundError } from "@/app/utils/api-errors";
+import { getCrossrefPublicationInfo } from "@/app/utils/crossref/crossref";
+import { confirmQueryRowsContainIds } from "@/app/utils/database";
+import { normalizeDoi } from "@/app/utils/doi";
+import { getSpreadsheetIdFromUrl } from "@/app/utils/google-sheets";
+import { getSheetTitleForApi } from "@/app/utils/google-sheets-api";
+import pg from "pg";
+import { ValidationError } from "yup";
 import { getBaseModelAtlas } from "./atlases";
 import { getCellxGeneIdByDoi } from "./cellxgene";
 import {

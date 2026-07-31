@@ -1,5 +1,5 @@
+import { getPoolConfig } from "@/app/utils/pg-app-connect-config";
 import pg from "pg";
-import { getPoolConfig } from "../utils/pg-app-connect-config";
 
 const { Pool } = pg;
 

@@ -1,6 +1,6 @@
 import { METHOD } from "@/app/common/entities";
+import { startAtlasEntrySheetValidationsUpdate } from "@/app/services/entry-sheets";
 import { handler, method, registeredUser } from "@/app/utils/api-handler";
-import { startAtlasEntrySheetValidationsUpdate } from "app/services/entry-sheets";
 
 /**
  * API route for triggering validation of an atlas's entry sheets.

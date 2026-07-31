@@ -1,8 +1,6 @@
-import { METHOD } from "app/common/entities";
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { endPgPool } from "../app/services/database";
-import cellxgeneIdsHandler from "../pages/api/source-study-cellxgene-ids";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool } from "@/app/services/database";
+import cellxgeneIdsHandler from "@/pages/api/source-study-cellxgene-ids";
 import {
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,
   TEST_SOURCE_STUDIES,
@@ -12,17 +10,19 @@ import {
   USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
-} from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
-import { TestUser } from "../testing/entities";
-import { withConsoleErrorHiding } from "../testing/utils";
+} from "@/testing/constants";
+import { resetDatabase } from "@/testing/db-utils";
+import { TestUser } from "@/testing/entities";
+import { withConsoleErrorHiding } from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 

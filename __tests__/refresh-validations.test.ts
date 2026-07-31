@@ -1,29 +1,29 @@
-import { refreshValidations } from "app/services/validations";
 import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBAtlasOverview,
   HCAAtlasTrackerDBValidation,
   VALIDATION_ID,
   VALIDATION_STATUS,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { endPgPool, query } from "../app/services/database";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { endPgPool, query } from "@/app/services/database";
+import { refreshValidations } from "@/app/services/validations";
 import {
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
   SOURCE_STUDY_PUBLISHED_WITH_HCA,
   SOURCE_STUDY_PUBLISHED_WITH_HCA_TITLE_MISMATCH,
   SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
-} from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
-import { TestAtlas, TestSourceStudy } from "../testing/entities";
+} from "@/testing/constants";
+import { resetDatabase } from "@/testing/db-utils";
+import { TestAtlas, TestSourceStudy } from "@/testing/entities";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/crossref/crossref-api");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/crossref/crossref-api");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 beforeAll(async () => {
   await resetDatabase();

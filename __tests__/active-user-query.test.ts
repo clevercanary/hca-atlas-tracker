@@ -1,8 +1,8 @@
+import { ACTIVE_USER } from "@/app/hooks/UseFetchActiveUser/query/constants";
+import { useQuery } from "@/app/hooks/UseFetchActiveUser/query/useQuery";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { createElement, FunctionComponent, PropsWithChildren } from "react";
-import { ACTIVE_USER } from "../app/hooks/UseFetchActiveUser/query/constants";
-import { useQuery } from "../app/hooks/UseFetchActiveUser/query/useQuery";
 
 /**
  * Wraps a rendered hook in a QueryClientProvider with retries disabled.

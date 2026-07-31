@@ -1,7 +1,7 @@
-import { PathParameter } from "../common/entities";
-import { getRouteURL } from "../common/utils";
-import { useBackPath } from "../components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
-import { ROUTE } from "../routes/constants";
+import { PathParameter } from "@/app/common/entities";
+import { getRouteURL } from "@/app/common/utils";
+import { useBackPath } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
+import { ROUTE } from "@/app/routes/constants";
 
 /**
  * Returns the back-arrow path for an atlas detail tab. Honors an explicit

@@ -1,4 +1,4 @@
-import { getFileBaseName, insertVersionInFilename } from "../app/utils/files";
+import { getFileBaseName, insertVersionInFilename } from "@/app/utils/files";
 
 describe("getFileBaseName", () => {
   it.each([

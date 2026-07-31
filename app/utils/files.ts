@@ -1,17 +1,17 @@
-import { FILE_VALIDATOR_NAMES } from "../apis/catalog/hca-atlas-tracker/common/constants";
+import { FILE_VALIDATOR_NAMES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   DBFileValidationSummary,
   FILE_TYPE,
   FileValidationSummary,
   NetworkKey,
   ValidatorSummaryStatus,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { isNetworkKey } from "../apis/catalog/hca-atlas-tracker/common/utils";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { isNetworkKey } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import {
   AtlasSlugNameAndVersion,
   AtlasVersionNumbers,
   parseS3AtlasVersion,
-} from "../utils/atlases";
+} from "./atlases";
 
 // Parsed S3 key path components
 interface S3KeyPathComponents {

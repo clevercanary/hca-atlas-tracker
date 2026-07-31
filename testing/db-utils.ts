@@ -1,7 +1,3 @@
-import { updateSourceStudyValidationsByEntityId } from "app/services/source-studies";
-import migrate from "node-pg-migrate";
-import { MigrationDirection } from "node-pg-migrate/dist/types";
-import pg from "pg";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
@@ -19,18 +15,22 @@ import {
   HCAAtlasTrackerDBValidation,
   HCAAtlasTrackerSourceStudy,
   INTEGRITY_STATUS,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { updateTaskCounts } from "../app/services/atlases";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { updateTaskCounts } from "@/app/services/atlases";
 import {
   doTransaction,
   endPgPool,
   getPoolClient,
   query,
-} from "../app/services/database";
+} from "@/app/services/database";
+import { updateSourceStudyValidationsByEntityId } from "@/app/services/source-studies";
 import {
   getFileBaseName,
   parseNormalizedInfoFromS3Key,
-} from "../app/utils/files";
+} from "@/app/utils/files";
+import migrate from "node-pg-migrate";
+import { MigrationDirection } from "node-pg-migrate/dist/types";
+import pg from "pg";
 import {
   INITIAL_EXPLICIT_TEST_CONCEPTS,
   INITIAL_STANDALONE_TEST_FILES,

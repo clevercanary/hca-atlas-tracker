@@ -1,6 +1,6 @@
 import { METHOD } from "@/app/common/entities";
+import { getCellxGeneSourceStudies } from "@/app/services/source-studies";
 import { handler, method } from "@/app/utils/api-handler";
-import { getCellxGeneSourceStudies } from "app/services/source-studies";
 
 export default handler(method(METHOD.GET), async (req, res) => {
   const cellxgeneIds = (await getCellxGeneSourceStudies()).map(

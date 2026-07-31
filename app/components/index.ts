@@ -1,3 +1,5 @@
+export { AddAtlas } from "@/app/views/EntitiesView/components/AddAtlas/addAtlas";
+export { AddUser } from "@/app/views/EntitiesView/components/AddUser/addUser";
 export { Alert } from "@databiosphere/findable-ui/lib/components/common/Alert/alert";
 export { SessionTimeout } from "@databiosphere/findable-ui/lib/components/common/Banner/components/SessionTimeout/sessionTimeout";
 export { GitHubIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/GitHubIcon/gitHubIcon";
@@ -21,8 +23,6 @@ export { LinkCell } from "@databiosphere/findable-ui/lib/components/Table/compon
 export { NTagCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/NTagCell/nTagCell";
 export { RowDrawer } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowPreview/components/RowDrawer/rowDrawer";
 export { AlertTitle } from "@mui/material";
-export { AddAtlas } from "../views/EntitiesView/components/AddAtlas/addAtlas";
-export { AddUser } from "../views/EntitiesView/components/AddUser/addUser";
 export { IconButton } from "./common/IconButton/iconButton";
 export { FileDownloadCell } from "./Entity/components/common/Table/components/TableCell/components/FileDownloadCell/fileDownloadCell";
 export { LinksCell } from "./Index/components/LinksCell/linksCell";

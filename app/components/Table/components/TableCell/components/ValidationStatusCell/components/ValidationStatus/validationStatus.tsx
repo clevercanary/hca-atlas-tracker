@@ -1,5 +1,5 @@
+import { ValidationStatusChipCell } from "@/app/components/Table/components/TableCell/components/ValidationStatusCell/components/ValidationStatusChipCell/validationStatusChipCell";
 import { JSX } from "react";
-import { ValidationStatusChipCell } from "../ValidationStatusChipCell/validationStatusChipCell";
 import { Props } from "./entities";
 import { buildValidationStatus } from "./utils";
 

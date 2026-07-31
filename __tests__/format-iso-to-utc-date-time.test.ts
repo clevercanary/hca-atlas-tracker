@@ -1,4 +1,4 @@
-import { formatISOToUTCDateTime } from "../app/utils/date-fns";
+import { formatISOToUTCDateTime } from "@/app/utils/date-fns";
 
 describe("formatISOToUTCDateTime", () => {
   it("formats a valid ISO string into date and time parts", () => {

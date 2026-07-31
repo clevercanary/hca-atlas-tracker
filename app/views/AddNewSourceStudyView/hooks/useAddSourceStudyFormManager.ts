@@ -6,18 +6,18 @@ import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { ROUTE } from "@/app/routes/constants";
-import Router from "next/router";
-import { useCallback } from "react";
 import {
   FIELD_NAME,
   NO_DOI_FIELDS,
   PUBLISHED_PREPRINT_FIELDS,
-} from "../common/constants";
+} from "@/app/views/AddNewSourceStudyView/common/constants";
 import {
   NewSourceStudyData,
   NewSourceStudyDataKeys,
   PUBLICATION_STATUS,
-} from "../common/entities";
+} from "@/app/views/AddNewSourceStudyView/common/entities";
+import Router from "next/router";
+import { useCallback } from "react";
 
 export const useAddSourceStudyFormManager = (
   pathParameter: PathParameter,

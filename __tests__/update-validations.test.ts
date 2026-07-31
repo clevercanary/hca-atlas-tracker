@@ -1,4 +1,3 @@
-import { updateValidations } from "app/services/validations";
 import {
   ENTITY_TYPE,
   HCAAtlasTrackerDBComment,
@@ -9,22 +8,23 @@ import {
   VALIDATION_STATUS,
   VALIDATION_TYPE,
   VALIDATION_VARIABLE,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { endPgPool, getPoolClient, query } from "../app/services/database";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { endPgPool, getPoolClient, query } from "@/app/services/database";
+import { updateValidations } from "@/app/services/validations";
 import {
   THREAD_ID_BY_CONTENT_ADMIN,
   THREAD_ID_BY_STAKEHOLDER2,
-} from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
-import { delay } from "../testing/utils";
+} from "@/testing/constants";
+import { resetDatabase } from "@/testing/db-utils";
+import { delay } from "@/testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/utils/crossref/crossref-api");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/crossref/crossref-api");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
 
 const ENTITY_TYPE_TEST = "ENTITY_TYPE_TEST" as ENTITY_TYPE;
 

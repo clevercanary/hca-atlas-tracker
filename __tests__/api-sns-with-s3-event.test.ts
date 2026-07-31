@@ -26,15 +26,13 @@ import {
   TEST_TIMESTAMP_PLUS_1H,
   TEST_VERSION_IDS,
   validateTestSnsMessage,
-} from "../testing/sns-testing";
+} from "@/testing/sns-testing";
 
 // Set up AWS resource configuration BEFORE any other imports
 setUpAwsConfig();
 
 // Imports
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { SNSMessage } from "../app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import { SNSMessage } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
@@ -45,11 +43,11 @@ import {
   HCAAtlasTrackerDBSourceDatasetInfo,
   INTEGRITY_STATUS,
   PUBLICATION_STATUS,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../app/common/entities";
-import { resetConfigCache } from "../app/config/aws-resources";
-import { endPgPool, query } from "../app/services/database";
-import { parseNormalizedInfoFromS3Key } from "../app/utils/files";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { resetConfigCache } from "@/app/config/aws-resources";
+import { endPgPool, query } from "@/app/services/database";
+import { parseNormalizedInfoFromS3Key } from "@/app/utils/files";
 import {
   expectSourceDatasetFileToBeConsistentWith,
   getAtlasFromDatabase,
@@ -60,21 +58,23 @@ import {
   getFileComponentAtlas,
   getFileSourceDataset,
   resetDatabase,
-} from "../testing/db-utils";
+} from "@/testing/db-utils";
 import {
   assertExpectDefined,
   expectIsDefined,
   withConsoleMessageHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/crossref/crossref-api");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/services/validator-batch");
+jest.mock("@/app/utils/crossref/crossref-api");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
+jest.mock("@/app/services/validator-batch");
 
 jest.mock("next-auth");
 
@@ -91,12 +91,12 @@ jest.mock("sns-validator", () => {
 });
 
 const mockSubmitJob = jest.requireMock<
-  typeof import("../app/services/__mocks__/validator-batch")
->("../app/services/validator-batch").submitDatasetValidationJob;
+  typeof import("@/app/services/__mocks__/validator-batch")
+>("@/app/services/validator-batch").submitDatasetValidationJob;
 
 const TEST_ROUTE = "/api/sns";
 
-import snsHandler from "../pages/api/sns";
+import snsHandler from "@/pages/api/sns";
 
 beforeEach(async () => {
   await resetDatabase(false);
@@ -662,7 +662,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       })),
     }));
 
-    const { default: snsHandler } = await import("../pages/api/sns");
+    const { default: snsHandler } = await import("@/pages/api/sns");
 
     const errorMessages: unknown[][] = [];
 
@@ -2570,7 +2570,7 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       },
     );
 
-    const handler = (await import("../pages/api/sns")).default;
+    const handler = (await import("@/pages/api/sns")).default;
     await withConsoleMessageHiding(async () => {
       await handler(req, res);
     });

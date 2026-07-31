@@ -7,9 +7,9 @@ import { StyledDetailView } from "@/app/components/Layout/components/Detail/stic
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
+import { useFetchSourceStudy } from "@/app/views/SourceStudyView/hooks/UseFetchSourceStudy/hook";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { JSX } from "react";
-import { useFetchSourceStudy } from "../SourceStudyView/hooks/UseFetchSourceStudy/hook";
 import { getBreadcrumbs } from "./common/utils";
 import { ViewSourceDatasets } from "./components/ViewSourceDatasets/viewSourceDatasets";
 import { useFetchSourceDatasets } from "./hooks/UseFetchSourceDatasets/hook";

@@ -1,8 +1,8 @@
-import { useContext } from "react";
 import {
   AuthorizationContext,
   AuthorizationContextProps,
-} from "../providers/authorization";
+} from "@/app/providers/authorization";
+import { useContext } from "react";
 
 export const useAuthorization = (): AuthorizationContextProps => {
   return useContext(AuthorizationContext);
