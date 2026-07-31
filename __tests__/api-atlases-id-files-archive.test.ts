@@ -62,7 +62,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  endPgPool();
+  await endPgPool();
 });
 
 const ARCHIVE_DATA_SOURCE_DATASET_A_BAR: FilesSetIsArchivedData = {

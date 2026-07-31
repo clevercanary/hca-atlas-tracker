@@ -55,10 +55,10 @@ beforeAll(async () => {
     .getProjectIdByDoi;
 });
 
-afterAll(() => {
+afterAll(async () => {
   consoleLogSpy.mockRestore();
   globalThis.hcaAtlasTrackerProjectsInfoCache = undefined;
-  endPgPool();
+  await endPgPool();
 });
 
 describe("getProjectIdByDoi", () => {

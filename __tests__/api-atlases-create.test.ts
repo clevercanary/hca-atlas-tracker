@@ -156,7 +156,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   jest.resetAllMocks();
-  endPgPool();
+  await endPgPool();
 });
 
 describe("/api/atlases/create", () => {

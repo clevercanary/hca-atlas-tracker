@@ -61,7 +61,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  endPgPool();
+  await endPgPool();
 });
 
 describe("/api/comments/[threadId]/comments", () => {

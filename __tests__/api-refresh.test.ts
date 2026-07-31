@@ -95,8 +95,8 @@ beforeAll(async () => {
   await delay();
 });
 
-afterAll(() => {
-  endPgPool();
+afterAll(async () => {
+  await endPgPool();
   consoleLogSpy.mockRestore();
   globalThis.hcaAtlasTrackerProjectsInfoCache = undefined;
   globalThis.hcaAtlasTrackerCellxGeneInfoCache = undefined;
