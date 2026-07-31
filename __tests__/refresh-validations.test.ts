@@ -6,6 +6,7 @@ import {
   VALIDATION_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { endPgPool, query } from "@/app/services/database";
+import { refreshValidations } from "@/app/services/validations";
 import {
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_B,
@@ -15,7 +16,6 @@ import {
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
 import { TestAtlas, TestSourceStudy } from "@/testing/entities";
-import { refreshValidations } from "app/services/validations";
 
 jest.mock(
   "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",

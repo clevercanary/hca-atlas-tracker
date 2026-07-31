@@ -23,11 +23,11 @@ import {
   getPoolClient,
   query,
 } from "@/app/services/database";
+import { updateSourceStudyValidationsByEntityId } from "@/app/services/source-studies";
 import {
   getFileBaseName,
   parseNormalizedInfoFromS3Key,
 } from "@/app/utils/files";
-import { updateSourceStudyValidationsByEntityId } from "app/services/source-studies";
 import migrate from "node-pg-migrate";
 import { MigrationDirection } from "node-pg-migrate/dist/types";
 import pg from "pg";

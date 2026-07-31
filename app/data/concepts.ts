@@ -3,7 +3,7 @@ import {
   HCAAtlasTrackerDBConcept,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "@/app/services/database";
-import { NotFoundError } from "app/utils/api-errors";
+import { NotFoundError } from "@/app/utils/api-errors";
 import pg from "pg";
 
 /**

@@ -1,4 +1,5 @@
 import { dbSourceDatasetToListApiSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { ROLE_GROUP } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { componentAtlasAddSourceDatasetsSchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "@/app/common/entities";
@@ -13,7 +14,6 @@ import {
   integrationLeadAssociatedAtlasOnly,
   role,
 } from "@/app/utils/api-handler";
-import { ROLE_GROUP } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 
 const getHandler = handler(role(ROLE_GROUP.READ), async (req, res) => {
   const atlasId = req.query.atlasId as string;

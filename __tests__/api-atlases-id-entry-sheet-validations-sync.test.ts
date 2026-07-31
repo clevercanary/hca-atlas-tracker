@@ -58,7 +58,7 @@ const updateMock = startAtlasEntrySheetValidationsUpdate as jest.Mock;
 jest.mock("@/app/services/entry-sheets", () => {
   const hcaValidationTools = jest.requireActual<
     typeof import("@/app/services/entry-sheets")
-  >("../app/services/entry-sheets");
+  >("@/app/services/entry-sheets");
   return {
     startAtlasEntrySheetValidationsUpdate: jest.fn(
       hcaValidationTools.startAtlasEntrySheetValidationsUpdate,

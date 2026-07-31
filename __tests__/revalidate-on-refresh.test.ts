@@ -6,7 +6,7 @@ import {
   TEST_CELLXGENE_COLLECTIONS_A,
   TEST_HCA_CATALOGS,
 } from "@/testing/constants";
-import { delay, promiseWithResolvers } from "testing/utils";
+import { delay, promiseWithResolvers } from "@/testing/utils";
 
 jest.mock(
   "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",

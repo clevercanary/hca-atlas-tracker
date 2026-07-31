@@ -60,6 +60,17 @@ const config = [
               message:
                 "Reach outside this directory via the '@/' alias; relative imports are for ./ same-dir and descendants only.",
             },
+            {
+              // Bare repo-root imports resolve via `baseUrl: "."` (e.g.
+              // `app/foo`), which is a second specifier for the same module —
+              // defeating the one-string/one-grep goal above. Require the `@/`
+              // alias for every repo-root segment. (Does not touch the `images/*`
+              // path alias or any npm package.)
+              message:
+                "Import repo-root modules via the '@/' alias (e.g. '@/app/...'), not a bare baseUrl path.",
+              regex:
+                "^(app|catalog|db_scripts|migrations|pages|scripts|site-config|testing)/",
+            },
           ],
         },
       ],

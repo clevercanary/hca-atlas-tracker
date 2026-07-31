@@ -1,6 +1,6 @@
 import { METHOD } from "@/app/common/entities";
+import { getAtlasHeatmap } from "@/app/services/heatmaps";
 import { handler, method, registeredUser } from "@/app/utils/api-handler";
-import { getAtlasHeatmap } from "app/services/heatmaps";
 
 /**
  * API route to get heatmap data for an atlas.

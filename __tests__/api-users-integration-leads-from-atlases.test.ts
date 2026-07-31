@@ -1,3 +1,4 @@
+import { HCAAtlasTrackerDBUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool, query } from "@/app/services/database";
 import integrationLeadsFromAtlasesHandler from "@/pages/api/users/integration-leads-from-atlases";
@@ -24,7 +25,6 @@ import {
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { HCAAtlasTrackerDBUser } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 

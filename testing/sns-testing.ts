@@ -21,11 +21,11 @@ import {
   INTEGRITY_STATUS,
   SYSTEM,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
 import { resetConfigCache } from "@/app/config/aws-resources";
 import { query } from "@/app/services/database";
 import { slugifyAtlasShortName } from "@/app/utils/atlases";
 import snsHandler from "@/pages/api/sns";
-import { METHOD } from "app/common/entities";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { getFileFromDatabase } from "./db-utils";

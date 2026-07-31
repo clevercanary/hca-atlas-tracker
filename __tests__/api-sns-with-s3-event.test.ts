@@ -92,7 +92,7 @@ jest.mock("sns-validator", () => {
 
 const mockSubmitJob = jest.requireMock<
   typeof import("@/app/services/__mocks__/validator-batch")
->("../app/services/validator-batch").submitDatasetValidationJob;
+>("@/app/services/validator-batch").submitDatasetValidationJob;
 
 const TEST_ROUTE = "/api/sns";
 

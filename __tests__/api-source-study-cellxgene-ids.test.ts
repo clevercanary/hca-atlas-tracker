@@ -1,3 +1,4 @@
+import { METHOD } from "@/app/common/entities";
 import { endPgPool } from "@/app/services/database";
 import cellxgeneIdsHandler from "@/pages/api/source-study-cellxgene-ids";
 import {
@@ -13,7 +14,6 @@ import {
 import { resetDatabase } from "@/testing/db-utils";
 import { TestUser } from "@/testing/entities";
 import { withConsoleErrorHiding } from "@/testing/utils";
-import { METHOD } from "app/common/entities";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 

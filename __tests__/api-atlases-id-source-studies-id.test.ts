@@ -203,7 +203,7 @@ const SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE_EDIT: SourceStudyEditData = {
 beforeAll(async () => {
   actualEntrySheetsModule = jest.requireActual<
     typeof import("@/app/services/entry-sheets")
-  >("../app/services/entry-sheets");
+  >("@/app/services/entry-sheets");
 
   await resetDatabase();
 });

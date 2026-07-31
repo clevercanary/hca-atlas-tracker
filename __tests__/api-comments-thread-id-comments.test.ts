@@ -4,6 +4,7 @@ import {
   HCAAtlasTrackerDBUser,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NewCommentData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
 import { endPgPool, query } from "@/app/services/database";
 import commentsHandler from "@/pages/api/comments/[threadId]/comments";
 import {
@@ -22,7 +23,6 @@ import {
 import { getDbUsersByEmail, resetDatabase } from "@/testing/db-utils";
 import { TestComment, TestUser } from "@/testing/entities";
 import { withConsoleErrorHiding } from "@/testing/utils";
-import { METHOD } from "app/common/entities";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 

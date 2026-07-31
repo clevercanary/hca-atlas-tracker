@@ -1,3 +1,4 @@
+import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getPublicationCitation } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { ControllerConfig } from "@/app/components/common/Form/components/Controllers/common/entities";
 import { BioNetwork } from "@/app/components/Form/components/Select/components/BioNetwork/bioNetwork";
@@ -8,7 +9,6 @@ import { getDOILink } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/co
 import { NewAtlasData } from "@/app/views/AddNewAtlasView/common/entities";
 import { FIELD_NAME } from "@/app/views/AtlasView/common/constants";
 import { AtlasEditData } from "@/app/views/AtlasView/common/entities";
-import { HCAAtlasTrackerAtlas } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 
 type CommonControllerConfig = ControllerConfig<
   NewAtlasData | AtlasEditData,

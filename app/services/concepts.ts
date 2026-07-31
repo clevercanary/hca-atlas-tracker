@@ -14,7 +14,7 @@ import {
   InvalidOperationError,
   NotFoundError,
 } from "@/app/utils/api-errors";
-import { getFileBaseName, getFileExtension } from "app/utils/files";
+import { getFileBaseName, getFileExtension } from "@/app/utils/files";
 import pg from "pg";
 import { mapDatabaseError } from "./database";
 

@@ -7,6 +7,7 @@ import {
   DatasetValidatorToolReports,
   SNSMessage,
 } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import { FILE_VALIDATOR_NAMES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_VALIDATION_STATUS,
   FileMetadataCoverage,
@@ -26,7 +27,6 @@ import {
 } from "@/app/data/files";
 import { ConflictError, InvalidOperationError } from "@/app/utils/api-errors";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
-import { FILE_VALIDATOR_NAMES } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { doTransaction } from "./database";
 import {
   deleteObject,

@@ -13,14 +13,14 @@ import {
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
 import { TestUser } from "@/testing/entities";
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
 import {
   expectApiUserToMatchTest,
   expectIsDefined,
   testApiRole,
   withConsoleErrorHiding,
-} from "testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
   "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",

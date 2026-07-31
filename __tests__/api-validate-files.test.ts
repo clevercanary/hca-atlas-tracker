@@ -12,6 +12,7 @@ import {
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
 } from "@/testing/constants";
+import { resetDatabase } from "@/testing/db-utils";
 import { TestFile, TestUser } from "@/testing/entities";
 import {
   getAllTestFiles,
@@ -21,7 +22,6 @@ import {
 } from "@/testing/utils";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
-import { resetDatabase } from "testing/db-utils";
 
 jest.mock(
   "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
@@ -38,7 +38,7 @@ const validateMock = validateAllFiles as jest.Mock;
 jest.mock("@/app/services/files", () => {
   const filesServices = jest.requireActual<
     typeof import("@/app/services/files")
-  >("../app/services/files");
+  >("@/app/services/files");
   return {
     validateAllFiles: jest.fn(filesServices.validateAllFiles),
   };
@@ -46,7 +46,7 @@ jest.mock("@/app/services/files", () => {
 
 const mockSubmitJob = jest.requireMock<
   typeof import("@/app/services/__mocks__/validator-batch")
->("../app/services/validator-batch").submitDatasetValidationJob;
+>("@/app/services/validator-batch").submitDatasetValidationJob;
 
 beforeAll(async () => {
   await resetDatabase();

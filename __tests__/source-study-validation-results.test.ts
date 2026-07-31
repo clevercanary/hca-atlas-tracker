@@ -1,4 +1,13 @@
+import {
+  HCAAtlasTrackerValidationResult,
+  SYSTEM,
+  VALIDATION_ID,
+  VALIDATION_STATUS,
+  VALIDATION_TYPE,
+  VALIDATION_VARIABLE,
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { endPgPool, getPoolClient } from "@/app/services/database";
+import { getSourceStudyWithAtlasProperties } from "@/app/services/source-studies";
 import {
   getSourceStudyValidationResults,
   VALIDATION_META_STATUS,
@@ -21,15 +30,6 @@ import {
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
 import { TestAtlas, TestSourceStudy } from "@/testing/entities";
-import {
-  HCAAtlasTrackerValidationResult,
-  SYSTEM,
-  VALIDATION_ID,
-  VALIDATION_STATUS,
-  VALIDATION_TYPE,
-  VALIDATION_VARIABLE,
-} from "app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getSourceStudyWithAtlasProperties } from "app/services/source-studies";
 import type { PoolClient } from "pg";
 
 let client: PoolClient;

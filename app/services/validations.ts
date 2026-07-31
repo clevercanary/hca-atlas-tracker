@@ -31,9 +31,9 @@ import {
   ValidationDBEntityOfType,
   ValidationDifference,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { NewCommentThreadData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { ForbiddenError, NotFoundError } from "@/app/utils/api-errors";
 import { ProjectInfo } from "@/app/utils/hca-projects";
-import { NewCommentThreadData } from "app/apis/catalog/hca-atlas-tracker/common/schema";
 import { dequal } from "dequal";
 import DOMPurify from "isomorphic-dompurify";
 import pg from "pg";

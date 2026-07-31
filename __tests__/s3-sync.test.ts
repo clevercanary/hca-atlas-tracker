@@ -3,20 +3,12 @@ import {
   HCAAtlasTrackerDBFile,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { endPgPool, query } from "@/app/services/database";
-import { setTestRandomUuids } from "@/testing/setup";
-import {
-  HeadObjectCommand,
-  HeadObjectCommandOutput,
-  ListObjectsV2Command,
-  S3Client,
-} from "@aws-sdk/client-s3";
-import { getBucketFileKeys, syncFilesFromS3 } from "app/services/s3-sync";
-import { mockClient } from "aws-sdk-client-mock";
+import { getBucketFileKeys, syncFilesFromS3 } from "@/app/services/s3-sync";
 import {
   ATLAS_DRAFT,
   EMPTY_COMPONENT_INFO,
   TEST_S3_BUCKET,
-} from "testing/constants";
+} from "@/testing/constants";
 import {
   createTestComponentAtlas,
   createTestFile,
@@ -25,12 +17,20 @@ import {
   getFileComponentAtlas,
   getFileFromDatabase,
   resetDatabase,
-} from "testing/db-utils";
+} from "@/testing/db-utils";
+import { setTestRandomUuids } from "@/testing/setup";
 import {
   delay,
   expectIsDefined,
   withConsoleMessageHiding,
-} from "testing/utils";
+} from "@/testing/utils";
+import {
+  HeadObjectCommand,
+  HeadObjectCommandOutput,
+  ListObjectsV2Command,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { mockClient } from "aws-sdk-client-mock";
 
 jest.mock("@/app/services/hca-projects");
 jest.mock("@/app/services/cellxgene");
@@ -41,7 +41,7 @@ const s3Mock = mockClient(S3Client);
 
 const mockSubmitJob = jest.requireMock<
   typeof import("@/app/services/__mocks__/validator-batch")
->("../app/services/validator-batch").submitDatasetValidationJob;
+>("@/app/services/validator-batch").submitDatasetValidationJob;
 
 const TEST_UUID_COMPLETE_FOO = "9ac2e257-76ae-4220-bcb4-31709533e00d";
 const TEST_UUID_COMPLETE_BAR = "135d67d9-2a56-42f5-886f-a4c50c239aea";

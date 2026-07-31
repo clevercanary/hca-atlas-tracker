@@ -1,7 +1,9 @@
 import { AppHeader } from "@/app/components/Layout/components/Header/appHeader";
+import { config } from "@/app/config/config";
 import { useLogoutCallbackUrl } from "@/app/hooks/UseLogoutCallbackUrl/hook";
 import { AuthorizationProvider } from "@/app/providers/authorization";
 import { makeQueryClient } from "@/app/query/queryClient";
+import { ROUTE } from "@/app/routes/constants";
 import { mergeAppTheme } from "@/app/theme/theme";
 import { BREAKPOINTS } from "@/site-config/common/constants";
 import {
@@ -31,8 +33,6 @@ import { AppCacheProvider } from "@mui/material-nextjs/v16-pagesRouter";
 import { createBreakpoints } from "@mui/system";
 import { deepmerge } from "@mui/utils";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { config } from "app/config/config";
-import { ROUTE } from "app/routes/constants";
 import { NextPage } from "next";
 import { Session } from "next-auth";
 import type { AppProps } from "next/app";

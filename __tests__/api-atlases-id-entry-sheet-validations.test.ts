@@ -1,3 +1,4 @@
+import { HCAAtlasTrackerListEntrySheetValidation } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool } from "@/app/services/database";
 import entrySheetValidationsHandler from "@/pages/api/atlases/[atlasId]/entry-sheet-validations";
@@ -26,7 +27,6 @@ import {
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { HCAAtlasTrackerListEntrySheetValidation } from "app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 

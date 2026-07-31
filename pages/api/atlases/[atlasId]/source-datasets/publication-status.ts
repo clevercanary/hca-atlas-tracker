@@ -1,13 +1,13 @@
 import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { sourceDatasetsSetPublicationStatusSchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "@/app/common/entities";
+import { setAtlasSourceDatasetsPublicationStatus } from "@/app/services/source-datasets";
 import {
   handler,
   integrationLeadAssociatedAtlasOnly,
   method,
   role,
 } from "@/app/utils/api-handler";
-import { setAtlasSourceDatasetsPublicationStatus } from "app/services/source-datasets";
 
 /**
  * API route for setting the publication status of source datasets for a given atlas.

@@ -1,10 +1,10 @@
 import { EntrySheetValidationResponse } from "@/app/utils/hca-validation-tools/hca-validation-tools";
-import { expectIsDefined } from "@/testing/utils";
 import {
   FETCH_ERROR_ENTRY_SHEET_IDS,
   TEST_ENTRY_SHEET_VALIDATION_FETCH_ERROR_MESSAGE,
   TEST_ENTRY_SHEET_VALIDATION_RESPONSES_BY_ID,
-} from "testing/constants";
+} from "@/testing/constants";
+import { expectIsDefined } from "@/testing/utils";
 
 export async function fetchEntrySheetValidationResults(
   googleSheetId: string,

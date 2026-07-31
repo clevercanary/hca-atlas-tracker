@@ -40,7 +40,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 // Retrieve the mock function created in the jest.mock factory above
-const { httpGet } = jest.requireMock("../app/utils/http") as {
+const { httpGet } = jest.requireMock("@/app/utils/http") as {
   httpGet: jest.Mock;
 };
 const mockHttpGet = httpGet as jest.Mock;

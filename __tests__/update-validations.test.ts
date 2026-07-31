@@ -10,13 +10,13 @@ import {
   VALIDATION_VARIABLE,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { endPgPool, getPoolClient, query } from "@/app/services/database";
+import { updateValidations } from "@/app/services/validations";
 import {
   THREAD_ID_BY_CONTENT_ADMIN,
   THREAD_ID_BY_STAKEHOLDER2,
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
 import { delay } from "@/testing/utils";
-import { updateValidations } from "app/services/validations";
 
 jest.mock(
   "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
