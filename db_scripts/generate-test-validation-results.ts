@@ -182,7 +182,7 @@ async function generateAndAddValidationResults(): Promise<void> {
       Array.from(fileKeysById.values()).join("\n"),
   );
 
-  endPgPool();
+  await endPgPool();
 }
 
 async function addValidationResultsToFiles(

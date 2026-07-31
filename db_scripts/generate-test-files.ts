@@ -138,7 +138,7 @@ async function generateAndAddFiles(): Promise<void> {
     }
   }
 
-  endPgPool();
+  await endPgPool();
 }
 
 async function generateAndAddFilesForAtlases(
