@@ -1,3 +1,9 @@
+import { ControllerViewBuilder } from "@/app/components/common/Form/components/Controllers/common/entities";
+import {
+  FormHelperText,
+  FormHelperTextProps,
+} from "@/app/components/common/Form/components/FormHelperText/formHelperText";
+import { FormLabel } from "@/app/components/common/Form/components/FormLabel/formLabel";
 import {
   OutlinedInput as MOutlinedInput,
   OutlinedInputProps as MOutlinedInputProps,
@@ -10,12 +16,6 @@ import {
   Ref,
   RefAttributes,
 } from "react";
-import { ControllerViewBuilder } from "../Controllers/common/entities";
-import {
-  FormHelperText,
-  FormHelperTextProps,
-} from "../FormHelperText/formHelperText";
-import { FormLabel } from "../FormLabel/formLabel";
 import { InputFormControl as FormControl } from "./input.styles";
 import { getInputComponent, getInputProps } from "./utils";
 

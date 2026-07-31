@@ -6,27 +6,27 @@ import { createElement, FunctionComponent, PropsWithChildren } from "react";
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
 }));
-jest.mock("../app/hooks/useDeleteData");
-jest.mock("../app/providers/entity/hook");
-jest.mock("../app/common/utils", () => ({
-  ...jest.requireActual("../app/common/utils"),
+jest.mock("@/app/hooks/useDeleteData");
+jest.mock("@/app/providers/entity/hook");
+jest.mock("@/app/common/utils", () => ({
+  ...jest.requireActual("@/app/common/utils"),
   fetchResource: jest.fn(),
 }));
 
-import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
-import { HCAAtlasTrackerSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { fetchResource } from "../app/common/utils";
-import { useDeleteData } from "../app/hooks/useDeleteData";
-import { useEntity } from "../app/providers/entity/hook";
-import { INTEGRATED_OBJECT } from "../app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/constants";
+import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { fetchResource } from "@/app/common/utils";
+import { useDeleteData } from "@/app/hooks/useDeleteData";
+import { useEntity } from "@/app/providers/entity/hook";
+import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/constants";
 import {
   renderFileName,
   renderPublicationString,
-} from "../app/views/IntegratedObjectSourceDatasetsView/components/Table/viewBuilders";
-import { IntegratedObjectSourceDataset } from "../app/views/IntegratedObjectSourceDatasetsView/entities";
-import { useEditIntegratedObjectSourceDatasets } from "../app/views/IntegratedObjectSourceDatasetsView/hooks/useEditIntegratedObjectSourceDatasets";
-import { useFetchIntegratedObjectSourceDatasets } from "../app/views/IntegratedObjectSourceDatasetsView/hooks/UseFetchIntegratedObjectSourceDatasets/hook";
-import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "../app/views/IntegratedObjectSourceDatasetsView/hooks/UseFetchIntegratedObjectSourceDatasets/query/constants";
+} from "@/app/views/IntegratedObjectSourceDatasetsView/components/Table/viewBuilders";
+import { IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
+import { useEditIntegratedObjectSourceDatasets } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/useEditIntegratedObjectSourceDatasets";
+import { useFetchIntegratedObjectSourceDatasets } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/UseFetchIntegratedObjectSourceDatasets/hook";
+import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/UseFetchIntegratedObjectSourceDatasets/query/constants";
+import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 
 // Type mocks
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
@@ -312,7 +312,7 @@ describe("useIntegratedObjectSourceDatasetsTable", () => {
     );
 
     const { useIntegratedObjectSourceDatasetsTable } =
-      await import("../app/views/IntegratedObjectSourceDatasetsView/components/Table/hooks/UseIntegratedObjectSourceDatasetsTable/hook");
+      await import("@/app/views/IntegratedObjectSourceDatasetsView/components/Table/hooks/UseIntegratedObjectSourceDatasetsTable/hook");
 
     const { result } = renderHook(() =>
       useIntegratedObjectSourceDatasetsTable(),
@@ -337,7 +337,7 @@ describe("useIntegratedObjectSourceDatasetsTable", () => {
     );
 
     const { useIntegratedObjectSourceDatasetsTable } =
-      await import("../app/views/IntegratedObjectSourceDatasetsView/components/Table/hooks/UseIntegratedObjectSourceDatasetsTable/hook");
+      await import("@/app/views/IntegratedObjectSourceDatasetsView/components/Table/hooks/UseIntegratedObjectSourceDatasetsTable/hook");
 
     const { result } = renderHook(() =>
       useIntegratedObjectSourceDatasetsTable(),
@@ -360,7 +360,7 @@ describe("useIntegratedObjectSourceDatasetsTable", () => {
     );
 
     const { useIntegratedObjectSourceDatasetsTable } =
-      await import("../app/views/IntegratedObjectSourceDatasetsView/components/Table/hooks/UseIntegratedObjectSourceDatasetsTable/hook");
+      await import("@/app/views/IntegratedObjectSourceDatasetsView/components/Table/hooks/UseIntegratedObjectSourceDatasetsTable/hook");
 
     const { result } = renderHook(() =>
       useIntegratedObjectSourceDatasetsTable(),
@@ -388,7 +388,7 @@ describe("useIntegratedObjectSourceDatasetsTable", () => {
     );
 
     const { useIntegratedObjectSourceDatasetsTable } =
-      await import("../app/views/IntegratedObjectSourceDatasetsView/components/Table/hooks/UseIntegratedObjectSourceDatasetsTable/hook");
+      await import("@/app/views/IntegratedObjectSourceDatasetsView/components/Table/hooks/UseIntegratedObjectSourceDatasetsTable/hook");
 
     const { result } = renderHook(() =>
       useIntegratedObjectSourceDatasetsTable(),
@@ -408,7 +408,7 @@ describe("useIntegratedObjectSourceDatasetsTable", () => {
     );
 
     const { useIntegratedObjectSourceDatasetsTable } =
-      await import("../app/views/IntegratedObjectSourceDatasetsView/components/Table/hooks/UseIntegratedObjectSourceDatasetsTable/hook");
+      await import("@/app/views/IntegratedObjectSourceDatasetsView/components/Table/hooks/UseIntegratedObjectSourceDatasetsTable/hook");
 
     const { result } = renderHook(() =>
       useIntegratedObjectSourceDatasetsTable(),

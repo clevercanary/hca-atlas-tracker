@@ -1,4 +1,4 @@
-import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
+import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
 import {
   ATLAS_STATUS,
   DOI_STATUS,
@@ -9,10 +9,10 @@ import {
   PublicationInfo,
   REPROCESSED_STATUS,
   ROLE,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { CellxGeneCollection } from "../app/utils/cellxgene-api";
-import { CrossrefWork } from "../app/utils/crossref/crossref";
-import { EntrySheetValidationResponse } from "../app/utils/hca-validation-tools/hca-validation-tools";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { CellxGeneCollection } from "@/app/utils/cellxgene-api";
+import { CrossrefWork } from "@/app/utils/crossref/crossref";
+import { EntrySheetValidationResponse } from "@/app/utils/hca-validation-tools/hca-validation-tools";
 import {
   TestAtlas,
   TestComment,

@@ -1,4 +1,13 @@
+import { AppHeader } from "@/app/components/Layout/components/Header/appHeader";
+import { useLogoutCallbackUrl } from "@/app/hooks/UseLogoutCallbackUrl/hook";
+import { AuthorizationProvider } from "@/app/providers/authorization";
 import { makeQueryClient } from "@/app/query/queryClient";
+import { mergeAppTheme } from "@/app/theme/theme";
+import { BREAKPOINTS } from "@/site-config/common/constants";
+import {
+  SESSION_REFETCH_INTERVAL,
+  SESSION_TIMEOUT,
+} from "@/site-config/hca-atlas-tracker/local/authentication/constants";
 import "@databiosphere/findable-ui";
 import { AzulEntitiesStaticResponse } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { Error } from "@databiosphere/findable-ui/lib/components/Error/error";
@@ -28,15 +37,6 @@ import { NextPage } from "next";
 import { Session } from "next-auth";
 import type { AppProps } from "next/app";
 import { JSX, useState } from "react";
-import { AppHeader } from "../app/components/Layout/components/Header/appHeader";
-import { useLogoutCallbackUrl } from "../app/hooks/UseLogoutCallbackUrl/hook";
-import { AuthorizationProvider } from "../app/providers/authorization";
-import { mergeAppTheme } from "../app/theme/theme";
-import { BREAKPOINTS } from "../site-config/common/constants";
-import {
-  SESSION_REFETCH_INTERVAL,
-  SESSION_TIMEOUT,
-} from "../site-config/hca-atlas-tracker/local/authentication/constants";
 
 export interface PageProps extends AzulEntitiesStaticResponse {
   pageTitle?: string;

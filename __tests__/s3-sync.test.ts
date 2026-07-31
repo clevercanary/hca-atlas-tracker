@@ -1,4 +1,10 @@
 import {
+  FILE_TYPE,
+  HCAAtlasTrackerDBFile,
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { endPgPool, query } from "@/app/services/database";
+import { setTestRandomUuids } from "@/testing/setup";
+import {
   HeadObjectCommand,
   HeadObjectCommandOutput,
   ListObjectsV2Command,
@@ -25,22 +31,16 @@ import {
   expectIsDefined,
   withConsoleMessageHiding,
 } from "testing/utils";
-import {
-  FILE_TYPE,
-  HCAAtlasTrackerDBFile,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { endPgPool, query } from "../app/services/database";
-import { setTestRandomUuids } from "../testing/setup";
 
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/services/validator-batch");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
+jest.mock("@/app/services/validator-batch");
 
 const s3Mock = mockClient(S3Client);
 
 const mockSubmitJob = jest.requireMock<
-  typeof import("../app/services/__mocks__/validator-batch")
+  typeof import("@/app/services/__mocks__/validator-batch")
 >("../app/services/validator-batch").submitDatasetValidationJob;
 
 const TEST_UUID_COMPLETE_FOO = "9ac2e257-76ae-4220-bcb4-31709533e00d";

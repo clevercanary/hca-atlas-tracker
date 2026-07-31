@@ -6,10 +6,10 @@ import {
 import { PathParameter } from "@/app/common/entities";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { useForm } from "@/app/hooks/useForm/useForm";
+import { FIELD_NAME } from "@/app/views/AtlasSourceDatasetView/common/constants";
+import { ViewAtlasSourceDatasetData } from "@/app/views/AtlasSourceDatasetView/common/entities";
+import { viewAtlasSourceDatasetSchema } from "@/app/views/AtlasSourceDatasetView/common/schema";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
-import { FIELD_NAME } from "../common/constants";
-import { ViewAtlasSourceDatasetData } from "../common/entities";
-import { viewAtlasSourceDatasetSchema } from "../common/schema";
 import { useFetchAtlasSourceDataset } from "./UseFetchAtlasSourceDataset/hook";
 
 const SCHEMA = viewAtlasSourceDatasetSchema;

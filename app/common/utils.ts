@@ -1,5 +1,5 @@
-import { APIValue } from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { RouteValue } from "../routes/entities";
+import { APIValue } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { RouteValue } from "@/app/routes/entities";
 import { DEFAULT_HEADERS } from "./constants";
 import { FETCH_STATUS, METHOD, PathParameter } from "./entities";
 

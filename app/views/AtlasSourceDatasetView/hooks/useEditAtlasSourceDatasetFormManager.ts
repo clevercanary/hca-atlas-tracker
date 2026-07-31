@@ -6,10 +6,10 @@ import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { ROUTE } from "@/app/routes/constants";
+import { ViewAtlasSourceDatasetData } from "@/app/views/AtlasSourceDatasetView/common/entities";
 import { useQueryClient } from "@tanstack/react-query";
 import Router from "next/router";
 import { useCallback } from "react";
-import { ViewAtlasSourceDatasetData } from "../common/entities";
 import { SOURCE_DATASET } from "./UseFetchAtlasSourceDataset/query/constants";
 
 type Payload = {

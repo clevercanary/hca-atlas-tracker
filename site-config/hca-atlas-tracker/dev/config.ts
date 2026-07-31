@@ -1,5 +1,9 @@
 import { SiteConfig } from "@/site-config/common/entities";
-import { GIT_HUB_REPO_URL, makeConfig, PORTAL_URL } from "../local/config";
+import {
+  GIT_HUB_REPO_URL,
+  makeConfig,
+  PORTAL_URL,
+} from "@/site-config/hca-atlas-tracker/local/config";
 
 // Template constants
 const BROWSER_URL =

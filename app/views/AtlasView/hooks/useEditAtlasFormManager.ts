@@ -8,10 +8,10 @@ import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { ROUTE } from "@/app/routes/constants";
 import { getIdentifierId } from "@/app/views/AddNewAtlasView/common/utils";
+import { AtlasEditData } from "@/app/views/AtlasView/common/entities";
 import { useQueryClient } from "@tanstack/react-query";
 import Router from "next/router";
 import { useCallback } from "react";
-import { AtlasEditData } from "../common/entities";
 
 export const useEditAtlasFormManager = (
   pathParameter: PathParameter,

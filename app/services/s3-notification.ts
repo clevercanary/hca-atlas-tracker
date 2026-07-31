@@ -1,48 +1,51 @@
-import { PoolClient } from "pg";
 import {
   S3Event,
   S3EventRecord,
   s3EventSchema,
   SNSMessage,
-} from "../apis/catalog/hca-atlas-tracker/aws/schemas";
-import { dbEntityIsPublished } from "../apis/catalog/hca-atlas-tracker/common/backend-utils";
-import { VALID_FILE_TYPES_FOR_VALIDATION } from "../apis/catalog/hca-atlas-tracker/common/constants";
+} from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import { dbEntityIsPublished } from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { VALID_FILE_TYPES_FOR_VALIDATION } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
   FileEventInfo,
   HCAAtlasTrackerDBFile,
   INTEGRITY_STATUS,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   validateS3BucketAuthorization,
   validateSNSTopicAuthorization,
-} from "../config/aws-resources";
+} from "@/app/config/aws-resources";
 import {
   updateComponentAtlasVersionInAtlas,
   updateSourceDatasetVersionInAtlas,
-} from "../data/atlases";
+} from "@/app/data/atlases";
 import {
   createNewComponentAtlasVersion,
   markComponentAtlasAsNotLatest,
   updateSourceDatasetVersionInComponentAtlases,
-} from "../data/component-atlases";
+} from "@/app/data/component-atlases";
 import {
   FileUpsertResult,
   getLatestNotificationInfo,
   markPreviousVersionsAsNotLatest,
   upsertFileRecord,
-} from "../data/files";
+} from "@/app/data/files";
 import {
   createNewSourceDatasetVersion,
   markSourceDatasetAsNotLatest,
-} from "../data/source-datasets";
+} from "@/app/data/source-datasets";
 import {
   getAtlasMatchingConceptAndRevision,
   getOrCreateConceptId,
-} from "../services/concepts";
-import { InvalidOperationError } from "../utils/api-errors";
-import { parseNormalizedInfoFromS3Key, parseS3KeyPath } from "../utils/files";
+} from "@/app/services/concepts";
+import { InvalidOperationError } from "@/app/utils/api-errors";
+import {
+  parseNormalizedInfoFromS3Key,
+  parseS3KeyPath,
+} from "@/app/utils/files";
+import { PoolClient } from "pg";
 import { createComponentAtlas } from "./component-atlases";
 import { doTransaction } from "./database";
 import { startFileValidation } from "./files";

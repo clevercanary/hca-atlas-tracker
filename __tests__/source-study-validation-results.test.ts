@@ -1,19 +1,9 @@
-import {
-  HCAAtlasTrackerValidationResult,
-  SYSTEM,
-  VALIDATION_ID,
-  VALIDATION_STATUS,
-  VALIDATION_TYPE,
-  VALIDATION_VARIABLE,
-} from "app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getSourceStudyWithAtlasProperties } from "app/services/source-studies";
-import type { PoolClient } from "pg";
-import { endPgPool, getPoolClient } from "../app/services/database";
+import { endPgPool, getPoolClient } from "@/app/services/database";
 import {
   getSourceStudyValidationResults,
   VALIDATION_META_STATUS,
   ValidationMetaResult,
-} from "../app/services/validations";
+} from "@/app/services/validations";
 import {
   ATLAS_WITH_IL,
   ATLAS_WITH_SOURCE_STUDY_VALIDATIONS_A,
@@ -28,9 +18,19 @@ import {
   SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_OR_CELLXGENE,
   SOURCE_STUDY_PUBLISHED_WITH_NO_HCA_PRIMARY_DATA,
   SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
-} from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
-import { TestAtlas, TestSourceStudy } from "../testing/entities";
+} from "@/testing/constants";
+import { resetDatabase } from "@/testing/db-utils";
+import { TestAtlas, TestSourceStudy } from "@/testing/entities";
+import {
+  HCAAtlasTrackerValidationResult,
+  SYSTEM,
+  VALIDATION_ID,
+  VALIDATION_STATUS,
+  VALIDATION_TYPE,
+  VALIDATION_VARIABLE,
+} from "app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getSourceStudyWithAtlasProperties } from "app/services/source-studies";
+import type { PoolClient } from "pg";
 
 let client: PoolClient;
 
@@ -45,11 +45,11 @@ type ExpectedNewValidationProperties = Pick<
   Partial<Pick<HCAAtlasTrackerValidationResult, "differences">>;
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
 
 const VALIDATIONS_UNPUBLISHED_WITH_CELLXGENE: ExpectedValidationProperties[] = [
   {

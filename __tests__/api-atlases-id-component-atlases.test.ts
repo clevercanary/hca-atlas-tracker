@@ -1,9 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerComponentAtlas } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../app/common/entities";
-import { endPgPool } from "../app/services/database";
-import componentAtlasesHandler from "../pages/api/atlases/[atlasId]/component-atlases";
+import { HCAAtlasTrackerComponentAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool } from "@/app/services/database";
+import componentAtlasesHandler from "@/pages/api/atlases/[atlasId]/component-atlases";
 import {
   ATLAS_DRAFT,
   ATLAS_PUBLISHED,
@@ -30,9 +28,9 @@ import {
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
-} from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
-import { TestComponentAtlas, TestUser } from "../testing/entities";
+} from "@/testing/constants";
+import { resetDatabase } from "@/testing/db-utils";
+import { TestComponentAtlas, TestUser } from "@/testing/entities";
 import {
   assertExpectDefined,
   expectApiComponentAtlasToMatchTest,
@@ -40,14 +38,16 @@ import {
   getTestAtlasShortNameSlug,
   testApiRole,
   withConsoleErrorHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 

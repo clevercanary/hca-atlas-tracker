@@ -1,9 +1,9 @@
-import { GaxiosError, GaxiosResponse } from "gaxios";
-import { sheets_v4 } from "googleapis";
 import {
   TEST_GOOGLE_SHEET_TITLES_BY_ID,
   TEST_UNSHARED_GOOGLE_SHEET_IDS,
-} from "../testing/constants";
+} from "@/testing/constants";
+import { GaxiosError, GaxiosResponse } from "gaxios";
+import { sheets_v4 } from "googleapis";
 
 type TestGaxiosPromise<T> = Promise<Pick<GaxiosResponse<T>, "data">>;
 

@@ -1,5 +1,5 @@
+import { Breadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { ROUTE } from "@/app/routes/constants";
-import { Breadcrumb } from "../breadcrumbs";
 
 export const BREADCRUMB_ATLAS: Breadcrumb = {
   path: ROUTE.ATLAS_STATUS,

@@ -45,14 +45,20 @@ const config = [
     ],
     rules: {
       "@eslint-community/eslint-comments/require-description": "error",
+      // Intra-repo import convention: relative imports only for same-directory
+      // and descendants (`./`); reach anything else through the `@/` alias.
+      // Keeps a module's internal and external references to the same string
+      // (one grep finds every consumer) and stops the rule from depending on
+      // how deep a file happens to sit. Uses the typescript-eslint variant so
+      // it also catches `import type` specifiers.
       "@typescript-eslint/no-restricted-imports": [
         "error",
         {
           patterns: [
             {
+              group: ["..", "../*", "../**"],
               message:
-                "Use the '@/' path alias instead of deep relative imports (2+ levels up).",
-              regex: "^\\.\\./\\.\\./",
+                "Reach outside this directory via the '@/' alias; relative imports are for ./ same-dir and descendants only.",
             },
           ],
         },

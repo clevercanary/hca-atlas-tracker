@@ -1,9 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { HCAAtlasTrackerGlobalSourceDataset } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../app/common/entities";
-import { endPgPool } from "../app/services/database";
-import sourceDatasetsHandler from "../pages/api/source-datasets";
+import { HCAAtlasTrackerGlobalSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool } from "@/app/services/database";
+import sourceDatasetsHandler from "@/pages/api/source-datasets";
 import {
   ATLAS_PUBLISHED,
   ATLAS_PUBLISHED_R6,
@@ -28,22 +26,24 @@ import {
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
   USER_UNREGISTERED,
-} from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
-import { TestAtlas, TestSourceDataset, TestUser } from "../testing/entities";
+} from "@/testing/constants";
+import { resetDatabase } from "@/testing/db-utils";
+import { TestAtlas, TestSourceDataset, TestUser } from "@/testing/entities";
 import {
   expectApiEntityToMatchLinkedAtlases,
   expectApiSourceDatasetToMatchTest,
   testApiRole,
   withConsoleErrorHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 

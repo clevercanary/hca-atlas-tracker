@@ -1,23 +1,23 @@
-import { delay, promiseWithResolvers } from "testing/utils";
-import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
-import { CellxGeneCollection } from "../app/utils/cellxgene-api";
+import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { CellxGeneCollection } from "@/app/utils/cellxgene-api";
 import {
   HCA_CATALOG_TEST1,
   HCA_CATALOG_TEST2,
   TEST_CELLXGENE_COLLECTIONS_A,
   TEST_HCA_CATALOGS,
-} from "../testing/constants";
+} from "@/testing/constants";
+import { delay, promiseWithResolvers } from "testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/source-studies");
-jest.mock("../app/services/source-datasets");
-jest.mock("../app/services/component-atlases");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/services/source-studies");
+jest.mock("@/app/services/source-datasets");
+jest.mock("@/app/services/component-atlases");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 const refreshValidations = jest.fn();
-jest.mock("../app/services/validations", () => ({
+jest.mock("@/app/services/validations", () => ({
   refreshValidations,
 }));
 
@@ -32,12 +32,12 @@ const getAllProjects = jest
 
 const getLatestCatalog = jest.fn().mockResolvedValue(HCA_CATALOG_TEST1);
 
-jest.mock("../app/utils/hca-api", () => ({
+jest.mock("@/app/utils/hca-api", () => ({
   getAllProjects,
   getLatestCatalog,
 }));
 
-let hcaService: typeof import("../app/services/hca-projects");
+let hcaService: typeof import("@/app/services/hca-projects");
 
 jest.useFakeTimers({
   doNotFake: ["setTimeout"],
@@ -52,20 +52,20 @@ const getCellxGeneCollections = jest
     return TEST_CELLXGENE_COLLECTIONS_A;
   });
 
-jest.mock("../app/utils/cellxgene-api", () => ({
+jest.mock("@/app/utils/cellxgene-api", () => ({
   getCellxGeneCollections,
   getCellxGeneDatasets: jest.fn().mockResolvedValue([]),
 }));
 
-let cellxgeneService: typeof import("../app/services/cellxgene");
+let cellxgeneService: typeof import("@/app/services/cellxgene");
 
 let consoleLogSpy: jest.SpyInstance;
 
 beforeAll(async () => {
   consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
 
-  hcaService = await import("../app/services/hca-projects");
-  cellxgeneService = await import("../app/services/cellxgene");
+  hcaService = await import("@/app/services/hca-projects");
+  cellxgeneService = await import("@/app/services/cellxgene");
 
   hcaService.forceProjectsRefresh();
   cellxgeneService.forceCellxGeneRefresh();

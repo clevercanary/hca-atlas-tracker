@@ -1,16 +1,14 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
 import {
   FileValidationSummary,
   HCAAtlasTrackerDetailSourceDataset,
   HCAAtlasTrackerSourceDataset,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { AtlasSourceDatasetEditData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../app/common/entities";
-import { FormResponseErrors } from "../app/hooks/useForm/common/entities";
-import { endPgPool } from "../app/services/database";
-import { getSheetTitleForApi } from "../app/utils/google-sheets-api";
-import sourceDatasetHandler from "../pages/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { AtlasSourceDatasetEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
+import { FormResponseErrors } from "@/app/hooks/useForm/common/entities";
+import { endPgPool } from "@/app/services/database";
+import { getSheetTitleForApi } from "@/app/utils/google-sheets-api";
+import sourceDatasetHandler from "@/pages/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]";
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
@@ -40,13 +38,13 @@ import {
   USER_INTEGRATION_LEAD_PUBLIC,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_UNREGISTERED,
-} from "../testing/constants";
+} from "@/testing/constants";
 import {
   expectSourceDatasetToBeUnchanged,
   getConceptFromDatabase,
   resetDatabase,
-} from "../testing/db-utils";
-import { TestUser } from "../testing/entities";
+} from "@/testing/db-utils";
+import { TestUser } from "@/testing/entities";
 import {
   assertExpectDefined,
   delay,
@@ -54,23 +52,25 @@ import {
   getTestEntityDownloadName,
   testApiRole,
   withConsoleErrorHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 jest.mock("googleapis");
 jest.mock("next-auth");
 
 const getSheetTitleMock = getSheetTitleForApi as jest.Mock;
 
-jest.mock("../app/utils/google-sheets-api", () => {
-  const googleSheetsApi: typeof import("../app/utils/google-sheets-api") =
-    jest.requireActual("../app/utils/google-sheets-api");
+jest.mock("@/app/utils/google-sheets-api", () => {
+  const googleSheetsApi: typeof import("@/app/utils/google-sheets-api") =
+    jest.requireActual("@/app/utils/google-sheets-api");
 
   return {
     getSheetTitleForApi: jest.fn(googleSheetsApi.getSheetTitleForApi),

@@ -12,7 +12,7 @@ import {
 } from "testing/constants";
 
 // Project-wide mocks for DB connection etc.
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 const batchMock = mockClient(BatchClient);
 

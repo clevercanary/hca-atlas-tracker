@@ -4,14 +4,14 @@ jest.mock("next-auth", () => ({
   getServerSession: jest.fn(),
 }));
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
   () => ({ nextAuthOptions: {} }),
 );
 
+import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getAdminPageRedirect } from "@/app/routes/adminPageGuard";
+import { ROUTE } from "@/app/routes/constants";
 import { getServerSession } from "next-auth";
-import { ROLE } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getAdminPageRedirect } from "../app/routes/adminPageGuard";
-import { ROUTE } from "../app/routes/constants";
 
 const mockGetServerSession = getServerSession as jest.Mock;
 

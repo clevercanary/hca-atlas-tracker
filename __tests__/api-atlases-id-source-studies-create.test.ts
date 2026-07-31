@@ -1,14 +1,12 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
 import {
   HCAAtlasTrackerDBAtlas,
   HCAAtlasTrackerDBSourceStudy,
   HCAAtlasTrackerSourceStudy,
   PublicationInfo,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../app/common/entities";
-import { endPgPool, query } from "../app/services/database";
-import createHandler from "../pages/api/atlases/[atlasId]/source-studies/create";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool, query } from "@/app/services/database";
+import createHandler from "@/pages/api/atlases/[atlasId]/source-studies/create";
 import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
@@ -44,28 +42,30 @@ import {
   USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_UNREGISTERED,
-} from "../testing/constants";
+} from "@/testing/constants";
 import {
   getAllSourceDatasetsFromDatabase,
   getStudySourceDatasets,
   getValidationsByEntityId,
   resetDatabase,
-} from "../testing/db-utils";
-import { TestAtlas, TestUser } from "../testing/entities";
+} from "@/testing/db-utils";
+import { TestAtlas, TestUser } from "@/testing/entities";
 import {
   expectApiValidationsToMatchDb,
   expectSourceStudyToMatch,
   testApiRole,
   withConsoleErrorHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/utils/crossref/crossref-api");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/crossref/crossref-api");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
 
 jest.mock("next-auth");
 

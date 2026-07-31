@@ -5,6 +5,7 @@ import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { useEntity } from "@/app/providers/entity/hook";
+import { SourceStudyEditData } from "@/app/views/AtlasSourceDatasetsView/components/Table/components/RowSelection/components/EditSelection/components/SetSourceStudy/common/entities";
 import {
   AtlasSourceDataset,
   Entity,
@@ -14,7 +15,6 @@ import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities"
 import { useQueryClient } from "@tanstack/react-query";
 import { Table } from "@tanstack/react-table";
 import { useCallback } from "react";
-import { SourceStudyEditData } from "../common/entities";
 
 export const useEditSourceStudyFormManager = (
   formMethod: FormMethod<SourceStudyEditData>,

@@ -3,12 +3,12 @@ import { withBackOrigin } from "@/app/components/Layout/components/Detail/compon
 import { getPartialCellContext } from "@/app/components/Table/components/utils";
 import { ROUTE } from "@/app/routes/constants";
 import { buildSheetsUrl } from "@/app/utils/google-sheets";
+import { ValidationSummaryCellProps } from "@/app/views/AtlasMetadataEntrySheetsView/components/Table/components/TableCell/components/ValidationSummaryCell/types";
+import { MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
 import { KeyValuePairsProps } from "@databiosphere/findable-ui/lib/components/common/KeyValuePairs/keyValuePairs";
 import { LinkProps } from "@mui/material";
 import { CellContext } from "@tanstack/react-table";
 import { formatDistanceToNowStrict } from "date-fns";
-import { ValidationSummaryCellProps } from "../components/Table/components/TableCell/components/ValidationSummaryCell/types";
-import { MetadataEntrySheet } from "../entities";
 
 /**
  * Returns data summary cell context.

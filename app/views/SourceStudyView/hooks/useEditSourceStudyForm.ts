@@ -4,13 +4,13 @@ import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { useForm } from "@/app/hooks/useForm/useForm";
 import { buildSheetsUrl } from "@/app/utils/google-sheets";
 import { PUBLICATION_STATUS } from "@/app/views/AddNewSourceStudyView/common/entities";
+import { FIELD_NAME } from "@/app/views/SourceStudyView/common/constants";
+import { SourceStudyEditData } from "@/app/views/SourceStudyView/common/entities";
+import { sourceStudyEditSchema } from "@/app/views/SourceStudyView/common/schema";
 import {
   ATLAS_ECOSYSTEM_PATHS,
   ATLAS_ECOSYSTEM_URLS,
 } from "@/site-config/common/constants";
-import { FIELD_NAME } from "../common/constants";
-import { SourceStudyEditData } from "../common/entities";
-import { sourceStudyEditSchema } from "../common/schema";
 import { useFetchSourceStudy } from "./UseFetchSourceStudy/hook";
 
 const SCHEMA = sourceStudyEditSchema;

@@ -1,14 +1,14 @@
+import {
+  HCAAtlasTrackerActiveUser,
+  ROLE,
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { useFetchActiveUser } from "@/app/hooks/UseFetchActiveUser/hook";
+import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
+import { ROUTE } from "@/app/routes/constants";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, JSX, ReactNode, useEffect } from "react";
-import {
-  HCAAtlasTrackerActiveUser,
-  ROLE,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { useFetchActiveUser } from "../hooks/UseFetchActiveUser/hook";
-import { useIsomorphicLayoutEffect } from "../hooks/useIsomorphicLayoutEffect";
-import { ROUTE } from "../routes/constants";
 
 export interface AuthorizationContextProps {
   user?: HCAAtlasTrackerActiveUser;

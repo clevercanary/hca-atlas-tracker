@@ -1,9 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { PresignedUrlInfo } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../app/common/entities";
-import { endPgPool } from "../app/services/database";
-import presignedUrlHandler from "../pages/api/atlases/[atlasId]/files/[fileId]/presigned-url";
+import { PresignedUrlInfo } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool } from "@/app/services/database";
+import presignedUrlHandler from "@/pages/api/atlases/[atlasId]/files/[fileId]/presigned-url";
 import {
   ATLAS_DRAFT,
   ATLAS_NONEXISTENT,
@@ -20,19 +18,21 @@ import {
   USER_INTEGRATION_LEAD_PUBLIC,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_UNREGISTERED,
-} from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
-import { TestFile, TestUser } from "../testing/entities";
-import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
+} from "@/testing/constants";
+import { resetDatabase } from "@/testing/db-utils";
+import { TestFile, TestUser } from "@/testing/entities";
+import { testApiRole, withConsoleErrorHiding } from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
-jest.mock("../app/services/s3-operations");
+jest.mock("@/app/services/s3-operations");
 
 jest.mock("googleapis");
 jest.mock("next-auth");

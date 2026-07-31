@@ -7,7 +7,7 @@ import {
   SourceStudyId,
   UserId,
   ValidatorName,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 
 export enum FETCH_STATUS {
   ACCEPTED = 202,

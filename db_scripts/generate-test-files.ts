@@ -1,8 +1,7 @@
-import pg from "pg";
 import {
   NETWORK_KEYS,
   WAVES,
-} from "../app/apis/catalog/hca-atlas-tracker/common/constants";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ATLAS_STATUS,
   FILE_TYPE,
@@ -16,29 +15,30 @@ import {
   INTEGRITY_STATUS,
   NetworkKey,
   Wave,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   updateComponentAtlasVersionInAtlas,
   updateSourceDatasetVersionInAtlas,
-} from "../app/data/atlases";
+} from "@/app/data/atlases";
 import {
   createNewComponentAtlasVersion,
   markComponentAtlasAsNotLatest,
   updateSourceDatasetVersionInComponentAtlases,
-} from "../app/data/component-atlases";
+} from "@/app/data/component-atlases";
 import {
   markPreviousVersionsAsNotLatest,
   upsertFileRecord,
-} from "../app/data/files";
+} from "@/app/data/files";
 import {
   createNewSourceDatasetVersion,
   markSourceDatasetAsNotLatest,
-} from "../app/data/source-datasets";
-import { createAtlas } from "../app/services/atlases";
-import { createComponentAtlas } from "../app/services/component-atlases";
-import { getOrCreateConceptId } from "../app/services/concepts";
-import { doTransaction, endPgPool } from "../app/services/database";
-import { createSourceDataset } from "../app/services/source-datasets";
+} from "@/app/data/source-datasets";
+import { createAtlas } from "@/app/services/atlases";
+import { createComponentAtlas } from "@/app/services/component-atlases";
+import { getOrCreateConceptId } from "@/app/services/concepts";
+import { doTransaction, endPgPool } from "@/app/services/database";
+import { createSourceDataset } from "@/app/services/source-datasets";
+import pg from "pg";
 import { randomTestValueInRange } from "./utils";
 
 /**

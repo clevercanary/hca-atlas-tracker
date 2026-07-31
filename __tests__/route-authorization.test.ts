@@ -1,6 +1,6 @@
-import { ROLE } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { isAdminPath, isRequestAuthorized } from "../app/routes/authorization";
-import { ROUTE } from "../app/routes/constants";
+import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { isAdminPath, isRequestAuthorized } from "@/app/routes/authorization";
+import { ROUTE } from "@/app/routes/constants";
 
 describe("isAdminPath", () => {
   it("flags the admin-only paths", () => {

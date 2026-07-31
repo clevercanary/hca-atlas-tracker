@@ -6,13 +6,13 @@ import { mapTargetCompletion } from "@/app/components/Form/components/Select/com
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { useForm } from "@/app/hooks/useForm/useForm";
+import { FIELD_NAME } from "@/app/views/AtlasView/common/constants";
+import { AtlasEditData } from "@/app/views/AtlasView/common/entities";
+import { atlasEditSchema } from "@/app/views/AtlasView/common/schema";
 import {
   ATLAS_ECOSYSTEM_PATHS,
   ATLAS_ECOSYSTEM_URLS,
 } from "@/site-config/common/constants";
-import { FIELD_NAME } from "../common/constants";
-import { AtlasEditData } from "../common/entities";
-import { atlasEditSchema } from "../common/schema";
 
 const SCHEMA = atlasEditSchema;
 

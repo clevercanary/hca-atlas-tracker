@@ -1,14 +1,12 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
-import { METHOD } from "../app/common/entities";
+import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { METHOD } from "@/app/common/entities";
 import {
   REFRESH_ACTIVITY,
   REFRESH_OUTCOME,
   RefreshServicesStatuses,
-} from "../app/services/common/entities";
-import { endPgPool } from "../app/services/database";
-import { Handler } from "../app/utils/api-handler";
+} from "@/app/services/common/entities";
+import { endPgPool } from "@/app/services/database";
+import { Handler } from "@/app/utils/api-handler";
 import {
   HCA_CATALOG_TEST1,
   STAKEHOLDER_ANALOGOUS_ROLES,
@@ -17,34 +15,36 @@ import {
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_UNREGISTERED,
-} from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
-import { FunctionMocked, TestUser } from "../testing/entities";
+} from "@/testing/constants";
+import { resetDatabase } from "@/testing/db-utils";
+import { FunctionMocked, TestUser } from "@/testing/entities";
 import {
   delay,
   promiseWithResolvers,
   testApiRole,
   withConsoleErrorHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
-jest.mock("../app/services/component-atlases");
+jest.mock("@/app/services/component-atlases");
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/crossref/crossref-api");
-jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/services/source-studies", () => ({
+jest.mock("@/app/utils/crossref/crossref-api");
+jest.mock("@/app/utils/pg-app-connect-config");
+jest.mock("@/app/services/source-studies", () => ({
   updateSourceStudyExternalIds: jest.fn(),
   updateSourceStudyValidationsByEntityId: jest.fn(),
 }));
-jest.mock("../app/services/source-datasets", () => ({
+jest.mock("@/app/services/source-datasets", () => ({
   updateCellxGeneSourceDatasets: jest.fn(),
 }));
 
 jest.mock("next-auth");
 
 const refreshValidations = jest.fn();
-jest.mock("../app/services/validations", () => {
+jest.mock("@/app/services/validations", () => {
   const refreshValidationsProxy: FunctionMocked<
     typeof refreshValidations
   > = () => refreshValidations();
@@ -59,7 +59,7 @@ const getCellxGeneCollections = jest.fn(async () => {
   await getCollectionsBlock;
   return TEST_CELLXGENE_COLLECTIONS_A;
 });
-jest.mock("../app/utils/cellxgene-api", () => {
+jest.mock("@/app/utils/cellxgene-api", () => {
   const getCellxGeneCollectionsProxy: FunctionMocked<
     typeof getCellxGeneCollections
   > = () => getCellxGeneCollections();
@@ -73,7 +73,7 @@ const getAllProjects = jest.fn(
   async (catalog: string): Promise<ProjectsResponse[]> =>
     TEST_HCA_CATALOGS[catalog],
 );
-jest.mock("../app/utils/hca-api", () => {
+jest.mock("@/app/utils/hca-api", () => {
   const getAllProjectsProxy: FunctionMocked<typeof getAllProjects> = (
     catalog,
   ) => getAllProjects(catalog);
@@ -91,7 +91,7 @@ let refreshHandler: Handler;
 beforeAll(async () => {
   await resetDatabase();
   consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
-  refreshHandler = (await import("../pages/api/refresh")).default;
+  refreshHandler = (await import("@/pages/api/refresh")).default;
   await delay();
 });
 

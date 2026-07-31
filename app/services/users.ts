@@ -1,13 +1,13 @@
 import {
-  NewUserData,
-  UserEditData,
-} from "app/apis/catalog/hca-atlas-tracker/common/schema";
-import {
   HCAAtlasTrackerDBUser,
   HCAAtlasTrackerDBUserWithAssociatedResources,
   ROLE,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { NotFoundError } from "../utils/api-errors";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { NotFoundError } from "@/app/utils/api-errors";
+import {
+  NewUserData,
+  UserEditData,
+} from "app/apis/catalog/hca-atlas-tracker/common/schema";
 import { getAllAtlases } from "./atlases";
 import { doTransaction, query } from "./database";
 

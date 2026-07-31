@@ -1,5 +1,5 @@
+import { NotFoundView } from "@/app/views/NotFoundView/notFoundView";
 import { JSX } from "react";
-import { NotFoundView } from "../app/views/NotFoundView/notFoundView";
 
 const NotFoundPage = (): JSX.Element => {
   return <NotFoundView />;

@@ -1,24 +1,24 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { METHOD } from "../app/common/entities";
-import { endPgPool } from "../app/services/database";
-import { syncFilesFromS3 } from "../app/services/s3-sync";
-import syncFilesHandler from "../pages/api/sync-files";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool } from "@/app/services/database";
+import { syncFilesFromS3 } from "@/app/services/s3-sync";
+import syncFilesHandler from "@/pages/api/sync-files";
 import {
   USER_CONTENT_ADMIN,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
-} from "../testing/constants";
-import { TestUser } from "../testing/entities";
-import { withConsoleErrorHiding } from "../testing/utils";
+} from "@/testing/constants";
+import { TestUser } from "@/testing/entities";
+import { withConsoleErrorHiding } from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/services/s3-sync");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
+jest.mock("@/app/services/s3-sync");
 
 jest.mock("next-auth");
 

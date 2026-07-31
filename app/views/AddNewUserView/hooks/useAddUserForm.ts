@@ -5,8 +5,8 @@ import {
 import { NewUserData as ApiNewUserData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { useForm } from "@/app/hooks/useForm/useForm";
-import { NewUserData } from "../common/entities";
-import { newUserSchema } from "../common/schema";
+import { NewUserData } from "@/app/views/AddNewUserView/common/entities";
+import { newUserSchema } from "@/app/views/AddNewUserView/common/schema";
 
 const SCHEMA = newUserSchema;
 

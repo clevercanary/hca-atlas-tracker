@@ -1,4 +1,4 @@
-import { CellxGeneCollection } from "../app/utils/cellxgene-api";
+import { CellxGeneCollection } from "@/app/utils/cellxgene-api";
 import {
   CELLXGENE_ID_NORMAL,
   CELLXGENE_ID_NORMAL2,
@@ -6,16 +6,16 @@ import {
   DOI_NORMAL2,
   TEST_CELLXGENE_COLLECTIONS_A,
   TEST_CELLXGENE_COLLECTIONS_B,
-} from "../testing/constants";
+} from "@/testing/constants";
 import {
   delay,
   promiseWithResolvers,
   withConsoleMessageHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
 
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/services/refresh-services", () => ({
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/utils/pg-app-connect-config");
+jest.mock("@/app/services/refresh-services", () => ({
   doUpdatesIfRefreshesComplete: jest.fn(),
 }));
 
@@ -33,17 +33,17 @@ const getCellxGeneCollections = jest
     return cellxgeneCollections;
   });
 
-jest.mock("../app/utils/cellxgene-api", () => ({
+jest.mock("@/app/utils/cellxgene-api", () => ({
   getCellxGeneCollections,
 }));
 
-let getCellxGeneIdByDoi: typeof import("../app/services/cellxgene").getCellxGeneIdByDoi;
+let getCellxGeneIdByDoi: typeof import("@/app/services/cellxgene").getCellxGeneIdByDoi;
 
 let consoleLogSpy: jest.SpyInstance;
 
 beforeAll(async () => {
   consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
-  getCellxGeneIdByDoi = (await import("../app/services/cellxgene"))
+  getCellxGeneIdByDoi = (await import("@/app/services/cellxgene"))
     .getCellxGeneIdByDoi;
 });
 

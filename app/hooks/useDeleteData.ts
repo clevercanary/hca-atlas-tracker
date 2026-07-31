@@ -1,6 +1,6 @@
+import { METHOD } from "@/app/common/entities";
+import { fetchResource, isFetchStatusOk } from "@/app/common/utils";
 import { useCallback } from "react";
-import { METHOD } from "../common/entities";
-import { fetchResource, isFetchStatusOk } from "../common/utils";
 import { OnDeleteOptions } from "./useForm/common/entities";
 
 export interface UseDeleteData<T> {

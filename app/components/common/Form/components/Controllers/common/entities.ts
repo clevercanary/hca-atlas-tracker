@@ -1,10 +1,10 @@
+import { LabelLinkConfig } from "@/app/components/common/Form/components/Controllers/components/InputController/inputController";
+import { SelectControllerProps } from "@/app/components/common/Form/components/Controllers/components/SelectController/selectController";
 import { InputProps } from "@/app/components/common/Form/components/Input/input";
 import { SelectProps } from "@/app/components/common/Form/components/Select/select";
 import { YupValidatedFormValues } from "@/app/hooks/useForm/common/entities";
 import { ComponentPropsWithoutRef, ElementType, ReactNode } from "react";
 import { FieldValues, Path } from "react-hook-form";
-import { LabelLinkConfig } from "../components/InputController/inputController";
-import { SelectControllerProps } from "../components/SelectController/selectController";
 
 export type ControllerInputConfig = Pick<InputProps, PickedInputProps>;
 

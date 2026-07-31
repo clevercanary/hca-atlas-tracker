@@ -1,5 +1,3 @@
-import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
-import { FILE_VALIDATOR_NAMES } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   DatasetValidatorMetadataCoverageEntity,
   DatasetValidatorResults,
@@ -8,7 +6,7 @@ import {
   datasetValidatorResultsSchema,
   DatasetValidatorToolReports,
   SNSMessage,
-} from "../apis/catalog/hca-atlas-tracker/aws/schemas";
+} from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_VALIDATION_STATUS,
   FileMetadataCoverage,
@@ -19,14 +17,16 @@ import {
   HCAAtlasTrackerDBFileDatasetInfo,
   HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { validateS3BucketAuthorization } from "../config/aws-resources";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { validateS3BucketAuthorization } from "@/app/config/aws-resources";
 import {
   addValidationResultsToFile,
   AddValidationResultsToFileParams,
   getLastValidationTimestamp,
-} from "../data/files";
-import { ConflictError, InvalidOperationError } from "../utils/api-errors";
+} from "@/app/data/files";
+import { ConflictError, InvalidOperationError } from "@/app/utils/api-errors";
+import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
+import { FILE_VALIDATOR_NAMES } from "app/apis/catalog/hca-atlas-tracker/common/constants";
 import { doTransaction } from "./database";
 import {
   deleteObject,

@@ -1,6 +1,6 @@
+import { FormControl } from "@/app/components/common/Form/components/FormControl/formControl.styles";
 import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import styled from "@emotion/styled";
-import { FormControl } from "../FormControl/formControl.styles";
 
 export const InputFormControl = styled(FormControl)`
   .MuiOutlinedInput-root {

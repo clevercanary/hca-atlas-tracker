@@ -1,6 +1,6 @@
+import { getCellxGeneCollections } from "@/app/utils/cellxgene-api";
+import { normalizeDoi } from "@/app/utils/doi";
 import { Options as KyOptions } from "ky";
-import { getCellxGeneCollections } from "../utils/cellxgene-api";
-import { normalizeDoi } from "../utils/doi";
 import {
   makeRefreshService,
   RefreshDataResult,

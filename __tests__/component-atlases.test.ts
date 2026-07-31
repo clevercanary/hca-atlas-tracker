@@ -1,21 +1,21 @@
-import { FILE_TYPE } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { createComponentAtlas } from "../app/services/component-atlases";
-import { doTransaction, endPgPool, query } from "../app/services/database";
-import { ATLAS_DRAFT, EMPTY_COMPONENT_INFO } from "../testing/constants";
+import { FILE_TYPE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { createComponentAtlas } from "@/app/services/component-atlases";
+import { doTransaction, endPgPool, query } from "@/app/services/database";
+import { ATLAS_DRAFT, EMPTY_COMPONENT_INFO } from "@/testing/constants";
 import {
   createTestFile,
   getAtlasFromDatabase,
   getComponentAtlasVersionsFromDatabase,
   resetDatabase,
-} from "../testing/db-utils";
-import { expectIsDefined } from "../testing/utils";
+} from "@/testing/db-utils";
+import { expectIsDefined } from "@/testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 const ATLAS_ID_NONEXISTENT = "ea885ef9-54ae-42c7-8a7a-75c32e4703a6";
 

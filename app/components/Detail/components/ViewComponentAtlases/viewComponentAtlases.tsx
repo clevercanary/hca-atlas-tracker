@@ -1,3 +1,4 @@
+import { Divider } from "@/app/components/Detail/components/TrackerForm/components/Divider/divider.styles";
 import { EditFileArchivedStatus } from "@/app/components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/editFileArchivedStatus";
 import { RowSelection } from "@/app/components/Entity/components/common/Table/components/TableFeatures/RowSelection/rowSelection";
 import { ArchivedStatusToggle } from "@/app/components/Entity/components/common/Table/components/TableToolbar/components/ArchivedStatusToggle/archiveStatusToggle";
@@ -8,7 +9,6 @@ import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { useEntity } from "@/app/providers/entity/hook";
 import { INTEGRATED_OBJECTS } from "@/app/views/ComponentAtlasesView/hooks/UseFetchComponentAtlases/query/constants";
 import { Fragment, JSX } from "react";
-import { Divider } from "../TrackerForm/components/Divider/divider.styles";
 import { useIntegratedObjectsTable } from "./hooks/UseIntegratedObjectsTable/hook";
 import { StyledToolbar } from "./viewComponentAtlases.styles";
 

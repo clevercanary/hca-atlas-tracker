@@ -1,7 +1,7 @@
 import {
   SubmitDatasetValidationJobParams,
   SubmitDatasetValidationJobResult,
-} from "../validator-batch";
+} from "@/app/services/validator-batch";
 
 export const submitDatasetValidationJob = jest.fn<
   SubmitDatasetValidationJobResult,

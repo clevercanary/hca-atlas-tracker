@@ -1,7 +1,7 @@
-import { SNSMessage } from "../apis/catalog/hca-atlas-tracker/aws/schemas";
-import { validateSNSTopicAuthorization } from "../config/aws-resources";
-import { InvalidOperationError } from "../utils/api-errors";
-import { httpGet } from "../utils/http";
+import { SNSMessage } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import { validateSNSTopicAuthorization } from "@/app/config/aws-resources";
+import { InvalidOperationError } from "@/app/utils/api-errors";
+import { httpGet } from "@/app/utils/http";
 
 /**
  * Handles SNS subscription lifecycle messages (SubscriptionConfirmation, UnsubscribeConfirmation)

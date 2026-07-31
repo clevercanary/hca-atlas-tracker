@@ -1,15 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import {
-  expectApiUserToMatchTest,
-  expectIsDefined,
-  testApiRole,
-  withConsoleErrorHiding,
-} from "testing/utils";
-import { HCAAtlasTrackerUser } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../app/common/entities";
-import { endPgPool } from "../app/services/database";
-import usersHandler from "../pages/api/users";
+import { HCAAtlasTrackerUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool } from "@/app/services/database";
+import usersHandler from "@/pages/api/users";
 import {
   INITIAL_TEST_USERS,
   STAKEHOLDER_ANALOGOUS_ROLES,
@@ -18,17 +10,25 @@ import {
   USER_NONEXISTENT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
-} from "../testing/constants";
-import { resetDatabase } from "../testing/db-utils";
-import { TestUser } from "../testing/entities";
+} from "@/testing/constants";
+import { resetDatabase } from "@/testing/db-utils";
+import { TestUser } from "@/testing/entities";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
+import {
+  expectApiUserToMatchTest,
+  expectIsDefined,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/crossref/crossref-api");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/crossref/crossref-api");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 

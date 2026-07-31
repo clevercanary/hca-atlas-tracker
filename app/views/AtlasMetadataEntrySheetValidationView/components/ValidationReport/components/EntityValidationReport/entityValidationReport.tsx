@@ -1,4 +1,5 @@
 import { buildSheetsUrl } from "@/app/utils/google-sheets";
+import { Alert } from "@/app/views/AtlasMetadataEntrySheetValidationView/components/ValidationReport/components/Alert/alert";
 import {
   COLUMN_KEY,
   MAX_REPORTS_TO_DISPLAY,
@@ -14,7 +15,6 @@ import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/b
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Button, Divider, Typography } from "@mui/material";
 import { Fragment, JSX, useMemo, useState } from "react";
-import { Alert } from "../Alert/alert";
 import { ENTITY_NAME, GRID_PROPS } from "./constants";
 import { Props } from "./entities";
 import {

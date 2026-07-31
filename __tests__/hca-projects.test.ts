@@ -1,5 +1,5 @@
-import { ProjectsResponse } from "../app/apis/azul/hca-dcp/common/responses";
-import { endPgPool } from "../app/services/database";
+import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { endPgPool } from "@/app/services/database";
 import {
   DOI_NORMAL,
   DOI_NORMAL2,
@@ -8,19 +8,19 @@ import {
   HCA_ID_NORMAL,
   HCA_ID_NORMAL2,
   TEST_HCA_CATALOGS,
-} from "../testing/constants";
+} from "@/testing/constants";
 import {
   delay,
   promiseWithResolvers,
   withConsoleMessageHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
-jest.mock("../app/services/validations", () => ({
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
+jest.mock("@/app/services/validations", () => ({
   refreshValidations: jest.fn(),
 }));
 
@@ -40,18 +40,18 @@ const getAllProjects = jest
 
 const getLatestCatalog = jest.fn().mockResolvedValue(HCA_CATALOG_TEST1);
 
-jest.mock("../app/utils/hca-api", () => ({
+jest.mock("@/app/utils/hca-api", () => ({
   getAllProjects,
   getLatestCatalog,
 }));
 
-let getProjectIdByDoi: typeof import("../app/services/hca-projects").getProjectIdByDoi;
+let getProjectIdByDoi: typeof import("@/app/services/hca-projects").getProjectIdByDoi;
 
 let consoleLogSpy: jest.SpyInstance;
 
 beforeAll(async () => {
   consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
-  getProjectIdByDoi = (await import("../app/services/hca-projects"))
+  getProjectIdByDoi = (await import("@/app/services/hca-projects"))
     .getProjectIdByDoi;
 });
 

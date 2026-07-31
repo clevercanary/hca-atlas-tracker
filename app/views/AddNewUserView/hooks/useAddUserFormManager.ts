@@ -6,9 +6,9 @@ import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { ROUTE } from "@/app/routes/constants";
+import { NewUserData } from "@/app/views/AddNewUserView/common/entities";
 import Router from "next/router";
 import { useCallback } from "react";
-import { NewUserData } from "../common/entities";
 
 export const useAddUserFormManager = (
   formMethod: FormMethod<NewUserData, HCAAtlasTrackerUser>,

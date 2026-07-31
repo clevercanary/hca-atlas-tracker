@@ -1,9 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { FilesSetIsArchivedData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../app/common/entities";
-import { endPgPool } from "../app/services/database";
-import archiveHandler from "../pages/api/atlases/[atlasId]/files/archive";
+import { FilesSetIsArchivedData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool } from "@/app/services/database";
+import archiveHandler from "@/pages/api/atlases/[atlasId]/files/archive";
 import {
   ATLAS_NONEXISTENT,
   ATLAS_WITH_LINKED_PUBLISH_STATUSES,
@@ -37,22 +35,24 @@ import {
   USER_INTEGRATION_LEAD_PUBLIC,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_UNREGISTERED,
-} from "../testing/constants";
+} from "@/testing/constants";
 import {
   expectFilesToHaveArchiveStatus,
   resetDatabase,
-} from "../testing/db-utils";
-import { TestUser } from "../testing/entities";
-import { testApiRole, withConsoleErrorHiding } from "../testing/utils";
+} from "@/testing/db-utils";
+import { TestUser } from "@/testing/entities";
+import { testApiRole, withConsoleErrorHiding } from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
-jest.mock("../app/services/s3-operations");
+jest.mock("@/app/services/s3-operations");
 
 jest.mock("googleapis");
 jest.mock("next-auth");

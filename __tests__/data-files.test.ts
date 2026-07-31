@@ -1,16 +1,16 @@
-import { ETagMismatchError } from "../app/apis/catalog/hca-atlas-tracker/aws/errors";
+import { ETagMismatchError } from "@/app/apis/catalog/hca-atlas-tracker/aws/errors";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
   INTEGRITY_STATUS,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   confirmLatestFilesExistOnAtlas,
   markPreviousVersionsAsNotLatest,
   upsertFileRecord,
-} from "../app/data/files";
-import { doTransaction, endPgPool, query } from "../app/services/database";
-import { NotFoundError } from "../app/utils/api-errors";
+} from "@/app/data/files";
+import { doTransaction, endPgPool, query } from "@/app/services/database";
+import { NotFoundError } from "@/app/utils/api-errors";
 import {
   ATLAS_DRAFT,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
@@ -22,12 +22,12 @@ import {
   SOURCE_DATASET_BAR,
   SOURCE_DATASET_DRAFT_OK_FOO,
   SOURCE_DATASET_FOO,
-} from "../testing/constants";
+} from "@/testing/constants";
 import {
   createTestConceptFromS3Key,
   createTestFile,
   resetDatabase,
-} from "../testing/db-utils";
+} from "@/testing/db-utils";
 
 // Shared test constants
 const TEST_EVENT_INFO = JSON.stringify({
@@ -37,12 +37,12 @@ const TEST_EVENT_INFO = JSON.stringify({
 
 // Mock external dependencies
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/crossref/crossref-api");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/crossref/crossref-api");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 jest.mock("next-auth");
 
 beforeEach(async () => {

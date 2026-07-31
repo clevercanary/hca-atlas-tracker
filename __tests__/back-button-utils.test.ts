@@ -1,8 +1,8 @@
 import {
   parseBackOrigin,
   resolveBackPath,
-} from "../app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/utils";
-import { withBackOrigin } from "../app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
+} from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/utils";
+import { withBackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
 
 describe("parseBackOrigin", () => {
   it("returns undefined for undefined", () => {

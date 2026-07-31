@@ -6,9 +6,9 @@ import {
 } from "@/app/hooks/useTableOptions";
 import { FIELD_NAME } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/constants";
 import { ComponentAtlasSourceDatasetsEditData } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/entities";
+import { TABLE_OPTIONS } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/components/ComponentAtlasSourceDatasetsSelection/components/FormContent/components/Table/common/constants";
 import { Row, RowSelectionState } from "@tanstack/react-table";
 import { FormState } from "react-hook-form";
-import { TABLE_OPTIONS } from "../components/FormContent/components/Table/common/constants";
 
 export const useComponentAtlasSourceDatasetsSelectionTableOptions = (
   formMethod: FormMethod<

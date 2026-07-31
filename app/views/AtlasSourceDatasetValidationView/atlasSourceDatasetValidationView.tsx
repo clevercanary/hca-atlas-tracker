@@ -9,9 +9,9 @@ import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { ROUTE } from "@/app/routes/constants";
+import { useFetchAtlasSourceDataset } from "@/app/views/AtlasSourceDatasetView/hooks/UseFetchAtlasSourceDataset/hook";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment, JSX } from "react";
-import { useFetchAtlasSourceDataset } from "../AtlasSourceDatasetView/hooks/UseFetchAtlasSourceDataset/hook";
 import { VIEW_SOURCE_DATASET_VALIDATION_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs, getTabs } from "./common/utils";
 

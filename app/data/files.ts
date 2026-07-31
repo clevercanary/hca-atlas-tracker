@@ -1,5 +1,4 @@
-import pg from "pg";
-import { ETagMismatchError } from "../apis/catalog/hca-atlas-tracker/aws/errors";
+import { ETagMismatchError } from "@/app/apis/catalog/hca-atlas-tracker/aws/errors";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
@@ -12,12 +11,13 @@ import {
   HCAAtlasTrackerDBFileValidationInfo,
   HCAAtlasTrackerDBSourceDataset,
   INTEGRITY_STATUS,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { getPublishedFromPublishedAt } from "../apis/catalog/hca-atlas-tracker/common/utils";
-import { getAtlasComponentAtlasVersionIds } from "../services/component-atlases";
-import { query } from "../services/database";
-import { InvalidOperationError, NotFoundError } from "../utils/api-errors";
-import { confirmQueryRowsContainIds } from "../utils/database";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getPublishedFromPublishedAt } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
+import { getAtlasComponentAtlasVersionIds } from "@/app/services/component-atlases";
+import { query } from "@/app/services/database";
+import { InvalidOperationError, NotFoundError } from "@/app/utils/api-errors";
+import { confirmQueryRowsContainIds } from "@/app/utils/database";
+import pg from "pg";
 import { getAtlasSourceDatasetVersionIds } from "./source-datasets";
 
 export type FileUpsertResult = Pick<HCAAtlasTrackerDBFile, "etag" | "id"> & {

@@ -1,5 +1,5 @@
 // Mock HTTP wrapper for outbound requests BEFORE any imports
-jest.mock("../app/utils/http", () => {
+jest.mock("@/app/utils/http", () => {
   return { httpGet: jest.fn() };
 });
 
@@ -22,22 +22,22 @@ import {
   TEST_TIMESTAMP_ALT,
   TEST_VERSION_IDS,
   validateTestSnsMessage,
-} from "../testing/sns-testing";
+} from "@/testing/sns-testing";
 
 // Set up AWS resource configuration BEFORE any other imports
 setUpAwsConfig();
 
 // Imports
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { METHOD } from "../app/common/entities";
-import { resetConfigCache } from "../app/config/aws-resources";
-import { endPgPool, query } from "../app/services/database";
-import { resetDatabase } from "../testing/db-utils";
+import { METHOD } from "@/app/common/entities";
+import { resetConfigCache } from "@/app/config/aws-resources";
+import { endPgPool, query } from "@/app/services/database";
+import { resetDatabase } from "@/testing/db-utils";
 import {
   withConsoleErrorHiding,
   withConsoleMessageHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 // Retrieve the mock function created in the jest.mock factory above
 const { httpGet } = jest.requireMock("../app/utils/http") as {
@@ -46,12 +46,12 @@ const { httpGet } = jest.requireMock("../app/utils/http") as {
 const mockHttpGet = httpGet as jest.Mock;
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/utils/crossref/crossref-api");
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/utils/crossref/crossref-api");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 
@@ -69,7 +69,7 @@ jest.mock("sns-validator", () => {
 
 const TEST_ROUTE = "/api/sns";
 
-import snsHandler from "../pages/api/sns";
+import snsHandler from "@/pages/api/sns";
 
 beforeEach(async () => {
   await resetDatabase();
@@ -261,7 +261,7 @@ describe(TEST_ROUTE, () => {
         method: METHOD.POST,
       });
 
-      const handler = (await import("../pages/api/sns")).default;
+      const handler = (await import("@/pages/api/sns")).default;
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(403);
@@ -317,7 +317,7 @@ describe(TEST_ROUTE, () => {
           method: METHOD.POST,
         });
 
-        const handler = (await import("../pages/api/sns")).default;
+        const handler = (await import("@/pages/api/sns")).default;
         await withConsoleMessageHiding(async () => {
           await handler(req, res);
         });
@@ -348,7 +348,7 @@ describe(TEST_ROUTE, () => {
           method: METHOD.POST,
         });
 
-        const handler = (await import("../pages/api/sns")).default;
+        const handler = (await import("@/pages/api/sns")).default;
         await withConsoleMessageHiding(async () => {
           await handler(req, res);
         });
@@ -381,7 +381,7 @@ describe(TEST_ROUTE, () => {
           method: METHOD.POST,
         });
 
-        const handler = (await import("../pages/api/sns")).default;
+        const handler = (await import("@/pages/api/sns")).default;
         await withConsoleMessageHiding(async () => {
           await handler(req, res);
         });
@@ -415,7 +415,7 @@ describe(TEST_ROUTE, () => {
           method: METHOD.POST,
         });
 
-        const handler = (await import("../pages/api/sns")).default;
+        const handler = (await import("@/pages/api/sns")).default;
         await withConsoleMessageHiding(async () => {
           await handler(req, res);
         });
@@ -444,7 +444,7 @@ describe(TEST_ROUTE, () => {
           method: METHOD.POST,
         });
 
-        const handler = (await import("../pages/api/sns")).default;
+        const handler = (await import("@/pages/api/sns")).default;
         await withConsoleMessageHiding(async () => {
           await handler(req, res);
         });
@@ -476,7 +476,7 @@ describe(TEST_ROUTE, () => {
           method: METHOD.POST,
         });
 
-        const handler = (await import("../pages/api/sns")).default;
+        const handler = (await import("@/pages/api/sns")).default;
         await withConsoleMessageHiding(async () => {
           await handler(req, res);
         });

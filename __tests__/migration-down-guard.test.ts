@@ -1,4 +1,4 @@
-import { assertMigrationDownAllowed } from "../scripts/migration-down-guard";
+import { assertMigrationDownAllowed } from "@/scripts/migration-down-guard";
 
 const DISABLED_MESSAGE = "migrate:down is disabled in deployed environments.";
 

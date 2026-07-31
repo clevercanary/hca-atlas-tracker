@@ -1,10 +1,8 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
-import { REPROCESSED_STATUS } from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { SourceDatasetsSetReprocessedStatusData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { METHOD } from "../app/common/entities";
-import { endPgPool, query } from "../app/services/database";
-import reprocessedStatusHandler from "../pages/api/atlases/[atlasId]/source-datasets/reprocessed-status";
+import { REPROCESSED_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { SourceDatasetsSetReprocessedStatusData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { METHOD } from "@/app/common/entities";
+import { endPgPool, query } from "@/app/services/database";
+import reprocessedStatusHandler from "@/pages/api/atlases/[atlasId]/source-datasets/reprocessed-status";
 import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   ATLAS_WITH_MISC_SOURCE_STUDIES_B,
@@ -26,33 +24,35 @@ import {
   USER_INTEGRATION_LEAD_PUBLIC,
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_UNREGISTERED,
-} from "../testing/constants";
+} from "@/testing/constants";
 import {
   expectSourceDatasetToBeUnchanged,
   getAtlasSourceDatasetsFromDatabase,
   resetDatabase,
-} from "../testing/db-utils";
-import { TestSourceDataset, TestUser } from "../testing/entities";
+} from "@/testing/db-utils";
+import { TestSourceDataset, TestUser } from "@/testing/entities";
 import {
   expectDbSourceDatasetToMatchTest,
   expectIsDefined,
   testApiRole,
   withConsoleErrorHiding,
-} from "../testing/utils";
+} from "@/testing/utils";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 jest.mock("googleapis");
 jest.mock("next-auth");
 
-jest.mock("../app/utils/google-sheets-api", () => {
-  const googleSheetsApi: typeof import("../app/utils/google-sheets-api") =
-    jest.requireActual("../app/utils/google-sheets-api");
+jest.mock("@/app/utils/google-sheets-api", () => {
+  const googleSheetsApi: typeof import("@/app/utils/google-sheets-api") =
+    jest.requireActual("@/app/utils/google-sheets-api");
 
   return {
     getSheetTitleForApi: jest.fn(googleSheetsApi.getSheetTitleForApi),

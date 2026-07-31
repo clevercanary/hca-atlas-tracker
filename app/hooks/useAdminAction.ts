@@ -1,6 +1,6 @@
+import { METHOD } from "@/app/common/entities";
+import { fetchResource } from "@/app/common/utils";
 import { useCallback, useState } from "react";
-import { METHOD } from "../common/entities";
-import { fetchResource } from "../common/utils";
 import { FormResponseErrors } from "./useForm/common/entities";
 
 interface UseAdminAction<T> {

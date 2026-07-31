@@ -1,14 +1,11 @@
-import { METHOD } from "app/common/entities";
-import { NextApiRequest, NextApiResponse } from "next";
-import httpMocks from "node-mocks-http";
 import {
   HCAAtlasTrackerComment,
   HCAAtlasTrackerDBComment,
   HCAAtlasTrackerDBUser,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { NewCommentData } from "../app/apis/catalog/hca-atlas-tracker/common/schema";
-import { endPgPool, query } from "../app/services/database";
-import commentsHandler from "../pages/api/comments/[threadId]/comments";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { NewCommentData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { endPgPool, query } from "@/app/services/database";
+import commentsHandler from "@/pages/api/comments/[threadId]/comments";
 import {
   TEST_COMMENTS_BY_THREAD_ID,
   THREAD_ID_BY_CONTENT_ADMIN,
@@ -21,17 +18,20 @@ import {
   USER_INTEGRATION_LEAD_DRAFT,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
-} from "../testing/constants";
-import { getDbUsersByEmail, resetDatabase } from "../testing/db-utils";
-import { TestComment, TestUser } from "../testing/entities";
-import { withConsoleErrorHiding } from "../testing/utils";
+} from "@/testing/constants";
+import { getDbUsersByEmail, resetDatabase } from "@/testing/db-utils";
+import { TestComment, TestUser } from "@/testing/entities";
+import { withConsoleErrorHiding } from "@/testing/utils";
+import { METHOD } from "app/common/entities";
+import { NextApiRequest, NextApiResponse } from "next";
+import httpMocks from "node-mocks-http";
 
 jest.mock(
-  "../site-config/hca-atlas-tracker/local/authentication/next-auth-config",
+  "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",
 );
-jest.mock("../app/services/hca-projects");
-jest.mock("../app/services/cellxgene");
-jest.mock("../app/utils/pg-app-connect-config");
+jest.mock("@/app/services/hca-projects");
+jest.mock("@/app/services/cellxgene");
+jest.mock("@/app/utils/pg-app-connect-config");
 
 jest.mock("next-auth");
 

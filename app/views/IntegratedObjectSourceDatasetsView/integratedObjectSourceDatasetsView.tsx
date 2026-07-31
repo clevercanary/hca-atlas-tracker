@@ -6,10 +6,10 @@ import { StyledDetailView } from "@/app/components/Layout/components/Detail/stic
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
+import { getTabs } from "@/app/views/ComponentAtlasView/common/utils";
+import { useFetchComponentAtlas } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/hook";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Fragment, JSX } from "react";
-import { getTabs } from "../ComponentAtlasView/common/utils";
-import { useFetchComponentAtlas } from "../ComponentAtlasView/hooks/UseFetchComponentAtlas/hook";
 import { VIEW_INTEGRATED_OBJECT_SOURCE_DATASETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditIntegratedObjectSourceDatasets } from "./hooks/useEditIntegratedObjectSourceDatasets";

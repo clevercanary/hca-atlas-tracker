@@ -6,10 +6,10 @@ import { FormMethod } from "@/app/hooks/useForm/common/entities";
 import { FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { ROUTE } from "@/app/routes/constants";
+import { NewAtlasData } from "@/app/views/AddNewAtlasView/common/entities";
+import { getIdentifierId } from "@/app/views/AddNewAtlasView/common/utils";
 import Router from "next/router";
 import { useCallback } from "react";
-import { NewAtlasData } from "../common/entities";
-import { getIdentifierId } from "../common/utils";
 
 export const useAddAtlasFormManager = (
   formMethod: FormMethod<NewAtlasData, HCAAtlasTrackerAtlas>,

@@ -3,8 +3,8 @@ import {
   HCA_TIER1_VALIDATION_STATUS,
   HCAAtlasTrackerComponentAtlas,
   HCAAtlasTrackerSourceDataset,
-} from "../app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getHcaTier1ValidationStatus } from "../app/apis/catalog/hca-atlas-tracker/common/utils";
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { getHcaTier1ValidationStatus } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 
 describe("getHcaTier1ValidationStatus", () => {
   it("returns UNKNOWN when validation status is pending with no existing summary", () => {

@@ -1,9 +1,9 @@
+import { CollectionInfo } from "@/app/services/cellxgene";
+import { RefreshDataResult } from "@/app/services/common/refresh-service";
 import {
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,
   TEST_CELLXGENE_COLLECTIONS_BY_ID,
 } from "@/testing/constants";
-import { CollectionInfo } from "../cellxgene";
-import { RefreshDataResult } from "../common/refresh-service";
 
 export function isCellxGeneRefreshing(): boolean {
   return false;

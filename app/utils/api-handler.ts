@@ -1,18 +1,18 @@
+import {
+  HCAAtlasTrackerDBUser,
+  ROLE,
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
+import { FormResponseErrors } from "@/app/hooks/useForm/common/entities";
+import {
+  atlasIsPublished,
+  getAtlasIdByUrlParameter,
+} from "@/app/services/atlases";
+import { query } from "@/app/services/database";
 import { nextAuthOptions } from "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { ValidationError } from "yup";
-import {
-  HCAAtlasTrackerDBUser,
-  ROLE,
-} from "../apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "../common/entities";
-import { FormResponseErrors } from "../hooks/useForm/common/entities";
-import {
-  atlasIsPublished,
-  getAtlasIdByUrlParameter,
-} from "../services/atlases";
-import { query } from "../services/database";
 import {
   ApiError,
   ForbiddenError,

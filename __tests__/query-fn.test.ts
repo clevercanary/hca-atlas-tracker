@@ -1,12 +1,12 @@
-jest.mock("../app/common/utils", () => ({
-  ...jest.requireActual("../app/common/utils"),
+jest.mock("@/app/common/utils", () => ({
+  ...jest.requireActual("@/app/common/utils"),
   fetchResource: jest.fn(),
 }));
 
+import { METHOD } from "@/app/common/entities";
+import { fetchResource } from "@/app/common/utils";
+import { queryFn } from "@/app/query/queryFn";
 import { QueryFunctionContext } from "@tanstack/react-query";
-import { METHOD } from "../app/common/entities";
-import { fetchResource } from "../app/common/utils";
-import { queryFn } from "../app/query/queryFn";
 
 const mockFetchResource = fetchResource as jest.MockedFunction<
   typeof fetchResource

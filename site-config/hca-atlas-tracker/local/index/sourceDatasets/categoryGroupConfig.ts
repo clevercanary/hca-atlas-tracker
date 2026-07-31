@@ -6,7 +6,7 @@ import {
 import {
   CAP_INGEST_STATUS_CATEGORY_CONFIG,
   TIER1_VALIDATION_STATUS_CATEGORY_CONFIG,
-} from "../common/categoryConfig";
+} from "@/site-config/hca-atlas-tracker/local/index/common/categoryConfig";
 
 export const CATEGORY_GROUP_CONFIG: SiteConfig["categoryGroupConfig"] = {
   categoryGroups: [
