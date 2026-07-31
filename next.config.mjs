@@ -39,4 +39,21 @@ export default withMDX({
     ];
   },
   transpilePackages: [...ESM_PACKAGES],
+  /**
+   * Extend the webpack configuration.
+   * @param config - Webpack configuration.
+   * @returns The modified webpack configuration.
+   */
+  webpack: (config) => {
+    // @observablehq/plot is only reached through findable-ui's lazy ChartView
+    // chunk, which the tracker never renders (no ChartView/Plot usage in app/ or
+    // site-config/). The package is not installed; alias it to an empty module
+    // so webpack can still compile the lazy chunk at build time instead of
+    // failing to resolve it. See clevercanary/hca-atlas-tracker#1470.
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@observablehq/plot": false,
+    };
+    return config;
+  },
 });
