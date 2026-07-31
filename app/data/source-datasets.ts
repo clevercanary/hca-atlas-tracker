@@ -98,6 +98,27 @@ export async function getSourceDatasetsForGlobalApi(): Promise<
               PARTITION BY ar.overview->>'network', ar.overview->>'shortName', ar.generation
             ) AS max_revision
           FROM hat.atlases ar
+        ),
+        -- Aggregate atlases by source dataset version separately from the main
+        -- query, so the source datasets' wide jsonb columns don't have to be
+        -- carried through the aggregation.
+        source_dataset_atlases AS (
+          SELECT
+            sd_version_id AS version_id,
+            ARRAY_AGG(
+              jsonb_build_object(
+                'generation', a.generation,
+                'id', a.id,
+                'isPrimary', TRUE, -- TODO: update this when importing is possible
+                'isLatest', a.revision = a.max_revision,
+                'network', a.overview->>'network',
+                'revision', a.revision,
+                'shortName', a.overview->>'shortName'
+              )
+            ) AS atlases
+          FROM atlases_with_revisions a
+          CROSS JOIN UNNEST(a.source_datasets) AS sd_version_id
+          GROUP BY sd_version_id
         )
         SELECT
           d.*,
@@ -114,24 +135,13 @@ export async function getSourceDatasetsForGlobalApi(): Promise<
           con.base_filename,
           s.doi,
           s.study_info,
-          ARRAY_AGG(
-            jsonb_build_object(
-              'generation', a.generation,
-              'id', a.id,
-              'isPrimary', TRUE, -- TODO: update this when importing is possible
-              'isLatest', a.revision = a.max_revision,
-              'network', a.overview->>'network',
-              'revision', a.revision,
-              'shortName', a.overview->>'shortName'
-            )
-          ) as atlases
+          da.atlases
         FROM hat.source_datasets d
+        JOIN source_dataset_atlases da ON da.version_id = d.version_id
         JOIN hat.files f ON f.id = d.file_id
         JOIN hat.concepts con ON con.id = d.id
         LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
-        JOIN atlases_with_revisions a ON d.version_id = ANY(a.source_datasets)
         WHERE (d.is_latest OR d.published_at IS NOT NULL) AND NOT f.is_archived
-        GROUP BY d.version_id, f.id, con.id, s.id
       `,
     );
 
@@ -157,12 +167,29 @@ export async function getSourceDatasetsForListApi(
     await query<HCAAtlasTrackerDBSourceDatasetForListAPI>(
       `
         WITH atlas_component_atlases AS (
-          SELECT c.id, c.source_datasets, c.version_id, ccon.base_filename
+          SELECT c.id, c.source_datasets, ccon.base_filename
           FROM hat.component_atlases c
           JOIN hat.concepts ccon ON ccon.id = c.id
           JOIN hat.files cf ON cf.id = c.file_id
           JOIN hat.atlases a ON c.version_id = ANY(a.component_atlases)
           WHERE NOT cf.is_archived AND a.id = $3
+        ),
+        -- Aggregate component atlases by source dataset version separately from
+        -- the main query, so the source datasets' wide jsonb columns don't have
+        -- to be carried through the aggregation.
+        source_dataset_component_atlases AS (
+          SELECT
+            sd_version_id AS version_id,
+            ARRAY_AGG(
+              jsonb_build_object(
+                'baseFilename', ca.base_filename,
+                'id', ca.id
+              )
+            ) AS component_atlases
+          FROM atlas_component_atlases ca
+          CROSS JOIN UNNEST(ca.source_datasets) AS sd_version_id
+          WHERE sd_version_id = ANY($1)
+          GROUP BY sd_version_id
         )
         SELECT
           d.*,
@@ -179,23 +206,14 @@ export async function getSourceDatasetsForListApi(
           con.base_filename,
           s.doi,
           s.study_info,
-          COALESCE(
-            ARRAY_AGG(
-              jsonb_build_object(
-                'baseFilename', ca.base_filename,
-                'id', ca.id
-              )
-            ) FILTER (WHERE ca.id IS NOT NULL),
-            '{}'
-          ) as component_atlases
+          COALESCE(dca.component_atlases, '{}'::jsonb[]) as component_atlases
         FROM hat.source_datasets d
         JOIN hat.files f ON f.id = d.file_id
         JOIN hat.concepts con ON con.id = d.id
         LEFT JOIN hat.source_studies s ON d.source_study_id = s.id
         JOIN hat.atlases a ON d.version_id = ANY(a.source_datasets)
-        LEFT JOIN atlas_component_atlases ca ON d.version_id = ANY(ca.source_datasets)
+        LEFT JOIN source_dataset_component_atlases dca ON dca.version_id = d.version_id
         WHERE d.version_id = ANY($1) AND f.is_archived = ANY($2) AND a.id = $3
-        GROUP BY d.version_id, f.id, con.id, s.id, a.id
       `,
       [sourceDatasetVersions, isArchivedValues, atlasId],
       client,
