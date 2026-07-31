@@ -20,8 +20,9 @@ export interface AuthedQueryOptions<TData, TView, TQueryKey extends QueryKey> {
 /**
  * Auth-gated React Query wrapper shared by the entity fetch hooks. Adds the
  * `isAuthenticated` gate once (so it can't be omitted per hook — the failure
- * mode behind the review's staleness findings) and wires the generic `queryFn`.
- * Callers pass the query key, request URL, and any per-hook options: an extra
+ * mode behind the review's staleness findings), gates `throwOnError` on auth so
+ * a logged-out render never re-throws a cached error, and wires the generic
+ * `queryFn`. Callers pass the query key, request URL, and any per-hook options: an extra
  * `enabled` gate beyond authentication, the HTTP `method`, a `select` mapper,
  * and a `staleTime` override.
  * @param options - Query options.
@@ -58,5 +59,11 @@ export const useAuthedQuery = <
     queryKey,
     select,
     staleTime,
+    // Gate throwOnError on auth (not just `enabled`): `enabled: false` stops
+    // fetching but a previously-cached error would still re-throw to a
+    // logged-out user during the logout render, before AuthorizationProvider's
+    // cache-clear effect runs. While authenticated it still throws, surfacing
+    // failures to the app ErrorBoundary (mirrors useFetchActiveUser).
+    throwOnError: isAuthenticated,
   });
 };
