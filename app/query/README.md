@@ -14,8 +14,12 @@ The default `staleTime` is **5 minutes** (`DEFAULT_QUERY_OPTIONS` in
   validation, Sync, cross-entity effects): e.g. `ATLASES`, `SOURCE_DATASETS`,
   `INTEGRATED_OBJECTS`, `ATLAS_STATUS`, `METADATA_CORRECTNESS`,
   `ENTRY_SHEET_VALIDATION(S)`. These remount on navigation, so `staleTime: 0`
-  makes them refetch on mount and stay fresh — no mutation site needs to
-  invalidate them.
+  makes them refetch on mount — covering staleness from navigating away and
+  back without any mutation-site invalidation. This only fires on **mount**,
+  though: a mutation that changes such a list _while it stays mounted_ (an
+  in-place edit / delete / archive with no navigation) must still
+  `invalidateQueries` the key, because `staleTime: 0` alone won't refetch
+  without a remount.
 
 - **Default (5 min) + invalidate at mutation sites — detail hooks feeding edit
   forms.** `ATLAS`, `INTEGRATED_OBJECT`, `SOURCE_DATASET`, `SOURCE_STUDY`,
@@ -26,10 +30,13 @@ The default `staleTime` is **5 minutes** (`DEFAULT_QUERY_OPTIONS` in
   `invalidateQueries` the detail key, otherwise the view and the re-initialized
   form serve pre-edit data within the 5-minute window.
 
-**Rule of thumb:** if a list/summary can go stale on its own, give it
-`staleTime: 0`; if a detail that stays mounted is changed by a save, invalidate
-(or seed) its key at the mutation site. Do **not** invalidate a `staleTime: 0`
-key — it self-refreshes on mount.
+**Rule of thumb — two independent axes.** `staleTime: 0` handles staleness across
+a **remount** (navigate away and back → refetch on mount). **Invalidation**
+handles staleness **while a query stays mounted** — an in-place edit / delete /
+archive, or a detail whose edit form redirects to self — where no remount fires
+to trigger a refetch. So a `staleTime: 0` list still needs invalidation when it's
+mutated in place; you just don't invalidate it merely to cover navigation (the
+mount refetch already does).
 
 ## Invalidate vs. `setQueryData`
 
