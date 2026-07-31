@@ -1,5 +1,34 @@
 # Changelog
 
+## [1.79.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.78.0...v1.79.0) (2026-07-31)
+
+
+### Features
+
+* add various potentially-useful indexes to database and update queries to benefit ([#1458](https://github.com/clevercanary/hca-atlas-tracker/issues/1458)) ([#1487](https://github.com/clevercanary/hca-atlas-tracker/issues/1487)) ([ab9bc54](https://github.com/clevercanary/hca-atlas-tracker/commit/ab9bc547e69753d8201c200003d6ecfa6f2de14e))
+
+
+### Chores
+
+* upgrade findable-ui to v56.0.0 ([#1504](https://github.com/clevercanary/hca-atlas-tracker/issues/1504)) ([#1505](https://github.com/clevercanary/hca-atlas-tracker/issues/1505)) ([f6978bd](https://github.com/clevercanary/hca-atlas-tracker/commit/f6978bd8820c0c59a4276e40d7c7f30e92c9ba02))
+
+
+### Code Refactoring
+
+* adopt @/ import path alias and migrate deep relative imports ([#1495](https://github.com/clevercanary/hca-atlas-tracker/issues/1495)) ([#1497](https://github.com/clevercanary/hca-atlas-tracker/issues/1497)) ([e31d024](https://github.com/clevercanary/hca-atlas-tracker/commit/e31d024276933ba7bbc3bdc3db89ad82f9b95162))
+* use minimal joins between metadata entities and atlases ([#1490](https://github.com/clevercanary/hca-atlas-tracker/issues/1490)) ([#1500](https://github.com/clevercanary/hca-atlas-tracker/issues/1500)) ([e5484d6](https://github.com/clevercanary/hca-atlas-tracker/commit/e5484d60489dfd74245259a24a50d3229dbd7eff))
+
+
+### Performance Improvements
+
+* enable next.js image optimization — images ship raw with unoptimized: true ([#1480](https://github.com/clevercanary/hca-atlas-tracker/issues/1480)) ([#1485](https://github.com/clevercanary/hca-atlas-tracker/issues/1485)) ([b9cf130](https://github.com/clevercanary/hca-atlas-tracker/commit/b9cf130109b14bf9116932a85981053719abe74c))
+* virtualize large detail tables ([#1473](https://github.com/clevercanary/hca-atlas-tracker/issues/1473)) ([#1488](https://github.com/clevercanary/hca-atlas-tracker/issues/1488)) ([c0c0bb1](https://github.com/clevercanary/hca-atlas-tracker/commit/c0c0bb182099960516bb0f30a44584c1bca9a7dd))
+
+
+### Continuous Integration
+
+* run dev deploy after release-please to fix version race ([#1476](https://github.com/clevercanary/hca-atlas-tracker/issues/1476)) ([55aaef7](https://github.com/clevercanary/hca-atlas-tracker/commit/55aaef7fde7fd871a6d9c9e113dab8d87758a696))
+
 ## [1.78.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.77.0...v1.78.0) (2026-07-23)
 
 
