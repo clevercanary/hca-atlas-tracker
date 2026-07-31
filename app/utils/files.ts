@@ -11,7 +11,7 @@ import {
   AtlasSlugNameAndVersion,
   AtlasVersionNumbers,
   parseS3AtlasVersion,
-} from "@/app/utils/atlases";
+} from "./atlases";
 
 // Parsed S3 key path components
 interface S3KeyPathComponents {

@@ -50,13 +50,18 @@ const config = [
       // Keeps a module's internal and external references to the same string
       // (one grep finds every consumer) and stops the rule from depending on
       // how deep a file happens to sit. Uses the typescript-eslint variant so
-      // it also catches `import type` specifiers.
+      // it also catches `import type` specifiers. `@/` is a tsconfig path, so
+      // non-Next runtime entrypoints (scripts run outside `next`) must load it
+      // via `tsx` or `ts-node -r tsconfig-paths/register` for it to resolve.
       "@typescript-eslint/no-restricted-imports": [
         "error",
         {
           patterns: [
             {
-              group: ["..", "../*", "../**"],
+              // `".."` alone matches every parent-relative specifier (ESLint
+              // uses gitignore semantics, where a slash-free pattern matches at
+              // any depth); `"../**"` is kept only to make the intent explicit.
+              group: ["..", "../**"],
               message:
                 "Reach outside this directory via the '@/' alias; relative imports are for ./ same-dir and descendants only.",
             },
@@ -64,12 +69,12 @@ const config = [
               // Bare repo-root imports resolve via `baseUrl: "."` (e.g.
               // `app/foo`), which is a second specifier for the same module —
               // defeating the one-string/one-grep goal above. Require the `@/`
-              // alias for every repo-root segment. (Does not touch the `images/*`
-              // path alias or any npm package.)
+              // alias for every repo-root segment. Keep this list in sync with
+              // the repo's top-level source directories.
               message:
                 "Import repo-root modules via the '@/' alias (e.g. '@/app/...'), not a bare baseUrl path.",
               regex:
-                "^(app|catalog|db_scripts|migrations|pages|scripts|site-config|testing)/",
+                "^(@types|__mocks__|__tests__|app|catalog|db_scripts|migrations|pages|scripts|site-config|testing|types)/",
             },
           ],
         },

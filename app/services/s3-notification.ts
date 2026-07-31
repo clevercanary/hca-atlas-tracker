@@ -36,10 +36,6 @@ import {
   createNewSourceDatasetVersion,
   markSourceDatasetAsNotLatest,
 } from "@/app/data/source-datasets";
-import {
-  getAtlasMatchingConceptAndRevision,
-  getOrCreateConceptId,
-} from "@/app/services/concepts";
 import { InvalidOperationError } from "@/app/utils/api-errors";
 import {
   parseNormalizedInfoFromS3Key,
@@ -47,6 +43,10 @@ import {
 } from "@/app/utils/files";
 import { PoolClient } from "pg";
 import { createComponentAtlas } from "./component-atlases";
+import {
+  getAtlasMatchingConceptAndRevision,
+  getOrCreateConceptId,
+} from "./concepts";
 import { doTransaction } from "./database";
 import { startFileValidation } from "./files";
 import { createSourceDataset } from "./source-datasets";

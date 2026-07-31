@@ -306,6 +306,7 @@ The database uses schema `hat` (Human Atlas Tracker). See `docs/entity-relations
 
 - **JSDoc**: JSDoc comments are encouraged for functions
 - **Explicit return types**: Functions generally require return types (with some exceptions for typed function expressions)
+- **Imports**: Reach outside a file's own directory through the `@/` alias (repo root); relative imports (`./`) are only for the same directory and its descendants. No `../`, and no bare `baseUrl` paths (e.g. `app/foo`) — both are banned by `no-restricted-imports`. This keeps a module's internal and external references to the same string, so one `grep` finds every consumer.
 - **Sorted keys**: Object keys, destructuring, interfaces, and string enums must be alphabetically sorted
 - **SonarJS**: Code quality and complexity checks
 - **React hooks**: Exhaustive dependencies required
