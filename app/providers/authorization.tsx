@@ -7,6 +7,7 @@ import {
   ROLE,
 } from "../apis/catalog/hca-atlas-tracker/common/entities";
 import { useFetchActiveUser } from "../hooks/UseFetchActiveUser/hook";
+import { useIsomorphicLayoutEffect } from "../hooks/useIsomorphicLayoutEffect";
 import { ROUTE } from "../routes/constants";
 
 export interface AuthorizationContextProps {
@@ -36,9 +37,12 @@ export function AuthorizationProvider({ children }: Props): JSX.Element {
   // (which navigates without a hard reload), and `enabled: false` only stops
   // fetching — it doesn't evict cached data. Without this, a subsequent login
   // (e.g. a different user on a shared machine) could briefly be served the
-  // previous session's cached data. Restores the pre-React-Query behavior
-  // where useFetchData reset its data on logout.
-  useEffect(() => {
+  // previous session's cached data. Runs in an isomorphic layout effect so the
+  // clear happens before paint on the client: React Query preserves cached data
+  // across the `enabled: false` flip, so a plain effect would let the logout
+  // render briefly paint the prior session's data before clearing. Restores the
+  // pre-React-Query behavior where useFetchData reset its data on logout.
+  useIsomorphicLayoutEffect(() => {
     if (!isAuthenticated) queryClient.clear();
   }, [isAuthenticated, queryClient]);
 
