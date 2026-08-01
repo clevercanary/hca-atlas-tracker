@@ -596,7 +596,6 @@ export interface HCAAtlasTrackerDBFile {
   sha256_server: string | null;
   size_bytes: string;
   sns_message_id: string;
-  source_study_id: string | null;
   updated_at: Date;
   validation_info: HCAAtlasTrackerDBFileValidationInfo | null;
   validation_reports: FileValidationReports | null;
