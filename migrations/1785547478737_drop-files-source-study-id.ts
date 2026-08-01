@@ -1,7 +1,7 @@
 import { MigrationBuilder } from "node-pg-migrate";
 
 export function up(pgm: MigrationBuilder): void {
-  pgm.dropColumn({ name: "files", schema: "hat" }, ["source_study_id"]);
+  pgm.dropColumn({ name: "files", schema: "hat" }, "source_study_id");
 }
 
 export function down(pgm: MigrationBuilder): void {
