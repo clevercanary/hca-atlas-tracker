@@ -530,7 +530,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.sha256_server).toBeNull();
     expect(file.integrity_checked_at).toBeNull();
     expect(file.file_type).toBe(FILE_TYPE.SOURCE_DATASET); // New field - should be derived from S3 path
-    expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
 
     // Check fields and relationships
     await expectSourceDatasetFileToBeConsistentWith(file.id, {
@@ -596,7 +595,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.sha256_server).toBeNull();
     expect(file.integrity_checked_at).toBeNull();
     expect(file.file_type).toBe(FILE_TYPE.INTEGRATED_OBJECT); // New field - should be derived from S3 path
-    expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
 
     // Verify component was created and linked to atlas
     const componentAtlas = await getFileComponentAtlas(file.id);
@@ -754,7 +752,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(fileRows.rows).toHaveLength(1);
     const file = fileRows.rows[0];
     expect(file.file_type).toBe("source_dataset"); // Should be derived from S3 path
-    expect(file.source_study_id).toBeNull(); // Should be NULL initially for staged validation
     expect(file.is_latest).toEqual(true);
     expect(file.id).toEqual(fileBefore.id);
 
@@ -2622,7 +2619,6 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(file.bucket).toBe(TEST_S3_BUCKET);
     expect(file.key).toBe(TEST_FILE_PATHS.INTEGRATED_OBJECT);
     expect(file.file_type).toBe(FILE_TYPE.INTEGRATED_OBJECT); // Should be derived from integrated-objects folder
-    expect(file.source_study_id).toBeNull(); // Integrated objects don't use source_study_id
     expect(file.etag).toBe("f1234567890abcdef1234567890abcdef");
     expect(file.size_bytes).toBe("5120000");
     expect(file.version_id).toBe("integrated-version-123");

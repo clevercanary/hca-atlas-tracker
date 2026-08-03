@@ -145,7 +145,6 @@ CREATE TABLE hat.files (
     sha256_client character varying(64),
     sha256_server character varying(64),
     size_bytes bigint NOT NULL,
-    source_study_id uuid,
     validation_status character varying(50) DEFAULT '''pending'''::character varying NOT NULL,
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     version_id character varying(255),
@@ -203,13 +202,6 @@ COMMENT ON COLUMN hat.files.sha256_client IS 'SHA256 checksum provided by client
 --
 
 COMMENT ON COLUMN hat.files.sha256_server IS 'SHA256 checksum calculated by server';
-
-
---
--- Name: COLUMN files.source_study_id; Type: COMMENT; Schema: hat; Owner: -
---
-
-COMMENT ON COLUMN hat.files.source_study_id IS 'FK to source_studies.id - NULL for staged validation, set later';
 
 
 --
@@ -759,14 +751,6 @@ ALTER TABLE ONLY hat.source_datasets
 
 ALTER TABLE ONLY hat.source_datasets
     ADD CONSTRAINT fk_source_datasets_source_study_id FOREIGN KEY (source_study_id) REFERENCES hat.source_studies(id);
-
-
---
--- Name: files pk_source_studies_id; Type: FK CONSTRAINT; Schema: hat; Owner: -
---
-
-ALTER TABLE ONLY hat.files
-    ADD CONSTRAINT pk_source_studies_id FOREIGN KEY (source_study_id) REFERENCES hat.source_studies(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
