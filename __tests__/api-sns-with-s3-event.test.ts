@@ -103,8 +103,8 @@ beforeEach(async () => {
   await createTestAtlasData();
 });
 
-afterAll(() => {
-  endPgPool();
+afterAll(async () => {
+  await endPgPool();
 });
 
 describe(`${TEST_ROUTE} (S3 event)`, () => {

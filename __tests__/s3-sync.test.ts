@@ -70,8 +70,8 @@ beforeAll(async () => {
   await resetDatabase();
 });
 
-afterAll(() => {
-  endPgPool();
+afterAll(async () => {
+  await endPgPool();
 });
 
 const OBJECT_CREATED = "ObjectCreated:*";

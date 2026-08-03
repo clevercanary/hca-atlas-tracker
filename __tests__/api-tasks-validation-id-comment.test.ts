@@ -85,7 +85,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  endPgPool();
+  await endPgPool();
 });
 
 describe("/api/tasks/[validationId]/comment", () => {

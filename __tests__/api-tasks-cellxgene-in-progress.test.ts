@@ -111,8 +111,8 @@ beforeAll(async () => {
   initialStatuses = await getStatusesById();
 });
 
-afterAll(() => {
-  endPgPool();
+afterAll(async () => {
+  await endPgPool();
 });
 
 describe(TEST_ROUTE, () => {

@@ -24,8 +24,8 @@ jest.mock("next-auth");
 
 const syncMock = syncFilesFromS3 as jest.Mock;
 
-afterAll(() => {
-  endPgPool();
+afterAll(async () => {
+  await endPgPool();
 });
 
 const TEST_ROUTE = "/api/sync-files";

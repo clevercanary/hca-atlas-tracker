@@ -105,7 +105,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  endPgPool();
+  await endPgPool();
 });
 
 describe(`${TEST_ROUTE} (misc)`, () => {

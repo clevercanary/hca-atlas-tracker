@@ -58,8 +58,8 @@ afterEach(async () => {
   );
 });
 
-afterAll(() => {
-  endPgPool();
+afterAll(async () => {
+  await endPgPool();
 });
 
 describe("confirmLatestFilesExistOnAtlas", () => {

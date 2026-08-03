@@ -42,7 +42,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  endPgPool();
+  await endPgPool();
 });
 
 const TEST_ROUTE = "/api/atlases/[atlasId]/files/[fileId]/presigned-url";

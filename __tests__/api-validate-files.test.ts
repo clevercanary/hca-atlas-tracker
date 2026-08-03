@@ -52,8 +52,8 @@ beforeAll(async () => {
   await resetDatabase();
 });
 
-afterAll(() => {
-  endPgPool();
+afterAll(async () => {
+  await endPgPool();
 });
 
 const TEST_ROUTE = "/api/validate-files";

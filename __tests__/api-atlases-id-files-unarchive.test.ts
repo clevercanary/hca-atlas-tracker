@@ -51,7 +51,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  endPgPool();
+  await endPgPool();
 });
 
 const UNARCHIVE_DATA_SOURCE_DATASET_ARCHIVED_FOO: FilesSetIsArchivedData = {
