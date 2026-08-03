@@ -1,19 +1,19 @@
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
-  FileEventInfo,
-  HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBComment,
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerDBComponentAtlasInfo,
-  HCAAtlasTrackerDBConcept,
-  HCAAtlasTrackerDBEntrySheetValidation,
-  HCAAtlasTrackerDBFile,
-  HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerDBSourceStudy,
-  HCAAtlasTrackerDBUser,
-  HCAAtlasTrackerDBValidation,
-  HCAAtlasTrackerSourceStudy,
+  type FileEventInfo,
+  type HCAAtlasTrackerDBAtlas,
+  type HCAAtlasTrackerDBComment,
+  type HCAAtlasTrackerDBComponentAtlas,
+  type HCAAtlasTrackerDBComponentAtlasInfo,
+  type HCAAtlasTrackerDBConcept,
+  type HCAAtlasTrackerDBEntrySheetValidation,
+  type HCAAtlasTrackerDBFile,
+  type HCAAtlasTrackerDBSourceDataset,
+  type HCAAtlasTrackerDBSourceStudy,
+  type HCAAtlasTrackerDBUser,
+  type HCAAtlasTrackerDBValidation,
+  type HCAAtlasTrackerSourceStudy,
   INTEGRITY_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "@/app/services/atlases";
@@ -29,8 +29,8 @@ import {
   parseNormalizedInfoFromS3Key,
 } from "@/app/utils/files";
 import migrate from "node-pg-migrate";
-import { MigrationDirection } from "node-pg-migrate/dist/types";
-import pg from "pg";
+import { type MigrationDirection } from "node-pg-migrate/dist/types";
+import type pg from "pg";
 import {
   INITIAL_EXPLICIT_TEST_CONCEPTS,
   INITIAL_STANDALONE_TEST_FILES,
@@ -43,11 +43,11 @@ import {
   INITIAL_TEST_USERS,
 } from "./constants";
 import {
-  TestComponentAtlas,
-  TestConcept,
-  TestEntrySheetValidation,
-  TestFile,
-  TestSourceDataset,
+  type TestComponentAtlas,
+  type TestConcept,
+  type TestEntrySheetValidation,
+  type TestFile,
+  type TestSourceDataset,
 } from "./entities";
 import {
   assertExpectDefined,

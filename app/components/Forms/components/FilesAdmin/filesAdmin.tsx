@@ -3,7 +3,7 @@ import { AdminFormResults } from "@/app/components/common/AdminForm/components/A
 import { useAdminAction } from "@/app/hooks/useAdminAction";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 
 export const FilesAdminForm = (): JSX.Element => {
   const {

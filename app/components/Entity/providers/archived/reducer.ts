@@ -1,6 +1,6 @@
-import { ArchivedAction, ArchivedActionKind } from "./actions/entities";
+import { type ArchivedAction, ArchivedActionKind } from "./actions/entities";
 import { updateArchiveAction } from "./actions/updateArchived/action";
-import { ArchivedState } from "./entities";
+import { type ArchivedState } from "./entities";
 
 /**
  * Reducer for archived.

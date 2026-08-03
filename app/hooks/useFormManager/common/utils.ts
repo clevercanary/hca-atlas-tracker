@@ -1,4 +1,4 @@
-import { RouteValue } from "@/app/routes/entities";
+import { type RouteValue } from "@/app/routes/entities";
 import Router from "next/router";
 
 /**

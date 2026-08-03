@@ -1,6 +1,6 @@
 import { FILE_METADATA_COVERAGE_ENTITY_TYPES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import { INTEGRITY_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { array, boolean, InferType, number, object, string } from "yup";
+import { array, boolean, type InferType, number, object, string } from "yup";
 
 // AWS S3 and SNS Event Validation Schemas
 // These schemas validate the structure of AWS events received via SNS notifications

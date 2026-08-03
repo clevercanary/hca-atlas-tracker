@@ -1,5 +1,5 @@
 import { getAtlasName } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { Tabs } from "@/app/components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { EntityView } from "@/app/components/Entity/components/EntityView/entityView";
 import { AtlasStatuses } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
@@ -12,7 +12,7 @@ import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Br
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { Button } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { VIEW_METADATA_ENTRY_SHEETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
 import { useAtlasEntrySheetsSync } from "./hooks/UseEntrySheetSync/hook";

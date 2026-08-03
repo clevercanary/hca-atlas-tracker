@@ -1,5 +1,5 @@
-import { InferType } from "yup";
-import { newSourceStudySchema } from "./schema";
+import { type InferType } from "yup";
+import { type newSourceStudySchema } from "./schema";
 
 export type NewSourceStudyData = InferType<typeof newSourceStudySchema>;
 

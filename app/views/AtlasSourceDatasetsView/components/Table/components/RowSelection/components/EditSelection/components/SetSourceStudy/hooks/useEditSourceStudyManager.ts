@@ -1,19 +1,19 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
 import { METHOD } from "@/app/common/entities";
 import { getRequestURL } from "@/app/common/utils";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { useEntity } from "@/app/providers/entity/hook";
-import { SourceStudyEditData } from "@/app/views/AtlasSourceDatasetsView/components/Table/components/RowSelection/components/EditSelection/components/SetSourceStudy/common/entities";
+import { type SourceStudyEditData } from "@/app/views/AtlasSourceDatasetsView/components/Table/components/RowSelection/components/EditSelection/components/SetSourceStudy/common/entities";
 import {
-  AtlasSourceDataset,
-  Entity,
+  type AtlasSourceDataset,
+  type Entity,
 } from "@/app/views/AtlasSourceDatasetsView/entities";
 import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/UseFetchAtlasSourceDatasets/query/constants";
 import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { useQueryClient } from "@tanstack/react-query";
-import { Table } from "@tanstack/react-table";
+import { type Table } from "@tanstack/react-table";
 import { useCallback } from "react";
 
 export const useEditSourceStudyFormManager = (

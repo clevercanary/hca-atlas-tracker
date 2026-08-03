@@ -1,28 +1,28 @@
 import {
-  DatasetValidatorMetadataCoverageEntity,
-  DatasetValidatorResults,
-  DatasetValidatorResultsMetadata,
+  type DatasetValidatorMetadataCoverageEntity,
+  type DatasetValidatorResults,
+  type DatasetValidatorResultsMetadata,
   datasetValidatorResultsMetadataSchema,
   datasetValidatorResultsSchema,
-  DatasetValidatorToolReports,
-  SNSMessage,
+  type DatasetValidatorToolReports,
+  type SNSMessage,
 } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import { FILE_VALIDATOR_NAMES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_VALIDATION_STATUS,
-  FileMetadataCoverage,
-  FileMetadataCoverageEntity,
-  FileMetadataFieldCoverage,
-  FileValidationReports,
-  FileValidationSummary,
-  HCAAtlasTrackerDBFileDatasetInfo,
-  HCAAtlasTrackerDBFileValidationInfo,
+  type FileMetadataCoverage,
+  type FileMetadataCoverageEntity,
+  type FileMetadataFieldCoverage,
+  type FileValidationReports,
+  type FileValidationSummary,
+  type HCAAtlasTrackerDBFileDatasetInfo,
+  type HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { validateS3BucketAuthorization } from "@/app/config/aws-resources";
 import {
   addValidationResultsToFile,
-  AddValidationResultsToFileParams,
+  type AddValidationResultsToFileParams,
   getLastValidationTimestamp,
 } from "@/app/data/files";
 import { ConflictError, InvalidOperationError } from "@/app/utils/api-errors";

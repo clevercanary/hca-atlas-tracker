@@ -1,6 +1,6 @@
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
 import { useForm } from "@/app/hooks/useForm/useForm";
-import { ReprocessedStatusEditData } from "@/app/views/AtlasSourceDatasetsView/components/Table/components/RowSelection/components/EditSelection/components/EditReprocessedStatus/common/entities";
+import { type ReprocessedStatusEditData } from "@/app/views/AtlasSourceDatasetsView/components/Table/components/RowSelection/components/EditSelection/components/EditReprocessedStatus/common/entities";
 import { reprocessedStatusEditSchema } from "@/app/views/AtlasSourceDatasetsView/components/Table/components/RowSelection/components/EditSelection/components/EditReprocessedStatus/common/schema";
 
 const SCHEMA = reprocessedStatusEditSchema;

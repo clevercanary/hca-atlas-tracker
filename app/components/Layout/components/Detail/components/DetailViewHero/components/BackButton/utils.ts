@@ -1,4 +1,4 @@
-import { BackOrigin } from "./constants";
+import { type BackOrigin } from "./constants";
 
 // Dummy base for parsing relative URLs through the URL API; never appears
 // in the output (we always return `pathname + search + hash`), so the scheme

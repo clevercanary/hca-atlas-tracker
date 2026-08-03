@@ -1,54 +1,54 @@
-import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { type ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
 import {
   DOI_STATUS,
   FILE_PUBLISHED_STATUS,
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
-  HCAAtlasTrackerAtlas,
-  HCAAtlasTrackerAtlasSummary,
-  HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBAtlasOverview,
-  HCAAtlasTrackerDBFileValidationInfo,
-  HCAAtlasTrackerDBPublishedSourceStudyInfo,
-  HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerDBSourceDatasetInfo,
-  HCAAtlasTrackerDBSourceStudy,
-  HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
-  HCAAtlasTrackerDBUser,
-  HCAAtlasTrackerDBValidation,
-  HCAAtlasTrackerDetailComponentAtlas,
-  HCAAtlasTrackerDetailSourceDataset,
-  HCAAtlasTrackerLocalListSourceDataset,
-  HCAAtlasTrackerSourceDataset,
-  HCAAtlasTrackerSourceStudy,
-  HCAAtlasTrackerUser,
-  HCAAtlasTrackerValidationRecordWithoutAtlases,
+  type HCAAtlasTrackerAtlas,
+  type HCAAtlasTrackerAtlasSummary,
+  type HCAAtlasTrackerComponentAtlas,
+  type HCAAtlasTrackerDBAtlas,
+  type HCAAtlasTrackerDBAtlasOverview,
+  type HCAAtlasTrackerDBFileValidationInfo,
+  type HCAAtlasTrackerDBPublishedSourceStudyInfo,
+  type HCAAtlasTrackerDBSourceDataset,
+  type HCAAtlasTrackerDBSourceDatasetInfo,
+  type HCAAtlasTrackerDBSourceStudy,
+  type HCAAtlasTrackerDBUnpublishedSourceStudyInfo,
+  type HCAAtlasTrackerDBUser,
+  type HCAAtlasTrackerDBValidation,
+  type HCAAtlasTrackerDetailComponentAtlas,
+  type HCAAtlasTrackerDetailSourceDataset,
+  type HCAAtlasTrackerLocalListSourceDataset,
+  type HCAAtlasTrackerSourceDataset,
+  type HCAAtlasTrackerSourceStudy,
+  type HCAAtlasTrackerUser,
+  type HCAAtlasTrackerValidationRecordWithoutAtlases,
   INTEGRITY_STATUS,
-  LinkedAtlasFields,
-  LinkedAtlasSummary,
-  NetworkKey,
+  type LinkedAtlasFields,
+  type LinkedAtlasSummary,
+  type NetworkKey,
   PUBLICATION_STATUS,
   REPROCESSED_STATUS,
   ROLE,
   SYSTEM,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  NewUserData,
-  UserEditData,
+  type NewUserData,
+  type UserEditData,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import {
   getPublishedCitation,
   getUnpublishedCitation,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { METHOD } from "@/app/common/entities";
-import { Handler } from "@/app/utils/api-handler";
+import { type Handler } from "@/app/utils/api-handler";
 import { slugifyAtlasShortName } from "@/app/utils/atlases";
 import {
   normalizeValidationSummary,
   removeFileExtension,
 } from "@/app/utils/files";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import {
   ATLAS_DRAFT,
@@ -64,16 +64,16 @@ import {
   USER_INTEGRATION_LEAD_PUBLIC,
 } from "./constants";
 import {
-  NormalizedTestFile,
-  NormalizedTestSourceDataset,
-  TestAtlas,
-  TestComponentAtlas,
-  TestFile,
-  TestPublishedSourceStudy,
-  TestSourceDataset,
-  TestSourceStudy,
-  TestUnpublishedSourceStudy,
-  TestUser,
+  type NormalizedTestFile,
+  type NormalizedTestSourceDataset,
+  type TestAtlas,
+  type TestComponentAtlas,
+  type TestFile,
+  type TestPublishedSourceStudy,
+  type TestSourceDataset,
+  type TestSourceStudy,
+  type TestUnpublishedSourceStudy,
+  type TestUser,
 } from "./entities";
 
 type ConsoleMessageFunctionName =

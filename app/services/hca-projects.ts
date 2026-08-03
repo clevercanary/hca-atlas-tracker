@@ -1,10 +1,10 @@
 import { getAllProjects, getLatestCatalog } from "@/app/utils/hca-api";
-import { getProjectsInfo, ProjectInfo } from "@/app/utils/hca-projects";
-import { Options as KyOptions } from "ky";
+import { getProjectsInfo, type ProjectInfo } from "@/app/utils/hca-projects";
+import { type Options as KyOptions } from "ky";
 import {
   makeRefreshService,
-  RefreshDataResult,
-  RefreshInfo,
+  type RefreshDataResult,
+  type RefreshInfo,
 } from "./common/refresh-service";
 import { doUpdatesIfRefreshesComplete } from "./refresh-services";
 

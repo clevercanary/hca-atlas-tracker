@@ -1,6 +1,6 @@
-import { RowData } from "@tanstack/react-table";
-import { JSX } from "react";
-import { Props } from "./entities";
+import { type RowData } from "@tanstack/react-table";
+import { type JSX } from "react";
+import { type Props } from "./entities";
 import { StyledRowSelection } from "./rowSelection.styles";
 
 export const RowSelection = <T extends RowData>({

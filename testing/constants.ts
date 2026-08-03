@@ -1,29 +1,29 @@
-import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { type ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
 import {
   ATLAS_STATUS,
   DOI_STATUS,
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
-  HCAAtlasTrackerDBComponentAtlasInfo,
+  type HCAAtlasTrackerDBComponentAtlasInfo,
   INTEGRITY_STATUS,
-  PublicationInfo,
+  type PublicationInfo,
   REPROCESSED_STATUS,
   ROLE,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { CellxGeneCollection } from "@/app/utils/cellxgene-api";
-import { CrossrefWork } from "@/app/utils/crossref/crossref";
-import { EntrySheetValidationResponse } from "@/app/utils/hca-validation-tools/hca-validation-tools";
+import { type CellxGeneCollection } from "@/app/utils/cellxgene-api";
+import { type CrossrefWork } from "@/app/utils/crossref/crossref";
+import { type EntrySheetValidationResponse } from "@/app/utils/hca-validation-tools/hca-validation-tools";
 import {
-  TestAtlas,
-  TestComment,
-  TestComponentAtlas,
-  TestConcept,
-  TestEntrySheetValidation,
-  TestFile,
-  TestPublishedSourceStudy,
-  TestSourceDataset,
-  TestUnpublishedSourceStudy,
-  TestUser,
+  type TestAtlas,
+  type TestComment,
+  type TestComponentAtlas,
+  type TestConcept,
+  type TestEntrySheetValidation,
+  type TestFile,
+  type TestPublishedSourceStudy,
+  type TestSourceDataset,
+  type TestUnpublishedSourceStudy,
+  type TestUser,
 } from "./entities";
 import { makeTestProjectsResponse, makeTestUser } from "./utils";
 

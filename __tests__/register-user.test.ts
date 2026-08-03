@@ -1,5 +1,5 @@
 import {
-  HCAAtlasTrackerDBUser,
+  type HCAAtlasTrackerDBUser,
   ROLE,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { endPgPool, query } from "@/app/services/database";

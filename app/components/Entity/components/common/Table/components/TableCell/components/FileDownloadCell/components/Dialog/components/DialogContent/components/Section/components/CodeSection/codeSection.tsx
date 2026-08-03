@@ -3,9 +3,9 @@ import { LoadingIcon } from "@databiosphere/findable-ui/lib/components/common/Cu
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Stack, Typography } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { StyledCode } from "./codeSection.styles";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 
 export const CodeSection = ({ url }: Props): JSX.Element => {
   if (!url)

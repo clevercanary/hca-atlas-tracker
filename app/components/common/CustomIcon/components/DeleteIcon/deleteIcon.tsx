@@ -1,6 +1,6 @@
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
-import { SvgIcon, SvgIconProps } from "@mui/material";
-import { JSX } from "react";
+import { SvgIcon, type SvgIconProps } from "@mui/material";
+import { type JSX } from "react";
 
 export const DeleteIcon = ({
   fontSize = SVG_ICON_PROPS.FONT_SIZE.XSMALL,

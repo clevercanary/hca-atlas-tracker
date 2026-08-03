@@ -1,4 +1,4 @@
-import { Breadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
+import { type Breadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { getUsersBreadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 
 /**

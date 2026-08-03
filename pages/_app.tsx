@@ -11,7 +11,7 @@ import {
   SESSION_TIMEOUT,
 } from "@/site-config/hca-atlas-tracker/local/authentication/constants";
 import "@databiosphere/findable-ui";
-import { AzulEntitiesStaticResponse } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
+import { type AzulEntitiesStaticResponse } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { Error } from "@databiosphere/findable-ui/lib/components/Error/error";
 import { ErrorBoundary } from "@databiosphere/findable-ui/lib/components/ErrorBoundary/errorBoundary";
 import { Head } from "@databiosphere/findable-ui/lib/components/Head/head";
@@ -26,17 +26,22 @@ import { LayoutDimensionsProvider } from "@databiosphere/findable-ui/lib/provide
 import { ServicesProvider } from "@databiosphere/findable-ui/lib/providers/services/provider";
 import { SystemStatusProvider } from "@databiosphere/findable-ui/lib/providers/systemStatus";
 import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
-import { DataExplorerError } from "@databiosphere/findable-ui/lib/types/error";
+import { type DataExplorerError } from "@databiosphere/findable-ui/lib/types/error";
 import { ThemeProvider as EmotionThemeProvider } from "@emotion/react";
-import { createTheme, CssBaseline, Theme, ThemeProvider } from "@mui/material";
+import {
+  createTheme,
+  CssBaseline,
+  type Theme,
+  ThemeProvider,
+} from "@mui/material";
 import { AppCacheProvider } from "@mui/material-nextjs/v16-pagesRouter";
 import { createBreakpoints } from "@mui/system";
 import { deepmerge } from "@mui/utils";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { NextPage } from "next";
-import { Session } from "next-auth";
-import type { AppProps } from "next/app";
-import { JSX, useState } from "react";
+import { type NextPage } from "next";
+import { type Session } from "next-auth";
+import { type AppProps } from "next/app";
+import { type JSX, useState } from "react";
 
 export interface PageProps extends AzulEntitiesStaticResponse {
   pageTitle?: string;

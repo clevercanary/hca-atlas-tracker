@@ -1,9 +1,9 @@
-import { S3EventRecord } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import { type S3EventRecord } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   HeadObjectCommand,
-  HeadObjectCommandOutput,
+  type HeadObjectCommandOutput,
   ListObjectsV2Command,
-  ListObjectsV2CommandOutput,
+  type ListObjectsV2CommandOutput,
   S3Client,
 } from "@aws-sdk/client-s3";
 import { saveAndProcessFileRecord } from "./s3-notification";

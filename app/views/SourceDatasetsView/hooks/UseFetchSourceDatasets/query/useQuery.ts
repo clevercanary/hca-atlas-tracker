@@ -1,12 +1,12 @@
 import {
-  AtlasId,
-  HCAAtlasTrackerLocalListSourceDataset,
-  SourceStudyId,
+  type AtlasId,
+  type HCAAtlasTrackerLocalListSourceDataset,
+  type SourceStudyId,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { useAuthedQuery } from "@/app/query/useAuthedQuery";
-import { DefaultError, UseQueryResult } from "@tanstack/react-query";
+import { type DefaultError, type UseQueryResult } from "@tanstack/react-query";
 import { SOURCE_STUDY_SOURCE_DATASETS } from "./constants";
-import { QueryKey } from "./types";
+import { type QueryKey } from "./types";
 
 /**
  * Fetches a source study's source datasets via React Query.

@@ -1,4 +1,4 @@
-import { Breakpoints } from "@mui/system";
+import { type Breakpoints } from "@mui/system";
 
 export const ATLAS_ECOSYSTEM_PATHS = {
   CELLXGENE_COLLECTION: "/collections",

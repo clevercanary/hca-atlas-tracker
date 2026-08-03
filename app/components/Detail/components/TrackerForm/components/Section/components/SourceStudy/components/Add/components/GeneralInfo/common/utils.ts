@@ -1,4 +1,4 @@
-import { TabsProps } from "@/app/components/Detail/components/TrackerForm/components/Tabs/tabs";
+import { type TabsProps } from "@/app/components/Detail/components/TrackerForm/components/Tabs/tabs";
 import { PUBLICATION_STATUS } from "@/app/views/AddNewSourceStudyView/common/entities";
 
 /**

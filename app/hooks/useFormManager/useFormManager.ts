@@ -1,19 +1,19 @@
 import { useAuthorization } from "@/app/hooks/useAuthorization";
 import {
-  FormMethod,
-  YupValidatedFormValues,
+  type FormMethod,
+  type YupValidatedFormValues,
 } from "@/app/hooks/useForm/common/entities";
 import { useUserHasEditAuthorization } from "@/app/hooks/useUserHasEditAuthorization/useUserHasEditAuthorization";
-import { RouteValue } from "@/app/routes/entities";
+import { type RouteValue } from "@/app/routes/entities";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import Router from "next/router";
 import { useCallback, useEffect, useState } from "react";
-import { FieldValues } from "react-hook-form";
+import { type FieldValues } from "react-hook-form";
 import {
-  FormAccess,
-  FormAction,
-  FormStatus,
-  GetNextRouteFn,
+  type FormAccess,
+  type FormAction,
+  type FormStatus,
+  type GetNextRouteFn,
 } from "./common/entities";
 
 export interface UseFormManager {

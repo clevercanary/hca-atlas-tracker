@@ -1,7 +1,7 @@
-import { JSX, useMemo } from "react";
+import { type JSX, useMemo } from "react";
 import { MetricCard } from "./components/MetricCard/metricCard";
 import { StyledGrid } from "./statusDashboard.styles";
-import { StatusDashboardProps } from "./types";
+import { type StatusDashboardProps } from "./types";
 import {
   buildIntegratedObjectsCard,
   buildSourceDatasetsCard,

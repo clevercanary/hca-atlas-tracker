@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { EntityContextProps } from "./entities";
+import { type EntityContextProps } from "./entities";
 
 export const EntityContext = createContext<EntityContextProps>({
   data: undefined,

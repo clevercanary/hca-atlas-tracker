@@ -1,23 +1,23 @@
 import { ETagMismatchError } from "@/app/apis/catalog/hca-atlas-tracker/aws/errors";
 import {
   FILE_TYPE,
-  FILE_VALIDATION_STATUS,
-  FileMetadataCoverage,
-  FileValidationReports,
-  FileValidationSummary,
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerDBFile,
-  HCAAtlasTrackerDBFileDatasetInfo,
-  HCAAtlasTrackerDBFileValidationInfo,
-  HCAAtlasTrackerDBSourceDataset,
-  INTEGRITY_STATUS,
+  type FILE_VALIDATION_STATUS,
+  type FileMetadataCoverage,
+  type FileValidationReports,
+  type FileValidationSummary,
+  type HCAAtlasTrackerDBComponentAtlas,
+  type HCAAtlasTrackerDBFile,
+  type HCAAtlasTrackerDBFileDatasetInfo,
+  type HCAAtlasTrackerDBFileValidationInfo,
+  type HCAAtlasTrackerDBSourceDataset,
+  type INTEGRITY_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getPublishedFromPublishedAt } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { getAtlasComponentAtlasVersionIds } from "@/app/services/component-atlases";
 import { query } from "@/app/services/database";
 import { InvalidOperationError, NotFoundError } from "@/app/utils/api-errors";
 import { confirmQueryRowsContainIds } from "@/app/utils/database";
-import pg from "pg";
+import type pg from "pg";
 import { getAtlasSourceDatasetVersionIds } from "./source-datasets";
 
 export type FileUpsertResult = Pick<HCAAtlasTrackerDBFile, "etag" | "id"> & {

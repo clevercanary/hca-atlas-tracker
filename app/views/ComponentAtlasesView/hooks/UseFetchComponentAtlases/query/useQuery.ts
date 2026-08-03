@@ -1,13 +1,13 @@
 import {
-  AtlasId,
-  HCAAtlasTrackerComponentAtlas,
+  type AtlasId,
+  type HCAAtlasTrackerComponentAtlas,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getCapIngestStatus } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { useAuthedQuery } from "@/app/query/useAuthedQuery";
-import { AtlasIntegratedObject } from "@/app/views/ComponentAtlasesView/entities";
-import { DefaultError, UseQueryResult } from "@tanstack/react-query";
+import { type AtlasIntegratedObject } from "@/app/views/ComponentAtlasesView/entities";
+import { type DefaultError, type UseQueryResult } from "@tanstack/react-query";
 import { INTEGRATED_OBJECTS } from "./constants";
-import { QueryKey } from "./types";
+import { type QueryKey } from "./types";
 
 /**
  * Fetches the atlas's integrated objects (for the given archived state) via

@@ -14,7 +14,7 @@ import {
   integrationLeadAssociatedAtlasOnly,
   role,
 } from "@/app/utils/api-handler";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 
 const getHandler = handler(
   role(ROLE_GROUP.READ),

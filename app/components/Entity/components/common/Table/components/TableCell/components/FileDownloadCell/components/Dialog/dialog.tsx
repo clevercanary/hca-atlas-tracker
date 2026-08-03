@@ -4,12 +4,12 @@ import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/B
 import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { Button, DialogActions, DialogContent, Stack } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { CodeSection } from "./components/DialogContent/components/Section/components/CodeSection/codeSection";
 import { Section } from "./components/DialogContent/components/Section/section";
 import { DIALOG_PROPS } from "./constants";
 import { StyledDialog } from "./dialog.styles";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 
 export const Dialog = ({
   fileId,

@@ -1,7 +1,7 @@
 import { useEntity } from "@/app/providers/entity/hook";
 import { buildSheetsUrl } from "@/app/utils/google-sheets";
-import { EntityData } from "@/app/views/AtlasMetadataEntrySheetValidationView/entities";
-import { UseEntrySheetSync } from "@/app/views/AtlasMetadataEntrySheetValidationView/hooks/UseEntrySheetSync/types";
+import { type EntityData } from "@/app/views/AtlasMetadataEntrySheetValidationView/entities";
+import { type UseEntrySheetSync } from "@/app/views/AtlasMetadataEntrySheetValidationView/hooks/UseEntrySheetSync/types";
 import { OpenInNewIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/OpenInNewIcon/openInNewIcon";
 import {
   ANCHOR_TARGET,
@@ -9,7 +9,7 @@ import {
 } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { HeroActions } from "./actions.styles";
 
 type Props = UseEntrySheetSync;

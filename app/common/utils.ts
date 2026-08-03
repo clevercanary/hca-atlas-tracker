@@ -1,7 +1,7 @@
-import { APIValue } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { RouteValue } from "@/app/routes/entities";
+import { type APIValue } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type RouteValue } from "@/app/routes/entities";
 import { DEFAULT_HEADERS } from "./constants";
-import { FETCH_STATUS, METHOD, PathParameter } from "./entities";
+import { FETCH_STATUS, METHOD, type PathParameter } from "./entities";
 
 /**
  * Returns fetch request options.

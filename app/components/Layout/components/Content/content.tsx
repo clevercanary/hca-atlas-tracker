@@ -1,5 +1,5 @@
 import { useLayoutDimensions } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/hook";
-import { JSX, ReactNode } from "react";
+import { type JSX, type ReactNode } from "react";
 import { Content as MDXContent } from "./content.styles";
 
 export interface ContentProps {

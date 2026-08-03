@@ -1,12 +1,12 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { getRouteURL } from "@/app/common/utils";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { ROUTE } from "@/app/routes/constants";
-import { NewUserData } from "@/app/views/AddNewUserView/common/entities";
+import { type NewUserData } from "@/app/views/AddNewUserView/common/entities";
 import Router from "next/router";
 import { useCallback } from "react";
 

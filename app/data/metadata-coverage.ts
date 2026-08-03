@@ -1,6 +1,6 @@
-import { HCAAtlasTrackerDBAtlasForMetadataCoverage } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerDBAtlasForMetadataCoverage } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "@/app/services/database";
-import pg from "pg";
+import type pg from "pg";
 
 /**
  * Get every atlas along with the `metadata_coverage` blobs of its

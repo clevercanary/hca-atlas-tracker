@@ -1,13 +1,13 @@
 import {
   DOI_STATUS,
-  HCAAtlasTrackerDBSourceStudy,
-  HCAAtlasTrackerDBValidation,
-  HCAAtlasTrackerSourceStudy,
+  type HCAAtlasTrackerDBSourceStudy,
+  type HCAAtlasTrackerDBValidation,
+  type HCAAtlasTrackerSourceStudy,
   VALIDATION_ID,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  SourceStudyEditData,
-  UnpublishedSourceStudyEditData,
+  type SourceStudyEditData,
+  type UnpublishedSourceStudyEditData,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool, query } from "@/app/services/database";
@@ -86,7 +86,7 @@ import {
   getValidationsByEntityId,
   resetDatabase,
 } from "@/testing/db-utils";
-import { TestSourceStudy, TestUser } from "@/testing/entities";
+import { type TestSourceStudy, type TestUser } from "@/testing/entities";
 import {
   expectApiValidationsToMatchDb,
   expectSourceStudyToMatch,
@@ -94,7 +94,7 @@ import {
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

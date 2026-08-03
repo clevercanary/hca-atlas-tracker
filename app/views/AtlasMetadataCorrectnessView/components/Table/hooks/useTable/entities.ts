@@ -1,8 +1,8 @@
-import { HeatmapEntrySheet } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HeatmapEntrySheet } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  ColumnDef as TanStackColumnDef,
-  Table as TanStackTable,
-  VisibilityState,
+  type ColumnDef as TanStackColumnDef,
+  type Table as TanStackTable,
+  type VisibilityState,
 } from "@tanstack/react-table";
 
 export type ColumnDef = TanStackColumnDef<HeatmapEntrySheet> & {

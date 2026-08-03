@@ -1,4 +1,8 @@
-import { REFRESH_ACTIVITY, REFRESH_OUTCOME, RefreshStatus } from "./entities";
+import {
+  REFRESH_ACTIVITY,
+  REFRESH_OUTCOME,
+  type RefreshStatus,
+} from "./entities";
 
 export interface RefreshInfo<TData, TRefreshParams = undefined> {
   attemptingRefresh?: boolean;

@@ -1,6 +1,6 @@
 import { config } from "@/app/config/config";
 import fs from "fs";
-import { GetStaticPropsContext } from "next";
+import { type GetStaticPropsContext } from "next";
 import pathTool from "path";
 import { CONTENT_FOLDER_NAME } from "./constants";
 

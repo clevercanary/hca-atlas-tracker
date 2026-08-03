@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { Input } from "@/app/components/common/Form/components/Input/input";
 import { DEFAULT_INPUT_PROPS } from "@/app/components/Detail/components/TrackerForm/components/Section/components/SourceStudy/common/constants";
 import {
@@ -7,14 +7,14 @@ import {
   SectionTitle,
 } from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
 import { Tabs } from "@/app/components/Detail/components/TrackerForm/components/Tabs/tabs";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { FIELD_NAME } from "@/app/views/AddNewSourceStudyView/common/constants";
 import {
-  NewSourceStudyData,
+  type NewSourceStudyData,
   PUBLICATION_STATUS,
 } from "@/app/views/AddNewSourceStudyView/common/entities";
-import { Fragment, JSX, useCallback, useState } from "react";
+import { Fragment, type JSX, useCallback, useState } from "react";
 import { Controller } from "react-hook-form";
 import { getSectionTabs } from "./common/utils";
 import { SectionContent, StyledSectionCard } from "./generalInfo.styles";

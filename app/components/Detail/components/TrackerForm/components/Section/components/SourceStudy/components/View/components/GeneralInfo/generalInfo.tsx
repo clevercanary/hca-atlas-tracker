@@ -1,6 +1,6 @@
 import {
   DOI_STATUS,
-  HCAAtlasTrackerSourceStudy,
+  type HCAAtlasTrackerSourceStudy,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getSourceStudyCitation } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { Input } from "@/app/components/common/Form/components/Input/input";
@@ -12,17 +12,17 @@ import {
   SectionTitle,
 } from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
 import { Tabs } from "@/app/components/Detail/components/TrackerForm/components/Tabs/tabs";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { getDOILink } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { PUBLICATION_STATUS } from "@/app/views/AddNewSourceStudyView/common/entities";
+import { type PUBLICATION_STATUS } from "@/app/views/AddNewSourceStudyView/common/entities";
 import { FIELD_NAME } from "@/app/views/SourceStudyView/common/constants";
-import { SourceStudyEditData } from "@/app/views/SourceStudyView/common/entities";
+import { type SourceStudyEditData } from "@/app/views/SourceStudyView/common/entities";
 import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
-import { Fragment, JSX, useCallback } from "react";
+import { Fragment, type JSX, useCallback } from "react";
 import { Controller } from "react-hook-form";
 import { getSectionTabs } from "./common/utils";
 import { SectionContent, StyledSectionCard } from "./generalInfo.styles";

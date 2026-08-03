@@ -1,16 +1,16 @@
 import {
-  HCAAtlasTrackerDBUser,
+  type HCAAtlasTrackerDBUser,
   ROLE,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD } from "@/app/common/entities";
-import { FormResponseErrors } from "@/app/hooks/useForm/common/entities";
+import { type METHOD } from "@/app/common/entities";
+import { type FormResponseErrors } from "@/app/hooks/useForm/common/entities";
 import {
   atlasIsPublished,
   getAtlasIdByUrlParameter,
 } from "@/app/services/atlases";
 import { query } from "@/app/services/database";
 import { nextAuthOptions } from "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { ValidationError } from "yup";
 import {

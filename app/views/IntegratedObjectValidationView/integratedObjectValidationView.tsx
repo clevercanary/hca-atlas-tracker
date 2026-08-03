@@ -1,4 +1,4 @@
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { getRouteURL } from "@/app/common/utils";
 import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "@/app/components/Entity/components/common/Tabs/tabs";
@@ -11,7 +11,7 @@ import { EntityProvider } from "@/app/providers/entity/provider";
 import { ROUTE } from "@/app/routes/constants";
 import { useFetchComponentAtlas } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/hook";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { VIEW_INTEGRATED_OBJECT_VALIDATION_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs, getTabs } from "./common/utils";
 

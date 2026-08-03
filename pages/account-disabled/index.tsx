@@ -3,9 +3,9 @@ import { MDX_COMPONENTS } from "@/app/content/common/constants";
 import { getContentStaticProps } from "@/app/content/common/contentPages";
 import { Main } from "@databiosphere/findable-ui/lib/components/Layout/components/ContentLayout/components/Main/main";
 import { ContentView } from "@databiosphere/findable-ui/lib/views/ContentView/contentView";
-import { GetStaticProps, InferGetStaticPropsType } from "next";
+import { type GetStaticProps, type InferGetStaticPropsType } from "next";
 import { MDXRemote } from "next-mdx-remote";
-import { JSX } from "react";
+import { type JSX } from "react";
 
 const slug = ["account-disabled"];
 

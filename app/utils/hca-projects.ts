@@ -1,4 +1,4 @@
-import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { type ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
 import { normalizeDoi } from "./doi";
 
 export interface ProjectInfo {

@@ -1,14 +1,14 @@
 import {
-  HCAAtlasTrackerUser,
+  type HCAAtlasTrackerUser,
   ROLE,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { UserEditData as ApiUserEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
-import { PathParameter } from "@/app/common/entities";
+import { type UserEditData as ApiUserEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { type PathParameter } from "@/app/common/entities";
 import { useFetchUser } from "@/app/hooks/UseFetchUser/hook";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
 import { useForm } from "@/app/hooks/useForm/useForm";
 import { FIELD_NAME } from "@/app/views/UserView/common/constants";
-import { UserEditData } from "@/app/views/UserView/common/entities";
+import { type UserEditData } from "@/app/views/UserView/common/entities";
 import { userEditSchema } from "@/app/views/UserView/common/schema";
 
 const SCHEMA = userEditSchema;

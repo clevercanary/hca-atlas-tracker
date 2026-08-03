@@ -1,8 +1,8 @@
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { UserView } from "@/app/views/UserView/userView";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { ParsedUrlQuery } from "querystring";
-import { JSX } from "react";
+import { type GetServerSideProps, type GetServerSidePropsContext } from "next";
+import { type ParsedUrlQuery } from "querystring";
+import { type JSX } from "react";
 
 interface UserPageProps {
   pathParameter: PathParameter;

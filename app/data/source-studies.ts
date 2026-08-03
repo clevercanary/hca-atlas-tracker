@@ -1,11 +1,11 @@
 import {
-  GoogleSheetInfo,
-  HCAAtlasTrackerDBSourceStudy,
-  HCAAtlasTrackerDBSourceStudyWithSourceDatasets,
-  WithLinkedAtlases,
+  type GoogleSheetInfo,
+  type HCAAtlasTrackerDBSourceStudy,
+  type HCAAtlasTrackerDBSourceStudyWithSourceDatasets,
+  type WithLinkedAtlases,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "@/app/services/database";
-import pg from "pg";
+import type pg from "pg";
 
 /**
  * Get all source studies, under the initial database-level join with other entities needed for the global source studies API.

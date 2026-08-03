@@ -3,11 +3,11 @@ import {
   INTEGRITY_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { ValidationStatus } from "./components/ValidationStatus/validationStatus";
 import { ValidationStatusChipCell } from "./components/ValidationStatusChipCell/validationStatusChipCell";
 import { ValidationSummary } from "./components/ValidationSummary/validationSummary";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 
 export const ValidationStatusCell = ({
   backOrigin,

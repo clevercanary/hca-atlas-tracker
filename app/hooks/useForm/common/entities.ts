@@ -1,12 +1,12 @@
-import { METHOD } from "@/app/common/entities";
-import { UseForm } from "@/app/hooks/useForm/useForm";
+import { type METHOD } from "@/app/common/entities";
+import { type UseForm } from "@/app/hooks/useForm/useForm";
 import {
-  FieldValues,
-  UseFormProps,
-  UseFormReset,
-  UseFormReturn,
+  type FieldValues,
+  type UseFormProps,
+  type UseFormReset,
+  type UseFormReturn,
 } from "react-hook-form";
-import { InferType, ObjectSchema } from "yup";
+import { type InferType, type ObjectSchema } from "yup";
 
 export interface CustomUseFormOptions<T extends FieldValues> {
   defaultValues?: UseFormProps<YupValidatedFormValues<T>>["defaultValues"];

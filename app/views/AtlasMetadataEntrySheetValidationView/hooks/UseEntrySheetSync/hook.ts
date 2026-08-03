@@ -1,6 +1,6 @@
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { useCallback, useEffect, useState } from "react";
-import { EntrySheetSyncState, UseEntrySheetSync } from "./types";
+import { type EntrySheetSyncState, type UseEntrySheetSync } from "./types";
 import { startEntrySheetSync } from "./utils";
 
 export const useEntrySheetSync = (

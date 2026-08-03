@@ -1,5 +1,5 @@
 import {
-  IngestionTaskCounts,
+  type IngestionTaskCounts,
   SYSTEM,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { updateTaskCounts } from "@/app/services/atlases";
@@ -12,7 +12,7 @@ import {
   getExistingAtlasFromDatabase,
   resetDatabase,
 } from "@/testing/db-utils";
-import { TestAtlas } from "@/testing/entities";
+import { type TestAtlas } from "@/testing/entities";
 
 jest.mock(
   "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",

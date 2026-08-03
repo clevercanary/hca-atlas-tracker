@@ -1,10 +1,10 @@
 import { getCellxGeneCollections } from "@/app/utils/cellxgene-api";
 import { normalizeDoi } from "@/app/utils/doi";
-import { Options as KyOptions } from "ky";
+import { type Options as KyOptions } from "ky";
 import {
   makeRefreshService,
-  RefreshDataResult,
-  RefreshInfo,
+  type RefreshDataResult,
+  type RefreshInfo,
 } from "./common/refresh-service";
 import { doUpdatesIfRefreshesComplete } from "./refresh-services";
 

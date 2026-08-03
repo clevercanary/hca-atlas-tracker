@@ -1,10 +1,10 @@
-import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "@/app/common/entities";
+import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { DialogBody } from "@/app/components/common/Form/components/Dialog/components/DialogBody/dialogBody";
 import { FIELD_NAME } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/constants";
 import { useComponentAtlasSourceDatasetsSelectionForm } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/hooks/useComponentAtlasSourceDatasetsSelectionForm";
 import { useComponentAtlasSourceDatasetsSelectionFormManager } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/hooks/useComponentAtlasSourceDatasetsSelectionFormManager";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { FormActions } from "./components/FormActions/formActions";
 import { Table } from "./components/FormContent/components/Table/table";
 

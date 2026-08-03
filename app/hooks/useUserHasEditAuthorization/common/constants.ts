@@ -1,5 +1,5 @@
 import { ROUTE } from "@/app/routes/constants";
-import { RouteValue } from "@/app/routes/entities";
+import { type RouteValue } from "@/app/routes/entities";
 
 export const ROUTES: RouteValue[] = [
   ROUTE.ATLAS_SOURCE_DATASETS,

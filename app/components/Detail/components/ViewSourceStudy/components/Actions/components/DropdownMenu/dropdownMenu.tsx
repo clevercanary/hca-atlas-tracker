@@ -1,9 +1,9 @@
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { DropdownMenu as MoreDropdownMenu } from "@/app/components/Detail/components/TrackerForm/components/DropdownMenu/dropdownMenu";
-import { FormStatus } from "@/app/hooks/useFormManager/common/entities";
+import { type FormStatus } from "@/app/hooks/useFormManager/common/entities";
 import { useDeleteSourceStudy } from "@/app/views/SourceStudyView/hooks/useDeleteSourceStudy";
 import { MenuItem } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/components/MenuItem/menuItem";
-import { JSX } from "react";
+import { type JSX } from "react";
 
 export interface DropdownMenuProps {
   isDirty: FormStatus["isDirty"];

@@ -1,12 +1,12 @@
-import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { type ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
 import { METHOD } from "@/app/common/entities";
 import {
   REFRESH_ACTIVITY,
   REFRESH_OUTCOME,
-  RefreshServicesStatuses,
+  type RefreshServicesStatuses,
 } from "@/app/services/common/entities";
 import { endPgPool } from "@/app/services/database";
-import { Handler } from "@/app/utils/api-handler";
+import { type Handler } from "@/app/utils/api-handler";
 import {
   HCA_CATALOG_TEST1,
   STAKEHOLDER_ANALOGOUS_ROLES,
@@ -17,14 +17,14 @@ import {
   USER_UNREGISTERED,
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
-import { FunctionMocked, TestUser } from "@/testing/entities";
+import { type FunctionMocked, type TestUser } from "@/testing/entities";
 import {
   delay,
   promiseWithResolvers,
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock("@/app/services/component-atlases");

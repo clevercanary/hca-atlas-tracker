@@ -1,6 +1,6 @@
 import * as C from "@/app/components/index";
 import { ROUTE } from "@/app/routes/constants";
-import { SiteConfig } from "@/site-config/common/entities";
+import { type SiteConfig } from "@/site-config/common/entities";
 import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";

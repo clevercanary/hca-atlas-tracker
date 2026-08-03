@@ -1,4 +1,4 @@
-import { CellContext, RowData } from "@tanstack/react-table";
+import { type CellContext, type RowData } from "@tanstack/react-table";
 
 /**
  * Returns a partial CellContext for the given value.

@@ -1,9 +1,9 @@
-import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { PartialTableOptions } from "@/app/hooks/useTableOptions";
+import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type PartialTableOptions } from "@/app/hooks/useTableOptions";
 import { FIELD_NAME } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/constants";
-import { ComponentAtlasSourceDatasetsEditData } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/entities";
-import { RowSelectionState } from "@tanstack/react-table";
+import { type ComponentAtlasSourceDatasetsEditData } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/entities";
+import { type RowSelectionState } from "@tanstack/react-table";
 import { useEffect, useMemo } from "react";
 
 const SET_VALUE_OPTIONS = { shouldDirty: true, shouldValidate: true };

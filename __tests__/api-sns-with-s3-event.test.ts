@@ -3,10 +3,10 @@ import {
   createSNSMessage,
   createTestAtlasData,
   doS3Event,
-  S3EventOptions,
+  type S3EventOptions,
   setUpAwsConfig,
   SNS_MESSAGE_DEFAULTS,
-  SNSMessageOptions,
+  type SNSMessageOptions,
   SQL_QUERIES,
   TEST_ATLAS_WITH_CONTRASTING_NAME_ID,
   TEST_ATLAS_WITH_MULTI_WORD_NAME_ID,
@@ -32,15 +32,15 @@ import {
 setUpAwsConfig();
 
 // Imports
-import { SNSMessage } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import { type SNSMessage } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerDBConcept,
-  HCAAtlasTrackerDBFile,
-  HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerDBSourceDatasetInfo,
+  type HCAAtlasTrackerDBComponentAtlas,
+  type HCAAtlasTrackerDBConcept,
+  type HCAAtlasTrackerDBFile,
+  type HCAAtlasTrackerDBSourceDataset,
+  type HCAAtlasTrackerDBSourceDatasetInfo,
   INTEGRITY_STATUS,
   PUBLICATION_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -64,7 +64,7 @@ import {
   expectIsDefined,
   withConsoleMessageHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

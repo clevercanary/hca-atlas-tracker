@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { Figure as FigureWithCaption } from "./figure.styles";
 
 export interface ImageProps {

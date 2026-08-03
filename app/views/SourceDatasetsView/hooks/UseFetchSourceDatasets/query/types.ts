@@ -1,8 +1,8 @@
 import {
-  AtlasId,
-  SourceStudyId,
+  type AtlasId,
+  type SourceStudyId,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { SOURCE_STUDY_SOURCE_DATASETS } from "./constants";
+import { type SOURCE_STUDY_SOURCE_DATASETS } from "./constants";
 
 export type QueryKey = [
   typeof SOURCE_STUDY_SOURCE_DATASETS,

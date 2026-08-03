@@ -1,4 +1,4 @@
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { getRouteURL } from "@/app/common/utils";
 import { useBackPath } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { ROUTE } from "@/app/routes/constants";

@@ -1,6 +1,6 @@
 import {
-  EntityType,
-  ValidationErrorInfo,
+  type EntityType,
+  type ValidationErrorInfo,
 } from "@/app/views/AtlasMetadataEntrySheetValidationView/components/ValidationReport/entities";
 
 export interface Props {

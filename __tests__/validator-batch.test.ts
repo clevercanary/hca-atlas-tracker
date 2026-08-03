@@ -7,7 +7,7 @@ import {
 import {
   BatchClient,
   SubmitJobCommand,
-  SubmitJobCommandInput,
+  type SubmitJobCommandInput,
 } from "@aws-sdk/client-batch";
 import { mockClient } from "aws-sdk-client-mock";
 

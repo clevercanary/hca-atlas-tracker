@@ -1,7 +1,7 @@
-import { ATLAS_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type ATLAS_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasStatusBadgeProps } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { StatusBadge } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
-import { JSX } from "react";
+import { type JSX } from "react";
 
 export interface AtlasStatusProps {
   atlasStatus: ATLAS_STATUS;

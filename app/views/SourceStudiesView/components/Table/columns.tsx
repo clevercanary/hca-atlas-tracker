@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getSourceStudyCitation } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { LinksCell } from "@/app/components/Index/components/LinksCell/linksCell";
 import { IconStatusBadge } from "@/app/components/Table/components/TableCell/components/IconStatusBadge/iconStatusBadge";
@@ -9,7 +9,7 @@ import {
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
 import { LinkCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/LinkCell/linkCell";
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import {
   buildMetadataSpreadsheets,
   buildSourceStudyDatasetCount,

@@ -1,10 +1,10 @@
 import { DownloadIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/DownloadIcon/downloadIcon";
 import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
 import { IconButton } from "@mui/material";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { Dialog } from "./components/Dialog/dialog";
 import { ICON_BUTTON_PROPS, SVG_ICON_PROPS } from "./constants";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 
 export const FileDownloadCell = ({
   disabled,

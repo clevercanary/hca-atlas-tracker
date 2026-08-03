@@ -1,8 +1,8 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { getRequestURL } from "@/app/common/utils";
-import { MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
-import { DefaultError, UseQueryResult } from "@tanstack/react-query";
+import { type MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
+import { type DefaultError, type UseQueryResult } from "@tanstack/react-query";
 import { useQuery } from "./query/useQuery";
 
 /**

@@ -1,4 +1,4 @@
-import { MigrationBuilder } from "node-pg-migrate";
+import { type MigrationBuilder } from "node-pg-migrate";
 
 // Update integrity_status to use "requested" (matching validation_status) instead of "validating"
 export function up(pgm: MigrationBuilder): void {

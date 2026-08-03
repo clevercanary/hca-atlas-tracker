@@ -1,7 +1,7 @@
 import { METHOD } from "@/app/common/entities";
 import { fetchResource, isFetchStatusCreated } from "@/app/common/utils";
 import { useCallback, useState } from "react";
-import { OnSubmitOptions, UseCreateAtlasRevision } from "./entities";
+import { type OnSubmitOptions, type UseCreateAtlasRevision } from "./entities";
 
 export const useCreateAtlasRevision = (): UseCreateAtlasRevision => {
   const [isRequesting, setIsRequesting] = useState(false);

@@ -1,5 +1,5 @@
 import { ROUTE } from "./constants";
-import { RouteValue } from "./entities";
+import { type RouteValue } from "./entities";
 
 /**
  * Returns true if the route is a valid route value.

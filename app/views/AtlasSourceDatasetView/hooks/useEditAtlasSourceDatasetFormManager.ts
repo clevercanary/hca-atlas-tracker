@@ -1,12 +1,12 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD, PathParameter } from "@/app/common/entities";
+import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD, type PathParameter } from "@/app/common/entities";
 import { getRequestURL, getRouteURL } from "@/app/common/utils";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { ROUTE } from "@/app/routes/constants";
-import { ViewAtlasSourceDatasetData } from "@/app/views/AtlasSourceDatasetView/common/entities";
+import { type ViewAtlasSourceDatasetData } from "@/app/views/AtlasSourceDatasetView/common/entities";
 import { useQueryClient } from "@tanstack/react-query";
 import Router from "next/router";
 import { useCallback } from "react";

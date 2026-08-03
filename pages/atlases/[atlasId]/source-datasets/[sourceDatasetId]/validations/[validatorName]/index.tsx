@@ -1,9 +1,9 @@
-import { ValidatorName } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "@/app/common/entities";
+import { type ValidatorName } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { AtlasSourceDatasetValidationView } from "@/app/views/AtlasSourceDatasetValidationView/atlasSourceDatasetValidationView";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { ParsedUrlQuery } from "querystring";
-import { JSX } from "react";
+import { type GetServerSideProps, type GetServerSidePropsContext } from "next";
+import { type ParsedUrlQuery } from "querystring";
+import { type JSX } from "react";
 
 interface SourceDatasetValidationPageUrlParams extends ParsedUrlQuery {
   atlasId: string;

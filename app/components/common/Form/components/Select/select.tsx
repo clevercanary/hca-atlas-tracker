@@ -1,8 +1,11 @@
 import { FormControl } from "@/app/components/common/Form/components/FormControl/formControl.styles";
 import { FormHelperText } from "@/app/components/common/Form/components/FormHelperText/formHelperText";
 import { FormLabel } from "@/app/components/common/Form/components/FormLabel/formLabel";
-import { Select as MSelect, SelectProps as MSelectProps } from "@mui/material";
-import { forwardRef, JSX, ReactNode } from "react";
+import {
+  Select as MSelect,
+  type SelectProps as MSelectProps,
+} from "@mui/material";
+import { forwardRef, type JSX, type ReactNode } from "react";
 import { SELECT_PROPS } from "./constants";
 
 export type SelectProps = MSelectProps & {

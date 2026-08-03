@@ -1,11 +1,11 @@
-import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "@/app/common/entities";
+import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "@/app/components/Entity/components/common/Tabs/tabs";
 import { EntityForm } from "@/app/components/Entity/components/EntityForm/entityForm";
 import { useBackPath } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
-import { Payload } from "@/app/hooks/UseEditFileArchived/entities";
+import { type Payload } from "@/app/hooks/UseEditFileArchived/entities";
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { EntityProvider } from "@/app/providers/entity/provider";
@@ -13,7 +13,7 @@ import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/UseFe
 import { SOURCE_DATASET } from "@/app/views/AtlasSourceDatasetView/hooks/UseFetchAtlasSourceDataset/query/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { useQueryClient } from "@tanstack/react-query";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { StyledFileArchivedStatus } from "./atlasSourceDatasetView.styles";
 import { VIEW_ATLAS_SOURCE_DATASET_SECTION_CONFIGS } from "./common/sections";
 import { getBreadcrumbs, getTabs } from "./common/utils";

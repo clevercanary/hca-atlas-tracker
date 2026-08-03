@@ -3,7 +3,7 @@ import {
   REL_ATTRIBUTE,
 } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import Image from "next/image";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { Brands } from "./hcaBranding.styles";
 
 export interface HCABrandingProps {

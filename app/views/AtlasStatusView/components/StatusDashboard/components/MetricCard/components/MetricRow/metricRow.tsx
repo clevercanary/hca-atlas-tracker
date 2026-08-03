@@ -1,10 +1,10 @@
 import { STACK_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/stack";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Stack, Typography } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { ROW_VARIANT_CONFIG } from "./constants";
 import { StyledStack } from "./metricRow.styles";
-import { Props } from "./types";
+import { type Props } from "./types";
 
 export const MetricRow = ({ row }: Props): JSX.Element => {
   const { color, Icon } = ROW_VARIANT_CONFIG[row.variant];

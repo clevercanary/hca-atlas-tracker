@@ -1,4 +1,4 @@
-import { EntrySheetValidationResponse } from "@/app/utils/hca-validation-tools/hca-validation-tools";
+import { type EntrySheetValidationResponse } from "@/app/utils/hca-validation-tools/hca-validation-tools";
 import {
   FETCH_ERROR_ENTRY_SHEET_IDS,
   TEST_ENTRY_SHEET_VALIDATION_FETCH_ERROR_MESSAGE,

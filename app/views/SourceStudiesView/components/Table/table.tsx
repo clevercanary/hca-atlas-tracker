@@ -1,6 +1,6 @@
 import { Table as CommonTable } from "@/app/components/Entity/components/common/Table/table";
 import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { useSourceStudiesTable } from "./hooks/UseSourceStudiesTable/hook";
 
 export const Table = (): JSX.Element => {

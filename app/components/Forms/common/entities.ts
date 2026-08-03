@@ -1,9 +1,10 @@
-import { TrackerFormSectionProps } from "@/app/components/Detail/components/TrackerForm/components/Section/components/TrackerFormSection/trackerFormSection";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
-import { PaperProps } from "@mui/material";
-import React, { ElementType, ReactNode } from "react";
-import { FieldValues } from "react-hook-form";
+import { type TrackerFormSectionProps } from "@/app/components/Detail/components/TrackerForm/components/Section/components/TrackerFormSection/trackerFormSection";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type PaperProps } from "@mui/material";
+import type React from "react";
+import { type ElementType, type ReactNode } from "react";
+import { type FieldValues } from "react-hook-form";
 
 export interface SectionConfig<
   T extends FieldValues,

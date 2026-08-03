@@ -1,4 +1,4 @@
-import { MDXComponents } from "mdx/types";
+import { type MDXComponents } from "mdx/types";
 import { Link } from "./app/components/Layout/components/Content/components/Link/link";
 import * as C from "./app/components/index";
 

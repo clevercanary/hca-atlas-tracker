@@ -1,12 +1,12 @@
 import {
   CircularProgress,
-  CircularProgressProps,
+  type CircularProgressProps,
 } from "@databiosphere/findable-ui/lib/components/common/Progress/components/CircularProgress/circularProgress";
 import {
   Link,
-  LinkProps,
+  type LinkProps,
 } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { Cell } from "./taskCountsCell.styles";
 
 export interface TaskCountsCellProps {

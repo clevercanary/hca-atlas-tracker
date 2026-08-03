@@ -1,4 +1,4 @@
-import { StackProps } from "@mui/material";
+import { type StackProps } from "@mui/material";
 
 export const INNER_STACK_PROPS: StackProps = {
   alignItems: "center",

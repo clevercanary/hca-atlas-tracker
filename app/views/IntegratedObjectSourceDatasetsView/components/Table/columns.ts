@@ -6,9 +6,9 @@ import {
   renderNTagCell,
   renderPinnedNTagCell,
 } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
+import { type IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
 import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { IconButton } from "./components/IconButton/iconButton";
 import { renderFileName, renderPublicationString } from "./viewBuilders";
 

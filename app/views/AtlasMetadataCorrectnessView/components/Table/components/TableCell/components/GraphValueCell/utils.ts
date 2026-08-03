@@ -1,5 +1,5 @@
-import { HeatmapEntrySheet } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { CellContext } from "@tanstack/react-table";
+import { type HeatmapEntrySheet } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type CellContext } from "@tanstack/react-table";
 
 /**
  * Return a formatted value (rounded to 2 decimal places if necessary).

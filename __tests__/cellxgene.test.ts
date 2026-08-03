@@ -1,4 +1,4 @@
-import { CellxGeneCollection } from "@/app/utils/cellxgene-api";
+import { type CellxGeneCollection } from "@/app/utils/cellxgene-api";
 import {
   CELLXGENE_ID_NORMAL,
   CELLXGENE_ID_NORMAL2,

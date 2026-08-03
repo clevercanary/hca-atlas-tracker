@@ -3,9 +3,9 @@ import {
   HCA_TIER1_VALIDATION_STATUS_LABEL,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
-  CAP_INGEST_STATUS,
-  FILE_VALIDATION_STATUS,
-  HCA_TIER1_VALIDATION_STATUS,
+  type CAP_INGEST_STATUS,
+  type FILE_VALIDATION_STATUS,
+  type HCA_TIER1_VALIDATION_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { CAP_INGEST_STATUS_LABEL } from "@/app/components/Table/components/TableCell/components/CAPIngestStatusCell/constants";
 import { mapSelectCategoryValue } from "@/app/config/utils";
@@ -13,7 +13,7 @@ import {
   HCA_ATLAS_TRACKER_CATEGORY_KEY,
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
 } from "@/site-config/hca-atlas-tracker/category";
-import { CategoryConfig } from "@databiosphere/findable-ui/lib/common/categories/config/types";
+import { type CategoryConfig } from "@databiosphere/findable-ui/lib/common/categories/config/types";
 
 export const CAP_INGEST_STATUS_CATEGORY_CONFIG: CategoryConfig = {
   key: HCA_ATLAS_TRACKER_CATEGORY_KEY.CAP_INGEST_STATUS,

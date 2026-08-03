@@ -12,7 +12,7 @@ jest.mock("@/app/common/utils", () => ({
   fetchResource: jest.fn(),
 }));
 
-import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getSourceStudyCitation } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { fetchResource } from "@/app/common/utils";
 import { SourceStudy } from "@/app/components/Form/components/Select/components/SourceStudy/sourceStudy";

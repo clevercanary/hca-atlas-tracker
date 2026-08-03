@@ -1,8 +1,8 @@
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { ComponentAtlasView } from "@/app/views/ComponentAtlasView/componentAtlasView";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { ParsedUrlQuery } from "querystring";
-import { JSX } from "react";
+import { type GetServerSideProps, type GetServerSidePropsContext } from "next";
+import { type ParsedUrlQuery } from "querystring";
+import { type JSX } from "react";
 
 interface ComponentAtlasPageUrlParams extends ParsedUrlQuery {
   atlasId: string;

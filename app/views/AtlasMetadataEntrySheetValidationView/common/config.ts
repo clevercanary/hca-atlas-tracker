@@ -1,4 +1,4 @@
-import { SectionConfig } from "@/app/components/Entity/components/EntityView/components/Section/entities";
+import { type SectionConfig } from "@/app/components/Entity/components/EntityView/components/Section/entities";
 import {
   METADATA_ENTRY_SHEET_VALIDATION_REPORT,
   METADATA_ENTRY_SHEET_VALIDATION_SUMMARY,

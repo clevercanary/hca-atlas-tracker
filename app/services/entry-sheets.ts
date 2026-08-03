@@ -1,13 +1,13 @@
 import {
-  HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBEntrySheetValidation,
-  HCAAtlasTrackerDBEntrySheetValidationListFields,
-  NetworkKey,
-  WithSourceStudyInfo,
+  type HCAAtlasTrackerDBAtlas,
+  type HCAAtlasTrackerDBEntrySheetValidation,
+  type HCAAtlasTrackerDBEntrySheetValidationListFields,
+  type NetworkKey,
+  type WithSourceStudyInfo,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NotFoundError } from "@/app/utils/api-errors";
 import { validateEntrySheet } from "@/app/utils/hca-validation-tools/hca-validation-tools";
-import pg from "pg";
+import type pg from "pg";
 import { ValidationError } from "yup";
 import { getBaseModelAtlas } from "./atlases";
 import { doTransaction, query } from "./database";

@@ -1,5 +1,5 @@
 import { getAtlasName } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { getRouteURL } from "@/app/common/utils";
 import { Tabs } from "@/app/components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { AtlasStatuses } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
@@ -9,7 +9,7 @@ import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { ROUTE } from "@/app/routes/constants";
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
 import { StatusDashboard } from "./components/StatusDashboard/statusDashboard";
 import { useFetchAtlasStatus } from "./hooks/UseFetchAtlasStatus/hook";

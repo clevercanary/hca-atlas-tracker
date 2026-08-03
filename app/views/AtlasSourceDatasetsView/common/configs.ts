@@ -1,4 +1,4 @@
-import { SectionConfig } from "@/app/components/Entity/components/EntityView/components/Section/entities";
+import { type SectionConfig } from "@/app/components/Entity/components/EntityView/components/Section/entities";
 import { Alert } from "@/app/views/AtlasSourceDatasetsView/components/Alert/alert";
 import { Table } from "@/app/views/AtlasSourceDatasetsView/components/Table/table";
 

@@ -1,5 +1,5 @@
-import { FileId } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { IconButtonProps } from "@mui/material";
+import { type FileId } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type IconButtonProps } from "@mui/material";
 
 export interface Props extends IconButtonProps {
   fileId?: FileId;

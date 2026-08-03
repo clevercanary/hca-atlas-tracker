@@ -2,10 +2,10 @@ import { WAVES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import { isWaveValue } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import {
   Select,
-  SelectProps,
+  type SelectProps,
 } from "@/app/components/common/Form/components/Select/select";
 import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, JSX, ReactNode } from "react";
+import { forwardRef, type JSX, type ReactNode } from "react";
 
 export const Wave = forwardRef<HTMLInputElement, SelectProps>(function Wave(
   {

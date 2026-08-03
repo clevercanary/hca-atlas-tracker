@@ -1,7 +1,7 @@
 import { ROUTE } from "@/app/routes/constants";
-import { RouteValue } from "@/app/routes/entities";
+import { type RouteValue } from "@/app/routes/entities";
 import { useRouter } from "next/router";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 
 interface PopupContentProps {
   nextRoute?: RouteValue;

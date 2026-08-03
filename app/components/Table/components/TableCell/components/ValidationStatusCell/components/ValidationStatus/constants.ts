@@ -1,6 +1,6 @@
 import { FILE_VALIDATION_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
-import { ChipProps } from "@mui/material";
+import { type ChipProps } from "@mui/material";
 
 export const VALIDATION_STATUS_COLOR: Record<
   FILE_VALIDATION_STATUS,

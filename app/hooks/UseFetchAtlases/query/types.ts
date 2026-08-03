@@ -1,3 +1,3 @@
-import { ATLASES } from "./constants";
+import { type ATLASES } from "./constants";
 
 export type QueryKey = [typeof ATLASES];

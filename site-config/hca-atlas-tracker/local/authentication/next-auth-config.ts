@@ -1,8 +1,8 @@
 import { getUserRoleByEmail, registerUser } from "@/app/services/users";
-import { NextAuthOptions } from "next-auth";
+import { type NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { SESSION_MAX_AGE } from "./constants";
-import { GoogleAuthParams } from "./entities";
+import { type GoogleAuthParams } from "./entities";
 
 // During `next build` page-data collection the env vars aren't loaded; module
 // init must not throw. At any other phase (dev server, prod server, test) we

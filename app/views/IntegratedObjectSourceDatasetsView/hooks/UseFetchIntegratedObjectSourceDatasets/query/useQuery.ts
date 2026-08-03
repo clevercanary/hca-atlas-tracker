@@ -1,13 +1,13 @@
 import {
-  AtlasId,
-  ComponentAtlasId,
-  HCAAtlasTrackerLocalListSourceDataset,
+  type AtlasId,
+  type ComponentAtlasId,
+  type HCAAtlasTrackerLocalListSourceDataset,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { useAuthedQuery } from "@/app/query/useAuthedQuery";
-import { IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
-import { DefaultError, UseQueryResult } from "@tanstack/react-query";
+import { type IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
+import { type DefaultError, type UseQueryResult } from "@tanstack/react-query";
 import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "./constants";
-import { QueryKey } from "./types";
+import { type QueryKey } from "./types";
 
 /**
  * Fetches an integrated object's source datasets via React Query, mapping each

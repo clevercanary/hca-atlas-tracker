@@ -2,7 +2,7 @@ import { CellxGeneInProgressForm } from "@/app/components/Forms/components/Cellx
 import { Content } from "@/app/components/Layout/components/Content/content";
 import { LAYOUT_STYLE_NO_CONTRAST_DEFAULT } from "@/app/content/common/constants";
 import { ContentView } from "@databiosphere/findable-ui/lib/views/ContentView/contentView";
-import { JSX } from "react";
+import { type JSX } from "react";
 
 export const CellxGeneInProgressView = (): JSX.Element => {
   return (

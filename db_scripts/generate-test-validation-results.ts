@@ -1,20 +1,20 @@
 import {
-  DatasetValidatorToolReport,
-  DatasetValidatorToolReports,
+  type DatasetValidatorToolReport,
+  type DatasetValidatorToolReports,
 } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import { FILE_METADATA_COVERAGE_ENTITY_TYPES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_VALIDATION_STATUS,
-  FileMetadataCoverage,
-  FileMetadataCoverageEntity,
-  FileMetadataFieldCoverage,
-  FileValidationReports,
-  FileValidationSummary,
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerDBFile,
-  HCAAtlasTrackerDBFileDatasetInfo,
-  HCAAtlasTrackerDBFileValidationInfo,
-  HCAAtlasTrackerDBSourceDataset,
+  type FileMetadataCoverage,
+  type FileMetadataCoverageEntity,
+  type FileMetadataFieldCoverage,
+  type FileValidationReports,
+  type FileValidationSummary,
+  type HCAAtlasTrackerDBComponentAtlas,
+  type HCAAtlasTrackerDBFile,
+  type HCAAtlasTrackerDBFileDatasetInfo,
+  type HCAAtlasTrackerDBFileValidationInfo,
+  type HCAAtlasTrackerDBSourceDataset,
   INTEGRITY_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { isFileMetadataCoverageEntityType } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
@@ -22,7 +22,7 @@ import { addValidationResultsToFile } from "@/app/data/files";
 import { doTransaction, endPgPool } from "@/app/services/database";
 import { toolReportsToValidationReportsAndSummary } from "@/app/services/validation-results-notification";
 import dataDictionary from "@/catalog/downloaded/data-dictionary.json";
-import pg from "pg";
+import type pg from "pg";
 import { randomTestProbabilityPasses, randomTestValueInRange } from "./utils";
 
 /**

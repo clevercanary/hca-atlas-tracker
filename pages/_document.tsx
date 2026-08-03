@@ -1,17 +1,17 @@
 import {
   documentGetInitialProps,
   DocumentHeadTags,
-  DocumentHeadTagsProps,
+  type DocumentHeadTagsProps,
 } from "@mui/material-nextjs/v16-pagesRouter";
 import Document, {
-  DocumentContext,
-  DocumentInitialProps,
+  type DocumentContext,
+  type DocumentInitialProps,
   Head,
   Html,
   Main,
   NextScript,
 } from "next/document";
-import type { JSX } from "react";
+import { type JSX } from "react";
 
 class MyDocument extends Document<DocumentHeadTagsProps> {
   render(): JSX.Element {

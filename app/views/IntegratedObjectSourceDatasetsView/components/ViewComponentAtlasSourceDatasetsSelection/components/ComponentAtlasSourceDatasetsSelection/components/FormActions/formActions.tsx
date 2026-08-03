@@ -1,8 +1,8 @@
-import { FormActionsProps as CommonFormActionProps } from "@/app/components/common/Form/components/FormActions/formActions";
+import { type FormActionsProps as CommonFormActionProps } from "@/app/components/common/Form/components/FormActions/formActions";
 import { Actions } from "@/app/components/common/Form/components/FormActions/formActions.styles";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 
 interface FormActionsProps extends CommonFormActionProps {
   count: number;

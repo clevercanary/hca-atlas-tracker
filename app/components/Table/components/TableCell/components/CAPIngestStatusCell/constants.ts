@@ -1,7 +1,7 @@
-import { CAP_INGEST_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type CAP_INGEST_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { CHIP_PROPS as APP_CHIP_PROPS } from "@/app/styles/common/mui/chip";
 import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
-import { ChipProps } from "@mui/material";
+import { type ChipProps } from "@mui/material";
 
 export const CAP_INGEST_STATUS_COLOR: Record<
   CAP_INGEST_STATUS,

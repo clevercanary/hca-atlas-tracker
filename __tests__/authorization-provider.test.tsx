@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
-import { JSX, ReactNode } from "react";
+import { type JSX, type ReactNode } from "react";
 
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
@@ -9,7 +9,7 @@ jest.mock("@/app/hooks/UseFetchActiveUser/hook", () => ({
   useFetchActiveUser: jest.fn(),
 }));
 
-import { HCAAtlasTrackerActiveUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerActiveUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { useFetchActiveUser } from "@/app/hooks/UseFetchActiveUser/hook";
 import { AuthorizationProvider } from "@/app/providers/authorization";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";

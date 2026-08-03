@@ -9,34 +9,34 @@ import {
 } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ENTITY_TYPE,
-  HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBComment,
-  HCAAtlasTrackerDBSourceStudy,
-  HCAAtlasTrackerDBSourceStudyWithAtlasProperties,
-  HCAAtlasTrackerDBUser,
-  HCAAtlasTrackerDBValidation,
-  HCAAtlasTrackerDBValidationUpdateColumns,
-  HCAAtlasTrackerDBValidationWithAtlasProperties,
-  HCAAtlasTrackerValidationResult,
-  PublicationInfo,
+  type HCAAtlasTrackerDBAtlas,
+  type HCAAtlasTrackerDBComment,
+  type HCAAtlasTrackerDBSourceStudy,
+  type HCAAtlasTrackerDBSourceStudyWithAtlasProperties,
+  type HCAAtlasTrackerDBUser,
+  type HCAAtlasTrackerDBValidation,
+  type HCAAtlasTrackerDBValidationUpdateColumns,
+  type HCAAtlasTrackerDBValidationWithAtlasProperties,
+  type HCAAtlasTrackerValidationResult,
+  type PublicationInfo,
   SYSTEM,
   TASK_STATUS,
-  TaskStatusesUpdatedByDOIResult,
+  type TaskStatusesUpdatedByDOIResult,
   TIER_ONE_METADATA_STATUS,
   VALIDATION_DESCRIPTION,
   VALIDATION_ID,
   VALIDATION_STATUS,
   VALIDATION_TYPE,
   VALIDATION_VARIABLE,
-  ValidationDBEntityOfType,
-  ValidationDifference,
+  type ValidationDBEntityOfType,
+  type ValidationDifference,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { NewCommentThreadData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { type NewCommentThreadData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { ForbiddenError, NotFoundError } from "@/app/utils/api-errors";
-import { ProjectInfo } from "@/app/utils/hca-projects";
+import { type ProjectInfo } from "@/app/utils/hca-projects";
 import { dequal } from "dequal";
 import DOMPurify from "isomorphic-dompurify";
-import pg from "pg";
+import type pg from "pg";
 import { updateTaskCounts } from "./atlases";
 import { createCommentThread, deleteCommentThread } from "./comments";
 import { doTransaction, getPoolClient, query } from "./database";

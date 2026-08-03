@@ -5,11 +5,11 @@ import { useEntity } from "@/app/providers/entity/hook";
 import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/UseFetchAtlasSourceDatasets/query/constants";
 import { DropdownMenu } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowSelection/components/DropdownMenu/dropdownMenu";
 import { Stack } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { EditPublicationStatus } from "./components/EditPublicationStatus/editPublicationStatus";
 import { EditReprocessedStatus } from "./components/EditReprocessedStatus/editReprocessedStatus";
 import { SetSourceStudy } from "./components/SetSourceStudy/setSourceStudy";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 
 export const EditSelection = ({ rows, table }: Props): JSX.Element => {
   const { archivedState } = useArchivedState();

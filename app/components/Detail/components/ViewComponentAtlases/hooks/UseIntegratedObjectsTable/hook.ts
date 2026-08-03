@@ -4,13 +4,13 @@ import { SORTING_OPTIONS } from "@/app/components/Table/options/sorting/constant
 import { useEntity } from "@/app/providers/entity/hook";
 import { getAtlasComponentAtlasesTableColumns } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import {
-  AtlasIntegratedObject,
-  EntityData,
+  type AtlasIntegratedObject,
+  type EntityData,
 } from "@/app/views/ComponentAtlasesView/entities";
 import { COLUMN_IDENTIFIER } from "@databiosphere/findable-ui/lib/components/Table/common/columnIdentifier";
 import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
 import { useReactTable } from "@tanstack/react-table";
-import { UseIntegratedObjectsTable } from "./entities";
+import { type UseIntegratedObjectsTable } from "./entities";
 
 // Stable empty-array fallback: `useReactTable` requires a referentially stable
 // `data` prop, and the query returns `undefined` while an integrated objects

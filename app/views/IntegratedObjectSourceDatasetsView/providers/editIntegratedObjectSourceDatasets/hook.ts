@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { EditIntegratedObjectSourceDatasetsContext } from "./context";
-import { EditIntegratedObjectSourceDatasetsContextProps } from "./types";
+import { type EditIntegratedObjectSourceDatasetsContextProps } from "./types";
 
 export const useEditIntegratedObjectSourceDatasets =
   (): EditIntegratedObjectSourceDatasetsContextProps => {

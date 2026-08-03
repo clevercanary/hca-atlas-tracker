@@ -1,4 +1,4 @@
-import pg from "pg";
+import type pg from "pg";
 
 /**
  * Update all entry sheet validations linked to a given source study to be linked to another given source study instead.

@@ -1,4 +1,4 @@
-import { SiteConfig } from "@/site-config/common/entities";
+import { type SiteConfig } from "@/site-config/common/entities";
 import {
   GIT_HUB_REPO_URL,
   makeConfig,

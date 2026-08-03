@@ -1,6 +1,6 @@
 import { AdminFormErrors } from "@/app/components/common/AdminForm/components/AdminFormErrors/adminFormErrors";
-import { FormResponseErrors } from "@/app/hooks/useForm/common/entities";
-import React, { JSX } from "react";
+import { type FormResponseErrors } from "@/app/hooks/useForm/common/entities";
+import React, { type JSX } from "react";
 
 export interface Props {
   errors: FormResponseErrors | null;

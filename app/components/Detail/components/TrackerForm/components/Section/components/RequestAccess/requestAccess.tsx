@@ -3,7 +3,7 @@ import {
   SectionHero,
   SectionText,
 } from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
-import { JSX, ReactNode } from "react";
+import { type JSX, type ReactNode } from "react";
 
 interface RequestAccessProps {
   children: ReactNode | ReactNode[];

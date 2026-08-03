@@ -1,15 +1,15 @@
-import { AtlasStatusSummary } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type AtlasStatusSummary } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { ROW_LABEL, SECTION_HEADING, TITLE } from "./constants";
 import {
   BADGE_VARIANT,
-  MetricBadgeModel,
-  MetricCardModel,
-  MetricRowModel,
-  MetricSectionModel,
+  type MetricBadgeModel,
+  type MetricCardModel,
+  type MetricRowModel,
+  type MetricSectionModel,
   ROW_VARIANT,
   SECTION_STATUS,
-  SectionStatus,
-  ValidationDimension,
+  type SectionStatus,
+  type ValidationDimension,
 } from "./types";
 
 /**

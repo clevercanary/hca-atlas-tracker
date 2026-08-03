@@ -11,7 +11,7 @@ import {
   resolveAtlasId,
   role,
 } from "@/app/utils/api-handler";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 
 /**
  * API route to get atlas by ID or update atlas by ID.

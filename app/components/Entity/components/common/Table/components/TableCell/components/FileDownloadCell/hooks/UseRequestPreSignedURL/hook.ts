@@ -1,9 +1,9 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
-import { PresignedUrlInfo } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type PresignedUrlInfo } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getRequestURL } from "@/app/common/utils";
 import { useEntity } from "@/app/providers/entity/hook";
-import { DefaultError, UseQueryResult } from "@tanstack/react-query";
-import { Props } from "./entities";
+import { type DefaultError, type UseQueryResult } from "@tanstack/react-query";
+import { type Props } from "./entities";
 import { useQuery } from "./query/useQuery";
 
 /**

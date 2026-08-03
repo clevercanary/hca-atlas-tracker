@@ -1,12 +1,12 @@
 import {
-  AtlasId,
-  HCAAtlasTrackerDetailSourceDataset,
-  SourceDatasetId,
+  type AtlasId,
+  type HCAAtlasTrackerDetailSourceDataset,
+  type SourceDatasetId,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { useAuthedQuery } from "@/app/query/useAuthedQuery";
-import { DefaultError, UseQueryResult } from "@tanstack/react-query";
+import { type DefaultError, type UseQueryResult } from "@tanstack/react-query";
 import { SOURCE_DATASET } from "./constants";
-import { QueryKey } from "./types";
+import { type QueryKey } from "./types";
 
 /**
  * Fetches a single atlas source dataset via React Query.

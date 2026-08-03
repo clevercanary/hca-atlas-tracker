@@ -1,4 +1,4 @@
-import { MigrationBuilder } from "node-pg-migrate";
+import { type MigrationBuilder } from "node-pg-migrate";
 
 const COMMENTS = { name: "comments", schema: "hat" };
 const COMPONENT_ATLASES = { name: "component_atlases", schema: "hat" };

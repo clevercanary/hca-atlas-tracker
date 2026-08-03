@@ -1,4 +1,4 @@
-import { NewSourceStudyDataKeys } from "./entities";
+import { type NewSourceStudyDataKeys } from "./entities";
 
 export const FIELD_NAME = {
   CONTACT_EMAIL: "contactEmail",

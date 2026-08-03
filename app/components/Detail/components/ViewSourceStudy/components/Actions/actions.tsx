@@ -1,6 +1,6 @@
-import { PathParameter } from "@/app/common/entities";
-import { FormStatus } from "@/app/hooks/useFormManager/common/entities";
-import { JSX } from "react";
+import { type PathParameter } from "@/app/common/entities";
+import { type FormStatus } from "@/app/hooks/useFormManager/common/entities";
+import { type JSX } from "react";
 import { HeroActions } from "./actions.styles";
 import { DropdownMenu } from "./components/DropdownMenu/dropdownMenu";
 

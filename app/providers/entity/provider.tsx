@@ -1,6 +1,6 @@
-import { JSX } from "react";
+import { type JSX } from "react";
 import { EntityContext } from "./context";
-import { EntityData, EntityProviderProps } from "./entities";
+import { type EntityData, type EntityProviderProps } from "./entities";
 
 export function EntityProvider<D extends EntityData = EntityData>({
   children,

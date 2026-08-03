@@ -4,7 +4,7 @@ import {
   COLUMN_KEY,
   MAX_REPORTS_TO_DISPLAY,
 } from "@/app/views/AtlasMetadataEntrySheetValidationView/components/ValidationReport/constants";
-import { SiteConfig } from "@/site-config/common/entities";
+import { type SiteConfig } from "@/site-config/common/entities";
 import { OpenInNewIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/OpenInNewIcon/openInNewIcon";
 import {
   ANCHOR_TARGET,
@@ -14,9 +14,9 @@ import { useConfig } from "@databiosphere/findable-ui/lib/hooks/useConfig";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Button, Divider, Typography } from "@mui/material";
-import { Fragment, JSX, useMemo, useState } from "react";
+import { Fragment, type JSX, useMemo, useState } from "react";
 import { ENTITY_NAME, GRID_PROPS } from "./constants";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 import {
   StyledFluidPaper,
   StyledGrid,

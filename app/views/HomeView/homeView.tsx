@@ -1,8 +1,8 @@
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Typography } from "@mui/material";
 import Head from "next/head";
-import { Fragment, JSX } from "react";
-import { Props } from "./entities";
+import { Fragment, type JSX } from "react";
+import { type Props } from "./entities";
 import { StyledLoginView, StyledSection, StyledStack } from "./homeView.styles";
 
 export const HomeView = ({ providers }: Props): JSX.Element => {

@@ -1,8 +1,8 @@
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Stack, Typography } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { ValidationMessage } from "./components/ValidationMessage/validationMessage";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 import { StyledStack } from "./reportContent.styles";
 import { getReportSummaries } from "./utils";
 

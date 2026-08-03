@@ -1,16 +1,16 @@
 import {
-  EntrySheetValidationErrorInfo,
-  EntrySheetValidationSummary,
-  GoogleLastUpdateInfo,
+  type EntrySheetValidationErrorInfo,
+  type EntrySheetValidationSummary,
+  type GoogleLastUpdateInfo,
 } from "@/app/utils/hca-validation-tools/hca-validation-tools";
-import { API } from "./api";
+import { type API } from "./api";
 import {
-  FILE_METADATA_COVERAGE_ENTITY_TYPES,
-  FILE_VALIDATOR_NAMES,
-  METADATA_COVERAGE_REPORT_CLASSES,
-  METADATA_COVERAGE_REPORT_TIERS,
-  NETWORK_KEYS,
-  WAVES,
+  type FILE_METADATA_COVERAGE_ENTITY_TYPES,
+  type FILE_VALIDATOR_NAMES,
+  type METADATA_COVERAGE_REPORT_CLASSES,
+  type METADATA_COVERAGE_REPORT_TIERS,
+  type NETWORK_KEYS,
+  type WAVES,
 } from "./constants";
 
 export type APIKey = keyof typeof API;

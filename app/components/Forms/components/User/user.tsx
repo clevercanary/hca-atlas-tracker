@@ -1,5 +1,5 @@
 import {
-  HCAAtlasTrackerUser,
+  type HCAAtlasTrackerUser,
   ROLE,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { FormManager } from "@/app/components/common/Form/components/FormManager/formManager";
@@ -14,12 +14,12 @@ import {
 } from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
 import { TrackerForm } from "@/app/components/Detail/components/TrackerForm/trackerForm";
 import { useFetchAtlases } from "@/app/hooks/UseFetchAtlases/hook";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager as FormManagerProps } from "@/app/hooks/useFormManager/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager as FormManagerProps } from "@/app/hooks/useFormManager/common/entities";
 import { FIELD_NAME } from "@/app/views/AddNewUserView/common/constants";
-import { NewUserData } from "@/app/views/AddNewUserView/common/entities";
+import { type NewUserData } from "@/app/views/AddNewUserView/common/entities";
 import { MenuItem as MMenuItem } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { Controller } from "react-hook-form";
 
 interface UserFormProps {

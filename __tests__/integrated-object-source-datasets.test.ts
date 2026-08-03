@@ -1,6 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
-import { createElement, FunctionComponent, PropsWithChildren } from "react";
+import {
+  createElement,
+  type FunctionComponent,
+  type PropsWithChildren,
+} from "react";
 
 // Mock dependencies before imports
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
@@ -13,7 +17,7 @@ jest.mock("@/app/common/utils", () => ({
   fetchResource: jest.fn(),
 }));
 
-import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { fetchResource } from "@/app/common/utils";
 import { useDeleteData } from "@/app/hooks/useDeleteData";
 import { useEntity } from "@/app/providers/entity/hook";
@@ -22,7 +26,7 @@ import {
   renderFileName,
   renderPublicationString,
 } from "@/app/views/IntegratedObjectSourceDatasetsView/components/Table/viewBuilders";
-import { IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
+import { type IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
 import { useEditIntegratedObjectSourceDatasets } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/useEditIntegratedObjectSourceDatasets";
 import { useFetchIntegratedObjectSourceDatasets } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/UseFetchIntegratedObjectSourceDatasets/hook";
 import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/UseFetchIntegratedObjectSourceDatasets/query/constants";

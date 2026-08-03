@@ -1,4 +1,4 @@
-import { PresignedUrlInfo } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type PresignedUrlInfo } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool } from "@/app/services/database";
 import presignedUrlHandler from "@/pages/api/atlases/[atlasId]/files/[fileId]/presigned-url";
@@ -20,9 +20,9 @@ import {
   USER_UNREGISTERED,
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
-import { TestFile, TestUser } from "@/testing/entities";
+import { type TestFile, type TestUser } from "@/testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

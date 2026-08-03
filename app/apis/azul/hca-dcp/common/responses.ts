@@ -1,16 +1,16 @@
 import {
-  AggregatedCellSuspensionsResponse,
-  AggregatedDonorOrganismsResponse,
-  AggregatedFileTypeSummariesResponse,
-  AggregatedProtocolsResponse,
-  AggregatedSamplesResponse,
-  AggregatedSpecimensResponse,
+  type AggregatedCellSuspensionsResponse,
+  type AggregatedDonorOrganismsResponse,
+  type AggregatedFileTypeSummariesResponse,
+  type AggregatedProtocolsResponse,
+  type AggregatedSamplesResponse,
+  type AggregatedSpecimensResponse,
 } from "./aggregatedEntities";
 import {
-  CellCountSummary,
-  FileTypeSummary,
-  ProjectsEntityResponse,
-  ProjectSummary,
+  type CellCountSummary,
+  type FileTypeSummary,
+  type ProjectsEntityResponse,
+  type ProjectSummary,
 } from "./entities";
 
 /**

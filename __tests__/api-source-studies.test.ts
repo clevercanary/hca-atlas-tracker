@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerGlobalSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerGlobalSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool } from "@/app/services/database";
 import sourceStudiesHandler from "@/pages/api/source-studies";
@@ -27,14 +27,18 @@ import {
   expectApiSourceStudyToHaveMatchingDbValidations,
   resetDatabase,
 } from "@/testing/db-utils";
-import { TestAtlas, TestSourceStudy, TestUser } from "@/testing/entities";
+import {
+  type TestAtlas,
+  type TestSourceStudy,
+  type TestUser,
+} from "@/testing/entities";
 import {
   expectApiEntityToMatchLinkedAtlases,
   expectApiSourceStudyToMatchTest,
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

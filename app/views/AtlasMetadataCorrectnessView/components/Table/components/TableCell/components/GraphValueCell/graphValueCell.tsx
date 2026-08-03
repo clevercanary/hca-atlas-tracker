@@ -1,8 +1,8 @@
-import { HeatmapEntrySheet } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HeatmapEntrySheet } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Tooltip, Typography } from "@mui/material";
-import { CellContext } from "@tanstack/react-table";
-import { JSX } from "react";
+import { type CellContext } from "@tanstack/react-table";
+import { type JSX } from "react";
 import { TOOLTIP_PROPS } from "./constants";
 import { StyledBox } from "./graphValueCell.styles";
 import {

@@ -1,5 +1,5 @@
 import {
-  HCAAtlasTrackerValidationResult,
+  type HCAAtlasTrackerValidationResult,
   SYSTEM,
   VALIDATION_ID,
   VALIDATION_STATUS,
@@ -11,7 +11,7 @@ import { getSourceStudyWithAtlasProperties } from "@/app/services/source-studies
 import {
   getSourceStudyValidationResults,
   VALIDATION_META_STATUS,
-  ValidationMetaResult,
+  type ValidationMetaResult,
 } from "@/app/services/validations";
 import {
   ATLAS_WITH_IL,
@@ -29,8 +29,8 @@ import {
   SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
-import { TestAtlas, TestSourceStudy } from "@/testing/entities";
-import type { PoolClient } from "pg";
+import { type TestAtlas, type TestSourceStudy } from "@/testing/entities";
+import { type PoolClient } from "pg";
 
 let client: PoolClient;
 

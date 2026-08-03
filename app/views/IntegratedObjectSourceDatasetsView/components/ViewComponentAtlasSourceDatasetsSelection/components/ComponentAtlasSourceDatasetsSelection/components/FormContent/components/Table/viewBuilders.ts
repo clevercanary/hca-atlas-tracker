@@ -1,10 +1,10 @@
 import { UNPUBLISHED } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
-import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { GroupedRowSelectionCellProps } from "@/app/components/Table/components/TableCell/components/GroupedRowSelectionCell/groupedRowSelectionCell";
-import { RowSelectionCellProps } from "@/app/components/Table/components/TableCell/components/RowSelectionCell/rowSelectionCell";
-import { BasicCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/BasicCell/basicCell";
-import { CellContext } from "@tanstack/react-table";
-import { ComponentProps } from "react";
+import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type GroupedRowSelectionCellProps } from "@/app/components/Table/components/TableCell/components/GroupedRowSelectionCell/groupedRowSelectionCell";
+import { type RowSelectionCellProps } from "@/app/components/Table/components/TableCell/components/RowSelectionCell/rowSelectionCell";
+import { type BasicCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/BasicCell/basicCell";
+import { type CellContext } from "@tanstack/react-table";
+import { type ComponentProps } from "react";
 
 /**
  * Returns props for the "File Name" row-selection column.

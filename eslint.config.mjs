@@ -45,6 +45,14 @@ const config = [
     ],
     rules: {
       "@eslint-community/eslint-comments/require-description": "error",
+      // Any import used only in type positions must be written `import type` /
+      // inline `type` (fixStyle: inline). `disallowTypeAnnotations: false` keeps
+      // existing `typeof import("…")` annotations (jest generics, ambient .d.ts)
+      // as-is instead of forcing them to top-of-file imports.
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        { disallowTypeAnnotations: false, fixStyle: "inline-type-imports" },
+      ],
       // Intra-repo import convention: relative imports only for same-directory
       // and descendants (`./`); reach anything else through the `@/` alias.
       // Keeps a module's internal and external references to the same string

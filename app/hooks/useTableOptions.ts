@@ -1,9 +1,9 @@
 import {
   getCoreRowModel,
-  RowData,
-  RowSelectionState,
-  TableOptions,
-  Updater,
+  type RowData,
+  type RowSelectionState,
+  type TableOptions,
+  type Updater,
 } from "@tanstack/react-table";
 import { useCallback, useState } from "react";
 

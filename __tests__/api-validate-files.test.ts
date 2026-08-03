@@ -13,14 +13,14 @@ import {
   USER_UNREGISTERED,
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
-import { TestFile, TestUser } from "@/testing/entities";
+import { type TestFile, type TestUser } from "@/testing/entities";
 import {
   getAllTestFiles,
   testApiRole,
   withConsoleErrorHiding,
   withConsoleMessageHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

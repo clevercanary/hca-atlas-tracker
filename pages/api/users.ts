@@ -1,6 +1,6 @@
 import { dbUserToApiUser } from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE_GROUP } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
-import { HCAAtlasTrackerDBUserWithAssociatedResources } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerDBUserWithAssociatedResources } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { getAllUsers, getUserByEmail } from "@/app/services/users";
 import { NotFoundError } from "@/app/utils/api-errors";

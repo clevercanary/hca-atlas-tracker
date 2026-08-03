@@ -1,7 +1,7 @@
 import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
 import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
-import { ChipProps } from "@mui/material";
+import { type ChipProps } from "@mui/material";
 
 /**
  * Returns the color for the MuiChip component.

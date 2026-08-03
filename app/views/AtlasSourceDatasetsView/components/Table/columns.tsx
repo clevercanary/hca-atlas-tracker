@@ -13,11 +13,11 @@ import {
   buildSuspensionType,
   buildTissue,
 } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { AtlasSourceDataset } from "@/app/views/AtlasSourceDatasetsView/entities";
+import { type AtlasSourceDataset } from "@/app/views/AtlasSourceDatasetsView/entities";
 import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
-import { CellContext, ColumnDef } from "@tanstack/react-table";
+import { type CellContext, type ColumnDef } from "@tanstack/react-table";
 import {
   renderCAPUrl,
   renderSourceDatasetCellCount,

@@ -1,6 +1,6 @@
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
-import { Typography, TypographyProps } from "@mui/material";
-import { JSX } from "react";
+import { Typography, type TypographyProps } from "@mui/material";
+import { type JSX } from "react";
 
 export const KeyElType = ({
   children,

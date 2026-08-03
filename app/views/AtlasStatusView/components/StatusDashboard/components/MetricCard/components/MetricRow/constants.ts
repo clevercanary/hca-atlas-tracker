@@ -1,8 +1,8 @@
 import {
   ROW_VARIANT,
-  RowVariant,
+  type RowVariant,
 } from "@/app/views/AtlasStatusView/components/StatusDashboard/types";
-import { RowVariantConfig } from "./types";
+import { type RowVariantConfig } from "./types";
 
 // `color` is a theme palette path resolved via the `sx` prop. Rows are plain
 // counts with no per-row icon; status is surfaced by the section heading rollup.

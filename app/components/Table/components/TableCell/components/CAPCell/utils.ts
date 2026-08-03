@@ -4,10 +4,10 @@ import {
   CAP_INGEST_STATUS_COLOR,
   CAP_INGEST_STATUS_LABEL,
 } from "@/app/components/Table/components/TableCell/components/CAPIngestStatusCell/constants";
-import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { type LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
-import { ComponentProps } from "react";
-import { Props } from "./entities";
+import { type ComponentProps } from "react";
+import { type Props } from "./entities";
 
 /**
  * Returns chip props for the CAP status chip.

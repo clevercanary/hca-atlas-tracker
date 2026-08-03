@@ -36,7 +36,7 @@ import {
   withConsoleErrorHiding,
   withConsoleMessageHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 // Retrieve the mock function created in the jest.mock factory above

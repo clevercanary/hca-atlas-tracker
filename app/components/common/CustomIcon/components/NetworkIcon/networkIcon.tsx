@@ -1,7 +1,7 @@
 import { NETWORK_ICONS } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
-import { NetworkKey } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import Image, { ImageProps } from "next/image";
-import { JSX } from "react";
+import { type NetworkKey } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import Image, { type ImageProps } from "next/image";
+import { type JSX } from "react";
 
 export interface NetworkIconProps extends Pick<ImageProps, "height" | "width"> {
   alt?: string;

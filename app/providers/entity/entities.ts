@@ -1,8 +1,8 @@
-import { PathParameter } from "@/app/common/entities";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
-import { ReactNode } from "react";
-import { FieldValues } from "react-hook-form";
+import { type PathParameter } from "@/app/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type ReactNode } from "react";
+import { type FieldValues } from "react-hook-form";
 
 export interface EntityContextProps<D extends EntityData = EntityData> {
   data: D;

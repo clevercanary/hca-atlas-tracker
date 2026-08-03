@@ -1,5 +1,5 @@
-import { HCAAtlasTrackerUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { Breadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
+import { type HCAAtlasTrackerUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type Breadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import {
   getUserBreadcrumb,
   getUsersBreadcrumb,

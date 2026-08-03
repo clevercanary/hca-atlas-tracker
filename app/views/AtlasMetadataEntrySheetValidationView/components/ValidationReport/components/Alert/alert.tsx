@@ -5,11 +5,11 @@ import {
 } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Link, Tooltip, Typography } from "@mui/material";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import slugify from "slugify";
 import { StyledAlert, StyledDot } from "./alert.styles";
 import { ALERT_PROPS } from "./constants";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 
 export const Alert = ({
   metadataUrl,

@@ -1,8 +1,8 @@
 import { KeyValueCell } from "@/app/components/Table/components/TableCell/components/KeyValueCell/keyValueCell";
 import { ValidationSummaryCell } from "@/app/views/AtlasMetadataEntrySheetsView/components/Table/components/TableCell/components/ValidationSummaryCell/validationSummaryCell";
-import { MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
+import { type MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
 import { LinkCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/LinkCell/linkCell";
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import {
   buildDataSummary,
   buildEntrySheetTitle,

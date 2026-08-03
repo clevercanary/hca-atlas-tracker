@@ -1,7 +1,7 @@
 import {
-  HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBAtlasOverview,
-  HCAAtlasTrackerDBValidation,
+  type HCAAtlasTrackerDBAtlas,
+  type HCAAtlasTrackerDBAtlasOverview,
+  type HCAAtlasTrackerDBValidation,
   VALIDATION_ID,
   VALIDATION_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -15,7 +15,7 @@ import {
   SOURCE_STUDY_UNPUBLISHED_WITH_CELLXGENE,
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
-import { TestAtlas, TestSourceStudy } from "@/testing/entities";
+import { type TestAtlas, type TestSourceStudy } from "@/testing/entities";
 
 jest.mock(
   "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config",

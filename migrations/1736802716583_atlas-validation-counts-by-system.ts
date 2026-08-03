@@ -1,4 +1,4 @@
-import { MigrationBuilder } from "node-pg-migrate";
+import { type MigrationBuilder } from "node-pg-migrate";
 
 const DEFAULT_INGESTION_COUNTS = {
   CAP: { completedCount: 0, count: 0 },

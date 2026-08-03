@@ -1,9 +1,9 @@
 import {
-  FILE_VALIDATION_STATUS,
-  FileValidationReports,
-  FileValidatorName,
+  type FILE_VALIDATION_STATUS,
+  type FileValidationReports,
+  type FileValidatorName,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { AlertProps } from "@mui/material";
+import { type AlertProps } from "@mui/material";
 
 export interface Props {
   validationReports?: FileValidationReports | null;

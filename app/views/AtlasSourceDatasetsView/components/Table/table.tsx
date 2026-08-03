@@ -4,7 +4,7 @@ import { Table as CommonTable } from "@/app/components/Entity/components/common/
 import { StyledFluidPaper } from "@/app/components/Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
 import { Divider } from "@mui/material";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { EditSelection } from "./components/RowSelection/components/EditSelection/editSelection";
 import { useSourceDatasetsTable } from "./hooks/UseSourceDatasetsTable/hook";
 import { StyledToolbar } from "./table.styles";

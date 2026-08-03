@@ -1,5 +1,5 @@
-import { Dispatch } from "react";
-import { ArchivedAction } from "./actions/entities";
+import { type Dispatch } from "react";
+import { type ArchivedAction } from "./actions/entities";
 
 export type ArchivedState = {
   archived: boolean;

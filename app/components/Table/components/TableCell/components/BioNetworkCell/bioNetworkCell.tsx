@@ -1,11 +1,11 @@
-import { NetworkKey } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type NetworkKey } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NetworkIcon } from "@/app/components/common/CustomIcon/components/NetworkIcon/networkIcon";
 import {
   getBioNetworkByKey,
   getBioNetworkName,
 } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
-import { TypographyProps } from "@databiosphere/findable-ui/lib/components/common/Typography/common/entities";
-import { JSX } from "react";
+import { type TypographyProps } from "@databiosphere/findable-ui/lib/components/common/Typography/common/entities";
+import { type JSX } from "react";
 import { Cell } from "./bioNetworkCell.styles";
 
 export interface BioNetworkCellProps {

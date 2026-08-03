@@ -1,5 +1,5 @@
-import { Fragment, JSX, useMemo } from "react";
-import { Props } from "./entities";
+import { Fragment, type JSX, useMemo } from "react";
+import { type Props } from "./entities";
 import { parseValidationMessage } from "./utils";
 import { StyledAlert } from "./validationMessage.styles";
 

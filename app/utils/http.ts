@@ -1,4 +1,4 @@
-import ky, { Options, ResponsePromise } from "ky";
+import ky, { type Options, type ResponsePromise } from "ky";
 
 export type HttpGetOptions = Options;
 

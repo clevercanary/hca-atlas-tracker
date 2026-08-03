@@ -1,6 +1,6 @@
 import {
   FILE_TYPE,
-  HCAAtlasTrackerDBFile,
+  type HCAAtlasTrackerDBFile,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { endPgPool, query } from "@/app/services/database";
 import { getBucketFileKeys, syncFilesFromS3 } from "@/app/services/s3-sync";
@@ -26,7 +26,7 @@ import {
 } from "@/testing/utils";
 import {
   HeadObjectCommand,
-  HeadObjectCommandOutput,
+  type HeadObjectCommandOutput,
   ListObjectsV2Command,
   S3Client,
 } from "@aws-sdk/client-s3";

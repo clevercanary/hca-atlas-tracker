@@ -1,6 +1,6 @@
-import { MetricRowModel } from "@/app/views/AtlasStatusView/components/StatusDashboard/types";
-import { SvgIconProps } from "@mui/material";
-import { ComponentType } from "react";
+import { type MetricRowModel } from "@/app/views/AtlasStatusView/components/StatusDashboard/types";
+import { type SvgIconProps } from "@mui/material";
+import { type ComponentType } from "react";
 
 export interface Props {
   row: MetricRowModel;

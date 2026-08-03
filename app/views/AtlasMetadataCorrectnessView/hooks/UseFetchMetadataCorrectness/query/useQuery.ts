@@ -1,11 +1,11 @@
 import {
-  AtlasId,
-  Heatmap,
+  type AtlasId,
+  type Heatmap,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { useAuthedQuery } from "@/app/query/useAuthedQuery";
-import { DefaultError, UseQueryResult } from "@tanstack/react-query";
+import { type DefaultError, type UseQueryResult } from "@tanstack/react-query";
 import { METADATA_CORRECTNESS } from "./constants";
-import { QueryKey } from "./types";
+import { type QueryKey } from "./types";
 
 /**
  * Fetches the atlas metadata-correctness heatmap via React Query.

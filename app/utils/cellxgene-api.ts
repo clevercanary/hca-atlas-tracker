@@ -1,4 +1,4 @@
-import ky, { Options as KyOptions } from "ky";
+import ky, { type Options as KyOptions } from "ky";
 
 export interface CellxGeneCollection {
   collection_id: string;

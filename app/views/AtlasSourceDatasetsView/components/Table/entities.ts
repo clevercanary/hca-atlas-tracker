@@ -1,5 +1,5 @@
-import { AtlasSourceDataset } from "@/app/views/AtlasSourceDatasetsView/entities";
-import { TableOptions } from "@tanstack/react-table";
+import { type AtlasSourceDataset } from "@/app/views/AtlasSourceDatasetsView/entities";
+import { type TableOptions } from "@tanstack/react-table";
 
 export interface Props {
   tableOptions: Omit<

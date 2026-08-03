@@ -1,10 +1,10 @@
 import { ROUTE } from "@/app/routes/constants";
 import { HomeView } from "@/app/views/HomeView/homeView";
 import { nextAuthOptions } from "@/site-config/hca-atlas-tracker/local/authentication/next-auth-config";
-import { GetServerSideProps } from "next";
+import { type GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
-import { ClientSafeProvider, getProviders } from "next-auth/react";
-import { JSX } from "react";
+import { type ClientSafeProvider, getProviders } from "next-auth/react";
+import { type JSX } from "react";
 
 interface Props {
   providers: ClientSafeProvider[];

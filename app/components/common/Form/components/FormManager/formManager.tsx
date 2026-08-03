@@ -1,5 +1,5 @@
-import { FormManager as FormManagerProps } from "@/app/hooks/useFormManager/common/entities";
-import { Fragment, JSX } from "react";
+import { type FormManager as FormManagerProps } from "@/app/hooks/useFormManager/common/entities";
+import { Fragment, type JSX } from "react";
 import { Banner } from "./components/Banner/banner";
 import { Popup } from "./components/Popup/popup";
 

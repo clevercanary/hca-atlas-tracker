@@ -1,6 +1,6 @@
 import { ValidationStatusChipCell } from "@/app/components/Table/components/TableCell/components/ValidationStatusCell/components/ValidationStatusChipCell/validationStatusChipCell";
-import { JSX } from "react";
-import { Props } from "./entities";
+import { type JSX } from "react";
+import { type Props } from "./entities";
 import { buildValidationStatus } from "./utils";
 
 export const ValidationStatus = ({

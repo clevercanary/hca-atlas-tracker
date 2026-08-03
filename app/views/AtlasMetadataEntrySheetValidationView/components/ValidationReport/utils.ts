@@ -1,7 +1,7 @@
-import { EntityData } from "@/app/views/AtlasMetadataEntrySheetValidationView/entities";
+import { type EntityData } from "@/app/views/AtlasMetadataEntrySheetValidationView/entities";
 import { COLLATOR_CASE_INSENSITIVE } from "@databiosphere/findable-ui/lib/common/constants";
 import { COLUMN_KEY, MAX_REPORTS_TO_DISPLAY } from "./constants";
-import { EntityType, ValidationErrorInfo } from "./entities";
+import { type EntityType, type ValidationErrorInfo } from "./entities";
 
 /**
  * Builds entity validation reports for each entity type, keyed by entity type and then column.

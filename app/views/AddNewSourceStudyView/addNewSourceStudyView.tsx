@@ -1,10 +1,10 @@
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { AddSourceStudy } from "@/app/components/Detail/components/AddSourceStudy/addSourceStudy";
 import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
 import { useAddSourceStudyForm } from "./hooks/useAddSourceStudyForm";
 import { useAddSourceStudyFormManager } from "./hooks/useAddSourceStudyFormManager";

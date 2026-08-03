@@ -1,7 +1,11 @@
 import { METHOD } from "@/app/common/entities";
 import { fetchResource, isFetchStatusOk } from "@/app/common/utils";
 import { useCallback } from "react";
-import { OnSubmitOptions, Payload, UseEditFileArchived } from "./entities";
+import {
+  type OnSubmitOptions,
+  type Payload,
+  type UseEditFileArchived,
+} from "./entities";
 
 export const useEditFileArchived = (): UseEditFileArchived => {
   const onSubmit = useCallback(

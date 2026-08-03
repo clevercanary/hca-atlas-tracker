@@ -1,4 +1,4 @@
-import { MigrationBuilder } from "node-pg-migrate";
+import { type MigrationBuilder } from "node-pg-migrate";
 
 export function up(pgm: MigrationBuilder): void {
   pgm.dropColumn({ name: "component_atlases", schema: "hat" }, "title");

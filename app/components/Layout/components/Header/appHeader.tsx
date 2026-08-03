@@ -1,7 +1,7 @@
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { Header } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header";
 import { useRouter } from "next/router";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { type Props } from "./entities";
 import { getLandingHeaderProps, shouldRenderAppHeader } from "./utils";
 

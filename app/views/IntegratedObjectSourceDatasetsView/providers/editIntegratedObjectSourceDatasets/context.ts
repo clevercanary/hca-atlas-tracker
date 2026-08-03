@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { EditIntegratedObjectSourceDatasetsContextProps } from "./types";
+import { type EditIntegratedObjectSourceDatasetsContextProps } from "./types";
 
 export const EditIntegratedObjectSourceDatasetsContext =
   createContext<EditIntegratedObjectSourceDatasetsContextProps>({

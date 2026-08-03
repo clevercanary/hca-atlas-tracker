@@ -3,7 +3,7 @@ import { Figure } from "@/app/components/common/Figure/figure";
 import { Link } from "@/app/components/Layout/components/Content/components/Link/link";
 import { ROUTE } from "@/app/routes/constants";
 import {
-  LayoutStyle,
+  type LayoutStyle,
   PANEL_BACKGROUND_COLOR,
 } from "@databiosphere/findable-ui/lib/components/Layout/components/ContentLayout/common/entities";
 

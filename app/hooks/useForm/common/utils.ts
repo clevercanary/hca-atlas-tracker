@@ -1,4 +1,4 @@
-import { FormResponseErrors } from "./entities";
+import { type FormResponseErrors } from "./entities";
 
 /**
  * Get error information from the response.

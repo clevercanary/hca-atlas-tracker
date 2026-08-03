@@ -1,9 +1,9 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { getRequestURL } from "@/app/common/utils";
 import { useDeleteData } from "@/app/hooks/useDeleteData";
 import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/constants";
-import { IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
+import { type IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
 import { useQueryClient } from "@tanstack/react-query";
 import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "./UseFetchIntegratedObjectSourceDatasets/query/constants";
 

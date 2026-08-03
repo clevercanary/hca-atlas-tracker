@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { FileDownloadCell } from "@/app/components/Entity/components/common/Table/components/TableCell/components/FileDownloadCell/fileDownloadCell";
 import { PinnedNTagCell } from "@/app/components/Table/components/TableCell/components/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
 import {
@@ -11,7 +11,7 @@ import {
 import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
 import { BasicCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/BasicCell/basicCell";
 import { NTagCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/NTagCell/nTagCell";
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import {
   buildSourceDatasetDownload,
   buildSourceDatasetTitle,

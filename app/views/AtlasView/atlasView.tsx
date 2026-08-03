@@ -2,7 +2,7 @@ import {
   apiEntityIsPublished,
   getAtlasName,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "@/app/components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { EntityForm } from "@/app/components/Entity/components/EntityForm/entityForm";
@@ -14,7 +14,7 @@ import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { useQueryClient } from "@tanstack/react-query";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
 import { AtlasActionButton } from "./components/AtlasActionButton/atlasActionButton";
 import { CreateRevisionDialog } from "./components/CreateRevisionDialog/createRevisionDialog";

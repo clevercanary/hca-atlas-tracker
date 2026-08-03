@@ -1,9 +1,9 @@
-import { METHOD } from "@/app/common/entities";
+import { type METHOD } from "@/app/common/entities";
 import { fetchResource, isFetchStatusOk } from "@/app/common/utils";
 import {
-  QueryFunction,
-  QueryFunctionContext,
-  QueryKey,
+  type QueryFunction,
+  type QueryFunctionContext,
+  type QueryKey,
 } from "@tanstack/react-query";
 
 /**

@@ -2,7 +2,7 @@ import {
   buttonPrimary,
   buttonSecondary,
 } from "@/app/components/common/Button/button.styles";
-import { css, SerializedStyles } from "@emotion/react";
+import { css, type SerializedStyles } from "@emotion/react";
 import styled from "@emotion/styled";
 import Link from "next/link";
 import { BUTTON_COLOR } from "./buttonLink";

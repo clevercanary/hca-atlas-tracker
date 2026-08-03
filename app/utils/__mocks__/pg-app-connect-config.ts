@@ -1,4 +1,4 @@
-import pg from "pg";
+import type pg from "pg";
 
 /**
  * Substitute connection information with information for the test database.

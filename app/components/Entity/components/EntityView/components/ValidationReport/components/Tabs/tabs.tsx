@@ -1,13 +1,13 @@
 import { FILE_VALIDATOR_NAME_LABEL } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
-import { FileValidatorName } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type FileValidatorName } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { FILE_VALIDATOR_DESCRIPTIONS } from "@/app/apis/catalog/hca-atlas-tracker/common/validatorDescriptions";
 import { getRouteURL } from "@/app/common/utils";
 import { ValidatorIcon } from "@/app/components/Table/components/TableCell/components/ValidationStatusCell/components/ValidationSummary/components/ValidatorIcon/validatorIcon";
 import { STACK_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/stack";
 import { Stack, Tab, Tooltip } from "@mui/material";
 import Router from "next/router";
-import { JSX, SyntheticEvent, useCallback } from "react";
-import { Props } from "./entities";
+import { type JSX, type SyntheticEvent, useCallback } from "react";
+import { type Props } from "./entities";
 import { StyledTabs } from "./tabs.styles";
 
 export const Tabs = ({

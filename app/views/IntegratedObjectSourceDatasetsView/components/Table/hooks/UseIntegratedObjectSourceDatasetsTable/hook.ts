@@ -3,12 +3,12 @@ import { SORTING_OPTIONS } from "@/app/components/Table/options/sorting/constant
 import { useEntity } from "@/app/providers/entity/hook";
 import { COLUMNS } from "@/app/views/IntegratedObjectSourceDatasetsView/components/Table/columns";
 import {
-  EntityData,
-  IntegratedObjectSourceDataset,
+  type EntityData,
+  type IntegratedObjectSourceDataset,
 } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
 import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
 import { useReactTable } from "@tanstack/react-table";
-import { UseIntegratedObjectSourceDatasetsTable } from "./entities";
+import { type UseIntegratedObjectSourceDatasetsTable } from "./entities";
 
 // Stable empty-array fallback: `useReactTable` requires a referentially stable
 // `data` prop, and the query returns `undefined` while the source datasets

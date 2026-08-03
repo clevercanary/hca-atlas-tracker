@@ -1,7 +1,7 @@
 import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { UserForm } from "@/app/components/Forms/components/User/user";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
 import { useAddUserForm } from "./hooks/useAddUserForm";
 import { useAddUserFormManager } from "./hooks/useAddUserFormManager";

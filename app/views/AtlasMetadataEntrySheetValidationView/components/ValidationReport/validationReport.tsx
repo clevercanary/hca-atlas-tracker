@@ -1,6 +1,6 @@
 import { useEntity } from "@/app/providers/entity/hook";
-import { EntityData } from "@/app/views/AtlasMetadataEntrySheetValidationView/entities";
-import { Fragment, JSX } from "react";
+import { type EntityData } from "@/app/views/AtlasMetadataEntrySheetValidationView/entities";
+import { Fragment, type JSX } from "react";
 import { EntityValidationReport } from "./components/EntityValidationReport/entityValidationReport";
 import { buildEntityValidationReports } from "./utils";
 

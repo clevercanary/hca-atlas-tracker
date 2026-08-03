@@ -1,25 +1,25 @@
 import {
-  ATLAS_STATUS,
+  type ATLAS_STATUS,
   DOI_STATUS,
-  GoogleSheetInfo,
-  HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBPublishedSourceStudy,
-  HCAAtlasTrackerDBPublishedSourceStudyInfo,
-  HCAAtlasTrackerDBSourceStudy,
-  HCAAtlasTrackerDBSourceStudyForGlobalAPI,
-  HCAAtlasTrackerDBSourceStudyMinimumColumns,
-  HCAAtlasTrackerDBSourceStudyWithAtlasProperties,
-  HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
-  HCAAtlasTrackerDBSourceStudyWithSourceDatasets,
-  HCAAtlasTrackerDBValidation,
+  type GoogleSheetInfo,
+  type HCAAtlasTrackerDBAtlas,
+  type HCAAtlasTrackerDBPublishedSourceStudy,
+  type HCAAtlasTrackerDBPublishedSourceStudyInfo,
+  type HCAAtlasTrackerDBSourceStudy,
+  type HCAAtlasTrackerDBSourceStudyForGlobalAPI,
+  type HCAAtlasTrackerDBSourceStudyMinimumColumns,
+  type HCAAtlasTrackerDBSourceStudyWithAtlasProperties,
+  type HCAAtlasTrackerDBSourceStudyWithRelatedEntities,
+  type HCAAtlasTrackerDBSourceStudyWithSourceDatasets,
+  type HCAAtlasTrackerDBValidation,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  NewPublishedSourceStudyData,
-  NewSourceStudyData,
-  NewUnpublishedSourceStudyData,
-  PublishedSourceStudyEditData,
-  SourceStudyEditData,
-  UnpublishedSourceStudyEditData,
+  type NewPublishedSourceStudyData,
+  type NewSourceStudyData,
+  type NewUnpublishedSourceStudyData,
+  type PublishedSourceStudyEditData,
+  type SourceStudyEditData,
+  type UnpublishedSourceStudyEditData,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { getPublicationDois } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { replaceSourceStudyInAtlases } from "@/app/data/atlases";
@@ -39,7 +39,7 @@ import { confirmQueryRowsContainIds } from "@/app/utils/database";
 import { normalizeDoi } from "@/app/utils/doi";
 import { getSpreadsheetIdFromUrl } from "@/app/utils/google-sheets";
 import { getSheetTitleForApi } from "@/app/utils/google-sheets-api";
-import pg from "pg";
+import type pg from "pg";
 import { ValidationError } from "yup";
 import { getBaseModelAtlas } from "./atlases";
 import { getCellxGeneIdByDoi } from "./cellxgene";
@@ -52,7 +52,7 @@ import {
 import {
   deleteEntrySheetValidationsBySpreadsheet,
   deleteEntrySheetValidationsOfDeletedSourceStudy,
-  EntrySheetValidationUpdateParameters,
+  type EntrySheetValidationUpdateParameters,
   startEntrySheetValidationsUpdate,
 } from "./entry-sheets";
 import { getProjectIdByDoi } from "./hca-projects";
