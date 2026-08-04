@@ -1,11 +1,11 @@
 import { getRouteURL } from "@/app/common/utils";
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
 import Router from "next/router";
-import { JSX, useEffect, useMemo } from "react";
+import { type JSX, useEffect, useMemo } from "react";
 import { ReportContent } from "./components/ReportContent/reportContent";
 import { Tabs } from "./components/Tabs/tabs";
 import { getValidatorNames } from "./components/Tabs/utils";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 
 export const ValidationReport = ({
   pathParameter,

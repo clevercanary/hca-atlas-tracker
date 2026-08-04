@@ -1,6 +1,6 @@
 import { SNSSignatureValidationError } from "@/app/apis/catalog/hca-atlas-tracker/aws/errors";
 import {
-  SNSMessage,
+  type SNSMessage,
   snsMessageSchema,
 } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import { METHOD } from "@/app/common/entities";
@@ -8,7 +8,7 @@ import { dispatchSNSNotification } from "@/app/services/sns-dispatcher";
 import { handleSNSSubscription } from "@/app/services/sns-subscription";
 import { InvalidOperationError } from "@/app/utils/api-errors";
 import { handler, method } from "@/app/utils/api-handler";
-import { NextApiRequest } from "next";
+import { type NextApiRequest } from "next";
 import getRawBody from "raw-body";
 import MessageValidator from "sns-validator";
 

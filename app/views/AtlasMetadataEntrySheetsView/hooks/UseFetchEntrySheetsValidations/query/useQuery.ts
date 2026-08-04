@@ -1,12 +1,12 @@
 import {
-  AtlasId,
-  HCAAtlasTrackerListEntrySheetValidation,
+  type AtlasId,
+  type HCAAtlasTrackerListEntrySheetValidation,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { useAuthedQuery } from "@/app/query/useAuthedQuery";
-import { MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
-import { DefaultError, UseQueryResult } from "@tanstack/react-query";
+import { type MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
+import { type DefaultError, type UseQueryResult } from "@tanstack/react-query";
 import { ENTRY_SHEET_VALIDATIONS } from "./constants";
-import { QueryKey } from "./types";
+import { type QueryKey } from "./types";
 
 /**
  * Fetches the atlas's entry sheet validations via React Query, mapping each to

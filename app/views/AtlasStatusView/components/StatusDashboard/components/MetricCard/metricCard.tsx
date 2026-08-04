@@ -1,7 +1,7 @@
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Stack, Typography } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { MetricRow } from "./components/MetricRow/metricRow";
 import { BADGE_COLOR, BADGE_ICON, SECTION_STATUS_CONFIG } from "./constants";
 import {
@@ -11,7 +11,7 @@ import {
   StyledProgress,
   StyledStack,
 } from "./metricCard.styles";
-import { Props } from "./types";
+import { type Props } from "./types";
 
 export const MetricCard = ({ card }: Props): JSX.Element => {
   const BadgeIcon = card.badge ? BADGE_ICON[card.badge.variant] : null;

@@ -1,9 +1,9 @@
 import { METHOD } from "@/app/common/entities";
 import { fetchResource, isFetchStatusOk } from "@/app/common/utils";
-import { FormResponseErrors } from "@/app/hooks/useForm/common/entities";
+import { type FormResponseErrors } from "@/app/hooks/useForm/common/entities";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
-import { JSX, useCallback, useState } from "react";
+import { type JSX, useCallback, useState } from "react";
 
 export const IntegrationLeadsFromAtlasesForm = (): JSX.Element => {
   const [isDisabled, setIsDisabled] = useState(false);

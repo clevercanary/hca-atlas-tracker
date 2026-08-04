@@ -1,4 +1,4 @@
-import { NonEmpty } from "./entities";
+import { type NonEmpty } from "./entities";
 
 /**
  * Returns true if the value is a non-empty string.

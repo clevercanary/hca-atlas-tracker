@@ -2,7 +2,7 @@ import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/comp
 import { EntityForm } from "@/app/components/Entity/components/EntityForm/entityForm";
 import { ADD_ATLAS_SECTION_CONFIGS } from "@/app/components/Forms/components/Atlas/common/sections";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
 import { useAddAtlasForm } from "./hooks/useAddAtlasForm";
 import { useAddAtlasFormManager } from "./hooks/useAddAtlasFormManager";

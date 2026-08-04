@@ -5,12 +5,12 @@ import { CORE_OPTIONS } from "@/app/components/Table/options/core/constants";
 import { SORTING_OPTIONS } from "@/app/components/Table/options/sorting/constants";
 import { useEntity } from "@/app/providers/entity/hook";
 import {
-  EntityData,
-  MetadataEntrySheet,
+  type EntityData,
+  type MetadataEntrySheet,
 } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
 import { useReactTable } from "@tanstack/react-table";
-import { JSX } from "react";
-import { Props } from "./entities";
+import { type JSX } from "react";
+import { type Props } from "./entities";
 
 // Stable empty-array fallback: `useReactTable` requires a referentially stable
 // `data` prop, and the query returns `undefined` while pending. The view mounts

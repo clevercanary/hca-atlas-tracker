@@ -1,12 +1,12 @@
 import {
-  AtlasId,
-  ComponentAtlasId,
-  EntrySheetValidationId,
-  FileId,
-  SourceDatasetId,
-  SourceStudyId,
-  UserId,
-  ValidatorName,
+  type AtlasId,
+  type ComponentAtlasId,
+  type EntrySheetValidationId,
+  type FileId,
+  type SourceDatasetId,
+  type SourceStudyId,
+  type UserId,
+  type ValidatorName,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 
 export enum FETCH_STATUS {

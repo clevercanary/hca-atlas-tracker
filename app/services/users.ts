@@ -1,11 +1,11 @@
 import {
-  HCAAtlasTrackerDBUser,
-  HCAAtlasTrackerDBUserWithAssociatedResources,
+  type HCAAtlasTrackerDBUser,
+  type HCAAtlasTrackerDBUserWithAssociatedResources,
   ROLE,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  NewUserData,
-  UserEditData,
+  type NewUserData,
+  type UserEditData,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { NotFoundError } from "@/app/utils/api-errors";
 import { getAllAtlases } from "./atlases";

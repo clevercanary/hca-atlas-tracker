@@ -1,11 +1,11 @@
-import { HCAAtlasTrackerListSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerListSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getSourceDatasetId,
   sourceDatasetInputMapper,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import {
-  EntityConfig,
-  ListConfig,
+  type EntityConfig,
+  type ListConfig,
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode/types";
 import { CATEGORY_GROUP_CONFIG } from "./categoryGroupConfig";

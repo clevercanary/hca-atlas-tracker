@@ -1,5 +1,5 @@
-import { LinkProps } from "next/link";
-import { JSX, ReactNode } from "react";
+import { type LinkProps } from "next/link";
+import { type JSX, type ReactNode } from "react";
 import { StartIcon, StyledLink } from "./buttonLink.styles";
 
 /**

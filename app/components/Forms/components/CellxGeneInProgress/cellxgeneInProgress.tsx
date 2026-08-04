@@ -1,13 +1,13 @@
 import {
   TASK_STATUS,
-  TaskStatusesUpdatedByDOIResult,
+  type TaskStatusesUpdatedByDOIResult,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { fetchResource, isFetchStatusOk } from "@/app/common/utils";
-import { FormResponseErrors } from "@/app/hooks/useForm/common/entities";
+import { type FormResponseErrors } from "@/app/hooks/useForm/common/entities";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button, TextField } from "@mui/material";
-import { JSX, useCallback, useRef, useState } from "react";
+import { type JSX, useCallback, useRef, useState } from "react";
 
 export const CellxGeneInProgressForm = (): JSX.Element => {
   const [isDisabled, setIsDisabled] = useState(false);

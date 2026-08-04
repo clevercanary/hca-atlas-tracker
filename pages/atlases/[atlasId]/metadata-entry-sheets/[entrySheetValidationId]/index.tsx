@@ -1,12 +1,12 @@
 import {
-  AtlasId,
-  EntrySheetValidationId,
+  type AtlasId,
+  type EntrySheetValidationId,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { AtlasMetadataEntrySheetValidationView } from "@/app/views/AtlasMetadataEntrySheetValidationView/atlasMetadataEntrySheetValidationView";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { ParsedUrlQuery } from "querystring";
-import { JSX } from "react";
+import { type GetServerSideProps, type GetServerSidePropsContext } from "next";
+import { type ParsedUrlQuery } from "querystring";
+import { type JSX } from "react";
 
 interface MetadataEntrySheetValidationPageUrlParams extends ParsedUrlQuery {
   atlasId: AtlasId;

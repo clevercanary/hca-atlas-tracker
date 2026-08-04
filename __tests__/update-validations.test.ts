@@ -1,13 +1,13 @@
 import {
-  ENTITY_TYPE,
-  HCAAtlasTrackerDBComment,
-  HCAAtlasTrackerDBValidation,
-  HCAAtlasTrackerValidationResult,
-  SYSTEM,
-  VALIDATION_ID,
+  type ENTITY_TYPE,
+  type HCAAtlasTrackerDBComment,
+  type HCAAtlasTrackerDBValidation,
+  type HCAAtlasTrackerValidationResult,
+  type SYSTEM,
+  type VALIDATION_ID,
   VALIDATION_STATUS,
-  VALIDATION_TYPE,
-  VALIDATION_VARIABLE,
+  type VALIDATION_TYPE,
+  type VALIDATION_VARIABLE,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { endPgPool, getPoolClient, query } from "@/app/services/database";
 import { updateValidations } from "@/app/services/validations";

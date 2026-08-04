@@ -1,13 +1,13 @@
 import {
-  HCAAtlasTrackerListComponentAtlas,
-  HCAAtlasTrackerListSourceDataset,
+  type HCAAtlasTrackerListComponentAtlas,
+  type HCAAtlasTrackerListSourceDataset,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "@/app/common/entities";
-import { BackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/constants";
-import { RouteValue } from "@/app/routes/entities";
-import { AtlasSourceDataset } from "@/app/views/AtlasSourceDatasetsView/entities";
-import { AtlasIntegratedObject } from "@/app/views/ComponentAtlasesView/entities";
-import { CellContext } from "@tanstack/react-table";
+import { type PathParameter } from "@/app/common/entities";
+import { type BackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/constants";
+import { type RouteValue } from "@/app/routes/entities";
+import { type AtlasSourceDataset } from "@/app/views/AtlasSourceDatasetsView/entities";
+import { type AtlasIntegratedObject } from "@/app/views/ComponentAtlasesView/entities";
+import { type CellContext } from "@tanstack/react-table";
 
 export type Props =
   | (CellContext<

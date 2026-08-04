@@ -2,7 +2,7 @@ import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
 import { getRequestURL } from "@/app/common/utils";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { AUTH_STATUS } from "@databiosphere/findable-ui/lib/auth/types/auth";
-import { UseFetchActiveUser } from "./entities";
+import { type UseFetchActiveUser } from "./entities";
 import { useQuery } from "./query/useQuery";
 
 export const useFetchActiveUser = (): UseFetchActiveUser => {

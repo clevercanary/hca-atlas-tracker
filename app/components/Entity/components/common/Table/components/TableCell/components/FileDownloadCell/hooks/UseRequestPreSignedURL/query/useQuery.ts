@@ -1,13 +1,13 @@
 import {
-  AtlasId,
-  FileId,
-  PresignedUrlInfo,
+  type AtlasId,
+  type FileId,
+  type PresignedUrlInfo,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { useAuthedQuery } from "@/app/query/useAuthedQuery";
-import { DefaultError, UseQueryResult } from "@tanstack/react-query";
+import { type DefaultError, type UseQueryResult } from "@tanstack/react-query";
 import { PRESIGNED_URL } from "./constants";
-import { QueryKey } from "./types";
+import { type QueryKey } from "./types";
 
 /**
  * Requests a presigned download URL for a file via React Query. Gated on

@@ -1,4 +1,4 @@
-import { GetServerSidePropsContext } from "next";
+import { type GetServerSidePropsContext } from "next";
 
 jest.mock("next-auth", () => ({
   getServerSession: jest.fn(),

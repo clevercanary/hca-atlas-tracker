@@ -1,6 +1,6 @@
 import {
-  InputBaseComponentProps,
-  ChipProps as MChipProps,
+  type InputBaseComponentProps,
+  type ChipProps as MChipProps,
 } from "@mui/material";
 
 export type Props = InputBaseComponentProps & {

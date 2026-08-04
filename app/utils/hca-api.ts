@@ -1,9 +1,9 @@
-import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { type ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
 import {
-  AzulCatalogResponse,
-  AzulEntitiesResponse,
+  type AzulCatalogResponse,
+  type AzulEntitiesResponse,
 } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
-import ky, { Options as KyOptions } from "ky";
+import ky, { type Options as KyOptions } from "ky";
 
 const API_URL_CATALOGS =
   "https://service.azul.data.humancellatlas.org/index/catalogs";

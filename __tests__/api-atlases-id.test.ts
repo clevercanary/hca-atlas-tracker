@@ -1,12 +1,12 @@
 import {
   ATLAS_STATUS,
-  HCAAtlasTrackerAtlas,
-  HCAAtlasTrackerDBAtlas,
-  PublicationInfo,
+  type HCAAtlasTrackerAtlas,
+  type HCAAtlasTrackerDBAtlas,
+  type PublicationInfo,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { AtlasEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { type AtlasEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "@/app/common/entities";
-import { FormResponseErrors } from "@/app/hooks/useForm/common/entities";
+import { type FormResponseErrors } from "@/app/hooks/useForm/common/entities";
 import { endPgPool, query } from "@/app/services/database";
 import { slugifyAtlasShortName } from "@/app/utils/atlases";
 import { getSheetTitleForApi } from "@/app/utils/google-sheets-api";
@@ -36,7 +36,7 @@ import {
   USER_UNREGISTERED,
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
-import { TestAtlas, TestUser } from "@/testing/entities";
+import { type TestAtlas, type TestUser } from "@/testing/entities";
 import {
   expectApiAtlasToMatchTest,
   expectDbAtlasToMatchApi,
@@ -45,7 +45,7 @@ import {
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

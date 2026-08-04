@@ -1,6 +1,9 @@
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
-import { TypographyProps as MTypographyProps, Typography } from "@mui/material";
-import { JSX, ReactNode } from "react";
+import {
+  type TypographyProps as MTypographyProps,
+  Typography,
+} from "@mui/material";
+import { type JSX, type ReactNode } from "react";
 
 export interface TypographyNoWrapProps extends MTypographyProps {
   children: ReactNode;

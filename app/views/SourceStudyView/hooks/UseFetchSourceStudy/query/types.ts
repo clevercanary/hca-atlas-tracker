@@ -1,8 +1,8 @@
 import {
-  AtlasId,
-  SourceStudyId,
+  type AtlasId,
+  type SourceStudyId,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { SOURCE_STUDY } from "./constants";
+import { type SOURCE_STUDY } from "./constants";
 
 // Keyed on atlasId as well as sourceStudyId: the fetch is atlas-scoped
 // (getSourceStudy computes an atlas-scoped sourceDatasetCount) and a study can

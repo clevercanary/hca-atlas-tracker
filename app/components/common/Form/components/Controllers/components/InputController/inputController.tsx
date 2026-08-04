@@ -1,17 +1,21 @@
-import { ControllerViewBuilder } from "@/app/components/common/Form/components/Controllers/common/entities";
+import { type ControllerViewBuilder } from "@/app/components/common/Form/components/Controllers/common/entities";
 import {
   Input,
-  InputProps,
+  type InputProps,
 } from "@/app/components/common/Form/components/Input/input";
 import { TypographyNoWrap } from "@/app/components/common/Typography/components/TypographyNoWrap/typographyNoWrap";
 import {
-  FormMethod,
-  YupValidatedFormValues,
+  type FormMethod,
+  type YupValidatedFormValues,
 } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { ElementType, Fragment, JSX, ReactNode } from "react";
-import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
+import { type ElementType, Fragment, type JSX, type ReactNode } from "react";
+import {
+  Controller,
+  type FieldValues,
+  type UseControllerProps,
+} from "react-hook-form";
 
 export interface LabelLinkConfig {
   getUrl?: (v: string | null) => string | null;

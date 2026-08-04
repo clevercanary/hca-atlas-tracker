@@ -1,3 +1,3 @@
-import { ToggleButtonGroupProps } from "@mui/material";
+import { type ToggleButtonGroupProps } from "@mui/material";
 
 export type Props = ToggleButtonGroupProps;

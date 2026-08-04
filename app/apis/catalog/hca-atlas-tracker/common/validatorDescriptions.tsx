@@ -3,8 +3,8 @@ import {
   REL_ATTRIBUTE,
 } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { Link } from "@mui/material";
-import { ReactNode } from "react";
-import { FileValidatorName } from "./entities";
+import { type ReactNode } from "react";
+import { type FileValidatorName } from "./entities";
 
 export const FILE_VALIDATOR_DESCRIPTIONS: Record<FileValidatorName, ReactNode> =
   {

@@ -1,8 +1,8 @@
 import {
-  AtlasId,
-  EntrySheetValidationId,
+  type AtlasId,
+  type EntrySheetValidationId,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { ENTRY_SHEET_VALIDATION } from "./constants";
+import { type ENTRY_SHEET_VALIDATION } from "./constants";
 
 export type QueryKey = [
   typeof ENTRY_SHEET_VALIDATION,

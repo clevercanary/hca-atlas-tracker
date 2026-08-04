@@ -1,7 +1,7 @@
 import {
-  AtlasMetadataCoverageRollup,
+  type AtlasMetadataCoverageRollup,
   FILE_TYPE,
-  MetadataCoverageReportTier,
+  type MetadataCoverageReportTier,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { metadataCoverageTiersSchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "@/app/common/entities";

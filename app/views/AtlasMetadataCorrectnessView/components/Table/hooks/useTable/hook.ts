@@ -1,9 +1,9 @@
-import { HeatmapClass } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HeatmapClass } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { CORE_OPTIONS } from "@/app/components/Table/options/core/constants";
 import { VISIBILITY_OPTIONS } from "@/app/components/Table/options/visibility/constants";
-import { useReactTable, VisibilityState } from "@tanstack/react-table";
+import { useReactTable, type VisibilityState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
-import { Table } from "./entities";
+import { type Table } from "./entities";
 import {
   buildTableMeta,
   filterSheet,

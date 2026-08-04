@@ -1,11 +1,11 @@
 import { FILE_VALIDATION_STATUS_NAME_LABEL } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
-  FILE_VALIDATION_STATUS,
-  FileValidationReports,
-  FileValidatorName,
+  type FILE_VALIDATION_STATUS,
+  type FileValidationReports,
+  type FileValidatorName,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { SEVERITY } from "@databiosphere/findable-ui/lib/styles/common/mui/alert";
-import { ReportSeverity, ReportSummary } from "./entities";
+import { type ReportSeverity, type ReportSummary } from "./entities";
 
 /**
  * Builds an ordered list of severity-tagged report summaries (Errors first,

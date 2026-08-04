@@ -1,8 +1,8 @@
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
-import { ElementType, Fragment, JSX } from "react";
-import { FieldValues } from "react-hook-form";
-import { ControllerConfig } from "./common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type ElementType, Fragment, type JSX } from "react";
+import { type FieldValues } from "react-hook-form";
+import { type ControllerConfig } from "./common/entities";
 import { InputController } from "./components/InputController/inputController";
 import { SelectController } from "./components/SelectController/selectController";
 

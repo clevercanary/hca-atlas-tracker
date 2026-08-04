@@ -1,4 +1,4 @@
-import { SourceDatasetsSetSourceStudyData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { type SourceDatasetsSetSourceStudyData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool, query } from "@/app/services/database";
 import sourceStudyHandler from "@/pages/api/atlases/[atlasId]/source-datasets/source-study";
@@ -27,14 +27,14 @@ import {
   getAtlasSourceDatasetsFromDatabase,
   resetDatabase,
 } from "@/testing/db-utils";
-import { TestSourceDataset, TestUser } from "@/testing/entities";
+import { type TestSourceDataset, type TestUser } from "@/testing/entities";
 import {
   expectDbSourceDatasetToMatchTest,
   expectIsDefined,
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

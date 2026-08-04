@@ -3,8 +3,8 @@ import { RequiredIcon } from "@/app/components/common/CustomIcon/components/Requ
 import { ErrorIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/ErrorIcon/errorIcon";
 import { InProgressIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/InProgressIcon/inProgressIcon";
 import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/SuccessIcon/successIcon";
-import { ChipProps } from "@mui/material";
-import { JSX } from "react";
+import { type ChipProps } from "@mui/material";
+import { type JSX } from "react";
 import { Badge } from "./iconStatusBadge.styles";
 
 export enum ICON_STATUS {

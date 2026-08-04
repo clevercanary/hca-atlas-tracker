@@ -1,4 +1,4 @@
-import { SNSMessage } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import { type SNSMessage } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import { validateSNSTopicAuthorization } from "@/app/config/aws-resources";
 import { InvalidOperationError } from "@/app/utils/api-errors";
 import { httpGet } from "@/app/utils/http";

@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerEntrySheetValidation } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerEntrySheetValidation } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool } from "@/app/services/database";
 import entrySheetValidationHandler from "@/pages/api/atlases/[atlasId]/entry-sheet-validations/[entrySheetValidationId]";
@@ -16,16 +16,16 @@ import {
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
 import {
-  TestEntrySheetValidation,
-  TestSourceStudy,
-  TestUser,
+  type TestEntrySheetValidation,
+  type TestSourceStudy,
+  type TestUser,
 } from "@/testing/entities";
 import {
   getTestSourceStudyCitation,
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

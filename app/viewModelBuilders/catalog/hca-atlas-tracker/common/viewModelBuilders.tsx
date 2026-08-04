@@ -6,20 +6,20 @@ import {
 } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ATLAS_STATUS,
-  CAP_INGEST_STATUS,
-  HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerListAtlas,
-  HCAAtlasTrackerListComponentAtlas,
-  HCAAtlasTrackerListSourceDataset,
-  HCAAtlasTrackerListSourceStudy,
-  HCAAtlasTrackerListValidationRecord,
-  HCAAtlasTrackerSourceDataset,
-  HCAAtlasTrackerSourceStudy,
-  HCAAtlasTrackerUser,
-  IngestionTaskCounts,
-  LinkedAtlasSummary,
-  Network,
-  NetworkKey,
+  type CAP_INGEST_STATUS,
+  type HCAAtlasTrackerComponentAtlas,
+  type HCAAtlasTrackerListAtlas,
+  type HCAAtlasTrackerListComponentAtlas,
+  type HCAAtlasTrackerListSourceDataset,
+  type HCAAtlasTrackerListSourceStudy,
+  type HCAAtlasTrackerListValidationRecord,
+  type HCAAtlasTrackerSourceDataset,
+  type HCAAtlasTrackerSourceStudy,
+  type HCAAtlasTrackerUser,
+  type IngestionTaskCounts,
+  type LinkedAtlasSummary,
+  type Network,
+  type NetworkKey,
   SYSTEM,
   TASK_STATUS,
   VALIDATION_DESCRIPTION,
@@ -43,30 +43,30 @@ import {
   formatISOToUTCDateTime,
   getDateFromIsoString,
 } from "@/app/utils/date-fns";
-import { AtlasIntegratedObject } from "@/app/views/ComponentAtlasesView/entities";
+import { type AtlasIntegratedObject } from "@/app/views/ComponentAtlasesView/entities";
 import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { STATUS_BADGE_COLOR } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
 import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
-import { LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
+import { type LinkProps } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
 import { COLUMN_DEF } from "@databiosphere/findable-ui/lib/components/Table/common/columnDef";
 import {
-  ColumnConfig,
-  ViewContext,
+  type ColumnConfig,
+  type ViewContext,
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import {
-  CellContext,
-  ColumnDef,
-  Row,
-  RowData,
-  Table,
+  type CellContext,
+  type ColumnDef,
+  type Row,
+  type RowData,
+  type Table,
 } from "@tanstack/react-table";
-import { BaseSyntheticEvent, ComponentProps, type JSX } from "react";
+import { type BaseSyntheticEvent, type ComponentProps, type JSX } from "react";
 import { EXTRA_PROPS } from "./constants";
 import {
   COMPONENT_NAME,
   DISEASE,
-  ExtraPropsByComponentName,
+  type ExtraPropsByComponentName,
   METADATA_KEY,
 } from "./entities";
 import {

@@ -1,10 +1,10 @@
 import {
-  HCAAtlasTrackerDBEntrySheetValidation,
-  Heatmap,
+  type HCAAtlasTrackerDBEntrySheetValidation,
+  type Heatmap,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getDataDictionaryClass } from "@/app/utils/data-dictionary";
-import { EntrySheetValidationErrorInfo } from "@/app/utils/hca-validation-tools/hca-validation-tools";
-import { Class } from "@databiosphere/findable-ui/lib/common/entities";
+import { type EntrySheetValidationErrorInfo } from "@/app/utils/hca-validation-tools/hca-validation-tools";
+import { type Class } from "@databiosphere/findable-ui/lib/common/entities";
 import { getBaseModelAtlasEntrySheetValidations } from "./entry-sheets";
 
 const ENTITY_TYPES = ["dataset", "donor", "sample"] as const;

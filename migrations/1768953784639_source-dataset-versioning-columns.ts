@@ -1,4 +1,4 @@
-import { MigrationBuilder } from "node-pg-migrate";
+import { type MigrationBuilder } from "node-pg-migrate";
 
 export function up(pgm: MigrationBuilder): void {
   // Drop the constraint on file source dataset ID, so that it can refer to the new `id` column

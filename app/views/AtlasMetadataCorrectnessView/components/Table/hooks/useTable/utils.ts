@@ -1,11 +1,16 @@
 import {
-  HeatmapEntrySheet,
-  HeatmapField,
+  type HeatmapEntrySheet,
+  type HeatmapField,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { EllipsisCell } from "@/app/components/Entity/components/common/Table/components/TableCell/components/EllipsisCell/ellipsisCell";
 import { GraphValueCell } from "@/app/views/AtlasMetadataCorrectnessView/components/Table/components/TableCell/components/GraphValueCell/graphValueCell";
-import { VisibilityState } from "@tanstack/react-table";
-import { ColumnDef, TableMeta, View, ViewVisibilityState } from "./entities";
+import { type VisibilityState } from "@tanstack/react-table";
+import {
+  type ColumnDef,
+  type TableMeta,
+  type View,
+  type ViewVisibilityState,
+} from "./entities";
 
 /**
  * Build table meta containing visibility states for each view type.

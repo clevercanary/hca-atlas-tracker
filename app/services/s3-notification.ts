@@ -1,16 +1,16 @@
 import {
-  S3Event,
-  S3EventRecord,
+  type S3Event,
+  type S3EventRecord,
   s3EventSchema,
-  SNSMessage,
+  type SNSMessage,
 } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import { dbEntityIsPublished } from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { VALID_FILE_TYPES_FOR_VALIDATION } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
-  FileEventInfo,
-  HCAAtlasTrackerDBFile,
+  type FileEventInfo,
+  type HCAAtlasTrackerDBFile,
   INTEGRITY_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
@@ -27,7 +27,7 @@ import {
   updateSourceDatasetVersionInComponentAtlases,
 } from "@/app/data/component-atlases";
 import {
-  FileUpsertResult,
+  type FileUpsertResult,
   getLatestNotificationInfo,
   markPreviousVersionsAsNotLatest,
   upsertFileRecord,
@@ -41,7 +41,7 @@ import {
   parseNormalizedInfoFromS3Key,
   parseS3KeyPath,
 } from "@/app/utils/files";
-import { PoolClient } from "pg";
+import { type PoolClient } from "pg";
 import { createComponentAtlas } from "./component-atlases";
 import {
   getAtlasMatchingConceptAndRevision,

@@ -1,13 +1,13 @@
-import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { AtlasEditData as APIAtlasEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
-import { PathParameter } from "@/app/common/entities";
+import { type HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type AtlasEditData as APIAtlasEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { type PathParameter } from "@/app/common/entities";
 import { TARGET_COMPLETION_NULL } from "@/app/components/Form/components/Select/components/TargetCompletion/common/constants";
 import { mapTargetCompletion } from "@/app/components/Form/components/Select/components/TargetCompletion/common/utils";
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
 import { useForm } from "@/app/hooks/useForm/useForm";
 import { FIELD_NAME } from "@/app/views/AtlasView/common/constants";
-import { AtlasEditData } from "@/app/views/AtlasView/common/entities";
+import { type AtlasEditData } from "@/app/views/AtlasView/common/entities";
 import { atlasEditSchema } from "@/app/views/AtlasView/common/schema";
 import {
   ATLAS_ECOSYSTEM_PATHS,

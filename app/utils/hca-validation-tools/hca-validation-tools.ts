@@ -1,5 +1,5 @@
-import { NetworkKey } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { array, InferType, mixed, number, object, string } from "yup";
+import { type NetworkKey } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { array, type InferType, mixed, number, object, string } from "yup";
 import { fetchEntrySheetValidationResults } from "./hca-validation-tools-api";
 
 const googleLastUpdateInfoSchema = object({

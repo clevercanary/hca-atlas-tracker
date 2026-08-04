@@ -1,6 +1,6 @@
 import {
-  HCAAtlasTrackerAtlas,
-  Heatmap,
+  type HCAAtlasTrackerAtlas,
+  type Heatmap,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 
 export type EntityData = {

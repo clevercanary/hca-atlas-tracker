@@ -1,10 +1,10 @@
 import {
-  HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBConcept,
+  type HCAAtlasTrackerDBAtlas,
+  type HCAAtlasTrackerDBConcept,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "@/app/services/database";
 import { NotFoundError } from "@/app/utils/api-errors";
-import pg from "pg";
+import type pg from "pg";
 
 /**
  * Get the ID of the concept matching the given info, if it exists.

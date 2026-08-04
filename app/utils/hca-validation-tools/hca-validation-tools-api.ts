@@ -1,6 +1,6 @@
-import { NetworkKey } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type NetworkKey } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
-import { EntrySheetValidationResponse } from "./hca-validation-tools";
+import { type EntrySheetValidationResponse } from "./hca-validation-tools";
 
 interface EntrySheetValidationRequestBody {
   bionetwork: NetworkKey;

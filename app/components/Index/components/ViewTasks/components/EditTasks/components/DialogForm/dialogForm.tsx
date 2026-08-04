@@ -1,6 +1,6 @@
-import { HCAAtlasTrackerValidationRecord } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerValidationRecord } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { TrackerForm } from "@/app/components/Detail/components/TrackerForm/trackerForm";
-import { DialogFormValue } from "@/app/components/Index/components/ViewTasks/components/EditTasks/common/entities";
+import { type DialogFormValue } from "@/app/components/Index/components/ViewTasks/components/EditTasks/common/entities";
 import { useEditTasksForm } from "@/app/components/Index/components/ViewTasks/components/EditTasks/hooks/useEditTasksForm";
 import { useEditTasksFormManager } from "@/app/components/Index/components/ViewTasks/components/EditTasks/hooks/useEditTasksFormManager";
 import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
@@ -8,9 +8,9 @@ import {
   DialogActions as MDialogActions,
   DialogContent as MDialogContent,
 } from "@mui/material";
-import { JSX } from "react";
-import { FieldValues } from "react-hook-form";
-import { object, ObjectSchema } from "yup";
+import { type JSX } from "react";
+import { type FieldValues } from "react-hook-form";
+import { object, type ObjectSchema } from "yup";
 
 export interface DialogFormProps<
   T extends FieldValues,

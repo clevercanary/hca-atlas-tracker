@@ -1,13 +1,13 @@
-import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "@/app/common/entities";
+import { type HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { getRouteURL } from "@/app/common/utils";
 import { getTabLabelWithCount } from "@/app/components/Detail/components/TrackerForm/components/Tabs/common/utils";
-import { FormAction } from "@/app/hooks/useFormManager/common/entities";
+import { type FormAction } from "@/app/hooks/useFormManager/common/entities";
 import { navigateToRoute } from "@/app/hooks/useFormManager/common/utils";
 import { ROUTE } from "@/app/routes/constants";
-import { TabValue } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
+import { type TabValue } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 import { useRouter } from "next/router";
-import { JSX, useCallback } from "react";
+import { type JSX, useCallback } from "react";
 import { StyledTabs } from "./tabs.styles";
 
 interface TabsProps {

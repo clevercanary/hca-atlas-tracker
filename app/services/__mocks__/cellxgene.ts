@@ -1,4 +1,4 @@
-import { CollectionInfo } from "@/app/services/cellxgene";
+import { type CollectionInfo } from "@/app/services/cellxgene";
 import { RefreshDataResult } from "@/app/services/common/refresh-service";
 import {
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,

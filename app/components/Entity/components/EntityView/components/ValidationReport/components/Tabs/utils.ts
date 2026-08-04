@@ -1,8 +1,8 @@
 import { FILE_VALIDATOR_NAMES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
-  FileValidationReports,
-  FileValidatorName,
-  REPROCESSED_STATUS,
+  type FileValidationReports,
+  type FileValidatorName,
+  type REPROCESSED_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { shouldShowValidator } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 

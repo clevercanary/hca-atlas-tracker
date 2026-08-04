@@ -1,8 +1,8 @@
-import { ChipCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/ChipCell/chipCell";
+import { type ChipCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/ChipCell/chipCell";
 import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
-import { ChipProps } from "@mui/material";
-import { Getter } from "@tanstack/react-table";
-import { ComponentProps } from "react";
+import { type ChipProps } from "@mui/material";
+import { type Getter } from "@tanstack/react-table";
+import { type ComponentProps } from "react";
 
 /**
  * Builds ChipCell props for rendering a validation status chip.

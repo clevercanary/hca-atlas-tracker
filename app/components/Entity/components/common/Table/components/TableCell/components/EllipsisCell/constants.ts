@@ -1,4 +1,4 @@
-import { TooltipProps } from "@mui/material";
+import { type TooltipProps } from "@mui/material";
 
 export const TOOLTIP_PROPS: Partial<TooltipProps> = {
   arrow: true,

@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerComponentAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerComponentAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool } from "@/app/services/database";
 import componentAtlasesHandler from "@/pages/api/atlases/[atlasId]/component-atlases";
@@ -30,7 +30,7 @@ import {
   USER_UNREGISTERED,
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
-import { TestComponentAtlas, TestUser } from "@/testing/entities";
+import { type TestComponentAtlas, type TestUser } from "@/testing/entities";
 import {
   assertExpectDefined,
   expectApiComponentAtlasToMatchTest,
@@ -39,7 +39,7 @@ import {
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

@@ -1,12 +1,12 @@
-import { MetadataValueTuple } from "@/app/components/Table/components/TableCell/components/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
-import { MetadataValue } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/NTagCell/nTagCell";
-import { ColumnConfig } from "@databiosphere/findable-ui/lib/config/entities";
-import { RowData } from "@tanstack/react-table";
+import { type MetadataValueTuple } from "@/app/components/Table/components/TableCell/components/NTagCell/components/PinnedNTagCell/pinnedNTagCell";
+import { type MetadataValue } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/NTagCell/nTagCell";
+import { type ColumnConfig } from "@databiosphere/findable-ui/lib/config/entities";
+import { type RowData } from "@tanstack/react-table";
 import { PLURALIZED_METADATA_LABEL } from "./constants";
 import {
   COMPONENT_NAME,
-  ExtraPropsByComponentName,
-  METADATA_KEY,
+  type ExtraPropsByComponentName,
+  type METADATA_KEY,
 } from "./entities";
 
 /**

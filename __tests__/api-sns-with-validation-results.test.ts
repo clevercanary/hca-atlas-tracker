@@ -13,8 +13,8 @@ import {
   TEST_TIMESTAMP,
   TEST_VALIDATION_RESULTS_BUCKET,
   validateTestSnsMessage,
-  ValidationResultsMetadataOptions,
-  ValidationResultsOptions,
+  type ValidationResultsMetadataOptions,
+  type ValidationResultsOptions,
 } from "@/testing/sns-testing";
 
 // Set up AWS resource configuration BEFORE any other imports
@@ -22,17 +22,17 @@ setUpAwsConfig();
 
 // Imports
 import {
-  DatasetValidatorMetadataCoverage,
-  DatasetValidatorMetadataCoverageEntity,
-  DatasetValidatorResults,
-  DatasetValidatorResultsMetadata,
-  DatasetValidatorToolReports,
-  SNSMessage,
+  type DatasetValidatorMetadataCoverage,
+  type DatasetValidatorMetadataCoverageEntity,
+  type DatasetValidatorResults,
+  type DatasetValidatorResultsMetadata,
+  type DatasetValidatorToolReports,
+  type SNSMessage,
 } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import {
   FILE_VALIDATION_STATUS,
-  FileValidationSummary,
-  HCAAtlasTrackerDBFileDatasetInfo,
+  type FileValidationSummary,
+  type HCAAtlasTrackerDBFileDatasetInfo,
   INTEGRITY_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
@@ -48,7 +48,7 @@ import {
 } from "@/testing/constants";
 import { getFileFromDatabase, resetDatabase } from "@/testing/db-utils";
 import {
-  ConsoleMessageOutputArrays,
+  type ConsoleMessageOutputArrays,
   fillTestFileDefaults,
   getTestFileKey,
   withConsoleMessageHiding,
@@ -62,7 +62,7 @@ import {
 } from "@aws-sdk/client-s3";
 import { sdkStreamMixin } from "@smithy/util-stream";
 import { mockClient } from "aws-sdk-client-mock";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { Readable } from "stream";
 

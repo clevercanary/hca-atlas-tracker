@@ -1,5 +1,5 @@
 import * as MDX from "@/app/components/common/MDXContent";
-import { AuthenticationConfig } from "@databiosphere/findable-ui/lib/config/entities";
+import { type AuthenticationConfig } from "@databiosphere/findable-ui/lib/config/entities";
 
 export const authenticationConfig: AuthenticationConfig = {
   termsOfService: MDX.LoginTermsOfService({}),

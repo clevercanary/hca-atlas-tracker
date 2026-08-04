@@ -1,6 +1,6 @@
 import {
-  HCAAtlasTrackerAtlas,
-  HCAAtlasTrackerEntrySheetValidation,
+  type HCAAtlasTrackerAtlas,
+  type HCAAtlasTrackerEntrySheetValidation,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 
 export type EntityData = {

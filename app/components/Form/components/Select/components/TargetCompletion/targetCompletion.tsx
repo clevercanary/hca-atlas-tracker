@@ -1,10 +1,10 @@
 import {
   Select,
-  SelectProps,
+  type SelectProps,
 } from "@/app/components/common/Form/components/Select/select";
 import { getPastAndNextTwoYearsQuartersByDate } from "@/app/utils/date-fns";
 import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, JSX, ReactNode, useMemo } from "react";
+import { forwardRef, type JSX, type ReactNode, useMemo } from "react";
 import { TARGET_COMPLETION_NULL } from "./common/constants";
 
 export const TargetCompletion = forwardRef<HTMLInputElement, SelectProps>(

@@ -1,5 +1,5 @@
 import { ROW_DIRECTION } from "@databiosphere/findable-ui/lib/components/Table/common/entities";
-import { Breakpoint } from "@mui/material";
+import { type Breakpoint } from "@mui/material";
 
 /**
  * Returns the row direction based on the breakpoint.

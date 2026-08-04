@@ -2,11 +2,11 @@ import { getRouteURL } from "@/app/common/utils";
 import { navigateToRoute } from "@/app/hooks/useFormManager/common/utils";
 import {
   Tabs as DXTabs,
-  TabValue,
+  type TabValue,
 } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 import { useRouter } from "next/router";
-import { JSX, useCallback } from "react";
-import { Props } from "./entities";
+import { type JSX, useCallback } from "react";
+import { type Props } from "./entities";
 
 export const Tabs = ({
   onNavigate = navigateToRoute,

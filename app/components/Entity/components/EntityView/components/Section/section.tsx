@@ -1,5 +1,5 @@
-import { ElementType, JSX } from "react";
-import { Props } from "./entities";
+import { type ElementType, type JSX } from "react";
+import { type Props } from "./entities";
 import { StyledSection } from "./section.styles";
 
 export const Section = <C extends ElementType>({

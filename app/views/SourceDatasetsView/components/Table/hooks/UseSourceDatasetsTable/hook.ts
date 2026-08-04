@@ -1,13 +1,13 @@
-import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { CORE_OPTIONS } from "@/app/components/Table/options/core/constants";
 import { SORTING_OPTIONS } from "@/app/components/Table/options/sorting/constants";
 import { useEntity } from "@/app/providers/entity/hook";
 import { COLUMNS } from "@/app/views/SourceDatasetsView/components/Table/columns";
-import { EntityData } from "@/app/views/SourceDatasetsView/entities";
+import { type EntityData } from "@/app/views/SourceDatasetsView/entities";
 import { COLUMN_IDENTIFIER } from "@databiosphere/findable-ui/lib/components/Table/common/columnIdentifier";
 import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
 import { useReactTable } from "@tanstack/react-table";
-import { UseSourceDatasetsTable } from "./entities";
+import { type UseSourceDatasetsTable } from "./entities";
 
 export const useSourceDatasetsTable = (): UseSourceDatasetsTable => {
   const { data } = useEntity();

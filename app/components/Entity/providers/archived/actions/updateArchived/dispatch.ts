@@ -1,5 +1,5 @@
 import { ArchivedActionKind } from "@/app/components/Entity/providers/archived/actions/entities";
-import { UpdateArchivedAction } from "./entities";
+import { type UpdateArchivedAction } from "./entities";
 
 /**
  * Action creator for updating archived in the state.

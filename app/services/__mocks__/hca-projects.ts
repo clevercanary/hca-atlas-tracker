@@ -1,6 +1,6 @@
-import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { type ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
 import { RefreshDataResult } from "@/app/services/common/refresh-service";
-import { getProjectsInfo, ProjectInfo } from "@/app/utils/hca-projects";
+import { getProjectsInfo, type ProjectInfo } from "@/app/utils/hca-projects";
 import {
   TEST_HCA_PROJECTS_BY_DOI,
   TEST_HCA_PROJECTS_BY_ID,

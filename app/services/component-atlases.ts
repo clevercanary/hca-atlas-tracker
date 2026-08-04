@@ -1,15 +1,15 @@
 import {
-  HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerDBComponentAtlasForAPI,
-  HCAAtlasTrackerDBComponentAtlasForDetailAPI,
-  HCAAtlasTrackerDBComponentAtlasInfo,
-  HCAAtlasTrackerDBFile,
+  type HCAAtlasTrackerDBAtlas,
+  type HCAAtlasTrackerDBComponentAtlas,
+  type HCAAtlasTrackerDBComponentAtlasForAPI,
+  type HCAAtlasTrackerDBComponentAtlasForDetailAPI,
+  type HCAAtlasTrackerDBComponentAtlasInfo,
+  type HCAAtlasTrackerDBFile,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { ComponentAtlasEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { type ComponentAtlasEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { getSourceDatasetVersionsForAtlas } from "@/app/data/source-datasets";
 import { InvalidOperationError, NotFoundError } from "@/app/utils/api-errors";
-import pg from "pg";
+import type pg from "pg";
 import { updateDownloadNameIfChanged } from "./concepts";
 import { doTransaction, query } from "./database";
 

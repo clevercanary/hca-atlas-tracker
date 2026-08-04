@@ -1,14 +1,14 @@
-import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { FormManager } from "@/app/components/common/Form/components/FormManager/formManager";
 import { Divider } from "@/app/components/Detail/components/TrackerForm/components/Divider/divider.styles";
 import { GeneralInfo } from "@/app/components/Detail/components/TrackerForm/components/Section/components/SourceStudy/components/View/components/GeneralInfo/generalInfo";
 import { Identifiers } from "@/app/components/Detail/components/TrackerForm/components/Section/components/SourceStudy/components/View/components/Identifiers/identifiers";
 import { Metadata } from "@/app/components/Detail/components/TrackerForm/components/Section/components/SourceStudy/components/View/components/Metadata/metadata";
 import { TrackerForm } from "@/app/components/Detail/components/TrackerForm/trackerForm";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager as FormManagerProps } from "@/app/hooks/useFormManager/common/entities";
-import { SourceStudyEditData } from "@/app/views/SourceStudyView/common/entities";
-import { JSX } from "react";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager as FormManagerProps } from "@/app/hooks/useFormManager/common/entities";
+import { type SourceStudyEditData } from "@/app/views/SourceStudyView/common/entities";
+import { type JSX } from "react";
 
 interface ViewSourceStudyProps {
   formManager: FormManagerProps;

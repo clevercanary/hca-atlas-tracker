@@ -1,7 +1,7 @@
 import { getRouteURL } from "@/app/common/utils";
-import { BackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/constants";
+import { type BackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/constants";
 import { ROUTE } from "@/app/routes/constants";
-import { ResolveBackPathInput } from "./entities";
+import { type ResolveBackPathInput } from "./entities";
 
 /**
  * Resolves the back-arrow path for a detail view from the `from` query

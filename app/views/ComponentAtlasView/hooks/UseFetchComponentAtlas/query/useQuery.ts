@@ -1,12 +1,12 @@
 import {
-  AtlasId,
-  ComponentAtlasId,
-  HCAAtlasTrackerDetailComponentAtlas,
+  type AtlasId,
+  type ComponentAtlasId,
+  type HCAAtlasTrackerDetailComponentAtlas,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { useAuthedQuery } from "@/app/query/useAuthedQuery";
-import { DefaultError, UseQueryResult } from "@tanstack/react-query";
+import { type DefaultError, type UseQueryResult } from "@tanstack/react-query";
 import { INTEGRATED_OBJECT } from "./constants";
-import { QueryKey } from "./types";
+import { type QueryKey } from "./types";
 
 /**
  * Fetches the component atlas (integrated object) detail via React Query.

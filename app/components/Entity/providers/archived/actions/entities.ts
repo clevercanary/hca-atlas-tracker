@@ -1,4 +1,4 @@
-import { UpdateArchivedAction } from "./updateArchived/entities";
+import { type UpdateArchivedAction } from "./updateArchived/entities";
 
 export type ArchivedAction = UpdateArchivedAction;
 

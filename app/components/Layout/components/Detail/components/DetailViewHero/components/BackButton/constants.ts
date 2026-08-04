@@ -1,4 +1,4 @@
-import { RouteKey } from "@/app/routes/entities";
+import { type RouteKey } from "@/app/routes/entities";
 
 /**
  * A back-arrow origin is a `ROUTE` key naming the list (global or atlas-

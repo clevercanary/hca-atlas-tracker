@@ -6,15 +6,15 @@ import {
   ATLAS_STATUS,
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
-  FileEventInfo,
-  HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerDBFile,
-  HCAAtlasTrackerDBSourceDataset,
-  IntegrationLead,
+  type FileEventInfo,
+  type HCAAtlasTrackerDBAtlas,
+  type HCAAtlasTrackerDBComponentAtlas,
+  type HCAAtlasTrackerDBFile,
+  type HCAAtlasTrackerDBSourceDataset,
+  type IntegrationLead,
   INTEGRITY_STATUS,
-  NetworkKey,
-  Wave,
+  type NetworkKey,
+  type Wave,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   updateComponentAtlasVersionInAtlas,
@@ -38,7 +38,7 @@ import { createComponentAtlas } from "@/app/services/component-atlases";
 import { getOrCreateConceptId } from "@/app/services/concepts";
 import { doTransaction, endPgPool } from "@/app/services/database";
 import { createSourceDataset } from "@/app/services/source-datasets";
-import pg from "pg";
+import type pg from "pg";
 import { randomTestValueInRange } from "./utils";
 
 /**

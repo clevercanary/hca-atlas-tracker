@@ -1,23 +1,23 @@
 import {
-  DatasetValidatorMetadataCoverage,
-  DatasetValidatorResults,
-  DatasetValidatorResultsMetadata,
-  DatasetValidatorToolReport,
-  DatasetValidatorToolReports,
-  S3Event,
-  S3Object,
-  SNSMessage,
+  type DatasetValidatorMetadataCoverage,
+  type DatasetValidatorResults,
+  type DatasetValidatorResultsMetadata,
+  type DatasetValidatorToolReport,
+  type DatasetValidatorToolReports,
+  type S3Event,
+  type S3Object,
+  type SNSMessage,
 } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
 import { FILE_METADATA_COVERAGE_ENTITY_TYPES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
-  FileMetadataCoverage,
-  FileValidationReport,
-  FileValidationReports,
-  FileValidationSummary,
-  HCAAtlasTrackerDBAtlasOverview,
-  HCAAtlasTrackerDBFile,
-  HCAAtlasTrackerDBFileDatasetInfo,
-  HCAAtlasTrackerDBFileValidationInfo,
+  type FileMetadataCoverage,
+  type FileValidationReport,
+  type FileValidationReports,
+  type FileValidationSummary,
+  type HCAAtlasTrackerDBAtlasOverview,
+  type HCAAtlasTrackerDBFile,
+  type HCAAtlasTrackerDBFileDatasetInfo,
+  type HCAAtlasTrackerDBFileValidationInfo,
   INTEGRITY_STATUS,
   SYSTEM,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -26,7 +26,7 @@ import { resetConfigCache } from "@/app/config/aws-resources";
 import { query } from "@/app/services/database";
 import { slugifyAtlasShortName } from "@/app/utils/atlases";
 import snsHandler from "@/pages/api/sns";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { getFileFromDatabase } from "./db-utils";
 import { expectIsDefined } from "./utils";

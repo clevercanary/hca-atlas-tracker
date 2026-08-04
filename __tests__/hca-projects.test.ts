@@ -1,4 +1,4 @@
-import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { type ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
 import { endPgPool } from "@/app/services/database";
 import {
   DOI_NORMAL,

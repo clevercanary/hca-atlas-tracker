@@ -1,4 +1,4 @@
-import { HeatmapClass } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HeatmapClass } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 
 /**
  * Filters out classes with no sheets.

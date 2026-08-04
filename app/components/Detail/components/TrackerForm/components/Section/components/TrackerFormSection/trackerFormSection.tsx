@@ -1,4 +1,4 @@
-import { ControllerConfig } from "@/app/components/common/Form/components/Controllers/common/entities";
+import { type ControllerConfig } from "@/app/components/common/Form/components/Controllers/common/entities";
 import { Controllers } from "@/app/components/common/Form/components/Controllers/controllers";
 import {
   SectionCard as DefaultSectionCard,
@@ -7,12 +7,12 @@ import {
   SectionText,
   SectionTitle,
 } from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
-import { SectionContent } from "@/app/components/Forms/common/entities";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
-import { ElementType, JSX, ReactNode } from "react";
-import { FieldValues } from "react-hook-form";
-import { SlotProps } from "./common/utils";
+import { type SectionContent } from "@/app/components/Forms/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type ElementType, type JSX, type ReactNode } from "react";
+import { type FieldValues } from "react-hook-form";
+import { type SlotProps } from "./common/utils";
 
 export interface TrackerFormSectionProps<
   T extends FieldValues,

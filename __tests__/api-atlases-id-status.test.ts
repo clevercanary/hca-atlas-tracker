@@ -1,12 +1,12 @@
 import { FILE_VALIDATOR_NAMES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   ATLAS_STATUS,
-  AtlasStatusSummary,
+  type AtlasStatusSummary,
   DOI_STATUS,
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
-  FileValidationSummary,
-  FileValidatorName,
+  type FileValidationSummary,
+  type FileValidatorName,
   REPROCESSED_STATUS,
   ROLE,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -31,18 +31,18 @@ import {
   resetDatabase,
 } from "@/testing/db-utils";
 import {
-  TestAtlas,
-  TestComponentAtlas,
-  TestSourceDataset,
-  TestSourceStudy,
-  TestUser,
+  type TestAtlas,
+  type TestComponentAtlas,
+  type TestSourceDataset,
+  type TestSourceStudy,
+  type TestUser,
 } from "@/testing/entities";
 import {
   makeTestUser,
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

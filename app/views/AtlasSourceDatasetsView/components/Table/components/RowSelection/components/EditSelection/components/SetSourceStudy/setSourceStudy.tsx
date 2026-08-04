@@ -6,12 +6,12 @@ import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Di
 import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
 import { MenuItem } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/components/MenuItem/menuItem";
 import { DialogActions, DialogContent } from "@mui/material";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { SOURCE_STUDY } from "./common/controllers";
-import { SourceStudyEditData } from "./common/entities";
+import { type SourceStudyEditData } from "./common/entities";
 import { FIELD_NAME } from "./common/fields";
 import { DIALOG_PROPS } from "./constants";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 import { useEditSourceStudyForm } from "./hooks/useEditSourceStudyForm";
 import { useEditSourceStudyFormManager } from "./hooks/useEditSourceStudyManager";
 

@@ -1,4 +1,4 @@
-import { ComponentProps, ElementType } from "react";
+import { type ComponentProps, type ElementType } from "react";
 
 export interface Props<C extends ElementType> {
   sectionConfig: SectionConfig<C>;

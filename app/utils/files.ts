@@ -1,15 +1,15 @@
 import { FILE_VALIDATOR_NAMES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
-  DBFileValidationSummary,
+  type DBFileValidationSummary,
   FILE_TYPE,
-  FileValidationSummary,
-  NetworkKey,
-  ValidatorSummaryStatus,
+  type FileValidationSummary,
+  type NetworkKey,
+  type ValidatorSummaryStatus,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { isNetworkKey } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import {
-  AtlasSlugNameAndVersion,
-  AtlasVersionNumbers,
+  type AtlasSlugNameAndVersion,
+  type AtlasVersionNumbers,
   parseS3AtlasVersion,
 } from "./atlases";
 

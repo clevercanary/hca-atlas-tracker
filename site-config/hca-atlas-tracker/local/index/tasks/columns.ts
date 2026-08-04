@@ -1,5 +1,5 @@
-import { HCAAtlasTrackerListValidationRecord } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { ColumnConfig } from "@databiosphere/findable-ui/lib/config/entities";
+import { type HCAAtlasTrackerListValidationRecord } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type ColumnConfig } from "@databiosphere/findable-ui/lib/config/entities";
 import * as COLUMN from "./column";
 
 export const COLUMNS: ColumnConfig<HCAAtlasTrackerListValidationRecord>[] = [

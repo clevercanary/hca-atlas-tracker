@@ -1,9 +1,9 @@
 import {
-  HCAAtlasTrackerAtlas,
-  HCAAtlasTrackerComponentAtlas,
+  type HCAAtlasTrackerAtlas,
+  type HCAAtlasTrackerComponentAtlas,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "@/app/common/entities";
-import { Breadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
+import { type PathParameter } from "@/app/common/entities";
+import { type Breadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import {
   getAtlasBreadcrumb,
   getAtlasesBreadcrumb,
@@ -12,7 +12,7 @@ import {
   getIntegratedObjectValidationsBreadcrumb,
 } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
 import { ROUTE } from "@/app/routes/constants";
-import { Tab } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
+import { type Tab } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
 
 /**
  * Returns the breadcrumbs for the integrated object validations view.

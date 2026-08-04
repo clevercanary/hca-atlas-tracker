@@ -1,5 +1,5 @@
 import { TABLE_CONFIG } from "./constants";
-import { Table } from "./hooks/useTable/entities";
+import { type Table } from "./hooks/useTable/entities";
 
 /**
  * Get the column track sizing for the table.

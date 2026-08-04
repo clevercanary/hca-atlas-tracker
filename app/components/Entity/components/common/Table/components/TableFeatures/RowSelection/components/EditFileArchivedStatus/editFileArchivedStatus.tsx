@@ -1,10 +1,10 @@
 import { useArchivedState } from "@/app/components/Entity/providers/archived/hook";
 import { FileArchivedStatus } from "@/app/components/Forms/components/FileArchivedStatus/fileArchivedStatus";
-import { Payload } from "@/app/hooks/UseEditFileArchived/entities";
+import { type Payload } from "@/app/hooks/UseEditFileArchived/entities";
 import { useQueryClient } from "@tanstack/react-query";
-import { Row, RowData } from "@tanstack/react-table";
-import { JSX } from "react";
-import { Props } from "./entities";
+import { type Row, type RowData } from "@tanstack/react-table";
+import { type JSX } from "react";
+import { type Props } from "./entities";
 
 export const EditFileArchivedStatus = <T extends RowData>({
   queryKeys,

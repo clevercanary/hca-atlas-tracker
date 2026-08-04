@@ -4,13 +4,13 @@ import { SORTING_OPTIONS } from "@/app/components/Table/options/sorting/constant
 import { useEntity } from "@/app/providers/entity/hook";
 import { COLUMNS } from "@/app/views/AtlasSourceDatasetsView/components/Table/columns";
 import {
-  AtlasSourceDataset,
-  EntityData,
+  type AtlasSourceDataset,
+  type EntityData,
 } from "@/app/views/AtlasSourceDatasetsView/entities";
 import { COLUMN_IDENTIFIER } from "@databiosphere/findable-ui/lib/components/Table/common/columnIdentifier";
 import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
 import { useReactTable } from "@tanstack/react-table";
-import { UseSourceDatasetsTable } from "./entities";
+import { type UseSourceDatasetsTable } from "./entities";
 
 // Stable empty-array fallback: `useReactTable` requires a referentially stable
 // `data` prop, and the query returns `undefined` while a source datasets fetch

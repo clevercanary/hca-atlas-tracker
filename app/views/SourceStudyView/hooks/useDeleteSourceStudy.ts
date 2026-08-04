@@ -1,5 +1,5 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
-import { METHOD, PathParameter } from "@/app/common/entities";
+import { METHOD, type PathParameter } from "@/app/common/entities";
 import {
   fetchResource,
   getRequestURL,

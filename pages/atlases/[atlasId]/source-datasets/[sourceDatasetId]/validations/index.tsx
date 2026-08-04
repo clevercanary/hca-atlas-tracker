@@ -1,8 +1,8 @@
 import { getRouteURL } from "@/app/common/utils";
 import { ROUTE } from "@/app/routes/constants";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { ParsedUrlQuery } from "querystring";
-import { JSX } from "react";
+import { type GetServerSideProps, type GetServerSidePropsContext } from "next";
+import { type ParsedUrlQuery } from "querystring";
+import { type JSX } from "react";
 
 interface SourceDatasetPageUrlParams extends ParsedUrlQuery {
   atlasId: string;

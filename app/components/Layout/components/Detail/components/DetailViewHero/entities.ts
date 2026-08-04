@@ -1,5 +1,5 @@
-import { ComponentProps, ReactNode } from "react";
-import { BackButton } from "./components/BackButton/backButton";
+import { type ComponentProps, type ReactNode } from "react";
+import { type BackButton } from "./components/BackButton/backButton";
 
 export interface Props extends ComponentProps<typeof BackButton> {
   actions?: ReactNode;

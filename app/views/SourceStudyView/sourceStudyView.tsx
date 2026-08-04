@@ -1,5 +1,5 @@
 import { getSourceStudyCitation } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Actions } from "@/app/components/Detail/components/ViewSourceStudy/components/Actions/actions";
 import { Tabs } from "@/app/components/Detail/components/ViewSourceStudy/components/Tabs/tabs";
@@ -8,7 +8,7 @@ import { useBackPath } from "@/app/components/Layout/components/Detail/component
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditSourceStudyForm } from "./hooks/useEditSourceStudyForm";
 import { useEditSourceStudyFormManager } from "./hooks/useEditSourceStudyFormManager";

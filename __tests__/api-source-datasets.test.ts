@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerGlobalSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerGlobalSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool } from "@/app/services/database";
 import sourceDatasetsHandler from "@/pages/api/source-datasets";
@@ -28,14 +28,18 @@ import {
   USER_UNREGISTERED,
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
-import { TestAtlas, TestSourceDataset, TestUser } from "@/testing/entities";
+import {
+  type TestAtlas,
+  type TestSourceDataset,
+  type TestUser,
+} from "@/testing/entities";
 import {
   expectApiEntityToMatchLinkedAtlases,
   expectApiSourceDatasetToMatchTest,
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

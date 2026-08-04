@@ -2,11 +2,11 @@ import {
   CASE_INSENSITIVE_ARRAY_VALIDATION_VARIABLES,
   SYSTEM_DISPLAY_NAMES,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
-import { HCAAtlasTrackerListValidationRecord } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerListValidationRecord } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { Section } from "@databiosphere/findable-ui/lib/components/Table/components/TableToolbar/components/RowPreview/components/Section/section";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Typography } from "@mui/material";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 
 interface DescriptionProps {
   task: HCAAtlasTrackerListValidationRecord;

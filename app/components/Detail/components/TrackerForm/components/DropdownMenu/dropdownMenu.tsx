@@ -1,11 +1,11 @@
 import { IconButton } from "@/app/components/common/IconButton/iconButton";
 import {
-  DropdownMenuIconButtonProps,
-  DropdownMenuItemProps,
+  type DropdownMenuIconButtonProps,
+  type DropdownMenuItemProps,
 } from "@databiosphere/findable-ui/lib/components/common/DropdownMenu/common/entities";
 import { ICON_BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/iconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { DropdownMenu as MoreDropdownMenu } from "./dropdownMenu.styles";
 
 export interface DropdownMenuProps {

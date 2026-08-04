@@ -1,6 +1,6 @@
 import { Chip as MChip } from "@mui/material";
-import { JSX, forwardRef } from "react";
-import { Props } from "./types";
+import { type JSX, forwardRef } from "react";
+import { type Props } from "./types";
 
 export const Chip = forwardRef<HTMLDivElement, Props>(function Chip(
   { viewProps }: Props,

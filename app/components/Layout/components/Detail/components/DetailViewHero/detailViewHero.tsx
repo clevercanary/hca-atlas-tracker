@@ -1,7 +1,7 @@
 import { Title } from "@databiosphere/findable-ui/lib/components/common/Title/title";
 import { BackPageTabs } from "@databiosphere/findable-ui/lib/components/Layout/components/BackPage/backPageView.styles";
 import { SubTitle } from "@databiosphere/findable-ui/lib/components/Layout/components/BackPage/components/BackPageHero/components/SubTitle/subTitle";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { BackButton } from "./components/BackButton/backButton";
 import {
   DetailViewHeroHeadline,
@@ -11,7 +11,7 @@ import {
   Statuses,
   Titles,
 } from "./detailViewHero.styles";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 
 export const DetailViewHero = ({
   actions,

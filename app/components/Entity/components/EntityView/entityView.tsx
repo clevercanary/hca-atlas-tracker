@@ -1,7 +1,7 @@
 import { Divider } from "@/app/components/Detail/components/TrackerForm/components/Divider/divider.styles";
-import { ElementType, Fragment, JSX } from "react";
+import { type ElementType, Fragment, type JSX } from "react";
 import { Section } from "./components/Section/section";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 
 export const EntityView = <C extends ElementType>({
   sectionConfigs,

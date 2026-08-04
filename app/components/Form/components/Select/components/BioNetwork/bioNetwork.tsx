@@ -2,12 +2,12 @@ import { NETWORKS } from "@/app/apis/catalog/hca-atlas-tracker/common/constants"
 import { isNetworkKey } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import {
   Select,
-  SelectProps,
+  type SelectProps,
 } from "@/app/components/common/Form/components/Select/select";
 import { NetworkIconAndName } from "@/app/components/Detail/components/TrackerForm/components/Select/components/NetworkIconAndName/networkIconAndName";
 import { getBioNetworkByKey } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, JSX, ReactNode } from "react";
+import { forwardRef, type JSX, type ReactNode } from "react";
 
 export const BioNetwork = forwardRef<HTMLInputElement, SelectProps>(
   function BioNetwork(

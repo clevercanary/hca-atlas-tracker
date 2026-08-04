@@ -1,4 +1,4 @@
-import { IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
+import { type IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
 
 export interface EditIntegratedObjectSourceDatasetsContextProps {
   onDelete: (payload?: {

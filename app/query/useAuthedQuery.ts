@@ -1,9 +1,9 @@
 import { METHOD } from "@/app/common/entities";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import {
-  DefaultError,
-  QueryKey,
-  UseQueryResult,
+  type DefaultError,
+  type QueryKey,
+  type UseQueryResult,
   useQuery as useReactQuery,
 } from "@tanstack/react-query";
 import { queryFn } from "./queryFn";

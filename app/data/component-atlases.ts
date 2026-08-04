@@ -1,10 +1,10 @@
 import {
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerDBComponentAtlasForGlobalAPI,
+  type HCAAtlasTrackerDBComponentAtlas,
+  type HCAAtlasTrackerDBComponentAtlasForGlobalAPI,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { query } from "@/app/services/database";
 import { NotFoundError } from "@/app/utils/api-errors";
-import pg from "pg";
+import type pg from "pg";
 
 /**
  * Create a new latest component atlas version based on the given existing version.

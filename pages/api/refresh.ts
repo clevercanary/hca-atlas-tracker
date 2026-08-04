@@ -4,7 +4,7 @@ import {
   forceCellxGeneRefresh,
   getCellxGeneStatus,
 } from "@/app/services/cellxgene";
-import { RefreshServicesStatuses } from "@/app/services/common/entities";
+import { type RefreshServicesStatuses } from "@/app/services/common/entities";
 import {
   forceProjectsRefresh,
   getProjectsStatus,

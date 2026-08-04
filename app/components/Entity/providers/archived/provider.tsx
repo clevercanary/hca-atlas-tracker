@@ -1,4 +1,4 @@
-import { JSX, ReactNode, useReducer } from "react";
+import { type JSX, type ReactNode, useReducer } from "react";
 import { INITIAL_ARGS } from "./constants";
 import { ArchivedContext } from "./context";
 import { archivedReducer } from "./reducer";

@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { InputController } from "@/app/components/common/Form/components/Controllers/components/InputController/inputController";
 import { AddItemButton } from "@/app/components/Detail/components/TrackerForm/components/Section/components/ListSection/components/AddItemButton/addItemButton";
 import { DeleteItemButton } from "@/app/components/Detail/components/TrackerForm/components/Section/components/ListSection/components/DeleteItemButton/deleteItemButton";
@@ -8,11 +8,11 @@ import {
   SectionHero,
   SectionTitle,
 } from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { getSpreadsheetIdFromUrl } from "@/app/utils/google-sheets";
-import { SourceStudyEditData } from "@/app/views/SourceStudyView/common/entities";
-import { Fragment, JSX } from "react";
+import { type SourceStudyEditData } from "@/app/views/SourceStudyView/common/entities";
+import { Fragment, type JSX } from "react";
 import { useFieldArray } from "react-hook-form";
 
 export interface MetadataProps {

@@ -1,4 +1,4 @@
-import { MigrationBuilder } from "node-pg-migrate";
+import { type MigrationBuilder } from "node-pg-migrate";
 
 // Constants for common field types
 const VARCHAR_255 = "varchar(255)";

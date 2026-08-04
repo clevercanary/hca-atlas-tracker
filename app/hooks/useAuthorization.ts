@@ -1,6 +1,6 @@
 import {
   AuthorizationContext,
-  AuthorizationContextProps,
+  type AuthorizationContextProps,
 } from "@/app/providers/authorization";
 import { useContext } from "react";
 

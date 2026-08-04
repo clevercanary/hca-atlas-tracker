@@ -1,18 +1,18 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
 import { METHOD } from "@/app/common/entities";
 import { getRequestURL } from "@/app/common/utils";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { useEntity } from "@/app/providers/entity/hook";
-import { PublicationStatusEditData } from "@/app/views/AtlasSourceDatasetsView/components/Table/components/RowSelection/components/EditSelection/components/EditPublicationStatus/common/entities";
+import { type PublicationStatusEditData } from "@/app/views/AtlasSourceDatasetsView/components/Table/components/RowSelection/components/EditSelection/components/EditPublicationStatus/common/entities";
 import {
-  AtlasSourceDataset,
-  Entity,
+  type AtlasSourceDataset,
+  type Entity,
 } from "@/app/views/AtlasSourceDatasetsView/entities";
 import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/UseFetchAtlasSourceDatasets/query/constants";
 import { useQueryClient } from "@tanstack/react-query";
-import { Table } from "@tanstack/react-table";
+import { type Table } from "@tanstack/react-table";
 import { useCallback } from "react";
 
 export const useEditPublicationStatusFormManager = (

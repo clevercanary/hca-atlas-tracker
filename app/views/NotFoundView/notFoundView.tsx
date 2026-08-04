@@ -15,7 +15,7 @@ import {
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Typography } from "@mui/material";
 import Link from "next/link";
-import { JSX } from "react";
+import { type JSX } from "react";
 
 export const NotFoundView = (): JSX.Element => {
   return (

@@ -1,8 +1,8 @@
 import {
   CAP_INGEST_STATUS,
   FILE_VALIDATION_STATUS,
-  HCAAtlasTrackerComponentAtlas,
-  HCAAtlasTrackerSourceDataset,
+  type HCAAtlasTrackerComponentAtlas,
+  type HCAAtlasTrackerSourceDataset,
   REPROCESSED_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getCapIngestStatus } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";

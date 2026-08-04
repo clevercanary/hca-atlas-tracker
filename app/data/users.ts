@@ -1,4 +1,4 @@
-import pg from "pg";
+import type pg from "pg";
 
 /**
  * Add a new role-associated resource ID to all users that have another given associated entity.

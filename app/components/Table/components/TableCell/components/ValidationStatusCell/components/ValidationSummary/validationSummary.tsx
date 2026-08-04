@@ -1,7 +1,7 @@
 import { FILE_VALIDATOR_NAME_LABEL } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
-  FileValidatorName,
-  ValidatorSummaryStatus,
+  type FileValidatorName,
+  type ValidatorSummaryStatus,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { FILE_VALIDATOR_DESCRIPTIONS } from "@/app/apis/catalog/hca-atlas-tracker/common/validatorDescriptions";
 import { getRouteURL } from "@/app/common/utils";
@@ -13,10 +13,10 @@ import {
 import { CHIP_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/chip";
 import { Stack, Tooltip } from "@mui/material";
 import Link from "next/link";
-import { JSX, ReactNode } from "react";
+import { type JSX, type ReactNode } from "react";
 import { ValidatorIcon } from "./components/ValidatorIcon/validatorIcon";
 import { INNER_STACK_PROPS, STACK_PROPS } from "./constants";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 import { getValidatorCountLabel, getValidators } from "./utils";
 import { StyledStack } from "./validationSummary.styles";
 

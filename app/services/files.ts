@@ -3,10 +3,10 @@ import { VALID_FILE_TYPES_FOR_VALIDATION } from "@/app/apis/catalog/hca-atlas-tr
 import {
   FILE_TYPE,
   FILE_VALIDATION_STATUS,
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerDBSourceDataset,
+  type HCAAtlasTrackerDBComponentAtlas,
+  type HCAAtlasTrackerDBSourceDataset,
   INTEGRITY_STATUS,
-  PresignedUrlInfo,
+  type PresignedUrlInfo,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getComponentAtlasForAtlasFile } from "@/app/data/component-atlases";
 import { getConceptForFile } from "@/app/data/concepts";

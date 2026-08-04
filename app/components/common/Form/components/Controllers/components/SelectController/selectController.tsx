@@ -1,11 +1,19 @@
-import { SelectProps } from "@/app/components/common/Form/components/Select/select";
+import { type SelectProps } from "@/app/components/common/Form/components/Select/select";
 import {
-  FormMethod,
-  YupValidatedFormValues,
+  type FormMethod,
+  type YupValidatedFormValues,
 } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
-import { ForwardRefExoticComponent, JSX, RefAttributes } from "react";
-import { Controller, FieldValues, UseControllerProps } from "react-hook-form";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
+import {
+  type ForwardRefExoticComponent,
+  type JSX,
+  type RefAttributes,
+} from "react";
+import {
+  Controller,
+  type FieldValues,
+  type UseControllerProps,
+} from "react-hook-form";
 
 export interface SelectControllerProps<
   T extends FieldValues,

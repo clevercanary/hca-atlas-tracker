@@ -1,6 +1,6 @@
 import fs from "fs";
 import matter from "gray-matter";
-import { GetStaticPropsContext, GetStaticPropsResult } from "next";
+import { type GetStaticPropsContext, type GetStaticPropsResult } from "next";
 import { serialize } from "next-mdx-remote/serialize";
 import {
   LAYOUT_STYLE_NO_CONTRAST_DEFAULT,
@@ -12,7 +12,7 @@ import {
   getSlug,
   isContentPathnameExists,
 } from "./contentPagesUtils";
-import { ContentProps } from "./entities";
+import { type ContentProps } from "./entities";
 
 export async function getContentStaticProps(
   context: GetStaticPropsContext,

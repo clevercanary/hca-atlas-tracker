@@ -1,12 +1,12 @@
-import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { CORE_OPTIONS } from "@/app/components/Table/options/core/constants";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { ComponentAtlasSourceDatasetsEditData } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type ComponentAtlasSourceDatasetsEditData } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/common/entities";
 import { COLUMNS } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/components/ComponentAtlasSourceDatasetsSelection/components/FormContent/components/Table/columns";
 import { useComponentAtlasSourceDatasetsSelectionFormState } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/components/ComponentAtlasSourceDatasetsSelection/hooks/useComponentAtlasSourceDatasetsSelectionFormState";
 import { useComponentAtlasSourceDatasetsSelectionTableOptions } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/components/ComponentAtlasSourceDatasetsSelection/hooks/useComponentAtlasSourceDatasetsSelectionTableOptions";
 import { useReactTable } from "@tanstack/react-table";
-import { UseComponentAtlasSourceDatasetsSelectionTable } from "./entities";
+import { type UseComponentAtlasSourceDatasetsSelectionTable } from "./entities";
 
 // Stable empty-array fallback so `useReactTable` always gets a referentially
 // stable `data` prop (the associated atlas source datasets can be undefined

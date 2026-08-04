@@ -1,7 +1,7 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasName } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { getRequestURL } from "@/app/common/utils";
 import {
   Dialog,
@@ -12,7 +12,7 @@ import {
 import { usePublishAtlas } from "@/app/hooks/UsePublishAtlas/hook";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 
 interface Props {
   atlas: HCAAtlasTrackerAtlas | undefined;

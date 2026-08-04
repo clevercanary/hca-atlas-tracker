@@ -3,7 +3,7 @@ import { PartiallyInvalidIcon } from "@/app/components/common/CustomIcon/compone
 import { PartiallyValidIcon } from "@/app/components/common/CustomIcon/components/PartiallyValidIcon/partiallyValidIcon";
 import { ValidIcon } from "@/app/components/common/CustomIcon/components/ValidIcon/validIcon";
 import { type JSX } from "react";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 
 export const ValidatorIcon = ({ status }: Props): JSX.Element => {
   const { errorCount, valid, warningCount } = status;

@@ -1,7 +1,14 @@
-import { PublicationInfo } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type PublicationInfo } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { normalizeDoi } from "@/app/utils/doi";
 import { stripHtml } from "string-strip-html";
-import { array, InferType, number, object, string, ValidationError } from "yup";
+import {
+  array,
+  type InferType,
+  number,
+  object,
+  string,
+  ValidationError,
+} from "yup";
 import { fetchCrossrefWork } from "./crossref-api";
 
 const crossrefOrganizationAuthorSchema = object({

@@ -1,4 +1,4 @@
-import { TIER_ONE_METADATA_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type TIER_ONE_METADATA_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- keeping type
 interface CellXGeneInfo {

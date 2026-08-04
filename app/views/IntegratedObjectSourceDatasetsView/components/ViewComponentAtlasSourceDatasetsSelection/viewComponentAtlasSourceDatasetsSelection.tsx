@@ -1,10 +1,10 @@
-import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { PathParameter } from "@/app/common/entities";
+import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { AddLinkIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddLinkIcon/addLinkIcon";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { Button } from "@mui/material";
-import { Fragment, JSX, useState } from "react";
+import { Fragment, type JSX, useState } from "react";
 import { ComponentAtlasSourceDatasetsSelection } from "./components/ComponentAtlasSourceDatasetsSelection/componentAtlasSourceDatasetsSelection";
 import { Dialog } from "./viewComponentAtlasSourceDatasetsSelection.styles";
 

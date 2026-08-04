@@ -3,8 +3,8 @@ import {
   STATUS_BADGE_COLOR,
   StatusBadge,
 } from "@databiosphere/findable-ui/lib/components/common/StatusBadge/statusBadge";
-import { Fragment, JSX } from "react";
-import { Props } from "./types";
+import { Fragment, type JSX } from "react";
+import { type Props } from "./types";
 
 export const ReleaseDateCell = ({ publishedAt }: Props): JSX.Element => {
   if (publishedAt === null) {

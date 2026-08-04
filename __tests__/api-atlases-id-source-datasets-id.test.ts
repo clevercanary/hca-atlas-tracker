@@ -1,11 +1,11 @@
 import {
-  FileValidationSummary,
-  HCAAtlasTrackerDetailSourceDataset,
-  HCAAtlasTrackerSourceDataset,
+  type FileValidationSummary,
+  type HCAAtlasTrackerDetailSourceDataset,
+  type HCAAtlasTrackerSourceDataset,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { AtlasSourceDatasetEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { type AtlasSourceDatasetEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "@/app/common/entities";
-import { FormResponseErrors } from "@/app/hooks/useForm/common/entities";
+import { type FormResponseErrors } from "@/app/hooks/useForm/common/entities";
 import { endPgPool } from "@/app/services/database";
 import { getSheetTitleForApi } from "@/app/utils/google-sheets-api";
 import sourceDatasetHandler from "@/pages/api/atlases/[atlasId]/source-datasets/[sourceDatasetId]";
@@ -44,7 +44,7 @@ import {
   getConceptFromDatabase,
   resetDatabase,
 } from "@/testing/db-utils";
-import { TestUser } from "@/testing/entities";
+import { type TestUser } from "@/testing/entities";
 import {
   assertExpectDefined,
   delay,
@@ -53,7 +53,7 @@ import {
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

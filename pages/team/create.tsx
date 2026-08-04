@@ -1,7 +1,7 @@
 import { getAdminPageRedirect } from "@/app/routes/adminPageGuard";
 import { AddNewUserView } from "@/app/views/AddNewUserView/addNewUserView";
-import { GetServerSideProps } from "next";
-import { JSX } from "react";
+import { type GetServerSideProps } from "next";
+import { type JSX } from "react";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const redirect = await getAdminPageRedirect(context);

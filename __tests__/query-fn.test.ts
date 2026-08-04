@@ -6,7 +6,7 @@ jest.mock("@/app/common/utils", () => ({
 import { METHOD } from "@/app/common/entities";
 import { fetchResource } from "@/app/common/utils";
 import { queryFn } from "@/app/query/queryFn";
-import { QueryFunctionContext } from "@tanstack/react-query";
+import { type QueryFunctionContext } from "@tanstack/react-query";
 
 const mockFetchResource = fetchResource as jest.MockedFunction<
   typeof fetchResource

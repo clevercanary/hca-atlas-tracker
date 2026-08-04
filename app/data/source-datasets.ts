@@ -1,19 +1,19 @@
 import {
-  HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerDBSourceDataset,
-  HCAAtlasTrackerDBSourceDatasetForDetailAPI,
-  HCAAtlasTrackerDBSourceDatasetForGlobalAPI,
-  HCAAtlasTrackerDBSourceDatasetForListAPI,
-  HCAAtlasTrackerDBSourceDatasetInfo,
-  PUBLICATION_STATUS,
+  type HCAAtlasTrackerDBAtlas,
+  type HCAAtlasTrackerDBComponentAtlas,
+  type HCAAtlasTrackerDBSourceDataset,
+  type HCAAtlasTrackerDBSourceDatasetForDetailAPI,
+  type HCAAtlasTrackerDBSourceDatasetForGlobalAPI,
+  type HCAAtlasTrackerDBSourceDatasetForListAPI,
+  type HCAAtlasTrackerDBSourceDatasetInfo,
+  type PUBLICATION_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { confirmAtlasExists } from "@/app/services/atlases";
 import { doTransaction, query } from "@/app/services/database";
 import { confirmSourceStudyExists } from "@/app/services/source-studies";
 import { InvalidOperationError, NotFoundError } from "@/app/utils/api-errors";
 import { confirmQueryRowsContainVersionIds } from "@/app/utils/database";
-import pg from "pg";
+import type pg from "pg";
 
 const PLURAL_ENTITY_NAME = "source datasets";
 

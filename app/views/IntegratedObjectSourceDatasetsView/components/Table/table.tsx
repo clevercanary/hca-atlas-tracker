@@ -4,9 +4,9 @@ import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceho
 import { StyledToolbar } from "@/app/components/Table/components/TableToolbar/tableToolbar.styles";
 import { useEntity } from "@/app/providers/entity/hook";
 import { ViewComponentAtlasSourceDatasetsSelection } from "@/app/views/IntegratedObjectSourceDatasetsView/components/ViewComponentAtlasSourceDatasetsSelection/viewComponentAtlasSourceDatasetsSelection";
-import { Entity } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
+import { type Entity } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
 import { Divider } from "@mui/material";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { useIntegratedObjectSourceDatasetsTable } from "./hooks/UseIntegratedObjectSourceDatasetsTable/hook";
 
 export const Table = (): JSX.Element => {

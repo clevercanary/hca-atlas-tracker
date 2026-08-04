@@ -1,4 +1,4 @@
-import { MigrationBuilder } from "node-pg-migrate";
+import { type MigrationBuilder } from "node-pg-migrate";
 
 export function up(pgm: MigrationBuilder): void {
   // Update objects in the `metadataSpreadsheets` array in `study_info` of source studies

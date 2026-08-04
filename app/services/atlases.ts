@@ -1,18 +1,18 @@
 import {
   ATLAS_STATUS,
-  AtlasStatusSummary,
+  type AtlasStatusSummary,
   CAP_INGEST_STATUS,
-  DoiPublicationInfo,
-  FileValidationSummary,
-  HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBAtlasForAPI,
-  HCAAtlasTrackerDBAtlasOverview,
+  type DoiPublicationInfo,
+  type FileValidationSummary,
+  type HCAAtlasTrackerDBAtlas,
+  type HCAAtlasTrackerDBAtlasForAPI,
+  type HCAAtlasTrackerDBAtlasOverview,
   REPROCESSED_STATUS,
   SYSTEM,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  AtlasEditData,
-  NewAtlasData,
+  type AtlasEditData,
+  type NewAtlasData,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import {
   getCapIngestStatusFromParameters,
@@ -44,7 +44,7 @@ import { getCrossrefPublicationInfo } from "@/app/utils/crossref/crossref";
 import { normalizeDoi } from "@/app/utils/doi";
 import { normalizeValidationSummary } from "@/app/utils/files";
 import { getSheetTitleForApi } from "@/app/utils/google-sheets-api";
-import pg from "pg";
+import type pg from "pg";
 import { ValidationError } from "yup";
 import { doTransaction, mapDatabaseError, query } from "./database";
 import { updateSourceStudyValidationsByEntityIds } from "./source-studies";

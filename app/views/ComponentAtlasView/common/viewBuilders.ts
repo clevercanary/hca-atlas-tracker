@@ -3,10 +3,10 @@ import {
   UNPUBLISHED,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
-  CAP_INGEST_STATUS,
-  FILE_VALIDATION_STATUS,
+  type CAP_INGEST_STATUS,
+  type FILE_VALIDATION_STATUS,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { Props } from "@/app/components/Form/components/Input/inputComponent/Chip/types";
+import { type Props } from "@/app/components/Form/components/Input/inputComponent/Chip/types";
 import {
   CAP_INGEST_STATUS_COLOR,
   CAP_INGEST_STATUS_LABEL,

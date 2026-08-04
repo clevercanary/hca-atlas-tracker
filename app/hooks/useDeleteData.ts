@@ -1,7 +1,7 @@
 import { METHOD } from "@/app/common/entities";
 import { fetchResource, isFetchStatusOk } from "@/app/common/utils";
 import { useCallback } from "react";
-import { OnDeleteOptions } from "./useForm/common/entities";
+import { type OnDeleteOptions } from "./useForm/common/entities";
 
 export interface UseDeleteData<T> {
   onDelete: (payload?: T) => Promise<void>;

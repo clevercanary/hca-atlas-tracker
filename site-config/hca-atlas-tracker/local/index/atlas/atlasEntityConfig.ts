@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerListAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerListAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   atlasInputMapper,
   getAtlasId,
@@ -10,9 +10,9 @@ import {
   HCA_ATLAS_TRACKER_CATEGORY_LABEL,
 } from "@/site-config/hca-atlas-tracker/category";
 import {
-  ComponentConfig,
-  EntityConfig,
-  ListConfig,
+  type ComponentConfig,
+  type EntityConfig,
+  type ListConfig,
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { EXPLORE_MODE } from "@databiosphere/findable-ui/lib/hooks/useExploreMode/types";
 import { TABLE_OPTIONS } from "./tableOptions";

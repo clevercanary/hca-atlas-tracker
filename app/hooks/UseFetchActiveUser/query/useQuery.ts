@@ -1,13 +1,13 @@
-import { HCAAtlasTrackerActiveUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerActiveUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { queryFn } from "@/app/query/queryFn";
 import {
-  DefaultError,
-  UseQueryResult,
+  type DefaultError,
+  type UseQueryResult,
   useQuery as useReactQuery,
 } from "@tanstack/react-query";
 import { ACTIVE_USER } from "./constants";
-import { QueryKey } from "./types";
+import { type QueryKey } from "./types";
 
 /**
  * Fetches (and, on first login, upserts) the active user via React Query. The

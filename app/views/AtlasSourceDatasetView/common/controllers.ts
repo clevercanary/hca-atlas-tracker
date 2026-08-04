@@ -1,5 +1,5 @@
-import { HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { ControllerConfig } from "@/app/components/common/Form/components/Controllers/common/entities";
+import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type ControllerConfig } from "@/app/components/common/Form/components/Controllers/common/entities";
 import { Chip } from "@/app/components/Form/components/Input/inputComponent/Chip/chip";
 import {
   buildCAPIngestStatus,
@@ -7,7 +7,7 @@ import {
   buildValidationStatus,
 } from "@/app/views/ComponentAtlasView/common/viewBuilders";
 import { FIELD_NAME } from "./constants";
-import { ViewAtlasSourceDatasetData } from "./entities";
+import { type ViewAtlasSourceDatasetData } from "./entities";
 
 type ChipInputControllerConfig = ControllerConfig<
   ViewAtlasSourceDatasetData,

@@ -1,7 +1,7 @@
 import { BioNetworkCell } from "@/app/components/Table/components/TableCell/components/BioNetworkCell/bioNetworkCell";
 import { Stack } from "@mui/material";
-import { JSX } from "react";
-import { BioNetworksCellProps } from "./entities";
+import { type JSX } from "react";
+import { type BioNetworksCellProps } from "./entities";
 
 export const BioNetworksCell = ({
   networkKeys,

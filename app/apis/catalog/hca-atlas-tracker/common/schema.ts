@@ -3,11 +3,11 @@ import { escapeRegExp } from "@databiosphere/findable-ui/lib/common/utils";
 import {
   array,
   boolean,
-  InferType,
+  type InferType,
   mixed,
-  MixedSchema,
+  type MixedSchema,
   object,
-  Schema,
+  type Schema,
   string,
 } from "yup";
 import {

@@ -1,9 +1,9 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
-import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { METHOD, PathParameter } from "@/app/common/entities";
+import { type HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD, type PathParameter } from "@/app/common/entities";
 import { getRequestURL, getRouteURL } from "@/app/common/utils";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { ROUTE } from "@/app/routes/constants";
 import { PUBLICATION_STATUS } from "@/app/views/AddNewSourceStudyView/common/entities";
@@ -13,8 +13,8 @@ import {
   PUBLISHED_PREPRINT_FIELDS,
 } from "@/app/views/SourceStudyView/common/constants";
 import {
-  SourceStudyEditData,
-  SourceStudyEditDataKeys,
+  type SourceStudyEditData,
+  type SourceStudyEditDataKeys,
 } from "@/app/views/SourceStudyView/common/entities";
 import { useQueryClient } from "@tanstack/react-query";
 import Router from "next/router";

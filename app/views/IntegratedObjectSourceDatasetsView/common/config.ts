@@ -1,4 +1,4 @@
-import { SectionConfig } from "@/app/components/Entity/components/EntityView/components/Section/entities";
+import { type SectionConfig } from "@/app/components/Entity/components/EntityView/components/Section/entities";
 import { VIEW_INTEGRATED_OBJECT_SOURCE_DATASETS_TABLE } from "./configs";
 
 export const VIEW_INTEGRATED_OBJECT_SOURCE_DATASETS_SECTION_CONFIGS: SectionConfig[] =

@@ -1,7 +1,7 @@
-import { METHOD } from "@/app/common/entities";
+import { type METHOD } from "@/app/common/entities";
 import { fetchResource } from "@/app/common/utils";
 import { useCallback, useState } from "react";
-import { FormResponseErrors } from "./useForm/common/entities";
+import { type FormResponseErrors } from "./useForm/common/entities";
 
 interface UseAdminAction<T> {
   data: T | null;

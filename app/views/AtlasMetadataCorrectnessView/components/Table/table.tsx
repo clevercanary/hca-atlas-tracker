@@ -1,7 +1,7 @@
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { ToggleButtonGroup } from "./components/ToggleButtonGroup/toggleButtonGroup";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 import { useTable } from "./hooks/useTable/hook";
 import {
   StyledFluidPaper,

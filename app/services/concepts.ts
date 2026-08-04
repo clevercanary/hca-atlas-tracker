@@ -1,6 +1,6 @@
 import {
-  HCAAtlasTrackerDBAtlas,
-  HCAAtlasTrackerDBConcept,
+  type HCAAtlasTrackerDBAtlas,
+  type HCAAtlasTrackerDBConcept,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   createConcept,
@@ -15,7 +15,7 @@ import {
   NotFoundError,
 } from "@/app/utils/api-errors";
 import { getFileBaseName, getFileExtension } from "@/app/utils/files";
-import pg from "pg";
+import type pg from "pg";
 import { mapDatabaseError } from "./database";
 
 /**

@@ -1,5 +1,5 @@
 import { EntityContext } from "@/app/providers/entity/context";
-import { EntityContextProps } from "@/app/providers/entity/entities";
+import { type EntityContextProps } from "@/app/providers/entity/entities";
 import { useContext } from "react";
 
 /**

@@ -1,7 +1,7 @@
-import { Network } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type Network } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NetworkIcon } from "@/app/components/common/CustomIcon/components/NetworkIcon/networkIcon";
 import { Typography as MTypography } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { NetworkItem } from "./networkIconAndName.styles";
 
 interface NetworkIconAndNameProps {

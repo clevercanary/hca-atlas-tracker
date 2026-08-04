@@ -1,11 +1,11 @@
 import {
   Select,
-  SelectProps,
+  type SelectProps,
 } from "@/app/components/common/Form/components/Select/select";
 import { useEntity } from "@/app/providers/entity/hook";
 import { useFetchSourceStudies } from "@/app/views/SourceStudiesView/hooks/UseFetchSourceStudies/hook";
 import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, JSX, ReactNode, useMemo } from "react";
+import { forwardRef, type JSX, type ReactNode, useMemo } from "react";
 import {
   buildPublicationStringMap,
   getPublicationStringOptions,

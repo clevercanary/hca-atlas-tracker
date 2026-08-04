@@ -1,5 +1,5 @@
 import { getAtlasName } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { Tabs } from "@/app/components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { EntityView } from "@/app/components/Entity/components/EntityView/entityView";
 import { AtlasStatuses } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
@@ -10,7 +10,7 @@ import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { VIEW_ATLAS_SOURCE_DATASETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
 import { useFetchAtlasSourceDatasets } from "./hooks/UseFetchAtlasSourceDatasets/hook";

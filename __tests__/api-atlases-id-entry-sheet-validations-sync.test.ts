@@ -2,8 +2,8 @@ import { METHOD } from "@/app/common/entities";
 import { endPgPool } from "@/app/services/database";
 import { startAtlasEntrySheetValidationsUpdate } from "@/app/services/entry-sheets";
 import {
-  EntrySheetValidationErrorInfo,
-  EntrySheetValidationSummary,
+  type EntrySheetValidationErrorInfo,
+  type EntrySheetValidationSummary,
 } from "@/app/utils/hca-validation-tools/hca-validation-tools";
 import syncHandler from "@/pages/api/atlases/[atlasId]/entry-sheet-validations/sync";
 import {
@@ -32,14 +32,14 @@ import {
   getEntrySheetValidationFromDatabase,
   resetDatabase,
 } from "@/testing/db-utils";
-import { TestUser } from "@/testing/entities";
+import { type TestUser } from "@/testing/entities";
 import {
   expectIsDefined,
   expectIsInstanceOf,
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 import { ValidationError } from "yup";
 

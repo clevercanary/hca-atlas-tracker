@@ -1,4 +1,4 @@
-import { SelectProps } from "@mui/material";
+import { type SelectProps } from "@mui/material";
 
 export const SELECT_PROPS: SelectProps = {
   MenuProps: {

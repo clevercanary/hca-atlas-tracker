@@ -1,7 +1,7 @@
 import { Summary as BaseSummary } from "@/app/components/Entity/components/EntityView/components/Summary/summary";
 import { useEntity } from "@/app/providers/entity/hook";
-import { EntityData } from "@/app/views/AtlasMetadataEntrySheetValidationView/entities";
-import { JSX } from "react";
+import { type EntityData } from "@/app/views/AtlasMetadataEntrySheetValidationView/entities";
+import { type JSX } from "react";
 import { SUMMARY_KEY_VALUES } from "./constants";
 import { buildSummaryValues } from "./utils";
 

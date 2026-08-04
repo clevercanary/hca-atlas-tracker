@@ -1,4 +1,4 @@
-import pg from "pg";
+import type pg from "pg";
 
 export function getPoolConfig(): pg.PoolConfig {
   if (process.env.APP_ENV === "aws-dev" || process.env.APP_ENV === "aws-prod") {

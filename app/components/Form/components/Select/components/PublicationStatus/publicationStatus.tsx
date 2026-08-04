@@ -1,10 +1,10 @@
 import { PUBLICATION_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   Select,
-  SelectProps,
+  type SelectProps,
 } from "@/app/components/common/Form/components/Select/select";
 import { MenuItem as MMenuItem } from "@mui/material";
-import { forwardRef, JSX, ReactNode } from "react";
+import { forwardRef, type JSX, type ReactNode } from "react";
 
 export const PublicationStatus = forwardRef<HTMLInputElement, SelectProps>(
   function PublicationStatus(

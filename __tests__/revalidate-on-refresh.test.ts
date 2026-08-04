@@ -1,5 +1,5 @@
-import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
-import { CellxGeneCollection } from "@/app/utils/cellxgene-api";
+import { type ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { type CellxGeneCollection } from "@/app/utils/cellxgene-api";
 import {
   HCA_CATALOG_TEST1,
   HCA_CATALOG_TEST2,

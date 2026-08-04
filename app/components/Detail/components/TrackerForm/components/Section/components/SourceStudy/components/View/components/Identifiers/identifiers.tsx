@@ -1,4 +1,4 @@
-import { HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { Input } from "@/app/components/common/Form/components/Input/input";
 import { TypographyNoWrap } from "@/app/components/common/Typography/components/TypographyNoWrap/typographyNoWrap";
 import { DEFAULT_INPUT_PROPS } from "@/app/components/Detail/components/TrackerForm/components/Section/components/SourceStudy/common/constants";
@@ -8,13 +8,13 @@ import {
   SectionHero,
   SectionTitle,
 } from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { PUBLICATION_STATUS } from "@/app/views/AddNewSourceStudyView/common/entities";
 import { FIELD_NAME } from "@/app/views/SourceStudyView/common/constants";
-import { SourceStudyEditData } from "@/app/views/SourceStudyView/common/entities";
+import { type SourceStudyEditData } from "@/app/views/SourceStudyView/common/entities";
 import { Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { Controller } from "react-hook-form";
 
 export interface IdentifiersProps {

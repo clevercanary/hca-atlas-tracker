@@ -1,12 +1,12 @@
 import { Divider } from "@/app/components/Detail/components/TrackerForm/components/Divider/divider.styles";
 import { TrackerFormSection as Section } from "@/app/components/Detail/components/TrackerForm/components/Section/components/TrackerFormSection/trackerFormSection";
 import { TrackerForm } from "@/app/components/Detail/components/TrackerForm/trackerForm";
-import { SectionConfig } from "@/app/components/Forms/common/entities";
+import { type SectionConfig } from "@/app/components/Forms/common/entities";
 import { FormManager } from "@/app/components/common/Form/components/FormManager/formManager";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
-import { FormManager as FormManagerProps } from "@/app/hooks/useFormManager/common/entities";
-import { ElementType, Fragment, JSX } from "react";
-import { FieldValues } from "react-hook-form";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type FormManager as FormManagerProps } from "@/app/hooks/useFormManager/common/entities";
+import { type ElementType, Fragment, type JSX } from "react";
+import { type FieldValues } from "react-hook-form";
 
 interface EntityFormProps<
   T extends FieldValues,

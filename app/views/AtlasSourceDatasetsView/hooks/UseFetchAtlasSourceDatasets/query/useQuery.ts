@@ -1,13 +1,13 @@
 import {
-  AtlasId,
-  HCAAtlasTrackerLocalListSourceDataset,
+  type AtlasId,
+  type HCAAtlasTrackerLocalListSourceDataset,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getCapIngestStatus } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { useAuthedQuery } from "@/app/query/useAuthedQuery";
-import { AtlasSourceDataset } from "@/app/views/AtlasSourceDatasetsView/entities";
-import { DefaultError, UseQueryResult } from "@tanstack/react-query";
+import { type AtlasSourceDataset } from "@/app/views/AtlasSourceDatasetsView/entities";
+import { type DefaultError, type UseQueryResult } from "@tanstack/react-query";
 import { SOURCE_DATASETS } from "./constants";
-import { QueryKey } from "./types";
+import { type QueryKey } from "./types";
 
 /**
  * Fetches the atlas's source datasets (for the given archived state) via React

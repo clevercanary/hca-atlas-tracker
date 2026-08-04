@@ -1,4 +1,4 @@
-import { ValidationErrorInfo } from "@/app/views/AtlasMetadataEntrySheetValidationView/components/ValidationReport/entities";
+import { type ValidationErrorInfo } from "@/app/views/AtlasMetadataEntrySheetValidationView/components/ValidationReport/entities";
 
 /**
  * Returns the total number of validation reports for an entity.

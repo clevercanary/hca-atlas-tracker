@@ -1,7 +1,7 @@
 import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import styled from "@emotion/styled";
 import { Stack } from "@mui/material";
-import { StyledStackProps } from "./types";
+import { type StyledStackProps } from "./types";
 
 // A highlighted row paints an alert background with breathing room on all sides.
 // The padding is cancelled by an equal negative margin (and a widened box so the

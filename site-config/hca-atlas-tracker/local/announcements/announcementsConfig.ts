@@ -1,7 +1,7 @@
 import * as C from "@/app/components";
 import {
-  ComponentConfig,
-  ComponentsConfig,
+  type ComponentConfig,
+  type ComponentsConfig,
 } from "@databiosphere/findable-ui/lib/config/entities";
 
 export const announcementsConfig: ComponentsConfig = [

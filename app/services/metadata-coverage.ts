@@ -1,19 +1,19 @@
 import { METADATA_COVERAGE_REPORT_CLASSES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
-  AtlasMetadataCoverage,
-  AtlasMetadataCoverageClass,
+  type AtlasMetadataCoverage,
+  type AtlasMetadataCoverageClass,
   FILE_TYPE,
-  FileMetadataCoverage,
-  HCAAtlasTrackerDBAtlasForMetadataCoverage,
-  MetadataCoverageReportClass,
-  MetadataCoverageReportTier,
+  type FileMetadataCoverage,
+  type HCAAtlasTrackerDBAtlasForMetadataCoverage,
+  type MetadataCoverageReportClass,
+  type MetadataCoverageReportTier,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getAtlasComponentAtlasMetadataCoverage,
   getAtlasSourceDatasetMetadataCoverage,
 } from "@/app/data/metadata-coverage";
 import { getDataDictionaryClass } from "@/app/utils/data-dictionary";
-import pg from "pg";
+import type pg from "pg";
 
 type FieldCatalog = Record<MetadataCoverageReportClass, Set<string>>;
 

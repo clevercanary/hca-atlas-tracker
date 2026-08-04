@@ -1,7 +1,7 @@
 import {
   getSortedRowModel,
-  RowData,
-  SortingOptions,
+  type RowData,
+  type SortingOptions,
 } from "@tanstack/react-table";
 
 export const SORTING_OPTIONS: Pick<

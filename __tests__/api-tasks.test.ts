@@ -1,5 +1,5 @@
-import { ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
-import { HCAAtlasTrackerValidationRecord } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type ProjectsResponse } from "@/app/apis/azul/hca-dcp/common/responses";
+import { type HCAAtlasTrackerValidationRecord } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool } from "@/app/services/database";
 import tasksHandler from "@/pages/api/tasks";
@@ -17,9 +17,9 @@ import {
   USER_UNREGISTERED,
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
-import { TestSourceStudy, TestUser } from "@/testing/entities";
+import { type TestSourceStudy, type TestUser } from "@/testing/entities";
 import { testApiRole, withConsoleErrorHiding } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

@@ -1,11 +1,11 @@
 import {
-  HCAAtlasTrackerDBComponentAtlas,
-  HCAAtlasTrackerLocalListSourceDataset,
-  HCAAtlasTrackerSourceDataset,
+  type HCAAtlasTrackerDBComponentAtlas,
+  type HCAAtlasTrackerLocalListSourceDataset,
+  type HCAAtlasTrackerSourceDataset,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  ComponentAtlasAddSourceDatasetsData,
-  ComponentAtlasDeleteSourceDatasetsData,
+  type ComponentAtlasAddSourceDatasetsData,
+  type ComponentAtlasDeleteSourceDatasetsData,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool, query } from "@/app/services/database";
@@ -62,7 +62,7 @@ import {
   resetDatabase,
   setComponentAtlasDatasets,
 } from "@/testing/db-utils";
-import { TestComponentAtlas, TestUser } from "@/testing/entities";
+import { type TestComponentAtlas, type TestUser } from "@/testing/entities";
 import {
   assertExpectDefined,
   expectApiSourceDatasetsToHaveComponentAtlases,
@@ -71,7 +71,7 @@ import {
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
 jest.mock(

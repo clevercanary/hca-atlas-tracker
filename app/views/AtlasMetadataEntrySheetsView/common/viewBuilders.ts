@@ -3,11 +3,11 @@ import { withBackOrigin } from "@/app/components/Layout/components/Detail/compon
 import { getPartialCellContext } from "@/app/components/Table/components/utils";
 import { ROUTE } from "@/app/routes/constants";
 import { buildSheetsUrl } from "@/app/utils/google-sheets";
-import { ValidationSummaryCellProps } from "@/app/views/AtlasMetadataEntrySheetsView/components/Table/components/TableCell/components/ValidationSummaryCell/types";
-import { MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
-import { KeyValuePairsProps } from "@databiosphere/findable-ui/lib/components/common/KeyValuePairs/keyValuePairs";
-import { LinkProps } from "@mui/material";
-import { CellContext } from "@tanstack/react-table";
+import { type ValidationSummaryCellProps } from "@/app/views/AtlasMetadataEntrySheetsView/components/Table/components/TableCell/components/ValidationSummaryCell/types";
+import { type MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
+import { type KeyValuePairsProps } from "@databiosphere/findable-ui/lib/components/common/KeyValuePairs/keyValuePairs";
+import { type LinkProps } from "@mui/material";
+import { type CellContext } from "@tanstack/react-table";
 import { formatDistanceToNowStrict } from "date-fns";
 
 /**

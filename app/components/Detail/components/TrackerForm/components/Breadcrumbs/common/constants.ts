@@ -1,4 +1,4 @@
-import { Breadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
+import { type Breadcrumb } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { ROUTE } from "@/app/routes/constants";
 
 export const BREADCRUMB_ATLAS: Breadcrumb = {

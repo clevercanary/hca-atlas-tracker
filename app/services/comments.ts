@@ -1,17 +1,17 @@
 import {
-  HCAAtlasTrackerDBComment,
-  HCAAtlasTrackerDBUser,
+  type HCAAtlasTrackerDBComment,
+  type HCAAtlasTrackerDBUser,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
-  NewCommentData,
-  NewCommentThreadData,
+  type NewCommentData,
+  type NewCommentThreadData,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import {
   ForbiddenError,
   InvalidOperationError,
   NotFoundError,
 } from "@/app/utils/api-errors";
-import pg from "pg";
+import type pg from "pg";
 import { query } from "./database";
 
 /**

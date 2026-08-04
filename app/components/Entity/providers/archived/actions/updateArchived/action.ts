@@ -1,5 +1,5 @@
-import { ArchivedState } from "@/app/components/Entity/providers/archived/entities";
-import { UpdateArchivedPayload } from "./entities";
+import { type ArchivedState } from "@/app/components/Entity/providers/archived/entities";
+import { type UpdateArchivedPayload } from "./entities";
 
 /**
  * Reducer function to handle the "update archived" action.

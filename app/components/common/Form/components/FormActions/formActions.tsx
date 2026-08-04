@@ -1,7 +1,7 @@
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { Actions } from "./formActions.styles";
 
 export interface FormActionsProps {

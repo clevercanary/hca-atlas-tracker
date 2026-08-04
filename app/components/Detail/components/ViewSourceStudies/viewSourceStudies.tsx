@@ -1,8 +1,8 @@
-import { PathParameter } from "@/app/common/entities";
+import { type PathParameter } from "@/app/common/entities";
 import { getRouteURL } from "@/app/common/utils";
 import { StyledFluidPaper } from "@/app/components/Table/components/TablePaper/tablePaper.styles";
 import { StyledToolbar } from "@/app/components/Table/components/TableToolbar/tableToolbar.styles";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { ROUTE } from "@/app/routes/constants";
 import { Table } from "@/app/views/SourceStudiesView/components/Table/table";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
@@ -10,7 +10,7 @@ import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/Custom
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { Button, Divider } from "@mui/material";
 import Link from "next/link";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { Alert } from "./components/Alert/alert";
 import { SubGrid } from "./viewAtlasSourceStudies.styles";
 

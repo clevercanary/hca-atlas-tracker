@@ -1,5 +1,5 @@
-import { Grid, GridProps } from "@mui/material";
-import { JSX } from "react";
+import { Grid, type GridProps } from "@mui/material";
+import { type JSX } from "react";
 
 export const KeyValuesElType = ({
   ...props /* MuiGridProps */

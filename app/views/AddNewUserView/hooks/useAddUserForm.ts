@@ -1,11 +1,11 @@
 import {
-  HCAAtlasTrackerUser,
+  type HCAAtlasTrackerUser,
   ROLE,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { NewUserData as ApiNewUserData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
-import { FormMethod } from "@/app/hooks/useForm/common/entities";
+import { type NewUserData as ApiNewUserData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
+import { type FormMethod } from "@/app/hooks/useForm/common/entities";
 import { useForm } from "@/app/hooks/useForm/useForm";
-import { NewUserData } from "@/app/views/AddNewUserView/common/entities";
+import { type NewUserData } from "@/app/views/AddNewUserView/common/entities";
 import { newUserSchema } from "@/app/views/AddNewUserView/common/schema";
 
 const SCHEMA = newUserSchema;

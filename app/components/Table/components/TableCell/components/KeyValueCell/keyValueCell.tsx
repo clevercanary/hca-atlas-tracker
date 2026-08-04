@@ -1,10 +1,10 @@
 import {
   KeyValuePairs,
-  KeyValuePairsProps,
+  type KeyValuePairsProps,
 } from "@databiosphere/findable-ui/lib/components/common/KeyValuePairs/keyValuePairs";
-import { BaseComponentProps } from "@databiosphere/findable-ui/lib/components/types";
-import { CellContext, RowData } from "@tanstack/react-table";
-import { JSX } from "react";
+import { type BaseComponentProps } from "@databiosphere/findable-ui/lib/components/types";
+import { type CellContext, type RowData } from "@tanstack/react-table";
+import { type JSX } from "react";
 import { KeyElType } from "./components/KeyElType/keyElType";
 import { KeyValueElType } from "./components/KeyValueElType/keyValueElType";
 import { KeyValuesElType } from "./components/KeyValuesElType/keyValuesElType";

@@ -1,10 +1,10 @@
 import { updateArchived } from "@/app/components/Entity/providers/archived/actions/updateArchived/dispatch";
 import { useArchivedState } from "@/app/components/Entity/providers/archived/hook";
 import { ToggleButton } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { StyledToggleButtonGroup } from "./archiveStatusToggle.styles";
 import { OPTIONS } from "./constants";
-import { Props } from "./entities";
+import { type Props } from "./entities";
 
 export const ArchivedStatusToggle = (props: Props): JSX.Element | null => {
   const { archivedDispatch, archivedState } = useArchivedState();

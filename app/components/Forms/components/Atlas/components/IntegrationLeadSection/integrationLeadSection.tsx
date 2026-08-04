@@ -3,15 +3,15 @@ import { AddItemButton } from "@/app/components/Detail/components/TrackerForm/co
 import { DeleteItemButton } from "@/app/components/Detail/components/TrackerForm/components/Section/components/ListSection/components/DeleteItemButton/deleteItemButton";
 import { ListSection } from "@/app/components/Detail/components/TrackerForm/components/Section/components/ListSection/listSection";
 import {
-  FormMethod,
-  YupValidatedFormValues,
+  type FormMethod,
+  type YupValidatedFormValues,
 } from "@/app/hooks/useForm/common/entities";
-import { FormManager } from "@/app/hooks/useFormManager/common/entities";
-import { Fragment, JSX } from "react";
+import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
+import { Fragment, type JSX } from "react";
 import {
-  FieldArrayPath,
-  FieldPath,
-  FieldValues,
+  type FieldArrayPath,
+  type FieldPath,
+  type FieldValues,
   useFieldArray,
 } from "react-hook-form";
 

@@ -1,5 +1,5 @@
 import { SectionCard } from "@/app/components/Detail/components/TrackerForm/components/Section/section.styles";
-import { JSX, ReactNode } from "react";
+import { type JSX, type ReactNode } from "react";
 
 interface ListSectionProps {
   children: ReactNode;

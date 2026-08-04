@@ -8,7 +8,7 @@ import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceho
 import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { useEntity } from "@/app/providers/entity/hook";
 import { INTEGRATED_OBJECTS } from "@/app/views/ComponentAtlasesView/hooks/UseFetchComponentAtlases/query/constants";
-import { Fragment, JSX } from "react";
+import { Fragment, type JSX } from "react";
 import { useIntegratedObjectsTable } from "./hooks/UseIntegratedObjectsTable/hook";
 import { StyledToolbar } from "./viewComponentAtlases.styles";
 

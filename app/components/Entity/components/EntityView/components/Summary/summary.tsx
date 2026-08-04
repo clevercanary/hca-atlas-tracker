@@ -3,9 +3,9 @@ import { SuccessIcon } from "@databiosphere/findable-ui/lib/components/common/Cu
 import { RoundedPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/RoundedPaper/roundedPaper";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Typography } from "@mui/material";
-import { JSX } from "react";
+import { type JSX } from "react";
 import { SVG_ICON_PROPS } from "./constants";
-import { SummaryProps } from "./entities";
+import { type SummaryProps } from "./entities";
 import { StyledGrid, StyledTypography } from "./summary.styles";
 
 export const Summary = ({

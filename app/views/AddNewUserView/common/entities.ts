@@ -1,4 +1,4 @@
-import { InferType } from "yup";
-import { newUserSchema } from "./schema";
+import { type InferType } from "yup";
+import { type newUserSchema } from "./schema";
 
 export type NewUserData = InferType<typeof newUserSchema>;
