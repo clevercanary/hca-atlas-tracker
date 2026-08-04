@@ -10,6 +10,7 @@ import {
   getProvidedUserProfile,
   handler,
   method,
+  setRequestActiveUser,
 } from "@/app/utils/api-handler";
 
 export default handler(method(METHOD.PUT), async (req, res) => {
@@ -24,6 +25,9 @@ export default handler(method(METHOD.PUT), async (req, res) => {
       role: ROLE.STAKEHOLDER,
       roleAssociatedResourceIds: [],
     });
+    // `getActiveUser` caches its result for the request, so replace the cached
+    // null with the newly-created user.
+    setRequestActiveUser(req, user);
   }
   await updateLastLogin(user.id);
   const activeUserInfo: HCAAtlasTrackerActiveUser = {
