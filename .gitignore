@@ -38,8 +38,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# editors
-/.vscode
+# editors (shared VS Code settings are tracked; everything else stays local)
+/.vscode/*
+!/.vscode/settings.json
 .idea
 
 # hygen
