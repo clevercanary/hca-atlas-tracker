@@ -15,9 +15,9 @@ import {
   USER_INTEGRATION_LEAD_DRAFT,
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
-import { TestUser } from "@/testing/entities";
+import type { TestUser } from "@/testing/entities";
 import { withConsoleErrorHiding } from "@/testing/utils";
-import { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import httpMocks from "node-mocks-http";
 
