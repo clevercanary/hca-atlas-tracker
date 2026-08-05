@@ -22,10 +22,12 @@ export const useDeleteSourceStudy = (
     {
       onSuccess: () => {
         const { atlasId, sourceStudyId } = pathParameter;
-        // Drop the deleted study's own detail query from the cache. Use
-        // removeQueries, not invalidateQueries: the detail page is still mounted
-        // here, so invalidating would refetch the just-deleted study and 404 —
-        // removeQueries just evicts it without a refetch.
+        // Drop the deleted study's own detail query from the cache.
+        // removeQueries, not invalidateQueries: invalidateQueries would refetch
+        // the active detail observer (the detail page is still mounted here) and
+        // 404 on the deleted study. removeQueries doesn't proactively refetch,
+        // and the redirect below unmounts the detail observer immediately
+        // regardless.
         queryClient.removeQueries({
           queryKey: [SOURCE_STUDY, atlasId, sourceStudyId],
         });
