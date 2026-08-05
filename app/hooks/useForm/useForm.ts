@@ -5,7 +5,7 @@ import {
   isFetchStatusOk,
 } from "@/app/common/utils";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import {
   type FieldValues,
   type Path,
@@ -52,21 +52,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
     values,
     ...options,
   });
-  const [data, setData] = useState<R | undefined>();
-  const [prevApiData, setPrevApiData] = useState<R | undefined>();
   const { reset, setError } = formMethod;
-
-  // Re-initialize data when the API response (apiData) changes — mirrors the
-  // previous effect keyed on [apiData]: track every reference change (compared
-  // with Object.is, matching React's dependency semantics) but only overwrite
-  // data when apiData is truthy. apiData must be referentially stable across
-  // renders (it is — React Query preserves the reference via structural
-  // sharing); a caller passing a freshly-built apiData each render would loop
-  // here, just as the prior [apiData] effect would have.
-  if (!Object.is(prevApiData, apiData)) {
-    setPrevApiData(apiData);
-    if (apiData) setData(apiData);
-  }
 
   const onError = useCallback(
     (errors: FormResponseErrors) => {
@@ -112,14 +98,19 @@ export const useForm = <T extends FieldValues, R = undefined>(
       const apiPayload = mapApiValues ? mapApiValues(payload) : payload;
       const res = await fetchResource(requestURL, requestMethod, apiPayload);
       if (isFetchStatusCreated(res.status) || isFetchStatusOk(res.status)) {
+        // Only the JSON parse is fallible here. Keep onSuccess/onReset OUTSIDE
+        // the try: if one of them throws (e.g. Router.push), the old structure
+        // caught it and re-ran onSuccess(undefined), a double-call that in the
+        // setQueryData managers would overwrite the cache with undefined.
+        let response: R;
         try {
-          const response = await res.json();
-          setData(response);
-          options?.onSuccess?.(response);
-          options?.onReset?.(schema.cast(mapSchemaValues?.(response)));
+          response = await res.json();
         } catch {
           options?.onSuccess?.(undefined as R);
+          return;
         }
+        options?.onSuccess?.(response);
+        options?.onReset?.(schema.cast(mapSchemaValues?.(response)));
       } else {
         onError(await getFormResponseErrors(res));
       }
@@ -129,7 +120,12 @@ export const useForm = <T extends FieldValues, R = undefined>(
 
   return {
     ...formMethod,
-    data,
+    // The entity the view renders comes straight from React Query (apiData).
+    // Edit saves write the response back to the cache in each form-manager's
+    // onSuccess (setQueryData, or invalidateQueries where the save response
+    // shape differs from the detail query), so apiData reflects the save
+    // without a local mirror.
+    data: apiData,
     onDelete,
     onSubmit,
   };

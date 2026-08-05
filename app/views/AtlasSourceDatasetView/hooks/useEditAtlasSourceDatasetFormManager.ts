@@ -45,6 +45,12 @@ export const useEditAtlasSourceDatasetFormManager = (
         {
           onReset: reset,
           onSuccess: () => {
+            // Invalidate rather than setQueryData (the pattern the other edit
+            // managers use): the PATCH returns the base source-dataset shape,
+            // but the detail query holds the detail shape (base +
+            // validationReports), so caching the response would drop
+            // validationReports from the view. Invalidating refetches the full
+            // detail shape instead. See #1502.
             queryClient.invalidateQueries({
               queryKey: [
                 SOURCE_DATASET,

@@ -42,16 +42,18 @@ export const useEditIntegratedObjectFormManager = (
         mapPayload(payload),
         {
           onReset: reset,
-          onSuccess: () => {
-            // Always invalidate so returning to the detail shows fresh data;
-            // navigate away only when an onward URL is provided.
-            queryClient.invalidateQueries({
-              queryKey: [
+          onSuccess: (data) => {
+            // The PATCH returns the same detail shape as the detail query, so
+            // write the response back into the cache (no refetch round-trip);
+            // this refreshes the detail whether we stay or navigate away.
+            queryClient.setQueryData(
+              [
                 INTEGRATED_OBJECT,
                 pathParameter.atlasId,
                 pathParameter.componentAtlasId,
               ],
-            });
+              data,
+            );
             if (url) Router.push(url);
           },
         },
