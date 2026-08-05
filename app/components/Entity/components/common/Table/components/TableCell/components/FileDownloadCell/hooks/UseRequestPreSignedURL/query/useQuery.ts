@@ -31,6 +31,12 @@ export const useQuery = (
     enabled: open && Boolean(atlasId) && Boolean(fileId),
     method: METHOD.POST,
     queryKey: [PRESIGNED_URL, atlasId, fileId],
+    // A presigned URL stays valid for ~48h, so there's no need to refetch it on
+    // network reconnect while the dialog is open — doing so would flip
+    // `isFetching` true and momentarily hide the already-valid URL (the Dialog
+    // gates display on `!isFetching`). The only intended refetch is on reopen,
+    // which the `enabled` transition drives with `staleTime: 0` below.
+    refetchOnReconnect: false,
     requestUrl,
     // A presigned URL is generated per request, so refetch each time the dialog
     // opens rather than serving a stale one.

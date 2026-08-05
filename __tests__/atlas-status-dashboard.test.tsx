@@ -1,5 +1,4 @@
 import { type AtlasStatusSummary } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { mergeAppTheme } from "@/app/theme/theme";
 import { StatusDashboard } from "@/app/views/AtlasStatusView/components/StatusDashboard/statusDashboard";
 import {
   BADGE_VARIANT,
@@ -14,19 +13,11 @@ import {
   getValidationStatus,
   getWarningStatus,
 } from "@/app/views/AtlasStatusView/components/StatusDashboard/utils";
-import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
+import { TEST_THEME } from "@/testing/theme";
 import { ThemeProvider } from "@mui/material";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import { type JSX, type ReactNode } from "react";
-
-// Theme must include the app-only "caution" palette because mergeAppTheme's
-// MuiChip override reads theme.palette.caution when the theme is built.
-const THEME = mergeAppTheme(
-  createAppTheme({
-    palette: { caution: { light: "#FFEB78", main: "#956F00" } },
-  }),
-);
 
 // A populated summary exercising every badge/row branch: unpublished studies,
 // an unspecified-datasets remainder, CAP funnels with published subsets, and
@@ -85,7 +76,7 @@ const ZERO_SUMMARY: AtlasStatusSummary = {
 };
 
 function Wrapper({ children }: { children: ReactNode }): JSX.Element {
-  return <ThemeProvider theme={THEME}>{children}</ThemeProvider>;
+  return <ThemeProvider theme={TEST_THEME}>{children}</ThemeProvider>;
 }
 
 describe("StatusDashboard", () => {

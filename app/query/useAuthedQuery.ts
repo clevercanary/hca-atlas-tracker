@@ -12,6 +12,7 @@ export interface AuthedQueryOptions<TData, TView, TQueryKey extends QueryKey> {
   enabled?: boolean;
   method?: METHOD;
   queryKey: TQueryKey;
+  refetchOnReconnect?: boolean;
   requestUrl: string;
   select?: (data: TData) => TView;
   staleTime?: number;
@@ -29,6 +30,7 @@ export interface AuthedQueryOptions<TData, TView, TQueryKey extends QueryKey> {
  * @param options.enabled - Extra enablement gate ANDed with authentication (default true).
  * @param options.method - HTTP method (default GET).
  * @param options.queryKey - Query key.
+ * @param options.refetchOnReconnect - Optional refetch-on-reconnect override (defaults to the query client default).
  * @param options.requestUrl - Request URL.
  * @param options.select - Optional selector mapping the response to the view shape.
  * @param options.staleTime - Optional staleTime override (defaults to the query client default).
@@ -42,6 +44,7 @@ export const useAuthedQuery = <
   enabled = true,
   method = METHOD.GET,
   queryKey,
+  refetchOnReconnect,
   requestUrl,
   select,
   staleTime,
@@ -57,6 +60,7 @@ export const useAuthedQuery = <
     enabled: isAuthenticated && enabled,
     queryFn: queryFn<TData, TQueryKey>(requestUrl, method),
     queryKey,
+    refetchOnReconnect,
     select,
     staleTime,
     // Gate throwOnError on auth (not just `enabled`): `enabled: false` stops
