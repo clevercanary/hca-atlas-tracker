@@ -18,8 +18,13 @@ export const Dialog = ({
   open,
   sizeBytes = 0,
 }: Props): JSX.Element => {
-  const { data } = useRequestPreSignedURL({ fileId, open });
-  const { filename: downloadFileName, url } = data ?? {};
+  const { data, isFetching } = useRequestPreSignedURL({ fileId, open });
+  const { filename: downloadFileName } = data ?? {};
+  // Gate the presigned URL on the fetch completing. On dialog reopen React Query
+  // refetches (staleTime: 0) while the previous data.url is still populated, so
+  // without this the Download button would briefly point at the prior URL. A
+  // brief loading state is preferable for a security-sensitive, expiring URL.
+  const url = isFetching ? undefined : data?.url;
   return (
     <StyledDialog {...DIALOG_PROPS} onClose={onClose} open={open}>
       <DialogTitle onClose={onClose} title="Download from HCA Atlas Tracker" />
