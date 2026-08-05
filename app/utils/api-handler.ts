@@ -28,6 +28,23 @@ interface UserProfile {
   picture: string;
 }
 
+/**
+ * Per-request cache of the requesting user's session profile and database row.
+ * Promises rather than resolved values are stored, so concurrent callers share
+ * a single in-flight lookup and a rejection is re-thrown identically for every
+ * caller in the request.
+ */
+interface RequestUserCache {
+  profile?: Promise<UserProfile | null>;
+  user?: Promise<HCAAtlasTrackerDBUser | null>;
+}
+
+// Keyed on the request object so the cache is inherently request-scoped and
+// disappears with the request, and so middleware functions, `handleByMethod`'s
+// separately-composed handler chains, and route bodies all share one entry
+// without threading a context object through `MiddlewareFunction`.
+const requestUserCaches = new WeakMap<NextApiRequest, RequestUserCache>();
+
 export type MiddlewareFunction = (
   req: NextApiRequest,
   res: NextApiResponse,
@@ -317,14 +334,53 @@ async function confirmUserAccountIsValid(
   if (user.disabled) throw new ForbiddenError();
 }
 
-export async function getActiveUserRole(
+/**
+ * Get the database row of the user making the request, if the user is registered, querying at most once per request.
+ * @param req - Next API request.
+ * @param res - Next API response.
+ * @returns user row, or null if the request wasn't made by a registered user.
+ */
+export async function getActiveUser(
   req: NextApiRequest,
   res: NextApiResponse,
-): Promise<ROLE> {
-  return (await getActiveUser(req, res))?.role ?? ROLE.UNREGISTERED;
+): Promise<HCAAtlasTrackerDBUser | null> {
+  const cache = getRequestUserCache(req);
+  if (!cache.user) cache.user = loadActiveUser(req, res);
+  return cache.user;
 }
 
-export async function getActiveUser(
+/**
+ * Set the cached user row for a request, for use when the user is created part-way through handling it.
+ * @param req - Next API request.
+ * @param user - User row to cache.
+ */
+export function setRequestActiveUser(
+  req: NextApiRequest,
+  user: HCAAtlasTrackerDBUser,
+): void {
+  getRequestUserCache(req).user = Promise.resolve(user);
+}
+
+/**
+ * Get the per-request cache of user info for the given request, creating it if it doesn't exist yet.
+ * @param req - Next API request.
+ * @returns cache of user info for the request.
+ */
+function getRequestUserCache(req: NextApiRequest): RequestUserCache {
+  const existingCache = requestUserCaches.get(req);
+  if (existingCache) return existingCache;
+  const cache: RequestUserCache = {};
+  requestUserCaches.set(req, cache);
+  return cache;
+}
+
+/**
+ * Query the database for the account details of the user making the request, if the user is registered.
+ * @param req - Next API request.
+ * @param res - Next API response.
+ * @returns user row, or null if the request wasn't made by a registered user.
+ */
+async function loadActiveUser(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<HCAAtlasTrackerDBUser | null> {
@@ -390,7 +446,28 @@ function respondError(res: NextApiResponse, error: unknown): void {
   res.status(status).json(errorInfo);
 }
 
+/**
+ * Get the profile of the user making the request, as provided by authentication, reading the session at most once per request.
+ * @param req - Next API request.
+ * @param res - Next API response.
+ * @returns user profile, or null if the request was made without authentication.
+ */
 export async function getProvidedUserProfile(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<UserProfile | null> {
+  const cache = getRequestUserCache(req);
+  if (!cache.profile) cache.profile = loadProvidedUserProfile(req, res);
+  return cache.profile;
+}
+
+/**
+ * Read the profile of the user making the request from the authentication session.
+ * @param req - Next API request.
+ * @param res - Next API response.
+ * @returns user profile, or null if the request was made without authentication.
+ */
+async function loadProvidedUserProfile(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<UserProfile | null> {
