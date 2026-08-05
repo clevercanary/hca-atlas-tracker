@@ -73,17 +73,13 @@ const config = [
               message:
                 "Reach outside this directory via the '@/' alias; relative imports are for ./ same-dir and descendants only.",
             },
-            {
-              // Bare repo-root imports resolve via `baseUrl: "."` (e.g.
-              // `app/foo`), which is a second specifier for the same module —
-              // defeating the one-string/one-grep goal above. Require the `@/`
-              // alias for every repo-root segment. Keep this list in sync with
-              // the repo's top-level source directories.
-              message:
-                "Import repo-root modules via the '@/' alias (e.g. '@/app/...'), not a bare baseUrl path.",
-              regex:
-                "^(@types|__mocks__|__tests__|app|catalog|db_scripts|migrations|pages|scripts|site-config|testing|types)/",
-            },
+            // Bare repo-root imports (e.g. `app/foo`) need no lint rule: with no
+            // `baseUrl` in tsconfig they fail typecheck (TS2307), which CI and
+            // the pre-commit hook enforce. (jest's SWC transform still resolves a
+            // static bare import via Next's implicit baseUrl, so jest is not a
+            // backstop; the trimmed `moduleDirectories` only closes runtime
+            // `require`/`jest.mock` paths.) Only the `@/` alias reaches repo-root
+            // modules.
           ],
         },
       ],
