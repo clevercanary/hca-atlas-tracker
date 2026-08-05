@@ -5,7 +5,7 @@ import {
   isFetchStatusOk,
 } from "@/app/common/utils";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import {
   type FieldValues,
   type Path,
@@ -52,21 +52,7 @@ export const useForm = <T extends FieldValues, R = undefined>(
     values,
     ...options,
   });
-  const [data, setData] = useState<R | undefined>();
-  const [prevApiData, setPrevApiData] = useState<R | undefined>();
   const { reset, setError } = formMethod;
-
-  // Re-initialize data when the API response (apiData) changes — mirrors the
-  // previous effect keyed on [apiData]: track every reference change (compared
-  // with Object.is, matching React's dependency semantics) but only overwrite
-  // data when apiData is truthy. apiData must be referentially stable across
-  // renders (it is — React Query preserves the reference via structural
-  // sharing); a caller passing a freshly-built apiData each render would loop
-  // here, just as the prior [apiData] effect would have.
-  if (!Object.is(prevApiData, apiData)) {
-    setPrevApiData(apiData);
-    if (apiData) setData(apiData);
-  }
 
   const onError = useCallback(
     (errors: FormResponseErrors) => {
@@ -112,14 +98,29 @@ export const useForm = <T extends FieldValues, R = undefined>(
       const apiPayload = mapApiValues ? mapApiValues(payload) : payload;
       const res = await fetchResource(requestURL, requestMethod, apiPayload);
       if (isFetchStatusCreated(res.status) || isFetchStatusOk(res.status)) {
-        try {
-          const response = await res.json();
-          setData(response);
-          options?.onSuccess?.(response);
-          options?.onReset?.(schema.cast(mapSchemaValues?.(response)));
-        } catch {
-          options?.onSuccess?.(undefined as R);
+        // Read the body as text first so an intentionally empty success body
+        // (e.g. 204/no content) is distinguishable from a non-empty but
+        // malformed one: only the latter is an error. Then call onSuccess/
+        // onReset OUTSIDE any try, so an exception they throw (e.g. Router.push)
+        // isn't caught and re-run as a second onSuccess(undefined) — a
+        // double-call that in the setQueryData managers would overwrite the
+        // cache with undefined.
+        const body = await res.text();
+        // An empty body is a valid success: some bulk-edit endpoints respond
+        // 2xx with no content and rely on onSuccess firing with undefined.
+        let response: R = undefined as R;
+        if (body) {
+          try {
+            response = JSON.parse(body);
+          } catch {
+            // Non-empty but unparseable body on a success status — surface it as
+            // an error rather than proceeding as a successful (empty) save.
+            onError({ message: "Received an unparseable response body." });
+            return;
+          }
         }
+        options?.onSuccess?.(response);
+        options?.onReset?.(schema.cast(mapSchemaValues?.(response)));
       } else {
         onError(await getFormResponseErrors(res));
       }
@@ -129,7 +130,12 @@ export const useForm = <T extends FieldValues, R = undefined>(
 
   return {
     ...formMethod,
-    data,
+    // The entity the view renders comes straight from React Query (apiData).
+    // Edit saves write the response back to the cache in each form-manager's
+    // onSuccess (setQueryData, or invalidateQueries where the save response
+    // shape differs from the detail query), so apiData reflects the save
+    // without a local mirror.
+    data: apiData,
     onDelete,
     onSubmit,
   };

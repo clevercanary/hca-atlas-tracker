@@ -34,13 +34,20 @@ export const useEditAtlasFormManager = (
           onReset: reset,
           onSuccess: (data) => {
             // The edit is saved via fetchResource, which bypasses React Query,
-            // so invalidate the cached atlas; without this the detail view and
-            // edit form re-initialize from the pre-edit cache within the
-            // staleTime window (and re-saving could revert the edit).
-            queryClient.invalidateQueries({
-              queryKey: [ATLAS, pathParameter.atlasId],
-            });
-            onSuccess(data.id, url);
+            // so write the response back into the cached atlas. The PUT returns
+            // the same shape as the detail query, so setQueryData refreshes the
+            // detail view and edit form with no refetch round-trip; without it
+            // they'd re-initialize from the pre-edit cache within the staleTime
+            // window (and re-saving could revert the edit). Cancel any in-flight
+            // GET first: unlike invalidateQueries, setQueryData doesn't cancel
+            // it, so a GET resolving after the save could clobber the cache with
+            // pre-save data. (setQueryData is a no-op if data is undefined.)
+            const queryKey = [ATLAS, pathParameter.atlasId];
+            queryClient.cancelQueries({ queryKey });
+            queryClient.setQueryData(queryKey, data);
+            // Navigate with the atlas id from the path (always present), not
+            // data.id, so an empty response body can't crash the redirect.
+            onSuccess(pathParameter.atlasId ?? "", url);
           },
         },
       );
