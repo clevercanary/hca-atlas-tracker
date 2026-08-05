@@ -24,6 +24,8 @@ export const useQuery = (
     // The list's columns (dataset count, HCA and entry-sheet status) are
     // derived from other entities and change out-of-band, so this query must
     // refetch on every mount to match the pre-React-Query behavior, rather
-    // than serving the app-default 5-minute stale window.
+    // than serving the app-default 5-minute stale window. This mount refetch
+    // also covers delete-then-redirect (useDeleteSourceStudy): landing on the
+    // list refetches it without the deleted study, no invalidation needed.
     staleTime: 0,
   });
