@@ -98,16 +98,26 @@ export const useForm = <T extends FieldValues, R = undefined>(
       const apiPayload = mapApiValues ? mapApiValues(payload) : payload;
       const res = await fetchResource(requestURL, requestMethod, apiPayload);
       if (isFetchStatusCreated(res.status) || isFetchStatusOk(res.status)) {
-        // Only the JSON parse is fallible here. Keep onSuccess/onReset OUTSIDE
-        // the try: if one of them throws (e.g. Router.push), the old structure
-        // caught it and re-ran onSuccess(undefined), a double-call that in the
-        // setQueryData managers would overwrite the cache with undefined.
-        let response: R;
-        try {
-          response = await res.json();
-        } catch {
-          options?.onSuccess?.(undefined as R);
-          return;
+        // Read the body as text first so an intentionally empty success body
+        // (e.g. 204/no content) is distinguishable from a non-empty but
+        // malformed one: only the latter is an error. Then call onSuccess/
+        // onReset OUTSIDE any try, so an exception they throw (e.g. Router.push)
+        // isn't caught and re-run as a second onSuccess(undefined) — a
+        // double-call that in the setQueryData managers would overwrite the
+        // cache with undefined.
+        const body = await res.text();
+        // An empty body is a valid success: some bulk-edit endpoints respond
+        // 2xx with no content and rely on onSuccess firing with undefined.
+        let response: R = undefined as R;
+        if (body) {
+          try {
+            response = JSON.parse(body);
+          } catch {
+            // Non-empty but unparseable body on a success status — surface it as
+            // an error rather than proceeding as a successful (empty) save.
+            onError({ message: "Received an unparseable response body." });
+            return;
+          }
         }
         options?.onSuccess?.(response);
         options?.onReset?.(schema.cast(mapSchemaValues?.(response)));

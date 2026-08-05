@@ -76,6 +76,7 @@ describe("useEditAtlasFormManager", () => {
     } as unknown as FormMethod<AtlasEditData, HCAAtlasTrackerAtlas>;
 
     const invalidateSpy = jest.spyOn(queryClient, "invalidateQueries");
+    const cancelSpy = jest.spyOn(queryClient, "cancelQueries");
 
     const { result } = renderHook(
       () => useEditAtlasFormManager(PATH_PARAMETER, formMethod),
@@ -102,6 +103,9 @@ describe("useEditAtlasFormManager", () => {
     expect(queryClient.getQueryData([ATLAS, ATLAS_ID])).toBe(SAVED_ATLAS);
     // setQueryData, not invalidateQueries — no refetch round-trip / stale flash.
     expect(invalidateSpy).not.toHaveBeenCalled();
+    // An in-flight GET is cancelled first so it can't resolve after the save and
+    // clobber the cache with pre-save data (setQueryData doesn't cancel it).
+    expect(cancelSpy).toHaveBeenCalledWith({ queryKey: [ATLAS, ATLAS_ID] });
   });
 });
 

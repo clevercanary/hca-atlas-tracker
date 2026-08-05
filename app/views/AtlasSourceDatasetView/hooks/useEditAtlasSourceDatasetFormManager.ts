@@ -50,7 +50,8 @@ export const useEditAtlasSourceDatasetFormManager = (
             // but the detail query holds the detail shape (base +
             // validationReports), so caching the response would drop
             // validationReports from the view. Invalidating refetches the full
-            // detail shape instead. See #1502.
+            // detail shape instead. (If the PATCH is changed to return the
+            // detail shape, this can setQueryData like the other managers.)
             queryClient.invalidateQueries({
               queryKey: [
                 SOURCE_DATASET,

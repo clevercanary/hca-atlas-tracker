@@ -45,15 +45,18 @@ export const useEditIntegratedObjectFormManager = (
           onSuccess: (data) => {
             // The PATCH returns the same detail shape as the detail query, so
             // write the response back into the cache (no refetch round-trip);
-            // this refreshes the detail whether we stay or navigate away.
-            queryClient.setQueryData(
-              [
-                INTEGRATED_OBJECT,
-                pathParameter.atlasId,
-                pathParameter.componentAtlasId,
-              ],
-              data,
-            );
+            // this refreshes the detail whether we stay or navigate away. Cancel
+            // any in-flight GET first: unlike invalidateQueries, setQueryData
+            // doesn't cancel it, so a GET resolving after the save could clobber
+            // the cache with pre-save data. (setQueryData is a no-op if data is
+            // undefined.)
+            const queryKey = [
+              INTEGRATED_OBJECT,
+              pathParameter.atlasId,
+              pathParameter.componentAtlasId,
+            ];
+            queryClient.cancelQueries({ queryKey });
+            queryClient.setQueryData(queryKey, data);
             if (url) Router.push(url);
           },
         },
