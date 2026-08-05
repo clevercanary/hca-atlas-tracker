@@ -73,10 +73,13 @@ const config = [
               message:
                 "Reach outside this directory via the '@/' alias; relative imports are for ./ same-dir and descendants only.",
             },
-            // Bare repo-root imports (e.g. `app/foo`) need no lint rule: tsconfig
-            // has no `baseUrl` and jest's `moduleDirectories` omits `<rootDir>`,
-            // so they fail to resolve at compile/test time. Only the `@/` alias
-            // reaches repo-root modules.
+            // Bare repo-root imports (e.g. `app/foo`) need no lint rule: with no
+            // `baseUrl` in tsconfig they fail typecheck (TS2307), which CI and
+            // the pre-commit hook enforce. (jest's SWC transform still resolves a
+            // static bare import via Next's implicit baseUrl, so jest is not a
+            // backstop; the trimmed `moduleDirectories` only closes runtime
+            // `require`/`jest.mock` paths.) Only the `@/` alias reaches repo-root
+            // modules.
           ],
         },
       ],

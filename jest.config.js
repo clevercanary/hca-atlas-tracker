@@ -12,7 +12,9 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   // Add more setup options before each test is run
   // setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  // if using TypeScript with a baseUrl set to the root directory then you need the below for alias' to work
+  // node_modules only (no <rootDir>): closes runtime resolution of bare
+  // repo-root specifiers (e.g. require("app/foo")) now that tsconfig has no
+  // baseUrl. The `@/` alias resolves via moduleNameMapper below regardless.
   moduleDirectories: ["node_modules"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
