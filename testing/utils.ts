@@ -753,7 +753,7 @@ export function expectApiSourceDatasetsToMatchTest(
 export function expectDetailApiSourceDatasetToMatchTest(
   apiSourceDataset: HCAAtlasTrackerDetailSourceDataset,
   testSourceDataset: TestSourceDataset,
-  funcs?: ApiSourceDatasetCheckFuncs,
+  funcs?: Omit<ApiSourceDatasetCheckFuncs, "doValidationReportsCheck">,
 ): void {
   expectApiSourceDatasetToMatchTest(apiSourceDataset, testSourceDataset, {
     ...funcs,
