@@ -1,5 +1,5 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
-import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { type HCAAtlasTrackerDetailSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD, type PathParameter } from "@/app/common/entities";
 import { getRequestURL, getRouteURL } from "@/app/common/utils";
 import { type FormMethod } from "@/app/hooks/useForm/common/entities";
@@ -21,7 +21,7 @@ export const useEditAtlasSourceDatasetFormManager = (
   pathParameter: PathParameter,
   formMethod: FormMethod<
     ViewAtlasSourceDatasetData,
-    HCAAtlasTrackerSourceDataset
+    HCAAtlasTrackerDetailSourceDataset
   >,
 ): FormManager => {
   const queryClient = useQueryClient();
@@ -44,21 +44,21 @@ export const useEditAtlasSourceDatasetFormManager = (
         mapPayload(payload),
         {
           onReset: reset,
-          onSuccess: () => {
-            // Invalidate rather than setQueryData (the pattern the other edit
-            // managers use): the PATCH returns the base source-dataset shape,
-            // but the detail query holds the detail shape (base +
-            // validationReports), so caching the response would drop
-            // validationReports from the view. Invalidating refetches the full
-            // detail shape instead. (If the PATCH is changed to return the
-            // detail shape, this can setQueryData like the other managers.)
-            queryClient.invalidateQueries({
-              queryKey: [
-                SOURCE_DATASET,
-                pathParameter.atlasId,
-                pathParameter.sourceDatasetId,
-              ],
-            });
+          onSuccess: (data) => {
+            // The PATCH returns the same detail shape as the detail query, so
+            // write the response back into the cache (no refetch round-trip);
+            // this refreshes the detail whether we stay or navigate away. Cancel
+            // any in-flight GET first: unlike invalidateQueries, setQueryData
+            // doesn't cancel it, so a GET resolving after the save could clobber
+            // the cache with pre-save data. (setQueryData is a no-op if data is
+            // undefined.)
+            const queryKey = [
+              SOURCE_DATASET,
+              pathParameter.atlasId,
+              pathParameter.sourceDatasetId,
+            ];
+            queryClient.cancelQueries({ queryKey });
+            queryClient.setQueryData(queryKey, data);
             if (url) Router.push(url);
           },
         },
