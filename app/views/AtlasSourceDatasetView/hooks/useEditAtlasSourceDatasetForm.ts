@@ -1,4 +1,7 @@
-import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  type HCAAtlasTrackerDetailSourceDataset,
+  type HCAAtlasTrackerSourceDataset,
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getApiEntityFileVersion,
   getCapIngestStatus,
@@ -16,13 +19,15 @@ const SCHEMA = viewAtlasSourceDatasetSchema;
 
 export const useEditAtlasSourceDatasetForm = (
   pathParameter: PathParameter,
-): FormMethod<ViewAtlasSourceDatasetData, HCAAtlasTrackerSourceDataset> => {
+): FormMethod<
+  ViewAtlasSourceDatasetData,
+  HCAAtlasTrackerDetailSourceDataset
+> => {
   const { data: sourceDataset } = useFetchAtlasSourceDataset(pathParameter);
-  return useForm<ViewAtlasSourceDatasetData, HCAAtlasTrackerSourceDataset>(
-    SCHEMA,
-    sourceDataset,
-    mapSchemaValues,
-  );
+  return useForm<
+    ViewAtlasSourceDatasetData,
+    HCAAtlasTrackerDetailSourceDataset
+  >(SCHEMA, sourceDataset, mapSchemaValues);
 };
 
 /**

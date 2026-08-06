@@ -7,8 +7,9 @@ import { useQuery } from "./query/useQuery";
 
 /**
  * Fetches the atlas source dataset for the given path parameter via React
- * Query. Editing the source dataset refreshes it by invalidating its query key
- * (`[SOURCE_DATASET, atlasId, sourceDatasetId]`) at the mutation site.
+ * Query. Mutation sites refresh it through its query key (`[SOURCE_DATASET,
+ * atlasId, sourceDatasetId]`): editing writes the PATCH response straight into
+ * the cache with `setQueryData`, while archiving invalidates the key to refetch.
  * @param pathParameter - Path parameter (atlas ID + source dataset ID).
  * @returns React Query result for the source dataset (`data` is the dataset).
  */

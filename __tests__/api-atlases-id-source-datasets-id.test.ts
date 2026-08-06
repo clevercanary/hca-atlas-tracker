@@ -1,7 +1,6 @@
 import {
   type FileValidationSummary,
   type HCAAtlasTrackerDetailSourceDataset,
-  type HCAAtlasTrackerSourceDataset,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { type AtlasSourceDatasetEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "@/app/common/entities";
@@ -44,7 +43,7 @@ import {
   getConceptFromDatabase,
   resetDatabase,
 } from "@/testing/db-utils";
-import { type TestUser } from "@/testing/entities";
+import { type TestSourceDataset, type TestUser } from "@/testing/entities";
 import {
   assertExpectDefined,
   delay,
@@ -690,12 +689,21 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
   });
 
   it("updates and returns source dataset when PATCH requested by user with CONTENT_ADMIN role", async () => {
+    const expectedData: TestSourceDataset = {
+      ...SOURCE_DATASET_ATLAS_LINKED_A_FOO,
+      capUrl: null,
+      metadataSpreadsheetTitle: "Sheet Bar",
+      metadataSpreadsheetUrl: A_FOO_EDIT_DATA.metadataSpreadsheetUrl,
+    };
+
     const callCountBefore = getSheetTitleMock.mock.calls.length;
     const conceptBefore = await getConceptFromDatabase(
       SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
     );
     assertExpectDefined(conceptBefore);
+
     await delay(10); // Ensure timestamps can be different
+
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
@@ -704,18 +712,15 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       true,
       A_FOO_EDIT_DATA,
     );
+
     expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expect(sourceDataset.capUrl).toBeNull();
-    expect(sourceDataset.downloadName).toEqual(A_FOO_EDIT_DATA.downloadName);
-    expect(sourceDataset.metadataSpreadsheetTitle).toEqual("Sheet Bar");
-    expect(sourceDataset.metadataSpreadsheetUrl).toEqual(
-      A_FOO_EDIT_DATA.metadataSpreadsheetUrl,
-    );
-    expect(sourceDataset.title).toEqual(
-      SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.datasetInfo.title,
-    );
+    const sourceDataset =
+      res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
+
+    expectDetailApiSourceDatasetToMatchTest(sourceDataset, expectedData);
+
     expect(getSheetTitleMock).toHaveBeenCalledTimes(callCountBefore + 1);
+
     const conceptAfter = await getConceptFromDatabase(
       SOURCE_DATASET_ATLAS_LINKED_A_FOO.id,
     );
@@ -724,10 +729,16 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
     expect(conceptAfter.updated_at.getTime()).toEqual(
       conceptBefore.updated_at.getTime(),
     );
+
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
 
   it("sets CAP URL and clears metadata spreadsheet fields when PATCH requested with only CAP URL specified", async () => {
+    const expectedData: TestSourceDataset = {
+      ...SOURCE_DATASET_ATLAS_LINKED_A_BAR,
+      capUrl: A_BAR_EDIT_DATA.capUrl,
+    };
+
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       SOURCE_DATASET_ATLAS_LINKED_A_BAR.id,
@@ -737,15 +748,24 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       A_BAR_EDIT_DATA,
     );
     expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    const sourceDataset =
+      res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
+
     expect(sourceDataset.capUrl).toEqual(A_BAR_EDIT_DATA.capUrl);
-    expect(sourceDataset.downloadName).toEqual(A_BAR_EDIT_DATA.downloadName);
     expect(sourceDataset.metadataSpreadsheetTitle).toBeNull();
     expect(sourceDataset.metadataSpreadsheetUrl).toBeNull();
+
+    expectDetailApiSourceDatasetToMatchTest(sourceDataset, expectedData);
+
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
 
   it("sets CAP URL to null and clears metadata spreadsheet fields when PATCH requested with only empty string CAP URL", async () => {
+    const expectedData: TestSourceDataset = {
+      ...SOURCE_DATASET_WITH_SOURCE_STUDY_FOO,
+      capUrl: null,
+    };
+
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES_C.id,
       SOURCE_DATASET_WITH_SOURCE_STUDY_FOO.id,
@@ -755,11 +775,13 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       WSS_FOO_EDIT_DATA,
     );
     expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
+    const sourceDataset =
+      res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
+
     expect(sourceDataset.capUrl).toBeNull();
-    expect(sourceDataset.downloadName).toEqual(WSS_FOO_EDIT_DATA.downloadName);
-    expect(sourceDataset.metadataSpreadsheetTitle).toBeNull();
-    expect(sourceDataset.metadataSpreadsheetUrl).toBeNull();
+
+    expectDetailApiSourceDatasetToMatchTest(sourceDataset, expectedData);
+
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
 
@@ -769,6 +791,14 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       downloadName: "new-download-name",
       metadataSpreadsheetUrl: null,
     };
+    const expectedData: TestSourceDataset = {
+      ...SOURCE_DATASET_ATLAS_LINKED_B_BAR,
+      capUrl: null,
+      metadataSpreadsheetTitle: null,
+      metadataSpreadsheetUrl: null,
+    };
+    const expectedBaseFilename = editData.downloadName + ".h5ad";
+
     const res = await doSourceDatasetRequest(
       ATLAS_WITH_MISC_SOURCE_STUDIES.id,
       SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
@@ -778,16 +808,21 @@ describe(`${TEST_ROUTE} (PATCH)`, () => {
       editData,
     );
     expect(res._getStatusCode()).toEqual(200);
-    const sourceDataset = res._getJSONData() as HCAAtlasTrackerSourceDataset;
-    expect(sourceDataset.capUrl).toBeNull();
+    const sourceDataset =
+      res._getJSONData() as HCAAtlasTrackerDetailSourceDataset;
+
     expect(sourceDataset.downloadName).toEqual(editData.downloadName);
-    expect(sourceDataset.metadataSpreadsheetTitle).toBeNull();
-    expect(sourceDataset.metadataSpreadsheetUrl).toBeNull();
+
+    expectDetailApiSourceDatasetToMatchTest(sourceDataset, expectedData, {
+      getExpectedBaseFilename: () => expectedBaseFilename,
+    });
+
     const concept = await getConceptFromDatabase(
       SOURCE_DATASET_ATLAS_LINKED_B_BAR.id,
     );
     assertExpectDefined(concept);
-    expect(concept.base_filename).toEqual(editData.downloadName + ".h5ad");
+    expect(concept.base_filename).toEqual(expectedBaseFilename);
+
     await expectSourceDatasetToBeUnchanged(SOURCE_DATASET_ATLAS_LINKED_B_FOO);
   });
 });

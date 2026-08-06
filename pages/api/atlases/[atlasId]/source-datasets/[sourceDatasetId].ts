@@ -1,7 +1,4 @@
-import {
-  dbSourceDatasetToApiSourceDataset,
-  dbSourceDatasetToDetailApiSourceDataset,
-} from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
+import { dbSourceDatasetToDetailApiSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/backend-utils";
 import { ROLE_GROUP } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { atlasSourceDatasetEditSchema } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
@@ -27,7 +24,7 @@ const patchHandler = handler(role(ROLE.CONTENT_ADMIN), async (req, res) => {
   const sourceDatasetId = req.query.sourceDatasetId as string;
   const inputData = await atlasSourceDatasetEditSchema.validate(req.body);
   res.json(
-    dbSourceDatasetToApiSourceDataset(
+    dbSourceDatasetToDetailApiSourceDataset(
       await updateAtlasSourceDataset(atlasId, sourceDatasetId, inputData),
     ),
   );
