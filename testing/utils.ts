@@ -753,25 +753,45 @@ export function expectApiSourceDatasetsToMatchTest(
 export function expectDetailApiSourceDatasetToMatchTest(
   apiSourceDataset: HCAAtlasTrackerDetailSourceDataset,
   testSourceDataset: TestSourceDataset,
+  funcs?: ApiSourceDatasetCheckFuncs,
 ): void {
-  expectApiSourceDatasetToMatchTest(
-    apiSourceDataset,
-    testSourceDataset,
-    true,
-    (testFile) => {
+  expectApiSourceDatasetToMatchTest(apiSourceDataset, testSourceDataset, {
+    ...funcs,
+    doAdditionalChecks(testFile) {
       expect(apiSourceDataset.validationReports).toEqual(
         testFile.validationReports,
       );
+      funcs?.doAdditionalChecks?.(testFile);
     },
-  );
+    doValidationReportsCheck(apiSourceDataset) {
+      expect(apiSourceDataset).toHaveProperty("validationReports");
+    },
+  });
+}
+
+interface ApiSourceDatasetCheckFuncs {
+  doAdditionalChecks?: (testFile: NormalizedTestFile) => void;
+  doValidationReportsCheck?: (
+    apiSourceDataset: HCAAtlasTrackerSourceDataset,
+  ) => void;
+  getExpectedBaseFilename?: (
+    testSourceDataset: Required<TestSourceDataset>,
+  ) => string;
 }
 
 export function expectApiSourceDatasetToMatchTest(
   apiSourceDataset: HCAAtlasTrackerSourceDataset,
   baseTestSourceDataset: TestSourceDataset,
-  expectDetail = false,
-  doAdditionalChecks?: (file: NormalizedTestFile) => void,
+  funcs: ApiSourceDatasetCheckFuncs = {},
 ): void {
+  const {
+    doAdditionalChecks,
+    doValidationReportsCheck = (apiDataset): void => {
+      expect(apiDataset).not.toHaveProperty("validationReports");
+    },
+    getExpectedBaseFilename = getTestEntityBaseFilename,
+  } = funcs;
+
   const testSourceDataset = fillTestSourceDatasetDefaults(
     baseTestSourceDataset,
   );
@@ -781,7 +801,7 @@ export function expectApiSourceDatasetToMatchTest(
 
   expect(apiSourceDataset.assay).toEqual(testFile.datasetInfo?.assay ?? []);
   expect(apiSourceDataset.baseFileName).toEqual(
-    getTestEntityBaseFilename(testSourceDataset),
+    getExpectedBaseFilename(testSourceDataset),
   );
   expect(apiSourceDataset.capUrl).toEqual(testSourceDataset.capUrl);
   expect(apiSourceDataset.cellCount).toEqual(
@@ -831,11 +851,7 @@ export function expectApiSourceDatasetToMatchTest(
   );
   expect(apiSourceDataset.wipNumber).toEqual(testSourceDataset.wipNumber);
 
-  if (expectDetail) {
-    expect(apiSourceDataset).toHaveProperty("validationReports");
-  } else {
-    expect(apiSourceDataset).not.toHaveProperty("validationReports");
-  }
+  doValidationReportsCheck(apiSourceDataset);
 
   doAdditionalChecks?.(testFile);
 }

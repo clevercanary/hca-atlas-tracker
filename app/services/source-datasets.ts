@@ -1,6 +1,5 @@
 import {
   type HCAAtlasTrackerDBSourceDataset,
-  type HCAAtlasTrackerDBSourceDatasetForAPI,
   type HCAAtlasTrackerDBSourceDatasetForDetailAPI,
   type HCAAtlasTrackerDBSourceDatasetForListAPI,
   type HCAAtlasTrackerDBSourceDatasetInfo,
@@ -170,7 +169,7 @@ export async function updateAtlasSourceDataset(
   atlasId: string,
   sourceDatasetId: string,
   inputData: AtlasSourceDatasetEditData,
-): Promise<HCAAtlasTrackerDBSourceDatasetForAPI> {
+): Promise<HCAAtlasTrackerDBSourceDatasetForDetailAPI> {
   const sourceDatasetVersion = await getSourceDatasetVersionForAtlas(
     sourceDatasetId,
     atlasId,
