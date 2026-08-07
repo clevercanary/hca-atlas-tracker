@@ -1,6 +1,7 @@
 import { type PresignedUrlInfo } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool } from "@/app/services/database";
+import { VERSION_SUFFIX_REGEX } from "@/app/utils/files";
 import presignedUrlHandler from "@/pages/api/atlases/[atlasId]/files/[fileId]/presigned-url";
 import {
   ATLAS_DRAFT,
@@ -299,10 +300,8 @@ function expectUrlInfoForFile(
   expect(info.url).toEqual(expect.stringContaining(testFile.fileName));
   expect(info.url).toEqual(expect.stringContaining(expectedFilename));
 
-  // eslint-disable-next-line sonarjs/slow-regex -- track via #1361
-  const endingRegex = /(?:-r\d+(?:-wip-\d+)?)?\..+$/;
-  const fileNameBeginning = testFile.fileName.replace(endingRegex, "");
-  const apiNameBeginning = info.filename.replace(endingRegex, "");
+  const fileNameBeginning = testFile.fileName.replace(VERSION_SUFFIX_REGEX, "");
+  const apiNameBeginning = info.filename.replace(VERSION_SUFFIX_REGEX, "");
   if (expectDistinctFilename) {
     expect(fileNameBeginning).not.toEqual(apiNameBeginning);
   } else {
