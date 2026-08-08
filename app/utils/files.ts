@@ -27,7 +27,7 @@ export class S3KeyFormatError extends Error {
 
 const EXTENSION_REGEX = /\.[^.]+$/;
 const BEFORE_EXTENSION_REGEX = /(?=\.[^.]+$)/;
-export const VERSION_SUFFIX_REGEX =
+const VERSION_SUFFIX_REGEX =
   /(?:-r\d+(?:-wip-\d+)?(?:-edit-.+)?|-edit-.+)(?=\.[^.]+$)/;
 
 /**
