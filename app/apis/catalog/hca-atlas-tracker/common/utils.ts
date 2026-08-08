@@ -456,7 +456,10 @@ export function isTask(
 export function isTierOneMetadataStatus(
   value: unknown,
 ): value is TIER_ONE_METADATA_STATUS {
-  return TIER_ONE_METADATA_STATUSES.includes(value as TIER_ONE_METADATA_STATUS);
+  return (
+    typeof value === "string" &&
+    TIER_ONE_METADATA_STATUSES.includes(value as TIER_ONE_METADATA_STATUS)
+  );
 }
 
 /**
