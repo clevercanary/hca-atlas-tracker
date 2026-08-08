@@ -4,6 +4,7 @@ import {
   FILE_VALIDATOR_NAMES_HIDDEN_WHEN_REPROCESSED,
   NETWORK_KEYS,
   STATUS_LABEL,
+  TIER_ONE_METADATA_STATUSES,
   UNPUBLISHED,
   WAVES,
 } from "./constants";
@@ -35,7 +36,7 @@ import {
   type PublicationInfo,
   REPROCESSED_STATUS,
   TASK_STATUS,
-  TIER_ONE_METADATA_STATUS,
+  type TIER_ONE_METADATA_STATUS,
   VALIDATION_ID,
   type Wave,
 } from "./entities";
@@ -178,29 +179,6 @@ export function getCapIngestStatusFromParameters(
   }
 
   return CAP_INGEST_STATUS.NEEDS_VALIDATION;
-}
-
-/**
- * Combine the given Tier 1 metadata statuses into one.
- * @param statuses - Tier 1 metadata statuses.
- * @returns Tier 1 metadata status.
- */
-export function getCompositeTierOneMetadataStatus(
-  statuses: TIER_ONE_METADATA_STATUS[],
-): TIER_ONE_METADATA_STATUS {
-  let prevStatus: TIER_ONE_METADATA_STATUS | null = null;
-  for (const status of statuses) {
-    if (status === TIER_ONE_METADATA_STATUS.NA) continue;
-    if (status === TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION) return status;
-    if (
-      status === TIER_ONE_METADATA_STATUS.INCOMPLETE ||
-      (prevStatus && prevStatus !== status)
-    ) {
-      return TIER_ONE_METADATA_STATUS.INCOMPLETE;
-    }
-    prevStatus = status;
-  }
-  return prevStatus ?? TIER_ONE_METADATA_STATUS.NA;
 }
 
 /**
@@ -473,6 +451,12 @@ export function isTask(
     "targetCompletion" in value &&
     "validationId" in value
   );
+}
+
+export function isTierOneMetadataStatus(
+  value: unknown,
+): value is TIER_ONE_METADATA_STATUS {
+  return TIER_ONE_METADATA_STATUSES.includes(value as TIER_ONE_METADATA_STATUS);
 }
 
 /**

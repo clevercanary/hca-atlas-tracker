@@ -8,6 +8,7 @@ import {
   ROLE,
   type SYSTEM,
   TASK_STATUS,
+  TIER_ONE_METADATA_STATUS,
   VALIDATION_STATUS,
   VALIDATION_VARIABLE,
 } from "./entities";
@@ -161,6 +162,10 @@ export const SYSTEM_DISPLAY_NAMES: { [key in SYSTEM]: string } = {
   DUOS: "DUOS",
   HCA_DATA_REPOSITORY: "HCA Data Repository",
 };
+
+export const TIER_ONE_METADATA_STATUSES = Object.values(
+  TIER_ONE_METADATA_STATUS,
+);
 
 export const ALLOWED_TASK_STATUSES_BY_VALIDATION_STATUS: Record<
   VALIDATION_STATUS,

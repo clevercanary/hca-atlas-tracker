@@ -1,10 +1,10 @@
 import { getCellxGeneCollectionInfoById } from "@/app/services/cellxgene";
+import { TIER_ONE_METADATA_STATUS_BY_CELLXGENE_COLLECTION_ID } from "@/app/services/saved-cellxgene-info";
 import {
   normalizeValidationSummary,
   parseS3KeyPath,
   removeFileExtension,
 } from "@/app/utils/files";
-import savedCellxgeneInfoRaw from "@/catalog/output/cellxgene-info.json";
 import {
   FILE_PUBLISHED_STATUS,
   type HCAAtlasTrackerAtlas,
@@ -48,7 +48,6 @@ import {
   type WithSourceStudyInfo,
 } from "./entities";
 import {
-  getCompositeTierOneMetadataStatus,
   getLatestHomeAtlas,
   getLinkedAtlasFieldArrays,
   getPublishedCitation,
@@ -56,20 +55,6 @@ import {
   getUnpublishedCitation,
   makeFileVersionString,
 } from "./utils";
-
-// JSON import's literal type indexes only by its specific UUID keys; widen
-// to Record<string, ...> so dynamic IDs can be looked up.
-const savedCellxgeneInfo = savedCellxgeneInfoRaw as unknown as {
-  collections: Record<string, { datasets: string[] }>;
-  datasets: Record<
-    string,
-    {
-      datasetVersionId: string | null;
-      skippedReason?: string;
-      tierOneStatus: TIER_ONE_METADATA_STATUS;
-    }
-  >;
-};
 
 export function dbAtlasToAtlasSummary(
   dbAtlas: HCAAtlasTrackerDBAtlas,
@@ -435,19 +420,6 @@ export function dbUserToApiUser(
 }
 
 /**
- * Get the Tier 1 metadata status of the CELLxGENE dataset with the given ID.
- * @param cellxgeneDatasetId - CELLxGENE dataset ID.
- * @returns Tier 1 metadata status.
- */
-export function getCellxGeneDatasetTierOneMetadataStatus(
-  cellxgeneDatasetId: string,
-): TIER_ONE_METADATA_STATUS {
-  return Object.hasOwn(savedCellxgeneInfo.datasets, cellxgeneDatasetId)
-    ? savedCellxgeneInfo.datasets[cellxgeneDatasetId].tierOneStatus
-    : TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION;
-}
-
-/**
  * Returns the entity's citation.
  * @param entity - Database model of entity with source study properties.
  * @returns citation for the associated source study.
@@ -478,12 +450,9 @@ export function getDbSourceStudyTierOneMetadataStatus(
 ): TIER_ONE_METADATA_STATUS {
   const collectionId = sourceStudy.study_info.cellxgeneCollectionId;
   if (!collectionId) return TIER_ONE_METADATA_STATUS.NA;
-  if (!Object.hasOwn(savedCellxgeneInfo.collections, collectionId))
-    return TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION;
-  return getCompositeTierOneMetadataStatus(
-    savedCellxgeneInfo.collections[collectionId].datasets.map(
-      getCellxGeneDatasetTierOneMetadataStatus,
-    ),
+  return (
+    TIER_ONE_METADATA_STATUS_BY_CELLXGENE_COLLECTION_ID.get(collectionId) ??
+    TIER_ONE_METADATA_STATUS.NEEDS_VALIDATION
   );
 }
 
