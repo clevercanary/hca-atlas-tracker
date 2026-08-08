@@ -2,8 +2,9 @@ import { TIER_ONE_METADATA_STATUS } from "@/app/apis/catalog/hca-atlas-tracker/c
 import { isTierOneMetadataStatus } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import savedCellxGeneInfo from "@/catalog/output/cellxgene-info.json";
 
-type SavedDatasetsInfo = (typeof savedCellxGeneInfo)["datasets"];
-type DatasetInfo = SavedDatasetsInfo[keyof SavedDatasetsInfo];
+interface DatasetInfo {
+  tierOneStatus: string;
+}
 
 const datasetsInfo: Partial<Record<string, DatasetInfo>> =
   savedCellxGeneInfo["datasets"];
