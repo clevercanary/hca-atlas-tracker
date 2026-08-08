@@ -50,7 +50,7 @@ function getCellxGeneDatasetTierOneMetadataStatus(
  * @param statuses - Tier 1 metadata statuses.
  * @returns Tier 1 metadata status.
  */
-export function getCompositeTierOneMetadataStatus(
+function getCompositeTierOneMetadataStatus(
   statuses: TIER_ONE_METADATA_STATUS[],
 ): TIER_ONE_METADATA_STATUS {
   let prevStatus: TIER_ONE_METADATA_STATUS | null = null;
