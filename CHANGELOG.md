@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.80.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.79.0...v1.80.0) (2026-08-09)
+
+
+### Features
+
+* drop unused files source study id column ([#1486](https://github.com/clevercanary/hca-atlas-tracker/issues/1486)) ([#1513](https://github.com/clevercanary/hca-atlas-tracker/issues/1513)) ([19b7fce](https://github.com/clevercanary/hca-atlas-tracker/commit/19b7fce46761e0642d0824aaf89f03f92f5c9bd7))
+* memoize user info per-request ([#1516](https://github.com/clevercanary/hca-atlas-tracker/issues/1516)) ([#1517](https://github.com/clevercanary/hca-atlas-tracker/issues/1517)) ([d8f0eab](https://github.com/clevercanary/hca-atlas-tracker/commit/d8f0eab3574d6cbd4d550ea723cd81b9661b3752))
+* retail detail shape from source dataset patch api and use on frontend ([#1523](https://github.com/clevercanary/hca-atlas-tracker/issues/1523)) ([#1526](https://github.com/clevercanary/hca-atlas-tracker/issues/1526)) ([ac85991](https://github.com/clevercanary/hca-atlas-tracker/commit/ac859919dd577d7ffad7fb7c9b760bceafca80e5))
+
+
+### Bug Fixes
+
+* await `endPgPool` in tests and db scripts ([#1319](https://github.com/clevercanary/hca-atlas-tracker/issues/1319)) ([#1512](https://github.com/clevercanary/hca-atlas-tracker/issues/1512)) ([8f7a3a6](https://github.com/clevercanary/hca-atlas-tracker/commit/8f7a3a646224ecf1c26794f7cc01ecba86e2386b))
+* gate presigned-url download button on !isfetching to avoid a stale url on dialog reopen ([#1501](https://github.com/clevercanary/hca-atlas-tracker/issues/1501)) ([#1519](https://github.com/clevercanary/hca-atlas-tracker/issues/1519)) ([c7cd707](https://github.com/clevercanary/hca-atlas-tracker/commit/c7cd707371209acdd5760714f356a74b4d17736f))
+* repair main lint break from [#1513](https://github.com/clevercanary/hca-atlas-tracker/issues/1513)/[#1514](https://github.com/clevercanary/hca-atlas-tracker/issues/1514) collision; add VS Code type-only auto-import setting ([#1518](https://github.com/clevercanary/hca-atlas-tracker/issues/1518)) ([45767f6](https://github.com/clevercanary/hca-atlas-tracker/commit/45767f62011506396dba02835268d1b9348d1c2c))
+
+
+### Chores
+
+* drop @observablehq/plot dependency ([#1470](https://github.com/clevercanary/hca-atlas-tracker/issues/1470)) ([#1509](https://github.com/clevercanary/hca-atlas-tracker/issues/1509)) ([548e828](https://github.com/clevercanary/hca-atlas-tracker/commit/548e828de831904028aa06f0ea7f474a33867cc6))
+* drop tsconfig baseurl so bare repo-root imports fail to resolve ([#1511](https://github.com/clevercanary/hca-atlas-tracker/issues/1511)) ([#1524](https://github.com/clevercanary/hca-atlas-tracker/issues/1524)) ([3061fda](https://github.com/clevercanary/hca-atlas-tracker/commit/3061fda9f1783142fee755649516e47ba4caac2d))
+* enforce @/ alias import convention — ban all ../ relative imports ([#1507](https://github.com/clevercanary/hca-atlas-tracker/issues/1507)) ([#1510](https://github.com/clevercanary/hca-atlas-tracker/issues/1510)) ([2990355](https://github.com/clevercanary/hca-atlas-tracker/commit/29903559e6cec463d6427c669f46cea63cc74112))
+* enforce type-only imports via @typescript-eslint/consistent-type-imports ([#1506](https://github.com/clevercanary/hca-atlas-tracker/issues/1506)) ([#1514](https://github.com/clevercanary/hca-atlas-tracker/issues/1514)) ([515932e](https://github.com/clevercanary/hca-atlas-tracker/commit/515932e988e852b050e63fc54c46f765450ca0e9))
+
+
+### Code Refactoring
+
+* adopt tanstack query ([#1472](https://github.com/clevercanary/hca-atlas-tracker/issues/1472)) ([#1498](https://github.com/clevercanary/hca-atlas-tracker/issues/1498)) ([5e3be7d](https://github.com/clevercanary/hca-atlas-tracker/commit/5e3be7d260664254a0d77fa7a32c2586f92d556f))
+* drop useform's local data mirror; edit forms setquerydata the response on save ([#1502](https://github.com/clevercanary/hca-atlas-tracker/issues/1502)) ([#1522](https://github.com/clevercanary/hca-atlas-tracker/issues/1522)) ([256f95f](https://github.com/clevercanary/hca-atlas-tracker/commit/256f95f116480112de37f8b03eda213beb0debb3))
+* dry usedeletesourcestudy onto usedeletedata and drop the deleted detail from cache ([#1503](https://github.com/clevercanary/hca-atlas-tracker/issues/1503)) ([#1521](https://github.com/clevercanary/hca-atlas-tracker/issues/1521)) ([1da88ef](https://github.com/clevercanary/hca-atlas-tracker/commit/1da88ef62d55385ad0aea6cead868938b58782e1))
+* fix regex linting errors ([#1361](https://github.com/clevercanary/hca-atlas-tracker/issues/1361), [#1382](https://github.com/clevercanary/hca-atlas-tracker/issues/1382)) ([#1527](https://github.com/clevercanary/hca-atlas-tracker/issues/1527)) ([087204b](https://github.com/clevercanary/hca-atlas-tracker/commit/087204bbac4a1393d2c6b96b92cbfa2951217d18))
+* use inferred types and validation for saved cellxgene info rather than assertion ([#1389](https://github.com/clevercanary/hca-atlas-tracker/issues/1389)) ([#1528](https://github.com/clevercanary/hca-atlas-tracker/issues/1528)) ([f44da5d](https://github.com/clevercanary/hca-atlas-tracker/commit/f44da5d5deb7b5c8bab4bb9a7011207cc1e0e2d4))
+
 ## [1.79.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.78.0...v1.79.0) (2026-07-31)
 
 
