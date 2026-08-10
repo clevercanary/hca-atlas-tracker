@@ -22,7 +22,9 @@ ENV ENVIRONMENT ${ENVIRONMENT}
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-RUN npm run build:${ENVIRONMENT}
+# Next's build peaks ~2.5GB of JS heap; V8's default cap (~2GB on ~8GB hosts,
+# e.g. a default-sized Docker Desktop VM) OOMs it.
+RUN NODE_OPTIONS=--max-old-space-size=4096 npm run build:${ENVIRONMENT}
 
 # Run stage
 FROM base AS runner
@@ -42,13 +44,14 @@ COPY --from=builder /app/scripts ./scripts
 # images; the runtime guard in the script is the secondary safeguard.
 RUN rm -f ./scripts/migration-down.ts
 COPY --from=builder /app/migrations ./migrations
+# The migrate entrypoint's `ts-node -r tsconfig-paths/register` needs the
+# `@/*` path mapping from tsconfig.json to resolve imports at boot.
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
 COPY --from=builder /app/app/utils/pg-app-connect-config.ts  ./app/utils/pg-app-connect-config.ts
 COPY --from=builder /app/app/utils/pg-migrate-connect-config.ts  ./app/utils/pg-migrate-connect-config.ts
 
-RUN pwd
 RUN chmod +x ./scripts/entrypoint.sh
 
 EXPOSE 3000
 ENV PORT 3000
-#CMD ["pm2-runtime", "start", "npm", "--", "start"]
 ENTRYPOINT ["./scripts/entrypoint.sh"]
