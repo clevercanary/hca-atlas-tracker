@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.80.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.80.0...v1.80.1) (2026-08-10)
+
+
+### Bug Fixes
+
+* copy tsconfig.json into runner image so the migrate entrypoint can resolve @/ imports ([103e26d](https://github.com/clevercanary/hca-atlas-tracker/commit/103e26da1ae25e31fd374a89ebaac8e09915acd6)), closes [#1530](https://github.com/clevercanary/hca-atlas-tracker/issues/1530)
+* copy tsconfig.json into runner image so the migrate entrypoint can resolve @/ imports ([#1530](https://github.com/clevercanary/hca-atlas-tracker/issues/1530)) ([#1531](https://github.com/clevercanary/hca-atlas-tracker/issues/1531)) ([103e26d](https://github.com/clevercanary/hca-atlas-tracker/commit/103e26da1ae25e31fd374a89ebaac8e09915acd6))
+
 ## [1.80.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.79.0...v1.80.0) (2026-08-09)
 
 
