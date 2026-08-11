@@ -44,4 +44,5 @@ export { ReleaseDateCell } from "./Table/components/TableCell/components/Release
 export { RowSelectionCell } from "./Table/components/TableCell/components/RowSelectionCell/rowSelectionCell";
 export { TaskCountsCell } from "./Table/components/TableCell/components/TaskCountsCell/taskCountsCell";
 export { TooltipLink } from "./Table/components/TableCell/components/TooltipLink/tooltipLink";
+export { UploadedAtCell } from "./Table/components/TableCell/components/UploadedAtCell/uploadedAtCell";
 export { ValidationStatusCell } from "./Table/components/TableCell/components/ValidationStatusCell/validationStatusCell";

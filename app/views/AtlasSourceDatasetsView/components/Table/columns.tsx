@@ -4,7 +4,6 @@ import * as C from "@/app/components";
 import { withBackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
 import { CAPIngestStatusCell } from "@/app/components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
 import { ROUTE } from "@/app/routes/constants";
-import { formatISOToUTCDateTime } from "@/app/utils/date-fns";
 import {
   buildAssay,
   buildDisease,
@@ -12,6 +11,7 @@ import {
   buildReleaseDate,
   buildSuspensionType,
   buildTissue,
+  buildUploadedAt,
 } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { type AtlasSourceDataset } from "@/app/views/AtlasSourceDatasetsView/entities";
 import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
@@ -116,17 +116,7 @@ const COLUMN_SIZE_BYTES = {
 
 const COLUMN_FILE_EVENT_TIME = {
   accessorKey: "fileEventTime",
-  cell: ({ row }) => {
-    const parts = formatISOToUTCDateTime(row.original.fileEventTime);
-    if (!parts) return null;
-    const [date, time] = parts;
-    return (
-      <div>
-        <div>{date}</div>
-        <div>{time}</div>
-      </div>
-    );
-  },
+  cell: ({ row }) => C.UploadedAtCell(buildUploadedAt(row.original)),
   header: "Uploaded At",
   meta: { width: { max: "1fr", min: "160px" } },
 } as ColumnDef<AtlasSourceDataset>;

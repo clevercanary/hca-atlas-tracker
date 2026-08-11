@@ -162,6 +162,20 @@ export const TISSUE: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
   width: { max: "1fr", min: "112px" },
 };
 
+export const UPLOADED_AT: ColumnConfig<HCAAtlasTrackerListComponentAtlas> = {
+  componentConfig: {
+    component: C.UploadedAtCell,
+    viewBuilder: V.buildUploadedAt,
+  } as ComponentConfig<
+    typeof C.UploadedAtCell,
+    HCAAtlasTrackerListComponentAtlas
+  >,
+  enableGrouping: false,
+  header: HCA_ATLAS_TRACKER_CATEGORY_LABEL.UPLOADED_AT,
+  id: HCA_ATLAS_TRACKER_CATEGORY_KEY.UPLOADED_AT,
+  width: { max: "1fr", min: "160px" },
+};
+
 export const VALIDATION_STATUS: ColumnConfig<HCAAtlasTrackerListComponentAtlas> =
   {
     componentConfig: {
