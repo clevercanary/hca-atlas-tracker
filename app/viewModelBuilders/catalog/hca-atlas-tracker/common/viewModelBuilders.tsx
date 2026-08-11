@@ -40,7 +40,6 @@ import { ICON_STATUS } from "@/app/components/Table/components/TableCell/compone
 import { ROUTE } from "@/app/routes/constants";
 import {
   formatDateToQuarterYear,
-  formatISOToUTCDateTime,
   getDateFromIsoString,
 } from "@/app/utils/date-fns";
 import { type AtlasIntegratedObject } from "@/app/views/ComponentAtlasesView/entities";
@@ -1113,6 +1112,22 @@ export const buildUpdatedAt = (
 };
 
 /**
+ * Build props for the "uploaded at" cell component. Renders the S3 event
+ * timestamp of the file backing the row (i.e. when the current version of the
+ * file was uploaded) as a two-line UTC date/time.
+ * @param entity - Entity carrying the backing file's event time.
+ * @param entity.fileEventTime - S3 event timestamp of the backing file.
+ * @returns Props to be used for the cell.
+ */
+export const buildUploadedAt = (entity: {
+  fileEventTime: string;
+}): ComponentProps<typeof C.UploadedAtCell> => {
+  return {
+    fileEventTime: entity.fileEventTime,
+  };
+};
+
+/**
  * Build props for the disabled status cell component.
  * @param user - User entity.
  * @returns Props to be used for the cell.
@@ -1286,17 +1301,8 @@ export function getAtlasComponentAtlasesTableColumns(): ColumnDef<
     getIntegratedObjectFileSizeColumnDef(),
     {
       accessorKey: "fileEventTime",
-      cell: ({ row }): JSX.Element | null => {
-        const parts = formatISOToUTCDateTime(row.original.fileEventTime);
-        if (!parts) return null;
-        const [date, time] = parts;
-        return (
-          <div>
-            <div>{date}</div>
-            <div>{time}</div>
-          </div>
-        );
-      },
+      cell: ({ row }): JSX.Element | null =>
+        C.UploadedAtCell(buildUploadedAt(row.original)),
       header: "Uploaded At",
       meta: { width: { max: "1fr", min: "160px" } },
     },
