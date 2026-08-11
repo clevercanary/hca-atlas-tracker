@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.81.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.80.1...v1.81.0) (2026-08-11)
+
+
+### Features
+
+* add "uploaded at" column to the global source datasets and integrated objects lists ([#1536](https://github.com/clevercanary/hca-atlas-tracker/issues/1536)) ([#1537](https://github.com/clevercanary/hca-atlas-tracker/issues/1537)) ([7ddd9e1](https://github.com/clevercanary/hca-atlas-tracker/commit/7ddd9e1f7af8b22423ce9499e4373ea53192424a))
+
 ## [1.80.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.80.0...v1.80.1) (2026-08-10)
 
 
