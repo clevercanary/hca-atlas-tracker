@@ -6,6 +6,7 @@ import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui
 import { IconButton as MIconButton } from "@mui/material";
 import { type CellContext } from "@tanstack/react-table";
 import { type JSX, useState } from "react";
+import { unlinkSourceDataset } from "./utils";
 
 export const IconButton = ({
   row,
@@ -16,11 +17,8 @@ export const IconButton = ({
     <MIconButton
       color={ICON_BUTTON_PROPS.COLOR.SECONDARY}
       disabled={isPending}
-      onClick={() => {
-        // Disable button immediately to prevent double-clicks.
-        // No need to reset: on success the row is removed, on error an error boundary renders.
-        setIsPending(true);
-        void onDelete({ sourceDatasetIds: [row.original.id] });
+      onClick={(): void => {
+        unlinkSourceDataset(onDelete, row.original.id, setIsPending);
       }}
       size={ICON_BUTTON_PROPS.SIZE.MEDIUM}
     >

@@ -10,7 +10,7 @@ import {
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
 }));
-jest.mock("@/app/hooks/useDeleteData");
+jest.mock("@/app/hooks/UseDeleteData/hook");
 jest.mock("@/app/providers/entity/hook");
 jest.mock("@/app/common/utils", () => ({
   ...jest.requireActual("@/app/common/utils"),
@@ -19,7 +19,8 @@ jest.mock("@/app/common/utils", () => ({
 
 import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { fetchResource } from "@/app/common/utils";
-import { useDeleteData } from "@/app/hooks/useDeleteData";
+import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/provider";
+import { useDeleteData } from "@/app/hooks/UseDeleteData/hook";
 import { useEntity } from "@/app/providers/entity/hook";
 import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/constants";
 import {
@@ -72,9 +73,10 @@ const TEST_INTEGRATED_OBJECT_SOURCE_DATASET = {
 } satisfies Partial<IntegratedObjectSourceDataset>;
 
 /**
- * Wraps a rendered hook in a QueryClientProvider so hooks that call
- * useQueryClient (e.g. for invalidation) have a client available.
- * @returns Wrapper component providing a fresh QueryClient.
+ * Wraps a rendered hook in a QueryClientProvider and SnackbarProvider so hooks
+ * that call useQueryClient (e.g. for invalidation) and useSnackbar have both
+ * available.
+ * @returns Wrapper component providing a fresh QueryClient and snackbar state.
  */
 function createQueryWrapper(): FunctionComponent<PropsWithChildren> {
   const queryClient = new QueryClient();
@@ -82,13 +84,13 @@ function createQueryWrapper(): FunctionComponent<PropsWithChildren> {
     return createElement(
       QueryClientProvider,
       { client: queryClient },
-      children,
+      createElement(SnackbarProvider, null, children),
     );
   };
 }
 
 describe("useEditIntegratedObjectSourceDatasets", () => {
-  const mockOnDelete = jest.fn().mockResolvedValue(undefined);
+  const mockOnDelete = jest.fn().mockResolvedValue(true);
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -115,6 +117,7 @@ describe("useEditIntegratedObjectSourceDatasets", () => {
       expect.stringContaining(TEST_ATLAS_ID),
       undefined,
       expect.objectContaining({
+        onError: expect.any(Function),
         onSuccess: expect.any(Function),
       }),
     );
@@ -124,7 +127,11 @@ describe("useEditIntegratedObjectSourceDatasets", () => {
     const queryClient = new QueryClient();
     const invalidateSpy = jest.spyOn(queryClient, "invalidateQueries");
     const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) =>
-      createElement(QueryClientProvider, { client: queryClient }, children);
+      createElement(
+        QueryClientProvider,
+        { client: queryClient },
+        createElement(SnackbarProvider, null, children),
+      );
 
     renderHook(
       () => useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),

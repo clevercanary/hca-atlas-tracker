@@ -438,10 +438,11 @@ function respondError(res: NextApiResponse, error: unknown): void {
   } else if (error instanceof S3KeyFormatError) {
     status = 400;
     errorInfo = { message: error.message };
-  } else if (error instanceof Error && typeof error.stack === "string") {
-    errorInfo = { message: error.stack };
   } else {
-    errorInfo = { message: String(error) };
+    // Unexpected error: the full error (including stack) is already logged by
+    // the handler wrappers; the client gets a generic message so internals
+    // (file paths, stack frames, driver errors) never leave the server.
+    errorInfo = { message: "Internal server error" };
   }
   res.status(status).json(errorInfo);
 }

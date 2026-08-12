@@ -22,7 +22,9 @@ export const DropdownMenu = ({
           key="delete-source-study"
           onClick={(): void => {
             closeMenu();
-            onDelete();
+            // A failed delete is reported via the error snackbar (the
+            // hook's onError); onDelete never rejects.
+            void onDelete();
           }}
         >
           Delete

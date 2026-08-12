@@ -1,4 +1,5 @@
 import { type PathParameter } from "@/app/common/entities";
+import { ErrorSnackbar } from "@/app/components/common/Snackbar/components/ErrorSnackbar/errorSnackbar";
 import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "@/app/components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "@/app/components/Entity/components/EntityView/entityView";
@@ -9,13 +10,14 @@ import { EntityProvider } from "@/app/providers/entity/provider";
 import { getTabs } from "@/app/views/ComponentAtlasView/common/utils";
 import { useFetchComponentAtlas } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/hook";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { Fragment, type JSX } from "react";
+import { Fragment, type JSX, useMemo } from "react";
 import { VIEW_INTEGRATED_OBJECT_SOURCE_DATASETS_SECTION_CONFIGS } from "./common/config";
 import { getBreadcrumbs } from "./common/utils";
 import { useEditIntegratedObjectSourceDatasets } from "./hooks/useEditIntegratedObjectSourceDatasets";
 import { useFetchAssociatedAtlasSourceDatasets } from "./hooks/UseFetchAssociatedAtlasSourceDatasets/hook";
 import { useFetchIntegratedObjectSourceDatasets } from "./hooks/UseFetchIntegratedObjectSourceDatasets/hook";
 import { EditIntegratedObjectSourceDatasetsContext } from "./providers/editIntegratedObjectSourceDatasets/context";
+
 interface Props {
   pathParameter: PathParameter;
 }
@@ -32,7 +34,12 @@ export const IntegratedObjectSourceDatasetsView = ({
     useFetchIntegratedObjectSourceDatasets(pathParameter);
   const formManager = useFormManager();
   const { isLoading } = formManager;
+  // Memoized so the context value's identity tracks onDelete's; an inline
+  // object literal would re-notify all context consumers on every render.
+  const editContextValue = useMemo(() => ({ onDelete }), [onDelete]);
+
   if (isLoading) return <Fragment />;
+
   return (
     <EntityProvider
       data={{
@@ -44,7 +51,9 @@ export const IntegratedObjectSourceDatasetsView = ({
       formManager={formManager}
       pathParameter={pathParameter}
     >
-      <EditIntegratedObjectSourceDatasetsContext.Provider value={{ onDelete }}>
+      <EditIntegratedObjectSourceDatasetsContext.Provider
+        value={editContextValue}
+      >
         <ConditionalComponent isIn={Boolean(atlas && componentAtlas)}>
           <StyledDetailView
             breadcrumbs={
@@ -66,6 +75,7 @@ export const IntegratedObjectSourceDatasetsView = ({
             title={componentAtlas?.title || "Integrated Object Source Datasets"}
           />
         </ConditionalComponent>
+        <ErrorSnackbar />
       </EditIntegratedObjectSourceDatasetsContext.Provider>
     </EntityProvider>
   );

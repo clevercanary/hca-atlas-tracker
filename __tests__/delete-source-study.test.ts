@@ -1,4 +1,5 @@
 import { METHOD } from "@/app/common/entities";
+import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
 import {
@@ -7,13 +8,13 @@ import {
   type PropsWithChildren,
 } from "react";
 
-jest.mock("@/app/hooks/useDeleteData");
+jest.mock("@/app/hooks/UseDeleteData/hook");
 jest.mock("next/router", () => ({
   __esModule: true,
   default: { push: jest.fn() },
 }));
 
-import { useDeleteData } from "@/app/hooks/useDeleteData";
+import { useDeleteData } from "@/app/hooks/UseDeleteData/hook";
 import { SOURCE_STUDIES } from "@/app/views/SourceStudiesView/hooks/UseFetchSourceStudies/query/constants";
 import { SOURCE_STUDY } from "@/app/views/SourceStudyView/hooks/UseFetchSourceStudy/query/constants";
 import { useDeleteSourceStudy } from "@/app/views/SourceStudyView/hooks/useDeleteSourceStudy";
@@ -34,7 +35,7 @@ beforeEach(() => {
 });
 
 describe("useDeleteSourceStudy", () => {
-  it("wires useDeleteData with the source-study DELETE endpoint and an onSuccess", () => {
+  it("wires useDeleteData with the source-study DELETE endpoint, an onError, and an onSuccess", () => {
     renderHook(() => useDeleteSourceStudy(PATH_PARAMETER), {
       wrapper: wrapperFor(new QueryClient()),
     });
@@ -42,7 +43,10 @@ describe("useDeleteSourceStudy", () => {
     expect(mockUseDeleteData).toHaveBeenCalledWith(
       expect.stringContaining(SOURCE_STUDY_ID),
       METHOD.DELETE,
-      expect.objectContaining({ onSuccess: expect.any(Function) }),
+      expect.objectContaining({
+        onError: expect.any(Function),
+        onSuccess: expect.any(Function),
+      }),
     );
     // The request URL is atlas-scoped.
     expect(mockUseDeleteData.mock.calls[0][0]).toContain(ATLAS_ID);
@@ -86,8 +90,9 @@ describe("useDeleteSourceStudy", () => {
 });
 
 /**
- * Build a QueryClientProvider wrapper around the given client so hooks that call
- * useQueryClient have one available.
+ * Build a QueryClientProvider + SnackbarProvider wrapper around the given
+ * client so hooks that call useQueryClient and useSnackbar have both
+ * available.
  * @param queryClient - Query client to provide.
  * @returns Wrapper component.
  */
@@ -98,7 +103,7 @@ function wrapperFor(
     return createElement(
       QueryClientProvider,
       { client: queryClient },
-      children,
+      createElement(SnackbarProvider, null, children),
     );
   };
 }

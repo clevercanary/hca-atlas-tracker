@@ -1,5 +1,6 @@
 import { getSourceStudyCitation } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { type PathParameter } from "@/app/common/entities";
+import { ErrorSnackbar } from "@/app/components/common/Snackbar/components/ErrorSnackbar/errorSnackbar";
 import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Actions } from "@/app/components/Detail/components/ViewSourceStudy/components/Actions/actions";
 import { Tabs } from "@/app/components/Detail/components/ViewSourceStudy/components/Tabs/tabs";
@@ -35,25 +36,35 @@ export const SourceStudyView = ({
   if (isLoading) return <Fragment />;
 
   return (
-    <ConditionalComponent isIn={Boolean(atlas && sourceStudy)}>
-      <DetailView
-        actions={
-          canEdit && <Actions isDirty={isDirty} pathParameter={pathParameter} />
-        }
-        backPath={backPath}
-        breadcrumbs={
-          <Breadcrumbs
-            breadcrumbs={getBreadcrumbs(pathParameter, atlas)}
-            onNavigate={formAction?.onNavigate}
-          />
-        }
-        mainColumn={
-          <ViewSourceStudy formManager={formManager} formMethod={formMethod} />
-        }
-        subTitle={getSourceStudyCitation(sourceStudy)}
-        tabs={<Tabs pathParameter={pathParameter} sourceStudy={sourceStudy} />}
-        title={sourceStudy?.title || "Source Study"}
-      />
-    </ConditionalComponent>
+    <Fragment>
+      <ConditionalComponent isIn={Boolean(atlas && sourceStudy)}>
+        <DetailView
+          actions={
+            canEdit && (
+              <Actions isDirty={isDirty} pathParameter={pathParameter} />
+            )
+          }
+          backPath={backPath}
+          breadcrumbs={
+            <Breadcrumbs
+              breadcrumbs={getBreadcrumbs(pathParameter, atlas)}
+              onNavigate={formAction?.onNavigate}
+            />
+          }
+          mainColumn={
+            <ViewSourceStudy
+              formManager={formManager}
+              formMethod={formMethod}
+            />
+          }
+          subTitle={getSourceStudyCitation(sourceStudy)}
+          tabs={
+            <Tabs pathParameter={pathParameter} sourceStudy={sourceStudy} />
+          }
+          title={sourceStudy?.title || "Source Study"}
+        />
+      </ConditionalComponent>
+      <ErrorSnackbar />
+    </Fragment>
   );
 };
