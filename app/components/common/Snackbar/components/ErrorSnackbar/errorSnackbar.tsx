@@ -15,6 +15,7 @@ export const ErrorSnackbar = (): JSX.Element => {
       anchorOrigin={SNACKBAR_PROPS.ORIGIN.TOP_RIGHT}
       action={
         <IconButton
+          aria-label="Close error message"
           onClick={snackbar.onClose}
           size={ICON_BUTTON_PROPS.SIZE.SMALL}
         >

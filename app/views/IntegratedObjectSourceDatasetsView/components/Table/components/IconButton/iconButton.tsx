@@ -15,10 +15,11 @@ export const IconButton = ({
   const { onDelete } = useEditIntegratedObjectSourceDatasets();
   return (
     <MIconButton
+      aria-label="Unlink source dataset"
       color={ICON_BUTTON_PROPS.COLOR.SECONDARY}
       disabled={isPending}
       onClick={(): void => {
-        unlinkSourceDataset(onDelete, row.original.id, setIsPending);
+        void unlinkSourceDataset(onDelete, row.original.id, setIsPending);
       }}
       size={ICON_BUTTON_PROPS.SIZE.MEDIUM}
     >
