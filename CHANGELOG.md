@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.81.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.81.0...v1.81.1) (2026-08-17)
+
+
+### Bug Fixes
+
+* surface delete errors — ondelete is fire-and-forget, so a failed delete fails silently ([#1520](https://github.com/clevercanary/hca-atlas-tracker/issues/1520)) ([#1539](https://github.com/clevercanary/hca-atlas-tracker/issues/1539)) ([9bad0cc](https://github.com/clevercanary/hca-atlas-tracker/commit/9bad0ccb23ab2491a373a7cebff32b29b10b352e))
+
 ## [1.81.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.80.1...v1.81.0) (2026-08-11)
 
 
