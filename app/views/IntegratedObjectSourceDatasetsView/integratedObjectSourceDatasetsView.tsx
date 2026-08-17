@@ -1,5 +1,4 @@
 import { type PathParameter } from "@/app/common/entities";
-import { ErrorSnackbar } from "@/app/components/common/Snackbar/components/ErrorSnackbar/errorSnackbar";
 import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "@/app/components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "@/app/components/Entity/components/EntityView/entityView";
@@ -75,7 +74,6 @@ export const IntegratedObjectSourceDatasetsView = ({
             title={componentAtlas?.title || "Integrated Object Source Datasets"}
           />
         </ConditionalComponent>
-        <ErrorSnackbar />
       </EditIntegratedObjectSourceDatasetsContext.Provider>
     </EntityProvider>
   );

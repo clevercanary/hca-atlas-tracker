@@ -1,7 +1,7 @@
 import { type METHOD } from "@/app/common/entities";
 import {
   fetchResource,
-  getErrorMessage,
+  getResponseErrorMessage,
   isFetchStatusOk,
 } from "@/app/common/utils";
 import {
@@ -28,7 +28,6 @@ export function queryFn<T, K extends QueryKey = QueryKey>(
       signal,
     });
     if (isFetchStatusOk(response.status)) return response.json();
-    const body = await response.json().catch(() => null);
-    throw new Error(getErrorMessage(body, response.status));
+    throw new Error(await getResponseErrorMessage(response));
   };
 }

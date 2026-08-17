@@ -76,10 +76,13 @@ const TEST_INTEGRATED_OBJECT_SOURCE_DATASET = {
  * Wraps a rendered hook in a QueryClientProvider and SnackbarProvider so hooks
  * that call useQueryClient (e.g. for invalidation) and useSnackbar have both
  * available.
- * @returns Wrapper component providing a fresh QueryClient and snackbar state.
+ * @param queryClient - Query client to provide (defaults to a fresh one); pass
+ * one in to spy on it.
+ * @returns Wrapper component providing the QueryClient and snackbar state.
  */
-function createQueryWrapper(): FunctionComponent<PropsWithChildren> {
-  const queryClient = new QueryClient();
+function createQueryWrapper(
+  queryClient = new QueryClient(),
+): FunctionComponent<PropsWithChildren> {
   return function QueryWrapper({ children }: PropsWithChildren) {
     return createElement(
       QueryClientProvider,
@@ -126,16 +129,10 @@ describe("useEditIntegratedObjectSourceDatasets", () => {
   it("invalidates the integrated object and its source datasets on successful delete", () => {
     const queryClient = new QueryClient();
     const invalidateSpy = jest.spyOn(queryClient, "invalidateQueries");
-    const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) =>
-      createElement(
-        QueryClientProvider,
-        { client: queryClient },
-        createElement(SnackbarProvider, null, children),
-      );
 
     renderHook(
       () => useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
-      { wrapper },
+      { wrapper: createQueryWrapper(queryClient) },
     );
 
     // Get the onSuccess callback passed to useDeleteData

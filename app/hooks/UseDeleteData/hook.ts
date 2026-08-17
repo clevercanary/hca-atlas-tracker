@@ -1,8 +1,11 @@
 import { METHOD } from "@/app/common/entities";
-import { fetchResource, isFetchStatusOk } from "@/app/common/utils";
+import {
+  fetchResource,
+  getResponseErrorMessage,
+  isFetchStatusOk,
+} from "@/app/common/utils";
 import { useCallback } from "react";
 import { type UseDeleteData, type UseDeleteDataOptions } from "./types";
-import { getResponseErrorMessage } from "./utils";
 
 /**
  * Returns a delete request function for the given request URL. `onDelete`

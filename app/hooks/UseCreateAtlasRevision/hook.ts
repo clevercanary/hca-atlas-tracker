@@ -1,5 +1,9 @@
 import { METHOD } from "@/app/common/entities";
-import { fetchResource, isFetchStatusCreated } from "@/app/common/utils";
+import {
+  fetchResource,
+  getResponseErrorMessage,
+  isFetchStatusCreated,
+} from "@/app/common/utils";
 import { useCallback, useState } from "react";
 import { type OnSubmitOptions, type UseCreateAtlasRevision } from "./entities";
 
@@ -22,14 +26,7 @@ export const useCreateAtlasRevision = (): UseCreateAtlasRevision => {
           const atlas = await res.json();
           options?.onSuccess?.(atlas);
         } else {
-          setError(
-            new Error(
-              await res
-                .json()
-                .then(({ message }) => message)
-                .catch(() => `Received ${res.status} response`),
-            ),
-          );
+          setError(new Error(await getResponseErrorMessage(res)));
         }
       } catch (e) {
         setIsRequesting(false);

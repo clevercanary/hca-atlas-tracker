@@ -1,10 +1,14 @@
+import { ErrorSnackbar } from "@/app/components/common/Snackbar/components/ErrorSnackbar/errorSnackbar";
 import { type JSX, useCallback, useMemo, useState } from "react";
-import { SnackbarContext } from "./context";
+import { SnackbarActionsContext, SnackbarStateContext } from "./context";
 import { type SnackbarProviderProps } from "./types";
 
 /**
- * Holds in-memory snackbar state for any UI that opts in. Exposes `open`,
- * `message`, and callbacks to descendants via `SnackbarContext`.
+ * Holds in-memory snackbar state for any UI that opts in, and renders the
+ * `ErrorSnackbar` itself (it's fixed-position, so mount location is
+ * irrelevant) — wrapping a page in this provider is the whole opt-in.
+ * Actions and state are exposed via separate contexts so opening/closing the
+ * snackbar re-renders only the snackbar, not action subscribers.
  * @param props - Provider props.
  * @param props.children - React children.
  * @returns Snackbar provider component.
@@ -26,14 +30,15 @@ export function SnackbarProvider({
     setOpen(true);
   }, []);
 
-  const value = useMemo(
-    () => ({ message, onClose, onOpen, open }),
-    [message, onClose, onOpen, open],
-  );
+  const actions = useMemo(() => ({ onClose, onOpen }), [onClose, onOpen]);
+  const state = useMemo(() => ({ message, open }), [message, open]);
 
   return (
-    <SnackbarContext.Provider value={value}>
-      {children}
-    </SnackbarContext.Provider>
+    <SnackbarActionsContext.Provider value={actions}>
+      <SnackbarStateContext.Provider value={state}>
+        {children}
+        <ErrorSnackbar />
+      </SnackbarStateContext.Provider>
+    </SnackbarActionsContext.Provider>
   );
 }

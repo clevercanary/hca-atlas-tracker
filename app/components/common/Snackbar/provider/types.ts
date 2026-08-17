@@ -1,12 +1,15 @@
 import { type ReactNode } from "react";
 
-export interface SnackbarContextProps {
-  message: string;
+export interface SnackbarActionsContextProps {
   onClose: () => void;
   onOpen: (message: string) => void;
-  open: boolean;
 }
 
 export interface SnackbarProviderProps {
   children: ReactNode;
+}
+
+export interface SnackbarStateContextProps {
+  message: string;
+  open: boolean;
 }

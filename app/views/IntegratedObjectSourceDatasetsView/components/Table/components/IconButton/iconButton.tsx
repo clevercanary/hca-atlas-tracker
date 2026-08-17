@@ -6,7 +6,6 @@ import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui
 import { IconButton as MIconButton } from "@mui/material";
 import { type CellContext } from "@tanstack/react-table";
 import { type JSX, useState } from "react";
-import { unlinkSourceDataset } from "./utils";
 
 export const IconButton = ({
   row,
@@ -18,8 +17,15 @@ export const IconButton = ({
       aria-label="Unlink source dataset"
       color={ICON_BUTTON_PROPS.COLOR.SECONDARY}
       disabled={isPending}
-      onClick={(): void => {
-        void unlinkSourceDataset(onDelete, row.original.id, setIsPending);
+      onClick={async (): Promise<void> => {
+        // onDelete never rejects — a failed unlink is surfaced via the page's
+        // error snackbar and re-enables the button so it can be retried; on
+        // success the row is removed by the resulting refetch.
+        setIsPending(true);
+        const isDeleted = await onDelete({
+          sourceDatasetIds: [row.original.id],
+        });
+        if (!isDeleted) setIsPending(false);
       }}
       size={ICON_BUTTON_PROPS.SIZE.MEDIUM}
     >
