@@ -14,13 +14,18 @@ export const IconButton = ({
   const { onDelete } = useEditIntegratedObjectSourceDatasets();
   return (
     <MIconButton
+      aria-label="Unlink source dataset"
       color={ICON_BUTTON_PROPS.COLOR.SECONDARY}
       disabled={isPending}
-      onClick={() => {
-        // Disable button immediately to prevent double-clicks.
-        // No need to reset: on success the row is removed, on error an error boundary renders.
+      onClick={async (): Promise<void> => {
+        // onDelete never rejects — a failed unlink is surfaced via the page's
+        // error snackbar and re-enables the button so it can be retried; on
+        // success the row is removed by the resulting refetch.
         setIsPending(true);
-        void onDelete({ sourceDatasetIds: [row.original.id] });
+        const isDeleted = await onDelete({
+          sourceDatasetIds: [row.original.id],
+        });
+        if (!isDeleted) setIsPending(false);
       }}
       size={ICON_BUTTON_PROPS.SIZE.MEDIUM}
     >

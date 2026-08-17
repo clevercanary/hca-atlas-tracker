@@ -1,5 +1,9 @@
 import { METHOD } from "@/app/common/entities";
-import { fetchResource, isFetchStatusOk } from "@/app/common/utils";
+import {
+  fetchResource,
+  getResponseErrorMessage,
+  isFetchStatusOk,
+} from "@/app/common/utils";
 import { useCallback } from "react";
 import {
   type OnSubmitOptions,
@@ -18,12 +22,7 @@ export const useEditFileArchived = (): UseEditFileArchived => {
       if (isFetchStatusOk(res.status)) {
         options?.onSuccess?.();
       } else {
-        throw new Error(
-          await res
-            .json()
-            .then(({ message }) => message)
-            .catch(() => `Received ${res.status} response`),
-        );
+        throw new Error(await getResponseErrorMessage(res));
       }
     },
     [],

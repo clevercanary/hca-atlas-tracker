@@ -41,6 +41,46 @@ export async function fetchResource<P>(
 }
 
 /**
+ * Extracts a human-readable message from a parsed API error body. The body is
+ * a `FormResponseErrors`: either a non-empty `{ message }` or field-keyed
+ * `{ errors: { [field]: string[] } }` (the latter for field-level/validation
+ * errors). Falls back to the status code when the body has neither shape (or
+ * failed to parse).
+ * @param body - Parsed error response body (or null/undefined if parsing failed).
+ * @param status - Response status code.
+ * @returns error message.
+ */
+export function getErrorMessage(body: unknown, status: number): string {
+  const fallbackMessage = `Received ${status} response`;
+  if (!body || typeof body !== "object") return fallbackMessage;
+  if ("message" in body && typeof body.message === "string" && body.message) {
+    return body.message;
+  }
+  if ("errors" in body && body.errors && typeof body.errors === "object") {
+    const messages = Object.values(body.errors)
+      .flat()
+      .filter((message): message is string => typeof message === "string");
+    if (messages.length) return messages.join("; ");
+  }
+  return fallbackMessage;
+}
+
+/**
+ * Extracts a human-readable message from an error response, parsing the body
+ * and delegating to `getErrorMessage` (see `FormResponseErrors` for the
+ * supported body shapes). Always resolves to a non-empty string, falling back
+ * to the response status.
+ * @param response - Error response.
+ * @returns promise (error message).
+ */
+export async function getResponseErrorMessage(
+  response: Response,
+): Promise<string> {
+  const body: unknown = await response.json().catch(() => undefined);
+  return getErrorMessage(body, response.status);
+}
+
+/**
  * Returns true if the fetch status is "Created".
  * @param status - Status.
  * @returns true if the fetch status is "Created".

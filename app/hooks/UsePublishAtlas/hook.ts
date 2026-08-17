@@ -1,5 +1,9 @@
 import { METHOD } from "@/app/common/entities";
-import { fetchResource, isFetchStatusOk } from "@/app/common/utils";
+import {
+  fetchResource,
+  getResponseErrorMessage,
+  isFetchStatusOk,
+} from "@/app/common/utils";
 import { useCallback, useState } from "react";
 import { type OnSubmitOptions, type UsePublishAtlas } from "./entities";
 
@@ -17,14 +21,7 @@ export const usePublishAtlas = (): UsePublishAtlas => {
       if (isFetchStatusOk(res.status)) {
         options?.onSuccess?.();
       } else {
-        setError(
-          new Error(
-            await res
-              .json()
-              .then(({ message }) => message)
-              .catch(() => `Received ${res.status} response`),
-          ),
-        );
+        setError(new Error(await getResponseErrorMessage(res)));
       }
     },
     [],

@@ -3,5 +3,5 @@ import { type IntegratedObjectSourceDataset } from "@/app/views/IntegratedObject
 export interface EditIntegratedObjectSourceDatasetsContextProps {
   onDelete: (payload?: {
     sourceDatasetIds: IntegratedObjectSourceDataset["id"][];
-  }) => Promise<void>;
+  }) => Promise<boolean>;
 }

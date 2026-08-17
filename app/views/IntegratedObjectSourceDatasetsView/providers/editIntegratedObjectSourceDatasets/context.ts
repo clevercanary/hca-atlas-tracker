@@ -3,5 +3,5 @@ import { type EditIntegratedObjectSourceDatasetsContextProps } from "./types";
 
 export const EditIntegratedObjectSourceDatasetsContext =
   createContext<EditIntegratedObjectSourceDatasetsContextProps>({
-    onDelete: () => Promise.resolve(),
+    onDelete: () => Promise.resolve(false),
   });
