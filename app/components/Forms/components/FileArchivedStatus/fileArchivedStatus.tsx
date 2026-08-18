@@ -28,12 +28,15 @@ export const FileArchivedStatus = ({
         // error for an action that succeeded. onSubmit never rejects — a
         // failure is surfaced via the app-level error snackbar.
         setIsPending(true);
-        await onSubmit(
-          getRequestURL(getEndpoint(isArchived), pathParameter),
-          payload,
-          options,
-        );
-        setIsPending(false);
+        try {
+          await onSubmit(
+            getRequestURL(getEndpoint(isArchived), pathParameter),
+            payload,
+            options,
+          );
+        } finally {
+          setIsPending(false);
+        }
       }}
     >
       {isArchived ? "Unarchive" : "Archive"}
