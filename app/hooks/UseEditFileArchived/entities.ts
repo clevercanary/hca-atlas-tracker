@@ -2,9 +2,10 @@ export type OnSubmitFn = (
   requestURL: string,
   payload: Payload,
   options?: OnSubmitOptions,
-) => Promise<void>;
+) => Promise<boolean>;
 
 export interface OnSubmitOptions {
+  onError?: (error: Error) => void;
   onSuccess?: () => void;
 }
 
