@@ -22,8 +22,8 @@ export const useEditIntegratedObjectSourceDatasets = (
   const { onClose: closeSnackbar, onOpen: openSnackbar } = useSnackbar();
 
   // A failed delete (including a network-level error) is surfaced via the
-  // error snackbar rendered by the page's SnackbarProvider; onDelete resolves
-  // false rather than rejecting.
+  // app-level error snackbar (SnackbarProvider is mounted in _app); onDelete
+  // resolves false rather than rejecting.
   const onError = useCallback(
     (error: Error): void => {
       openSnackbar(error.message);

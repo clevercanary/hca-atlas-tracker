@@ -4,9 +4,9 @@ import { SnackbarActionsContext, SnackbarStateContext } from "./context";
 import { type SnackbarProviderProps } from "./types";
 
 /**
- * Holds in-memory snackbar state for any UI that opts in, and renders the
- * `ErrorSnackbar` itself (it's fixed-position, so mount location is
- * irrelevant) — wrapping a page in this provider is the whole opt-in.
+ * Holds in-memory snackbar state and renders the `ErrorSnackbar` itself (it's
+ * fixed-position, so mount location is irrelevant). Mounted once in `_app`,
+ * so every page has snackbar access without opting in.
  * Actions and state are exposed via separate contexts so opening/closing the
  * snackbar re-renders only the snackbar, not action subscribers.
  * @param props - Provider props.

@@ -18,9 +18,9 @@ export const IconButton = ({
       color={ICON_BUTTON_PROPS.COLOR.SECONDARY}
       disabled={isPending}
       onClick={async (): Promise<void> => {
-        // onDelete never rejects — a failed unlink is surfaced via the page's
-        // error snackbar and re-enables the button so it can be retried; on
-        // success the row is removed by the resulting refetch.
+        // onDelete never rejects — a failed unlink is surfaced via the
+        // app-level error snackbar and re-enables the button so it can be
+        // retried; on success the row is removed by the resulting refetch.
         setIsPending(true);
         const isDeleted = await onDelete({
           sourceDatasetIds: [row.original.id],

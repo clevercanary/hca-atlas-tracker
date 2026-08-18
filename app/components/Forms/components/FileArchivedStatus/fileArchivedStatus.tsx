@@ -5,7 +5,7 @@ import { useEditFileArchived } from "@/app/hooks/UseEditFileArchived/hook";
 import { useEntity } from "@/app/providers/entity/hook";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { Button } from "@mui/material";
-import { type JSX } from "react";
+import { type JSX, useState } from "react";
 import { type Props } from "./entities";
 
 export const FileArchivedStatus = ({
@@ -16,17 +16,25 @@ export const FileArchivedStatus = ({
 }: Props): JSX.Element | null => {
   const { onSubmit } = useEditFileArchived();
   const { pathParameter } = useEntity();
+  const [isPending, setIsPending] = useState(false);
   return (
     <Button
       {...BUTTON_PROPS.SECONDARY_CONTAINED}
       className={className}
-      onClick={() =>
-        onSubmit(
+      disabled={isPending}
+      onClick={async (): Promise<void> => {
+        // Disabled while the request is in flight: the endpoint rejects a
+        // repeated archive/unarchive, so a double-click would surface an
+        // error for an action that succeeded. onSubmit never rejects — a
+        // failure is surfaced via the app-level error snackbar.
+        setIsPending(true);
+        await onSubmit(
           getRequestURL(getEndpoint(isArchived), pathParameter),
           payload,
           options,
-        )
-      }
+        );
+        setIsPending(false);
+      }}
     >
       {isArchived ? "Unarchive" : "Archive"}
     </Button>
