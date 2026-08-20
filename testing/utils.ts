@@ -399,6 +399,22 @@ export function getAllTestFiles(): TestFile[] {
   );
 }
 
+/**
+ * Builds a minimal mock Response with the given status and JSON body.
+ * @param status - Response status.
+ * @param body - Parsed JSON body (json() rejects when omitted).
+ * @returns mock response.
+ */
+export function createMockResponse(status: number, body?: unknown): Response {
+  return {
+    json: async (): Promise<unknown> => {
+      if (body === undefined) throw new Error("no body");
+      return body;
+    },
+    status,
+  } as Response;
+}
+
 export function withConsoleErrorHiding<T>(
   fn: () => Promise<T>,
   hideConsoleError = true,

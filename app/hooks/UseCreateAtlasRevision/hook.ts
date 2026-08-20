@@ -1,4 +1,5 @@
 import { METHOD } from "@/app/common/entities";
+import { toError } from "@/app/common/requests";
 import {
   fetchResource,
   getResponseErrorMessage,
@@ -30,7 +31,7 @@ export const useCreateAtlasRevision = (): UseCreateAtlasRevision => {
         }
       } catch (e) {
         setIsRequesting(false);
-        setError(e instanceof Error ? e : new Error(String(e)));
+        setError(toError(e));
       }
     },
     [],

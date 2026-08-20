@@ -1,3 +1,4 @@
+import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/provider";
 import { AppHeader } from "@/app/components/Layout/components/Header/appHeader";
 import { config } from "@/app/config/config";
 import { useLogoutCallbackUrl } from "@/app/hooks/UseLogoutCallbackUrl/hook";
@@ -86,45 +87,52 @@ function MyApp(props: AppPropsWithComponent): JSX.Element {
                     refetchInterval={SESSION_REFETCH_INTERVAL}
                   >
                     <LayoutDimensionsProvider>
-                      <AppLayout>
-                        <ThemeProvider
-                          theme={(theme: Theme): Theme =>
-                            createTheme(
-                              deepmerge(theme, {
-                                breakpoints: createBreakpoints(BREAKPOINTS),
-                              }),
-                            )
-                          }
-                        >
-                          <AppHeader header={header} />
-                        </ThemeProvider>
-                        <ExploreStateProvider entityListType={entityListType}>
-                          <AuthorizationProvider>
-                            <Main>
-                              <ErrorBoundary
-                                fallbackRender={({
-                                  error,
-                                  reset,
-                                }: {
-                                  error: DataExplorerError;
-                                  reset: () => void;
-                                }): JSX.Element => (
-                                  <Error
-                                    errorMessage={error.message}
-                                    onReset={reset}
-                                    requestUrlMessage={error.requestUrlMessage}
-                                    rootPath={ROUTE.ATLASES}
-                                  />
-                                )}
-                              >
-                                <Component {...pageProps} />
-                                <Floating {...floating} />
-                              </ErrorBoundary>
-                            </Main>
-                          </AuthorizationProvider>
-                        </ExploreStateProvider>
-                        <Footer {...footer} />
-                      </AppLayout>
+                      {/* SnackbarProvider wraps the whole layout (not just the
+                      page) so header/footer consumers are covered and an open
+                      snackbar survives a page render error. */}
+                      <SnackbarProvider>
+                        <AppLayout>
+                          <ThemeProvider
+                            theme={(theme: Theme): Theme =>
+                              createTheme(
+                                deepmerge(theme, {
+                                  breakpoints: createBreakpoints(BREAKPOINTS),
+                                }),
+                              )
+                            }
+                          >
+                            <AppHeader header={header} />
+                          </ThemeProvider>
+                          <ExploreStateProvider entityListType={entityListType}>
+                            <AuthorizationProvider>
+                              <Main>
+                                <ErrorBoundary
+                                  fallbackRender={({
+                                    error,
+                                    reset,
+                                  }: {
+                                    error: DataExplorerError;
+                                    reset: () => void;
+                                  }): JSX.Element => (
+                                    <Error
+                                      errorMessage={error.message}
+                                      onReset={reset}
+                                      requestUrlMessage={
+                                        error.requestUrlMessage
+                                      }
+                                      rootPath={ROUTE.ATLASES}
+                                    />
+                                  )}
+                                >
+                                  <Component {...pageProps} />
+                                  <Floating {...floating} />
+                                </ErrorBoundary>
+                              </Main>
+                            </AuthorizationProvider>
+                          </ExploreStateProvider>
+                          <Footer {...footer} />
+                        </AppLayout>
+                      </SnackbarProvider>
                     </LayoutDimensionsProvider>
                   </NextAuthAuthenticationProvider>
                 </SystemStatusProvider>
