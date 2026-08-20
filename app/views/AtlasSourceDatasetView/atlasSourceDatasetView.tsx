@@ -55,24 +55,28 @@ export const AtlasSourceDatasetView = ({
                 isArchived={sourceDataset.isArchived}
                 payload={mapPayload(sourceDataset)}
                 options={{
-                  onSuccess: () => {
-                    // Archiving changes the source dataset detail (isArchived)
-                    // and atlas-derived data; invalidate the React Query caches
-                    // (and the list, for when the user navigates back).
-                    queryClient.invalidateQueries({
-                      queryKey: [
-                        SOURCE_DATASET,
-                        pathParameter.atlasId,
-                        pathParameter.sourceDatasetId,
-                      ],
-                    });
-                    queryClient.invalidateQueries({
-                      queryKey: [ATLAS, pathParameter.atlasId],
-                    });
-                    queryClient.invalidateQueries({
-                      queryKey: [SOURCE_DATASETS, pathParameter.atlasId],
-                    });
-                  },
+                  // Archiving changes the source dataset detail (isArchived)
+                  // and atlas-derived data; invalidate the React Query caches
+                  // (and the list, for when the user navigates back). The
+                  // invalidations are returned so onSubmit (which awaits
+                  // onSuccess) keeps the button pending until the refetched
+                  // isArchived lands.
+                  onSuccess: (): Promise<unknown> =>
+                    Promise.all([
+                      queryClient.invalidateQueries({
+                        queryKey: [
+                          SOURCE_DATASET,
+                          pathParameter.atlasId,
+                          pathParameter.sourceDatasetId,
+                        ],
+                      }),
+                      queryClient.invalidateQueries({
+                        queryKey: [ATLAS, pathParameter.atlasId],
+                      }),
+                      queryClient.invalidateQueries({
+                        queryKey: [SOURCE_DATASETS, pathParameter.atlasId],
+                      }),
+                    ]),
                 }}
               />
             )

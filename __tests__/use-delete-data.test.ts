@@ -83,6 +83,18 @@ describe("useDeleteData", () => {
     expect(onSuccess).not.toHaveBeenCalled();
   });
 
+  it("resolves false when onError throws (never-rejects contract)", async () => {
+    mockFetchResource.mockRejectedValue(new Error("Failed to fetch"));
+    onError.mockImplementation(() => {
+      throw new Error("handler error");
+    });
+
+    await withConsoleErrorHiding(async () => {
+      await expect(renderOnDelete()()).resolves.toBe(false);
+    });
+    expect(onSuccess).not.toHaveBeenCalled();
+  });
+
   it("resolves true when onSuccess throws (delete itself succeeded)", async () => {
     mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
     onSuccess.mockImplementation(() => {

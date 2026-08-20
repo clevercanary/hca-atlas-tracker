@@ -20,7 +20,7 @@ export const ErrorSnackbar = (): JSX.Element => {
       action={
         <IconButton
           aria-label="Close error message"
-          onClick={onClose}
+          onClick={(): void => onClose()}
           size={ICON_BUTTON_PROPS.SIZE.SMALL}
         >
           <CloseRounded fontSize={SVG_ICON_PROPS.FONT_SIZE.XXSMALL} />

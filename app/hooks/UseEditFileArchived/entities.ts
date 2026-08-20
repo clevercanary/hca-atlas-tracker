@@ -6,7 +6,7 @@ export type OnSubmitFn = (
 
 export interface OnSubmitOptions {
   onError?: (error: Error) => void;
-  onSuccess?: () => void;
+  onSuccess?: () => void | Promise<unknown>;
 }
 
 export interface Payload {

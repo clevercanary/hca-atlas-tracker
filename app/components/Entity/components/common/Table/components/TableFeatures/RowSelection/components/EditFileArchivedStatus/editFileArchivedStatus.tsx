@@ -20,10 +20,14 @@ export const EditFileArchivedStatus = <T extends RowData>({
       isArchived={archived}
       payload={mapPayload(rows)}
       options={{
-        onSuccess: () => {
+        // The invalidations are returned so onSubmit (which awaits onSuccess)
+        // keeps the action pending until the refetched data lands.
+        onSuccess: (): Promise<unknown> => {
           table.resetRowSelection();
-          queryKeys?.forEach((queryKey) =>
-            queryClient.invalidateQueries({ queryKey }),
+          return Promise.all(
+            (queryKeys ?? []).map((queryKey) =>
+              queryClient.invalidateQueries({ queryKey }),
+            ),
           );
         },
       }}
