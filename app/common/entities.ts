@@ -35,3 +35,8 @@ export interface PathParameter {
   userId?: UserId;
   validatorName?: ValidatorName;
 }
+
+export interface PerformRequestOptions {
+  onError: (error: Error) => void;
+  onSuccess?: () => void | Promise<unknown>;
+}

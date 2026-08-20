@@ -1,8 +1,8 @@
 import { type ReactNode } from "react";
 
 export interface SnackbarActionsContextProps {
-  onClose: () => void;
-  onOpen: (message: string) => void;
+  onClose: (id?: number) => void;
+  onOpen: (message: string) => number;
 }
 
 export interface SnackbarProviderProps {

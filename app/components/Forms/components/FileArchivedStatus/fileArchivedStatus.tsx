@@ -23,10 +23,15 @@ export const FileArchivedStatus = ({
       className={className}
       disabled={isPending}
       onClick={async (): Promise<void> => {
-        // Disabled while the request is in flight: the endpoint rejects a
-        // repeated archive/unarchive, so a double-click would surface an
-        // error for an action that succeeded. onSubmit never rejects — a
-        // failure is surfaced via the app-level error snackbar.
+        // Disabled until onSubmit settles: the endpoint rejects a repeated
+        // archive/unarchive, so a repeat click would surface an error for an
+        // action that succeeded. onSubmit awaits options.onSuccess, so when
+        // it (as all callers do) returns the query invalidations, the button
+        // stays disabled until the refetched isArchived lands — not just
+        // until the response, when a second click could still re-send the
+        // action against the stale isArchived. onSubmit never rejects — a
+        // failure is surfaced via the app-level error snackbar — but the
+        // finally guards re-enabling against an unexpected rejection anyway.
         setIsPending(true);
         try {
           await onSubmit(

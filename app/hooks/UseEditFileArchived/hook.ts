@@ -1,10 +1,6 @@
 import { METHOD } from "@/app/common/entities";
-import {
-  fetchResource,
-  getResponseErrorMessage,
-  isFetchStatusOk,
-} from "@/app/common/utils";
-import { useSnackbar } from "@/app/components/common/Snackbar/provider/hook";
+import { performRequest } from "@/app/common/requests";
+import { useErrorSnackbar } from "@/app/components/common/Snackbar/hooks/UseErrorSnackbar/hook";
 import { useCallback } from "react";
 import {
   type OnSubmitOptions,
@@ -14,15 +10,16 @@ import {
 
 /**
  * Returns a request function for archiving/unarchiving files. `onSubmit`
- * never rejects: any failure — a non-OK response or a network-level fetch
- * error — is surfaced via the app-level error snackbar (or routed to
- * `options.onError` when given) and resolves `false`; success dismisses a
- * stale error from a previous attempt, calls `options.onSuccess`, and
- * resolves `true`.
+ * never rejects (see `performRequest`): any failure — a non-OK response or a
+ * network-level fetch error — is surfaced via the app-level error snackbar
+ * (or routed to `options.onError` when given, in which case the snackbar is
+ * never touched) and resolves `false`; success calls (and awaits)
+ * `options.onSuccess`, dismisses this hook's own stale error from a previous
+ * attempt (never one opened by another feature), and resolves `true`.
  * @returns submit request function, resolving `true` on success.
  */
 export const useEditFileArchived = (): UseEditFileArchived => {
-  const { onClose: closeSnackbar, onOpen: openSnackbar } = useSnackbar();
+  const { dismissError, onError: openErrorSnackbar } = useErrorSnackbar();
 
   const onSubmit = useCallback(
     async (
@@ -30,35 +27,18 @@ export const useEditFileArchived = (): UseEditFileArchived => {
       payload: Payload,
       options?: OnSubmitOptions,
     ): Promise<boolean> => {
-      const {
-        onError = (error: Error): void => openSnackbar(error.message),
+      const { onError = openErrorSnackbar, onSuccess } = options ?? {};
+      const success = await performRequest(requestURL, METHOD.PATCH, payload, {
+        onError,
         onSuccess,
-      } = options ?? {};
-      let res: Response;
-      try {
-        res = await fetchResource(requestURL, METHOD.PATCH, payload);
-      } catch (e) {
-        onError(e instanceof Error ? e : new Error(String(e)));
-        return false;
-      }
-      if (!isFetchStatusOk(res.status)) {
-        onError(new Error(await getResponseErrorMessage(res)));
-        return false;
-      }
-      // Called outside the try above so an exception thrown by onSuccess
-      // isn't misreported as a failed request; caught and logged here so it
-      // also can't reject onSubmit and break the never-rejects contract (the
-      // request itself succeeded).
-      try {
-        // Dismiss a stale error from a previous attempt.
-        closeSnackbar();
-        onSuccess?.();
-      } catch (e) {
-        console.error(e);
-      }
-      return true;
+      });
+      // Dismiss this hook's stale error from a previous attempt; scoped, so
+      // it's a no-op when the snackbar shows another feature's error or when
+      // an onError override kept errors out of the snackbar entirely.
+      if (success) dismissError();
+      return success;
     },
-    [closeSnackbar, openSnackbar],
+    [dismissError, openErrorSnackbar],
   );
 
   return { onSubmit };

@@ -58,21 +58,26 @@ export const ComponentAtlasView = ({
                 isArchived={componentAtlas.isArchived}
                 payload={mapPayload(componentAtlas)}
                 options={{
-                  onSuccess: () => {
-                    queryClient.invalidateQueries({
-                      queryKey: [
-                        INTEGRATED_OBJECT,
-                        pathParameter.atlasId,
-                        pathParameter.componentAtlasId,
-                      ],
-                    });
-                    // Archiving changes atlas-derived data, so the atlas detail
-                    // must refetch too (matches the source-dataset archive
-                    // flows). The atlas list is staleTime:0 and self-refreshes.
-                    queryClient.invalidateQueries({
-                      queryKey: [ATLAS, pathParameter.atlasId],
-                    });
-                  },
+                  // The invalidations are returned so onSubmit (which awaits
+                  // onSuccess) keeps the button pending until the refetched
+                  // isArchived lands.
+                  onSuccess: (): Promise<unknown> =>
+                    Promise.all([
+                      queryClient.invalidateQueries({
+                        queryKey: [
+                          INTEGRATED_OBJECT,
+                          pathParameter.atlasId,
+                          pathParameter.componentAtlasId,
+                        ],
+                      }),
+                      // Archiving changes atlas-derived data, so the atlas
+                      // detail must refetch too (matches the source-dataset
+                      // archive flows). The atlas list is staleTime:0 and
+                      // self-refreshes.
+                      queryClient.invalidateQueries({
+                        queryKey: [ATLAS, pathParameter.atlasId],
+                      }),
+                    ]),
                 }}
               />
             )

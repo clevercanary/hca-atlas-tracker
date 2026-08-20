@@ -1,7 +1,7 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
 import { type PathParameter } from "@/app/common/entities";
 import { getRequestURL } from "@/app/common/utils";
-import { useSnackbar } from "@/app/components/common/Snackbar/provider/hook";
+import { useErrorSnackbar } from "@/app/components/common/Snackbar/hooks/UseErrorSnackbar/hook";
 import { useDeleteData } from "@/app/hooks/UseDeleteData/hook";
 import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/constants";
 import { type IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
@@ -19,21 +19,15 @@ export const useEditIntegratedObjectSourceDatasets = (
   pathParameter: PathParameter,
 ): UseEditIntegratedObjectSourceDatasets => {
   const queryClient = useQueryClient();
-  const { onClose: closeSnackbar, onOpen: openSnackbar } = useSnackbar();
-
   // A failed delete (including a network-level error) is surfaced via the
   // app-level error snackbar (SnackbarProvider is mounted in _app); onDelete
   // resolves false rather than rejecting.
-  const onError = useCallback(
-    (error: Error): void => {
-      openSnackbar(error.message);
-    },
-    [openSnackbar],
-  );
+  const { dismissError, onError } = useErrorSnackbar();
 
   const onSuccess = useCallback((): void => {
-    // Dismiss a stale error from a previous attempt.
-    closeSnackbar();
+    // Dismiss this hook's stale error from a previous attempt (scoped; see
+    // useErrorSnackbar).
+    dismissError();
     // Both the integrated object detail and its source datasets list change
     // when datasets are removed.
     queryClient.invalidateQueries({
@@ -50,7 +44,7 @@ export const useEditIntegratedObjectSourceDatasets = (
         pathParameter.componentAtlasId,
       ],
     });
-  }, [closeSnackbar, pathParameter, queryClient]);
+  }, [dismissError, pathParameter, queryClient]);
 
   const { onDelete } = useDeleteData<{
     sourceDatasetIds: IntegratedObjectSourceDataset["id"][];
