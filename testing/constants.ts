@@ -4711,6 +4711,8 @@ const BASE_ATLAS_PUBLISHED = {
 } satisfies Partial<TestAtlas>;
 export const ATLAS_PUBLISHED_R6: TestAtlas = {
   ...BASE_ATLAS_PUBLISHED,
+  capId: "https://celltype.info/project/60582",
+  cellxgeneAtlasCollection: CELLXGENE_ID_NORMAL,
   id: ATLAS_ID_PUBLISHED_R6,
   publishedAt: "2026-02-24T20:44:05.405Z",
   revision: 6,
@@ -4767,6 +4769,8 @@ const BASE_ATLAS_WITH_DRAFT_LATEST = {
 } satisfies Partial<TestAtlas>;
 export const ATLAS_WITH_DRAFT_LATEST_R0: TestAtlas = {
   ...BASE_ATLAS_WITH_DRAFT_LATEST,
+  // Deliberately absent from `TEST_CELLXGENE_COLLECTIONS_BY_ID`, so that the collection's title is unresolvable
+  cellxgeneAtlasCollection: "b6f1a52a-6d2e-4a0e-8a9c-3f5b7c1d0e42",
   componentAtlases: [
     COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT_R1.versionId,
     COMPONENT_ATLAS_DRAFT_LATEST_SAME.versionId,

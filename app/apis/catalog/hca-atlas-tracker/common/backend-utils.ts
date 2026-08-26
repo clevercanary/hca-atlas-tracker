@@ -56,11 +56,31 @@ import {
   makeFileVersionString,
 } from "./utils";
 
+/**
+ * Get the title of the given CELLxGENE collection, if available.
+ * @param collectionId - CELLxGENE collection ID, or null if the atlas has none.
+ * @returns collection title, or null if there's no collection or its title isn't currently available.
+ */
+function getAtlasCellxGeneCollectionTitle(
+  collectionId: string | null,
+): string | null {
+  if (!collectionId) return null;
+  return (
+    getCellxGeneCollectionInfoById(collectionId).unwrapRefresh(undefined)
+      ?.title ?? null
+  );
+}
+
 export function dbAtlasToAtlasSummary(
   dbAtlas: HCAAtlasTrackerDBAtlas,
 ): HCAAtlasTrackerAtlasSummary {
   const version = `v${dbAtlas.generation}.${dbAtlas.revision}`;
   return {
+    capId: dbAtlas.overview.capId,
+    cellxgeneAtlasCollection: dbAtlas.overview.cellxgeneAtlasCollection,
+    cellxgeneAtlasCollectionTitle: getAtlasCellxGeneCollectionTitle(
+      dbAtlas.overview.cellxgeneAtlasCollection,
+    ),
     id: dbAtlas.id,
     name: `${dbAtlas.overview.shortName} ${version}`,
     network: dbAtlas.overview.network,
@@ -74,16 +94,13 @@ export function dbAtlasToAtlasSummary(
 export function dbAtlasToApiAtlas(
   dbAtlas: HCAAtlasTrackerDBAtlasForAPI,
 ): HCAAtlasTrackerAtlas {
-  const cxgTitle =
-    dbAtlas.overview.cellxgeneAtlasCollection &&
-    getCellxGeneCollectionInfoById(
-      dbAtlas.overview.cellxgeneAtlasCollection,
-    ).unwrapRefresh(undefined)?.title;
   return {
     bioNetwork: dbAtlas.overview.network,
     capId: dbAtlas.overview.capId,
     cellxgeneAtlasCollection: dbAtlas.overview.cellxgeneAtlasCollection,
-    cellxgeneAtlasCollectionTitle: cxgTitle ?? null,
+    cellxgeneAtlasCollectionTitle: getAtlasCellxGeneCollectionTitle(
+      dbAtlas.overview.cellxgeneAtlasCollection,
+    ),
     codeLinks: dbAtlas.overview.codeLinks,
     completedTaskCount: dbAtlas.overview.completedTaskCount,
     componentAtlasCount: dbAtlas.component_atlas_count,

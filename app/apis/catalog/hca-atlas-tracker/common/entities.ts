@@ -17,6 +17,9 @@ export type APIKey = keyof typeof API;
 export type APIValue = (typeof API)[APIKey];
 
 export interface HCAAtlasTrackerAtlasSummary {
+  capId: string | null;
+  cellxgeneAtlasCollection: string | null;
+  cellxgeneAtlasCollectionTitle: string | null;
   id: string;
   name: string;
   network: NetworkKey;

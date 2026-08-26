@@ -59,6 +59,7 @@ import {
   INITIAL_TEST_SOURCE_DATASETS,
   INTEGRATION_LEADS_BY_ATLAS_ID,
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,
+  TEST_CELLXGENE_COLLECTIONS_BY_ID,
   TEST_HCA_PROJECTS_BY_DOI,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_INTEGRATION_LEAD_PUBLIC,
@@ -510,18 +511,24 @@ export function expectAtlasSummaryToMatchTestAtlas(
   atlasSummary: HCAAtlasTrackerAtlasSummary,
   testAtlas: TestAtlas,
 ): void {
+  const { cellxgeneAtlasCollection } = testAtlas;
   const expectedVersion = `v${testAtlas.generation}.${testAtlas.revision}`;
-  expect(atlasSummary.id).toEqual(testAtlas.id);
-  expect(atlasSummary.name).toEqual(
-    `${testAtlas.shortName} ${expectedVersion}`,
-  );
-  expect(atlasSummary.network).toEqual(testAtlas.network);
-  expect(atlasSummary.publishedAt).toEqual(testAtlas.publishedAt ?? null);
-  expect(atlasSummary.shortName).toEqual(testAtlas.shortName);
-  expect(atlasSummary.shortNameSlug).toEqual(
-    getTestAtlasShortNameSlug(testAtlas),
-  );
-  expect(atlasSummary.version).toEqual(expectedVersion);
+  expect(atlasSummary).toEqual({
+    capId: testAtlas.capId ?? null,
+    cellxgeneAtlasCollection,
+    cellxgeneAtlasCollectionTitle:
+      cellxgeneAtlasCollection === null
+        ? null
+        : (TEST_CELLXGENE_COLLECTIONS_BY_ID.get(cellxgeneAtlasCollection)
+            ?.title ?? null),
+    id: testAtlas.id,
+    name: `${testAtlas.shortName} ${expectedVersion}`,
+    network: testAtlas.network,
+    publishedAt: testAtlas.publishedAt ?? null,
+    shortName: testAtlas.shortName,
+    shortNameSlug: getTestAtlasShortNameSlug(testAtlas),
+    version: expectedVersion,
+  } satisfies HCAAtlasTrackerAtlasSummary);
 }
 
 export function expectApiAtlasToMatchTest(
