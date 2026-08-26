@@ -59,6 +59,7 @@ import {
   INITIAL_TEST_SOURCE_DATASETS,
   INTEGRATION_LEADS_BY_ATLAS_ID,
   TEST_CELLXGENE_COLLECTIONS_BY_DOI,
+  TEST_CELLXGENE_COLLECTIONS_BY_ID,
   TEST_HCA_PROJECTS_BY_DOI,
   USER_INTEGRATION_LEAD_DRAFT,
   USER_INTEGRATION_LEAD_PUBLIC,
@@ -511,6 +512,16 @@ export function expectAtlasSummaryToMatchTestAtlas(
   testAtlas: TestAtlas,
 ): void {
   const expectedVersion = `v${testAtlas.generation}.${testAtlas.revision}`;
+  expect(atlasSummary.capId).toEqual(testAtlas.capId ?? null);
+  expect(atlasSummary.cellxgeneAtlasCollection).toEqual(
+    testAtlas.cellxgeneAtlasCollection,
+  );
+  expect(atlasSummary.cellxgeneAtlasCollectionTitle).toEqual(
+    (testAtlas.cellxgeneAtlasCollection === null
+      ? null
+      : TEST_CELLXGENE_COLLECTIONS_BY_ID.get(testAtlas.cellxgeneAtlasCollection)
+          ?.title) ?? null,
+  );
   expect(atlasSummary.id).toEqual(testAtlas.id);
   expect(atlasSummary.name).toEqual(
     `${testAtlas.shortName} ${expectedVersion}`,

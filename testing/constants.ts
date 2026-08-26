@@ -4767,6 +4767,8 @@ const BASE_ATLAS_WITH_DRAFT_LATEST = {
 } satisfies Partial<TestAtlas>;
 export const ATLAS_WITH_DRAFT_LATEST_R0: TestAtlas = {
   ...BASE_ATLAS_WITH_DRAFT_LATEST,
+  capId: "https://celltype.info/project/60582",
+  cellxgeneAtlasCollection: CELLXGENE_ID_NORMAL,
   componentAtlases: [
     COMPONENT_ATLAS_DRAFT_LATEST_DIFFERENT_R1.versionId,
     COMPONENT_ATLAS_DRAFT_LATEST_SAME.versionId,
