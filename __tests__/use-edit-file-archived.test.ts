@@ -1,8 +1,14 @@
-import { act, renderHook, type RenderHookResult } from "@testing-library/react";
+import {
+  act,
+  render,
+  renderHook,
+  type RenderHookResult,
+} from "@testing-library/react";
 import {
   createElement,
   type FunctionComponent,
   type PropsWithChildren,
+  useState,
 } from "react";
 
 // Mock dependencies before imports
@@ -22,7 +28,11 @@ import {
   type SnackbarActionsContextProps,
   type SnackbarStateContextProps,
 } from "@/app/components/common/Snackbar/provider/types";
-import { type OnSubmitOptions } from "@/app/hooks/UseEditFileArchived/entities";
+import { SNACKBAR_SCOPE } from "@/app/components/common/Snackbar/types";
+import {
+  type OnSubmitFn,
+  type OnSubmitOptions,
+} from "@/app/hooks/UseEditFileArchived/entities";
 import { useEditFileArchived } from "@/app/hooks/UseEditFileArchived/hook";
 import { createMockResponse, withConsoleErrorHiding } from "@/testing/utils";
 
@@ -81,6 +91,77 @@ async function submit(
     );
   });
   return submitted;
+}
+
+interface RemountHarness {
+  // Opens a message owned by an unrelated feature.
+  openForeignError: (message: string) => void;
+  // Unmounts the hook's consumer and mounts a fresh one, leaving the
+  // app-level provider (and any open message) in place.
+  remountConsumer: () => Promise<void>;
+  snackbar: () => SnackbarStateContextProps;
+  submit: () => Promise<boolean>;
+}
+
+/**
+ * Renders the hook under test inside a SnackbarProvider whose consumer can be
+ * unmounted and remounted, simulating client-side navigation: the provider is
+ * mounted in `_app`, so it outlives the page, while the page's hook instance
+ * does not.
+ * @returns handles to submit, remount the consumer, and read snackbar state.
+ */
+function renderRemountHarness(): RemountHarness {
+  let onSubmit: OnSubmitFn | undefined;
+  let snackbarState: SnackbarStateContextProps | undefined;
+  let snackbarActions: SnackbarActionsContextProps | undefined;
+  let setConsumerMounted: ((mounted: boolean) => void) | undefined;
+
+  const Consumer: FunctionComponent = () => {
+    ({ onSubmit } = useEditFileArchived());
+    return null;
+  };
+
+  const StateReader: FunctionComponent = () => {
+    snackbarState = useSnackbarState();
+    snackbarActions = useSnackbar();
+    return null;
+  };
+
+  const Harness: FunctionComponent = () => {
+    const [mounted, setMounted] = useState(true);
+    setConsumerMounted = setMounted;
+    return createElement(
+      SnackbarProvider,
+      null,
+      mounted ? createElement(Consumer) : null,
+      createElement(StateReader),
+    );
+  };
+
+  render(createElement(Harness));
+
+  return {
+    openForeignError: (message: string): void => {
+      act(() => {
+        snackbarActions?.onOpen(message, SNACKBAR_SCOPE.DELETE_SOURCE_STUDY);
+      });
+    },
+    remountConsumer: async (): Promise<void> => {
+      await act(async () => setConsumerMounted?.(false));
+      await act(async () => setConsumerMounted?.(true));
+    },
+    snackbar: (): SnackbarStateContextProps => {
+      if (!snackbarState) throw new Error("snackbar state not rendered");
+      return snackbarState;
+    },
+    submit: async (): Promise<boolean> => {
+      let submitted = false;
+      await act(async () => {
+        submitted = (await onSubmit?.(TEST_REQUEST_URL, TEST_PAYLOAD)) ?? false;
+      });
+      return submitted;
+    },
+  };
 }
 
 describe("useEditFileArchived", () => {
@@ -165,7 +246,10 @@ describe("useEditFileArchived", () => {
     const { result } = renderUseEditFileArchived();
     // Simulate an unread error owned by an unrelated feature.
     act(() => {
-      result.current.snackbarActions.onOpen("Forbidden for this atlas");
+      result.current.snackbarActions.onOpen(
+        "Forbidden for this atlas",
+        SNACKBAR_SCOPE.DELETE_SOURCE_STUDY,
+      );
     });
 
     await expect(submit(result, { onSuccess })).resolves.toBe(true);
@@ -181,7 +265,10 @@ describe("useEditFileArchived", () => {
 
     // Another feature's error replaces this hook's before the retry succeeds.
     act(() => {
-      result.current.snackbarActions.onOpen("Unrelated error");
+      result.current.snackbarActions.onOpen(
+        "Unrelated error",
+        SNACKBAR_SCOPE.DELETE_SOURCE_STUDY,
+      );
     });
 
     mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
@@ -195,12 +282,51 @@ describe("useEditFileArchived", () => {
 
     const { result } = renderUseEditFileArchived();
     act(() => {
-      result.current.snackbarActions.onOpen("Unrelated error");
+      result.current.snackbarActions.onOpen(
+        "Unrelated error",
+        SNACKBAR_SCOPE.DELETE_SOURCE_STUDY,
+      );
     });
 
     await expect(submit(result, { onError, onSuccess })).resolves.toBe(true);
     expect(result.current.snackbar.open).toBe(true);
     expect(result.current.snackbar.message).toBe("Unrelated error");
+  });
+
+  it("dismisses this feature's stale error after the hook remounts on another page", async () => {
+    const harness = renderRemountHarness();
+
+    // Archive fails on one page.
+    mockFetchResource.mockResolvedValue(
+      createMockResponse(403, { message: "Forbidden for this atlas" }),
+    );
+    await expect(harness.submit()).resolves.toBe(false);
+    expect(harness.snackbar().open).toBe(true);
+
+    // Navigating unmounts the hook; the app-level provider keeps the message.
+    await harness.remountConsumer();
+    expect(harness.snackbar().open).toBe(true);
+
+    // A success from the fresh instance still owns the message, so it clears.
+    mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
+    await expect(harness.submit()).resolves.toBe(true);
+    expect(harness.snackbar().open).toBe(false);
+  });
+
+  it("still leaves another feature's error alone after the hook remounts", async () => {
+    const harness = renderRemountHarness();
+
+    mockFetchResource.mockResolvedValue(createMockResponse(500));
+    await harness.submit();
+    await harness.remountConsumer();
+
+    // An unrelated feature's unread error replaces this one after the remount.
+    harness.openForeignError("Forbidden for this atlas");
+
+    mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
+    await expect(harness.submit()).resolves.toBe(true);
+    expect(harness.snackbar().open).toBe(true);
+    expect(harness.snackbar().message).toBe("Forbidden for this atlas");
   });
 
   it("resolves false when an onError override throws (never-rejects contract)", async () => {

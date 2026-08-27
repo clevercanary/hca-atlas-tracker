@@ -1,4 +1,5 @@
 import { ErrorSnackbar } from "@/app/components/common/Snackbar/components/ErrorSnackbar/errorSnackbar";
+import { type SnackbarScope } from "@/app/components/common/Snackbar/types";
 import { type JSX, useCallback, useMemo, useRef, useState } from "react";
 import { SnackbarActionsContext, SnackbarStateContext } from "./context";
 import { type SnackbarProviderProps } from "./types";
@@ -9,11 +10,13 @@ import { type SnackbarProviderProps } from "./types";
  * so every page has snackbar access without opting in.
  * Actions and state are exposed via separate contexts so opening/closing the
  * snackbar re-renders only the snackbar, not action subscribers.
- * `onOpen` returns a handle identifying the message it opened; passing that
- * handle to `onClose` closes the snackbar only if that message is still the
- * one showing, so a feature dismissing its own stale error can't dismiss an
- * unread error opened by another feature in the meantime. Calling `onClose`
- * without a handle closes unconditionally (the snackbar's own close button).
+ * `onOpen` records the scope that opened the message; passing that scope to
+ * `onClose` closes the snackbar only if that scope's message is still the one
+ * showing, so a feature dismissing its own stale error can't dismiss an unread
+ * error opened by another feature in the meantime. Ownership is tracked here
+ * rather than in the calling hook because this provider outlives page
+ * navigation while its consumers don't. Calling `onClose` without a scope
+ * closes unconditionally (the snackbar's own close button).
  * @param props - Provider props.
  * @param props.children - React children.
  * @returns Snackbar provider component.
@@ -23,22 +26,22 @@ export function SnackbarProvider({
 }: SnackbarProviderProps): JSX.Element {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
-  // Handle of the most recently opened message, for scoped closes.
-  const openedIdRef = useRef(0);
+  // Scope that opened the message currently showing, for scoped closes.
+  const openedScopeRef = useRef<SnackbarScope | undefined>(undefined);
 
-  const onClose = useCallback((id?: number): void => {
-    // Scoped close: a stale handle means another message has since been
-    // opened — leave it showing.
-    if (id !== undefined && id !== openedIdRef.current) return;
+  const onClose = useCallback((scope?: SnackbarScope): void => {
+    // Scoped close: another feature's message has since replaced this scope's
+    // — leave it showing.
+    if (scope !== undefined && scope !== openedScopeRef.current) return;
     // Message is deliberately not cleared on close: MUI keeps the snackbar content mounted through its exit transition, so clearing it here would blank the toast while it animates out.
     // The next onOpen overwrites it.
     setOpen(false);
   }, []);
 
-  const onOpen = useCallback((message: string): number => {
+  const onOpen = useCallback((message: string, scope: SnackbarScope): void => {
     setMessage(message);
     setOpen(true);
-    return ++openedIdRef.current;
+    openedScopeRef.current = scope;
   }, []);
 
   const actions = useMemo(() => ({ onClose, onOpen }), [onClose, onOpen]);

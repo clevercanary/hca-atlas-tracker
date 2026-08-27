@@ -2,6 +2,7 @@ import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
 import { METHOD, type PathParameter } from "@/app/common/entities";
 import { getRequestURL, getRouteURL } from "@/app/common/utils";
 import { useErrorSnackbar } from "@/app/components/common/Snackbar/hooks/UseErrorSnackbar/hook";
+import { SNACKBAR_SCOPE } from "@/app/components/common/Snackbar/types";
 import { useDeleteData } from "@/app/hooks/UseDeleteData/hook";
 import { ROUTE } from "@/app/routes/constants";
 import { SOURCE_STUDY } from "@/app/views/SourceStudyView/hooks/UseFetchSourceStudy/query/constants";
@@ -20,10 +21,12 @@ export const useDeleteSourceStudy = (
   // A failed delete (including a network-level error) is surfaced via the
   // app-level error snackbar (SnackbarProvider is mounted in _app); onDelete
   // resolves false rather than rejecting.
-  const { dismissError, onError } = useErrorSnackbar();
+  const { dismissError, onError } = useErrorSnackbar(
+    SNACKBAR_SCOPE.DELETE_SOURCE_STUDY,
+  );
 
   const onSuccess = useCallback((): void => {
-    // Dismiss this hook's stale error from a previous attempt before
+    // Dismiss this feature's stale error from a previous attempt before
     // redirecting (scoped; see useErrorSnackbar).
     dismissError();
     const { atlasId, sourceStudyId } = pathParameter;

@@ -1,6 +1,7 @@
 import { METHOD } from "@/app/common/entities";
 import { performRequest } from "@/app/common/requests";
 import { useErrorSnackbar } from "@/app/components/common/Snackbar/hooks/UseErrorSnackbar/hook";
+import { SNACKBAR_SCOPE } from "@/app/components/common/Snackbar/types";
 import { useCallback } from "react";
 import {
   type OnSubmitOptions,
@@ -19,7 +20,9 @@ import {
  * @returns submit request function, resolving `true` on success.
  */
 export const useEditFileArchived = (): UseEditFileArchived => {
-  const { dismissError, onError: openErrorSnackbar } = useErrorSnackbar();
+  const { dismissError, onError: openErrorSnackbar } = useErrorSnackbar(
+    SNACKBAR_SCOPE.EDIT_FILE_ARCHIVED,
+  );
 
   const onSubmit = useCallback(
     async (
@@ -28,14 +31,16 @@ export const useEditFileArchived = (): UseEditFileArchived => {
       options?: OnSubmitOptions,
     ): Promise<boolean> => {
       const { onError = openErrorSnackbar, onSuccess } = options ?? {};
+      // An onError override keeps this flow's errors out of the snackbar
+      // entirely, so it has no stale error of its own to dismiss.
+      const usesSnackbar = options?.onError === undefined;
       const success = await performRequest(requestURL, METHOD.PATCH, payload, {
         onError,
         onSuccess,
       });
-      // Dismiss this hook's stale error from a previous attempt; scoped, so
-      // it's a no-op when the snackbar shows another feature's error or when
-      // an onError override kept errors out of the snackbar entirely.
-      if (success) dismissError();
+      // Dismiss this feature's stale error from a previous attempt; scoped, so
+      // it's a no-op when the snackbar shows another feature's error.
+      if (success && usesSnackbar) dismissError();
       return success;
     },
     [dismissError, openErrorSnackbar],

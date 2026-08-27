@@ -1,8 +1,9 @@
+import { type SnackbarScope } from "@/app/components/common/Snackbar/types";
 import { type ReactNode } from "react";
 
 export interface SnackbarActionsContextProps {
-  onClose: (id?: number) => void;
-  onOpen: (message: string) => number;
+  onClose: (scope?: SnackbarScope) => void;
+  onOpen: (message: string, scope: SnackbarScope) => void;
 }
 
 export interface SnackbarProviderProps {
