@@ -2,8 +2,10 @@ import { useCurrentPath } from "@/app/hooks/UseCurrentPath/hook";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { useEffect } from "react";
 import {
+  claimSessionEndRedirect,
   isStrandedOnProtectedPath,
   leaveStrandedPage,
+  releaseSessionEndRedirect,
   whenOnline,
 } from "./utils";
 
@@ -30,6 +32,9 @@ import {
  * correct for them; only the wording, and `/account-disabled` as a destination,
  * are lost. Distinguishing the two would need a trigger next-auth does not
  * expose to consumers.
+ *
+ * Recovery is capped at one attempt per authenticated session — see
+ * `claimSessionEndRedirect` for the reload loop that cap exists to prevent.
  * @returns void.
  */
 export const useSessionEndRedirect = (): void => {
@@ -44,7 +49,12 @@ export const useSessionEndRedirect = (): void => {
   );
 
   useEffect(() => {
+    if (isAuthenticated) releaseSessionEndRedirect();
+  }, [isAuthenticated]);
+
+  useEffect(() => {
     if (!isStranded) return;
+    if (!claimSessionEndRedirect()) return;
     return whenOnline(leaveStrandedPage);
   }, [isStranded]);
 };

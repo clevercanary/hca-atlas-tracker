@@ -17,11 +17,17 @@ jest.mock("@/app/hooks/UseSessionEndRedirect/utils", () => ({
   leaveStrandedPage: jest.fn(),
 }));
 
-import { SESSION_END_URL } from "@/app/hooks/UseSessionEndRedirect/constants";
+import {
+  MAX_REDIRECT_ATTEMPTS,
+  REDIRECT_ATTEMPTS_KEY,
+  SESSION_END_URL,
+} from "@/app/hooks/UseSessionEndRedirect/constants";
 import { useSessionEndRedirect } from "@/app/hooks/UseSessionEndRedirect/hook";
 import {
+  claimSessionEndRedirect,
   isStrandedOnProtectedPath,
   leaveStrandedPage,
+  releaseSessionEndRedirect,
   whenOnline,
 } from "@/app/hooks/UseSessionEndRedirect/utils";
 import { ROUTE } from "@/app/routes/constants";
@@ -109,6 +115,55 @@ describe("isStrandedOnProtectedPath", () => {
   });
 });
 
+describe("claimSessionEndRedirect / releaseSessionEndRedirect", () => {
+  beforeEach(() => {
+    window.sessionStorage.clear();
+  });
+
+  it("grants exactly MAX_REDIRECT_ATTEMPTS, then refuses — bounding any loop", () => {
+    for (let i = 0; i < MAX_REDIRECT_ATTEMPTS; i++) {
+      expect(claimSessionEndRedirect()).toBe(true);
+    }
+    expect(claimSessionEndRedirect()).toBe(false);
+    expect(claimSessionEndRedirect()).toBe(false);
+  });
+
+  it("grants again once an authenticated session resets the count", () => {
+    while (claimSessionEndRedirect()) {
+      /* exhaust the allowance */
+    }
+    releaseSessionEndRedirect();
+    expect(claimSessionEndRedirect()).toBe(true);
+  });
+
+  it("records the count in storage so it outlives the full document load", () => {
+    claimSessionEndRedirect();
+    expect(window.sessionStorage.getItem(REDIRECT_ATTEMPTS_KEY)).toEqual("1");
+    claimSessionEndRedirect();
+    expect(window.sessionStorage.getItem(REDIRECT_ATTEMPTS_KEY)).toEqual("2");
+    releaseSessionEndRedirect();
+    expect(window.sessionStorage.getItem(REDIRECT_ATTEMPTS_KEY)).toBeNull();
+  });
+
+  it("treats a corrupt stored count as no attempts spent", () => {
+    window.sessionStorage.setItem(REDIRECT_ATTEMPTS_KEY, "not-a-number");
+    expect(claimSessionEndRedirect()).toBe(true);
+    expect(window.sessionStorage.getItem(REDIRECT_ATTEMPTS_KEY)).toEqual("1");
+  });
+
+  it("allows the attempt when storage is unavailable", () => {
+    // jsdom proxies the storage instance, so spy on the prototype.
+    const getItem = jest
+      .spyOn(Storage.prototype, "getItem")
+      .mockImplementation(() => {
+        throw new Error("storage blocked");
+      });
+    expect(claimSessionEndRedirect()).toBe(true);
+    expect(() => releaseSessionEndRedirect()).not.toThrow();
+    getItem.mockRestore();
+  });
+});
+
 describe("whenOnline", () => {
   it("navigates immediately when online", () => {
     setOnLine(true);
@@ -144,6 +199,7 @@ describe("useSessionEndRedirect", () => {
     mockUseRouter.mockReset();
     mockLeave.mockReset();
     setOnLine(true);
+    window.sessionStorage.clear();
   });
 
   it("leaves the page by full load when the session ends on a protected page", () => {
@@ -193,6 +249,33 @@ describe("useSessionEndRedirect", () => {
     setOnLine(true);
     window.dispatchEvent(new Event("online"));
     expect(mockLeave).toHaveBeenCalled();
+  });
+
+  it("stops navigating once the allowance is spent, so a failing session endpoint cannot loop", () => {
+    // Stand in for previous document loads having spent the whole allowance.
+    window.sessionStorage.setItem(
+      REDIRECT_ATTEMPTS_KEY,
+      String(MAX_REDIRECT_ATTEMPTS),
+    );
+    setPath(ROUTE.ATLASES);
+    mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
+    renderHook(() => useSessionEndRedirect());
+    expect(mockLeave).not.toHaveBeenCalled();
+  });
+
+  it("resets the count once authenticated, so a later expiry still navigates", () => {
+    window.sessionStorage.setItem(
+      REDIRECT_ATTEMPTS_KEY,
+      String(MAX_REDIRECT_ATTEMPTS),
+    );
+    setPath(ROUTE.ATLASES);
+    mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, true));
+    const { rerender } = renderHook(() => useSessionEndRedirect());
+    expect(window.sessionStorage.getItem(REDIRECT_ATTEMPTS_KEY)).toBeNull();
+
+    mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
+    rerender();
+    expect(mockLeave).toHaveBeenCalledTimes(1);
   });
 
   it("drops the deferred navigation when the page unmounts first", () => {
