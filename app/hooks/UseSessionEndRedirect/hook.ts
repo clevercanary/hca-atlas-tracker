@@ -33,8 +33,9 @@ import {
  * are lost. Distinguishing the two would need a trigger next-auth does not
  * expose to consumers.
  *
- * Recovery is capped at one attempt per authenticated session — see
- * `claimSessionEndRedirect` for the reload loop that cap exists to prevent.
+ * Recovery is capped at `MAX_REDIRECT_ATTEMPTS` per authenticated session — see
+ * `claimSessionEndRedirect` for the reload loop that cap exists to prevent, and
+ * why it is a small allowance rather than a single attempt.
  * @returns void.
  */
 export const useSessionEndRedirect = (): void => {

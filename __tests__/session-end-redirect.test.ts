@@ -7,8 +7,8 @@ jest.mock("next/router", () => ({
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
 }));
-// `leaveStrandedPage` is a one-line `window.location.assign`, which jsdom
-// hard-locks (non-configurable `location`, non-writable `assign`) and refuses
+// `leaveStrandedPage` is a one-line `window.location.replace`, which jsdom
+// hard-locks (non-configurable `location`, non-writable `replace`) and refuses
 // to perform. Stub just that primitive and keep the real `whenOnline`, so the
 // deferral logic under test is the shipped one. The navigation itself is
 // verified against the running app.
