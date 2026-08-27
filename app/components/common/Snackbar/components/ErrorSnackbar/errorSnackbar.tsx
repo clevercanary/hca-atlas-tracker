@@ -10,6 +10,14 @@ import { IconButton } from "@mui/material";
 import { type JSX } from "react";
 import { StyledSnackbar } from "./errorSnackbar.styles";
 
+/**
+ * App-level error toast. Deliberately has no `autoHideDuration`: per design,
+ * an error must be dismissed by the user — either via the close button here,
+ * or by the owning feature's next success clearing its own stale error (see
+ * `useErrorSnackbar`). Don't add an auto-hide to stop an error pinning; the
+ * pinning is the point.
+ * @returns error snackbar component.
+ */
 export const ErrorSnackbar = (): JSX.Element => {
   const { onClose } = useSnackbar();
   const { message, open } = useSnackbarState();
