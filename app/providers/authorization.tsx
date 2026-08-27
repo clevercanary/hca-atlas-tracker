@@ -4,6 +4,7 @@ import {
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { useFetchActiveUser } from "@/app/hooks/UseFetchActiveUser/hook";
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
+import { useSessionEndRedirect } from "@/app/hooks/UseSessionEndRedirect/hook";
 import { ROUTE } from "@/app/routes/constants";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
@@ -31,6 +32,11 @@ export function AuthorizationProvider({ children }: Props): JSX.Element {
   const { isSettled, user } = useFetchActiveUser();
   const { disabled, role } = user || {};
   const isAuthorized = isUserAuthorized(role, disabled);
+
+  // A session that ends without a `signOut` call (passive JWT expiry) leaves
+  // this provider rendering `children` on a protected URL with the query cache
+  // already cleared below — a blank page. Navigate out so middleware re-runs.
+  useSessionEndRedirect();
 
   // Clear the React Query cache when the user becomes unauthenticated. The
   // QueryClient is created once in _app and survives client-side logout

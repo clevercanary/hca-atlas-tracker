@@ -8,8 +8,12 @@ import { cloneElement, isValidElement, type ReactNode } from "react";
 
 /**
  * Returns the props for the stripped-down header rendered on logged-out
- * pages: keep the logo and the Help & Documentation menu (navigation slot 2),
- * drop the main app nav.
+ * pages: keep the logo, the announcements and the Help & Documentation menu
+ * (navigation slot 2), drop the main app nav.
+ *
+ * `announcements` must survive the rebuild: the landing page is the only page
+ * a session-end ever lands on, so dropping it here made the inactivity banner
+ * unreachable in practice.
  * @param header - The full app header config (may be undefined).
  * @returns Header props to spread onto the `DXHeader`.
  */
@@ -21,6 +25,7 @@ export function getLandingHeaderProps(
     ? [undefined, undefined, helpAndDocs]
     : undefined;
   return {
+    announcements: header?.announcements,
     authenticationEnabled: header?.authenticationEnabled,
     logo: getLandingLogo(header?.logo),
     navigation,
