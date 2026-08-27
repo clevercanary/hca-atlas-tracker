@@ -31,6 +31,7 @@ import { type IntegratedObjectSourceDataset } from "@/app/views/IntegratedObject
 import { useEditIntegratedObjectSourceDatasets } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/useEditIntegratedObjectSourceDatasets";
 import { useFetchIntegratedObjectSourceDatasets } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/UseFetchIntegratedObjectSourceDatasets/hook";
 import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/UseFetchIntegratedObjectSourceDatasets/query/constants";
+import { createMockResponse } from "@/testing/utils";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 
 // Type mocks
@@ -141,7 +142,7 @@ describe("useEditIntegratedObjectSourceDatasets", () => {
 
     // Call the onSuccess callback: both the integrated object detail and its
     // source datasets list are invalidated.
-    onSuccessCallback?.();
+    onSuccessCallback?.(createMockResponse(200, {}));
 
     expect(invalidateSpy).toHaveBeenCalledWith({
       queryKey: [INTEGRATED_OBJECT, TEST_ATLAS_ID, TEST_COMPONENT_ATLAS_ID],

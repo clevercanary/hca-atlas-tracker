@@ -37,6 +37,7 @@ export interface PathParameter {
 }
 
 export interface PerformRequestOptions {
+  isSuccessStatus?: (status: number) => boolean;
   onError: (error: Error) => void;
-  onSuccess?: () => void | Promise<unknown>;
+  onSuccess?: (res: Response) => void | Promise<unknown>;
 }
