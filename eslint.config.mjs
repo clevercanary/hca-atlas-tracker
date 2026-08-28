@@ -90,7 +90,7 @@ const config = [
                 "@databiosphere/findable-ui/lib/providers/layoutDimensions/provider",
               ],
               message:
-                "Import LayoutDimensionsProvider from '@/app/providers/layoutDimensions/provider' — upstream's seeds the header offset as 0 and reintroduces the first-paint jump (#1543).",
+                "Import LayoutDimensionsProvider from '@/app/providers/layoutDimensions/provider' — upstream's provider seeds the header offset as 0, reintroducing the first-paint jump (#1543).",
             },
             // Bare repo-root imports (e.g. `app/foo`) need no lint rule: with no
             // `baseUrl` in tsconfig they fail typecheck (TS2307), which CI and
