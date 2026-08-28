@@ -17,6 +17,8 @@ import { ROUTE } from "./constants";
  *   clears in place instead of redirecting to `/`).
  * - `app/components/Layout/components/Header/utils.ts` to pick the header
  *   variant while auth state is still resolving.
+ * - `app/hooks/UseSessionEndRedirect` (via the normalized `asPath`) to decide
+ *   whether a session ending has stranded the page on a path that needs one.
  */
 export const PUBLIC_PATHS: ReadonlySet<string> = new Set([
   ROUTE.ACCOUNT_DISABLED,

@@ -1,9 +1,11 @@
+import { ROUTE } from "@/app/routes/constants";
 import { PUBLIC_PATHS } from "@/app/routes/publicPaths";
 import { AUTH_STATUS } from "@databiosphere/findable-ui/lib/auth/types/auth";
 import {
   MAX_REDIRECT_ATTEMPTS,
   REDIRECT_ATTEMPTS_KEY,
   SESSION_END_URL,
+  SESSION_SEEN_KEY,
 } from "./constants";
 
 /**
@@ -37,16 +39,29 @@ import {
  * @returns true if this tab may navigate.
  */
 export function claimSessionEndRedirect(): boolean {
+  let spent: number;
   try {
-    const spent =
+    spent =
       Number.parseInt(
         window.sessionStorage.getItem(REDIRECT_ATTEMPTS_KEY) ?? "",
         10,
       ) || 0;
-    if (spent >= MAX_REDIRECT_ATTEMPTS) return false;
+  } catch {
+    // Storage unreadable (private mode, blocked site data): nothing can be
+    // tracked, so allow the attempt — recovering the common case matters more
+    // than guarding a rare one, and this is what the code did before the cap.
+    return true;
+  }
+  if (spent >= MAX_REDIRECT_ATTEMPTS) return false;
+  try {
     window.sessionStorage.setItem(REDIRECT_ATTEMPTS_KEY, String(spent + 1));
   } catch {
-    return true;
+    // Readable but not writable (quota exhausted) is the dangerous asymmetry:
+    // granting an attempt that cannot be recorded means every document load
+    // reads zero and navigates again, which is exactly the unbounded loop the
+    // cap exists to prevent. Refuse instead — a stranded page degrades to the
+    // pre-fix behaviour, a loop does not.
+    return false;
   }
   return true;
 }
@@ -101,7 +116,57 @@ export function isStrandedOnProtectedPath(
  * @returns void.
  */
 export function leaveStrandedPage(): void {
-  window.location.replace(SESSION_END_URL);
+  window.location.replace(getSessionEndUrl());
+}
+
+/**
+ * Claims an attempt and, if granted, leaves the stranded page.
+ *
+ * The claim happens here rather than in the caller so the allowance is only
+ * spent on navigations actually performed: a navigation deferred while offline
+ * and then dropped when the page unmounts costs nothing, where claiming up
+ * front could exhaust the allowance without ever having navigated and strand
+ * the tab for good.
+ * @returns void.
+ */
+export function attemptLeaveStrandedPage(): void {
+  if (!claimSessionEndRedirect()) return;
+  leaveStrandedPage();
+}
+
+/**
+ * Returns where a stranded page should go: the landing page, with the
+ * inactivity param only when this tab has actually held a session.
+ *
+ * Consumed on use, so the banner is shown once per session that ends rather
+ * than on every later strand in the same tab; an authenticated session sets the
+ * flag again.
+ * @returns Landing URL, with the inactivity param when a session ended.
+ */
+export function getSessionEndUrl(): string {
+  try {
+    if (!window.sessionStorage.getItem(SESSION_SEEN_KEY)) return ROUTE.LANDING;
+    window.sessionStorage.removeItem(SESSION_SEEN_KEY);
+  } catch {
+    // Storage unreadable; fall back to the plain landing page rather than
+    // asserting an inactivity logout that may never have happened.
+    return ROUTE.LANDING;
+  }
+  return SESSION_END_URL;
+}
+
+/**
+ * Records that this tab holds an authenticated session, so a later strand can
+ * tell a session that ended from one that never existed.
+ * @returns void.
+ */
+export function recordSessionSeen(): void {
+  try {
+    window.sessionStorage.setItem(SESSION_SEEN_KEY, "true");
+  } catch {
+    // Storage unavailable; `getSessionEndUrl` then omits the banner param,
+    // which is the safe direction.
+  }
 }
 
 /**

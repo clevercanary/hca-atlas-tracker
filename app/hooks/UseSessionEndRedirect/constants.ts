@@ -27,3 +27,17 @@ export const REDIRECT_ATTEMPTS_KEY = "hat.sessionEndRedirectAttempts";
  * protected page, which `sessionStorage` alone cannot distinguish from a loop.
  */
 export const MAX_REDIRECT_ATTEMPTS = 3;
+
+/**
+ * `sessionStorage` key recording that this tab has held an authenticated
+ * session, so a session that *ends* can be told apart from one that never
+ * existed.
+ *
+ * Without it a visitor who has never logged in can be shown the inactivity
+ * banner: client navigations and any URL containing a dot skip the auth
+ * middleware (see `proxy.ts`'s matcher), so a logged-out visitor reaching, say,
+ * `/foo.html` renders 404 through `_app`, settles unauthenticated on a
+ * non-public path, and gets told they were logged out after inactivity they
+ * never had. Leaving is still right for them; the message is not.
+ */
+export const SESSION_SEEN_KEY = "hat.sessionEndSessionSeen";

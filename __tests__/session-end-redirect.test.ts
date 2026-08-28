@@ -7,26 +7,31 @@ jest.mock("next/router", () => ({
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
 }));
-// `leaveStrandedPage` is a one-line `window.location.replace`, which jsdom
+// `attemptLeaveStrandedPage` ends in `window.location.replace`, which jsdom
 // hard-locks (non-configurable `location`, non-writable `replace`) and refuses
-// to perform. Stub just that primitive and keep the real `whenOnline`, so the
-// deferral logic under test is the shipped one. The navigation itself is
-// verified against the running app.
+// to perform. Stub it for the hook tests and keep the real `whenOnline`, so the
+// deferral logic under test is the shipped one. Its two halves are covered
+// directly instead — the attempt cap on `claimSessionEndRedirect`, the
+// destination on `getSessionEndUrl` — and the real composition is exercised via
+// `requireActual` where claim timing matters. The navigation itself is verified
+// against the running app.
 jest.mock("@/app/hooks/UseSessionEndRedirect/utils", () => ({
   ...jest.requireActual("@/app/hooks/UseSessionEndRedirect/utils"),
-  leaveStrandedPage: jest.fn(),
+  attemptLeaveStrandedPage: jest.fn(),
 }));
 
 import {
   MAX_REDIRECT_ATTEMPTS,
   REDIRECT_ATTEMPTS_KEY,
   SESSION_END_URL,
+  SESSION_SEEN_KEY,
 } from "@/app/hooks/UseSessionEndRedirect/constants";
 import { useSessionEndRedirect } from "@/app/hooks/UseSessionEndRedirect/hook";
 import {
+  attemptLeaveStrandedPage,
   claimSessionEndRedirect,
+  getSessionEndUrl,
   isStrandedOnProtectedPath,
-  leaveStrandedPage,
   releaseSessionEndRedirect,
   whenOnline,
 } from "@/app/hooks/UseSessionEndRedirect/utils";
@@ -37,8 +42,8 @@ import { useRouter } from "next/router";
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
-const mockLeave = leaveStrandedPage as jest.MockedFunction<
-  typeof leaveStrandedPage
+const mockAttempt = attemptLeaveStrandedPage as jest.MockedFunction<
+  typeof attemptLeaveStrandedPage
 >;
 
 /**
@@ -77,12 +82,6 @@ function setOnLine(onLine: boolean): void {
 function setPath(asPath: string): void {
   mockUseRouter.mockReturnValue({ asPath } as ReturnType<typeof useRouter>);
 }
-
-describe("SESSION_END_URL", () => {
-  it("targets the landing page with the inactivity param the banner reads", () => {
-    expect(SESSION_END_URL).toEqual("/?inactivityTimeout=true");
-  });
-});
 
 describe("isStrandedOnProtectedPath", () => {
   it("is true when the session is gone on a protected path", () => {
@@ -151,6 +150,18 @@ describe("claimSessionEndRedirect / releaseSessionEndRedirect", () => {
     expect(window.sessionStorage.getItem(REDIRECT_ATTEMPTS_KEY)).toEqual("1");
   });
 
+  it("refuses when the count reads but cannot be written, rather than looping", () => {
+    // Readable-but-not-writable (quota) would otherwise grant an attempt that
+    // is never recorded, so every document load reads zero and navigates again.
+    const setItem = jest
+      .spyOn(Storage.prototype, "setItem")
+      .mockImplementation(() => {
+        throw new Error("quota exceeded");
+      });
+    expect(claimSessionEndRedirect()).toBe(false);
+    setItem.mockRestore();
+  });
+
   it("allows the attempt when storage is unavailable", () => {
     // jsdom proxies the storage instance, so spy on the prototype.
     const getItem = jest
@@ -161,6 +172,71 @@ describe("claimSessionEndRedirect / releaseSessionEndRedirect", () => {
     expect(claimSessionEndRedirect()).toBe(true);
     expect(() => releaseSessionEndRedirect()).not.toThrow();
     getItem.mockRestore();
+  });
+});
+
+describe("getSessionEndUrl", () => {
+  beforeEach(() => {
+    window.sessionStorage.clear();
+  });
+
+  it("omits the inactivity param when this tab never held a session", () => {
+    // A logged-out visitor reaching a non-public path — a dot-containing 404,
+    // or a client navigation — skips the middleware and strands here. Moving
+    // them on is right; telling them a session expired is not.
+    expect(getSessionEndUrl()).toEqual(ROUTE.LANDING);
+  });
+
+  it("carries the inactivity param once a session has been held", () => {
+    window.sessionStorage.setItem(SESSION_SEEN_KEY, "true");
+    expect(getSessionEndUrl()).toEqual(SESSION_END_URL);
+  });
+
+  it("consumes the flag, so a later strand does not repeat the banner", () => {
+    window.sessionStorage.setItem(SESSION_SEEN_KEY, "true");
+    expect(getSessionEndUrl()).toEqual(SESSION_END_URL);
+    expect(getSessionEndUrl()).toEqual(ROUTE.LANDING);
+  });
+});
+
+describe("attempt timing", () => {
+  // The shipped composition, not the stub the hook tests use.
+  const { attemptLeaveStrandedPage: realAttempt } = jest.requireActual<
+    typeof import("@/app/hooks/UseSessionEndRedirect/utils")
+  >("@/app/hooks/UseSessionEndRedirect/utils");
+
+  beforeEach(() => {
+    window.sessionStorage.clear();
+  });
+
+  it("does not navigate once the allowance is spent, so a failing endpoint cannot loop", () => {
+    // Stand in for previous document loads having spent the whole allowance.
+    // A refused attempt returns before navigating, so nothing is consumed.
+    window.sessionStorage.setItem(
+      REDIRECT_ATTEMPTS_KEY,
+      String(MAX_REDIRECT_ATTEMPTS),
+    );
+    window.sessionStorage.setItem(SESSION_SEEN_KEY, "true");
+
+    realAttempt();
+
+    expect(window.sessionStorage.getItem(REDIRECT_ATTEMPTS_KEY)).toEqual(
+      String(MAX_REDIRECT_ATTEMPTS),
+    );
+    // The destination flag is untouched too — nothing was navigated to.
+    expect(window.sessionStorage.getItem(SESSION_SEEN_KEY)).toEqual("true");
+  });
+
+  it("spends no attempt on a navigation deferred offline and then dropped", () => {
+    // Claiming up front would exhaust the allowance without ever navigating,
+    // stranding the tab for good once the network came back.
+    setOnLine(false);
+    const cleanup = whenOnline(realAttempt);
+    expect(window.sessionStorage.getItem(REDIRECT_ATTEMPTS_KEY)).toBeNull();
+
+    cleanup?.();
+    window.dispatchEvent(new Event("online"));
+    expect(window.sessionStorage.getItem(REDIRECT_ATTEMPTS_KEY)).toBeNull();
   });
 });
 
@@ -197,7 +273,7 @@ describe("useSessionEndRedirect", () => {
   beforeEach(() => {
     mockUseAuth.mockReset();
     mockUseRouter.mockReset();
-    mockLeave.mockReset();
+    mockAttempt.mockReset();
     setOnLine(true);
     window.sessionStorage.clear();
   });
@@ -206,19 +282,19 @@ describe("useSessionEndRedirect", () => {
     setPath(ROUTE.ATLASES);
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, true));
     const { rerender } = renderHook(() => useSessionEndRedirect());
-    expect(mockLeave).not.toHaveBeenCalled();
+    expect(mockAttempt).not.toHaveBeenCalled();
 
     // Passive expiry: the next session poll reports no session.
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
     rerender();
-    expect(mockLeave).toHaveBeenCalled();
+    expect(mockAttempt).toHaveBeenCalled();
   });
 
   it("does not navigate while auth is still pending", () => {
     setPath(ROUTE.ATLASES);
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.PENDING, false));
     renderHook(() => useSessionEndRedirect());
-    expect(mockLeave).not.toHaveBeenCalled();
+    expect(mockAttempt).not.toHaveBeenCalled();
   });
 
   it("does not navigate on a public path, so there is no redirect loop", () => {
@@ -226,7 +302,7 @@ describe("useSessionEndRedirect", () => {
     setPath(SESSION_END_URL);
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
     renderHook(() => useSessionEndRedirect());
-    expect(mockLeave).not.toHaveBeenCalled();
+    expect(mockAttempt).not.toHaveBeenCalled();
   });
 
   it("navigates once, not on every re-render", () => {
@@ -235,7 +311,7 @@ describe("useSessionEndRedirect", () => {
     const { rerender } = renderHook(() => useSessionEndRedirect());
     rerender();
     rerender();
-    expect(mockLeave).toHaveBeenCalledTimes(1);
+    expect(mockAttempt).toHaveBeenCalledTimes(1);
   });
 
   it("defers the navigation while offline, then goes once back online", () => {
@@ -244,23 +320,11 @@ describe("useSessionEndRedirect", () => {
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
     renderHook(() => useSessionEndRedirect());
     // Offline, the browser would only show its network error page.
-    expect(mockLeave).not.toHaveBeenCalled();
+    expect(mockAttempt).not.toHaveBeenCalled();
 
     setOnLine(true);
     window.dispatchEvent(new Event("online"));
-    expect(mockLeave).toHaveBeenCalled();
-  });
-
-  it("stops navigating once the allowance is spent, so a failing session endpoint cannot loop", () => {
-    // Stand in for previous document loads having spent the whole allowance.
-    window.sessionStorage.setItem(
-      REDIRECT_ATTEMPTS_KEY,
-      String(MAX_REDIRECT_ATTEMPTS),
-    );
-    setPath(ROUTE.ATLASES);
-    mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
-    renderHook(() => useSessionEndRedirect());
-    expect(mockLeave).not.toHaveBeenCalled();
+    expect(mockAttempt).toHaveBeenCalled();
   });
 
   it("resets the count once authenticated, so a later expiry still navigates", () => {
@@ -275,7 +339,7 @@ describe("useSessionEndRedirect", () => {
 
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
     rerender();
-    expect(mockLeave).toHaveBeenCalledTimes(1);
+    expect(mockAttempt).toHaveBeenCalledTimes(1);
   });
 
   it("drops the deferred navigation when the page unmounts first", () => {
@@ -287,6 +351,6 @@ describe("useSessionEndRedirect", () => {
 
     setOnLine(true);
     window.dispatchEvent(new Event("online"));
-    expect(mockLeave).not.toHaveBeenCalled();
+    expect(mockAttempt).not.toHaveBeenCalled();
   });
 });
