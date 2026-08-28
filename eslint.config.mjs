@@ -73,6 +73,25 @@ const config = [
               message:
                 "Reach outside this directory via the '@/' alias; relative imports are for ./ same-dir and descendants only.",
             },
+            {
+              // #1543: the header offset must be in the server-rendered CSS,
+              // which findable-ui's provider cannot do — it falls back to `0`
+              // until its ResizeObserver reports, and the observer cannot run
+              // before the SSR paint. `app/providers/layoutDimensions` is a
+              // copy that seeds the fallback instead. The two are
+              // interchangeable to the compiler and to every test (the provider
+              // tests import the local copy directly, and upstream's context
+              // default is zeros so nothing throws), so an auto-import, a merge
+              // resolution, or an upgrade sweep could restore the upstream path
+              // and silently reintroduce the ~57px jump. Fence it instead.
+              // Remove this when the seed lands upstream as a prop, or when
+              // DataBiosphere/findable-ui#998 removes the offset entirely.
+              group: [
+                "@databiosphere/findable-ui/lib/providers/layoutDimensions/provider",
+              ],
+              message:
+                "Import LayoutDimensionsProvider from '@/app/providers/layoutDimensions/provider' — upstream's seeds the header offset as 0 and reintroduces the first-paint jump (#1543).",
+            },
             // Bare repo-root imports (e.g. `app/foo`) need no lint rule: with no
             // `baseUrl` in tsconfig they fail typecheck (TS2307), which CI and
             // the pre-commit hook enforce. (jest's SWC transform still resolves a

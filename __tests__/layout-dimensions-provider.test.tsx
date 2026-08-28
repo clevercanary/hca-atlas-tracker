@@ -1,8 +1,11 @@
 import { render, screen } from "@testing-library/react";
 
-// `ResizeObserver` is absent in jsdom, and its absence is the point: with no
-// observer reading the provider must fall through to the seed, which is exactly
-// the state of the server-rendered paint and the first client render.
+// Mocked to control what the observer reports. `undefined` is the state of the
+// server-rendered paint and the first client render, where the provider must
+// fall through to the seed; a value stands in for a later measurement. This is
+// load-bearing, not belt-and-braces: with the real hook the Probe never
+// attaches the refs, so its effect early-returns and no value could be injected
+// at all.
 jest.mock("@databiosphere/findable-ui/lib/hooks/useResizeObserver", () => ({
   getBorderBoxSizeHeight: jest.fn(),
   useResizeObserver: jest.fn(),
@@ -54,9 +57,23 @@ function renderProvider(): { footer: number; header: number } {
 }
 
 describe("INITIAL_LAYOUT_DIMENSIONS", () => {
-  it("seeds the header at the toolbar plus the AppBar's border", () => {
-    // The measured element is the AppBar, so its border counts: 57, not 56.
+  // Asserted as literals, not as the formula the constant already encodes.
+  // Both mirror findable-ui CSS that is not imported — the AppBar's 1px border
+  // (`header.styles.ts`) and the footer toolbar's `min-height`
+  // (`footer.styles.ts`) — under a caret range, so a routine upgrade could
+  // change either while a formula-shaped assertion stayed green and every first
+  // paint was wrong. Failing here is the point: it forces a look.
+  it("seeds the header at 57px — the toolbar plus the AppBar's border", () => {
+    expect(INITIAL_LAYOUT_DIMENSIONS.header.height).toEqual(57);
+  });
+
+  it("keeps the header seed in step with upstream's HEADER_HEIGHT", () => {
+    // The toolbar half does track upstream, since it is imported.
     expect(INITIAL_LAYOUT_DIMENSIONS.header.height).toEqual(HEADER_HEIGHT + 1);
+  });
+
+  it("seeds the footer at its 56px toolbar", () => {
+    expect(INITIAL_LAYOUT_DIMENSIONS.footer.height).toEqual(56);
   });
 
   it("never seeds zero, the value that produces the jump", () => {
@@ -79,15 +96,34 @@ describe("LayoutDimensionsProvider", () => {
   });
 
   it("prefers the measured height once the observer reports", () => {
-    // A banner above the toolbar makes the AppBar taller than the seed.
-    mockUseResizeObserver.mockReturnValue({ height: 105 });
-    expect(renderProvider()).toEqual({ footer: 105, header: 105 });
+    // Distinct values per call, not one shared value: the provider calls the
+    // observer for the footer first, so a transposed read would return the
+    // footer's height as the header's and a symmetric mock could not tell.
+    // A banner above the toolbar is why the header can exceed its seed.
+    mockUseResizeObserver
+      .mockReturnValueOnce({ height: 88 })
+      .mockReturnValueOnce({ height: 105 });
+    expect(renderProvider()).toEqual({ footer: 88, header: 105 });
   });
 
   it("keeps a measured zero rather than falling back to the seed", () => {
     // A genuinely measured 0 (e.g. a hidden footer) is data, not a missing
     // reading, so the fallback must not treat it as absent.
-    mockUseResizeObserver.mockReturnValue({ height: 0 });
+    mockUseResizeObserver
+      .mockReturnValueOnce({ height: 0 })
+      .mockReturnValueOnce({ height: 0 });
     expect(renderProvider()).toEqual({ footer: 0, header: 0 });
+  });
+
+  it("maps each observed element to its own dimension", () => {
+    // Guards the wiring itself: only the footer is measured, so a transposed
+    // read would surface its height as the header's.
+    mockUseResizeObserver
+      .mockReturnValueOnce({ height: 42 })
+      .mockReturnValueOnce(undefined);
+    expect(renderProvider()).toEqual({
+      footer: 42,
+      header: INITIAL_LAYOUT_DIMENSIONS.header.height,
+    });
   });
 });
