@@ -165,12 +165,10 @@ function renderRemountHarness(): RemountHarness {
 }
 
 describe("useEditFileArchived", () => {
-  let onError: jest.Mock;
   let onSuccess: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    onError = jest.fn();
     onSuccess = jest.fn();
   });
 
@@ -178,26 +176,13 @@ describe("useEditFileArchived", () => {
     mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
 
     const { result } = renderUseEditFileArchived();
-    await expect(submit(result, { onError, onSuccess })).resolves.toBe(true);
+    await expect(submit(result, { onSuccess })).resolves.toBe(true);
     expect(mockFetchResource).toHaveBeenCalledWith(
       TEST_REQUEST_URL,
       METHOD.PATCH,
       TEST_PAYLOAD,
     );
     expect(onSuccess).toHaveBeenCalledTimes(1);
-    expect(onError).not.toHaveBeenCalled();
-  });
-
-  it("resolves false and routes the API message to an onError override on a non-OK response", async () => {
-    mockFetchResource.mockResolvedValue(
-      createMockResponse(403, { message: "Forbidden for this atlas" }),
-    );
-
-    const { result } = renderUseEditFileArchived();
-    await expect(submit(result, { onError, onSuccess })).resolves.toBe(false);
-    expect(onError).toHaveBeenCalledWith(new Error("Forbidden for this atlas"));
-    expect(onSuccess).not.toHaveBeenCalled();
-    expect(result.current.snackbar.open).toBe(false);
   });
 
   it("opens the error snackbar by default on a non-OK response", async () => {
@@ -277,22 +262,6 @@ describe("useEditFileArchived", () => {
     expect(result.current.snackbar.message).toBe("Unrelated error");
   });
 
-  it("leaves the snackbar untouched on success when onError is overridden", async () => {
-    mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
-
-    const { result } = renderUseEditFileArchived();
-    act(() => {
-      result.current.snackbarActions.onOpen(
-        "Unrelated error",
-        SNACKBAR_SCOPE.DELETE_SOURCE_STUDY,
-      );
-    });
-
-    await expect(submit(result, { onError, onSuccess })).resolves.toBe(true);
-    expect(result.current.snackbar.open).toBe(true);
-    expect(result.current.snackbar.message).toBe("Unrelated error");
-  });
-
   it("dismisses this feature's stale error after the hook remounts on another page", async () => {
     const harness = renderRemountHarness();
 
@@ -329,19 +298,39 @@ describe("useEditFileArchived", () => {
     expect(harness.snackbar().message).toBe("Forbidden for this atlas");
   });
 
-  it("resolves false when an onError override throws (never-rejects contract)", async () => {
-    mockFetchResource.mockResolvedValue(
-      createMockResponse(403, { message: "Forbidden for this atlas" }),
+  it("reports isRequesting while in flight and resets it on success", async () => {
+    let release: (() => void) | undefined;
+    mockFetchResource.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = (): void => resolve(createMockResponse(200, {}));
+        }),
     );
-    onError.mockImplementation(() => {
-      throw new Error("handler error");
-    });
 
     const { result } = renderUseEditFileArchived();
-    await withConsoleErrorHiding(async () => {
-      await expect(submit(result, { onError, onSuccess })).resolves.toBe(false);
+    expect(result.current.edit.isRequesting).toBe(false);
+
+    let submitted: Promise<boolean> | undefined;
+    await act(async () => {
+      submitted = result.current.edit.onSubmit(TEST_REQUEST_URL, TEST_PAYLOAD);
     });
-    expect(onSuccess).not.toHaveBeenCalled();
+    // In flight: the button consuming this stays disabled, so the endpoint
+    // can't reject a repeat click for an action that already succeeded.
+    expect(result.current.edit.isRequesting).toBe(true);
+
+    await act(async () => {
+      release?.();
+      await submitted;
+    });
+    expect(result.current.edit.isRequesting).toBe(false);
+  });
+
+  it("resets isRequesting on failure, so the button can't get stuck disabled", async () => {
+    mockFetchResource.mockRejectedValue(new Error("Network error"));
+
+    const { result } = renderUseEditFileArchived();
+    await expect(submit(result)).resolves.toBe(false);
+    expect(result.current.edit.isRequesting).toBe(false);
   });
 
   it("resolves true when onSuccess throws (the request itself succeeded)", async () => {
@@ -352,9 +341,8 @@ describe("useEditFileArchived", () => {
 
     const { result } = renderUseEditFileArchived();
     await withConsoleErrorHiding(async () => {
-      await expect(submit(result, { onError, onSuccess })).resolves.toBe(true);
+      await expect(submit(result, { onSuccess })).resolves.toBe(true);
     });
-    expect(onError).not.toHaveBeenCalled();
   });
 
   it("awaits an async onSuccess and resolves true when it rejects (the request itself succeeded)", async () => {
@@ -369,9 +357,8 @@ describe("useEditFileArchived", () => {
 
     const { result } = renderUseEditFileArchived();
     await withConsoleErrorHiding(async () => {
-      await expect(submit(result, { onError, onSuccess })).resolves.toBe(true);
+      await expect(submit(result, { onSuccess })).resolves.toBe(true);
     });
     expect(settled).toBe(true);
-    expect(onError).not.toHaveBeenCalled();
   });
 });

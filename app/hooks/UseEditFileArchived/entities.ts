@@ -5,7 +5,6 @@ export type OnSubmitFn = (
 ) => Promise<boolean>;
 
 export interface OnSubmitOptions {
-  onError?: (error: Error) => void;
   onSuccess?: () => void | Promise<unknown>;
 }
 
@@ -14,5 +13,6 @@ export interface Payload {
 }
 
 export interface UseEditFileArchived {
+  isRequesting: boolean;
   onSubmit: OnSubmitFn;
 }

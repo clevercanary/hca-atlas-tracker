@@ -71,6 +71,6 @@ function reportError(onError: (error: Error) => void, error: Error): void {
  * @returns the value itself when it's an Error, otherwise an Error wrapping
  * its string form.
  */
-export function toError(e: unknown): Error {
+function toError(e: unknown): Error {
   return e instanceof Error ? e : new Error(String(e));
 }
