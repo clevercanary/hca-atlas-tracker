@@ -10,7 +10,11 @@ import { type UseDeleteData, type UseDeleteDataOptions } from "./types";
  * `false`; success calls `options.onSuccess` and resolves `true`.
  * @param requestUrl - Request URL.
  * @param method - Request method (defaults to DELETE).
- * @param options - Error and success callbacks.
+ * @param options - Error and success callbacks, and an optional success-status
+ * predicate. The default (`isFetchStatusOk`) accepts only 200 and 304, so an
+ * endpoint answering 204 — the conventional success for DELETE — needs to say
+ * so here; forwarded rather than dropped so the option this hook's type
+ * advertises is the option it honours.
  * @returns delete request function, resolving `true` on success.
  */
 export const useDeleteData = <T>(
@@ -18,12 +22,16 @@ export const useDeleteData = <T>(
   method = METHOD.DELETE,
   options: UseDeleteDataOptions,
 ): UseDeleteData<T> => {
-  const { onError, onSuccess } = options;
+  const { isSuccessStatus, onError, onSuccess } = options;
 
   const onDelete = useCallback(
     (payload?: T): Promise<boolean> =>
-      performRequest(requestUrl, method, payload, { onError, onSuccess }),
-    [method, onError, onSuccess, requestUrl],
+      performRequest(requestUrl, method, payload, {
+        isSuccessStatus,
+        onError,
+        onSuccess,
+      }),
+    [isSuccessStatus, method, onError, onSuccess, requestUrl],
   );
 
   return {
