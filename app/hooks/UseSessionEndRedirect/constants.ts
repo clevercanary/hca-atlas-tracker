@@ -13,10 +13,13 @@ export const SESSION_END_URL = `${ROUTE.LANDING}?${INACTIVITY_PARAM}=true`;
 
 /**
  * `sessionStorage` key counting this tab's attempts at leaving a stranded page.
+ *
+ * Shares the `hat.sessionEndRedirect.` namespace with `SESSION_SEEN_KEY` so
+ * this hook's storage can be found and cleared as a group.
  * Must be storage rather than component state: an attempt is a full document
  * load, so nothing in memory survives to the other side to notice it happened.
  */
-export const REDIRECT_ATTEMPTS_KEY = "hat.sessionEndRedirectAttempts";
+export const REDIRECT_ATTEMPTS_KEY = "hat.sessionEndRedirect.attempts";
 
 /**
  * How many times one tab may try to leave a stranded page before an
@@ -40,4 +43,4 @@ export const MAX_REDIRECT_ATTEMPTS = 3;
  * non-public path, and gets told they were logged out after inactivity they
  * never had. Leaving is still right for them; the message is not.
  */
-export const SESSION_SEEN_KEY = "hat.sessionEndSessionSeen";
+export const SESSION_SEEN_KEY = "hat.sessionEndRedirect.sessionSeen";
