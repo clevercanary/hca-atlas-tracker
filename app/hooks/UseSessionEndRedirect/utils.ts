@@ -1,6 +1,7 @@
 import { ROUTE } from "@/app/routes/constants";
 import { PUBLIC_PATHS } from "@/app/routes/publicPaths";
 import { AUTH_STATUS } from "@databiosphere/findable-ui/lib/auth/types/auth";
+import { getSession } from "next-auth/react";
 import {
   MAX_REDIRECT_ATTEMPTS,
   REDIRECT_ATTEMPTS_KEY,
@@ -64,6 +65,40 @@ export function claimSessionEndRedirect(): boolean {
     return false;
   }
   return true;
+}
+
+/**
+ * Re-reads the session before a navigation is allowed to destroy page state.
+ *
+ * The reading that strands a page is not trustworthy on its own. next-auth's
+ * `fetchData` returns `null` for *any* non-OK response or network error, which
+ * `mapAuth` turns into settled-and-unauthenticated — indistinguishable from a
+ * real expiry. So a single 502 on the 4-minute poll looks exactly like a logout,
+ * and acting on it immediately throws away whatever the user was in the middle
+ * of: ten minutes into a source-study form, one bad poll, `location.replace`,
+ * contents gone. The self-heal makes that worse rather than better, since a
+ * still-valid cookie lands them on `/atlases` rather than back at the form.
+ *
+ * A second reading turns a single blip into two consecutive failures, which is
+ * a far smaller class of event.
+ *
+ * What this does NOT do is disambiguate. `getSession()` goes through the same
+ * `fetchData`, so a *persistently* failing endpoint still reads as an expiry —
+ * it is a second sample, not a different signal. Telling "no session" apart
+ * from "the request failed" needs the response status, which next-auth does not
+ * surface here; that is the deeper fix, and it is what would let the attempt cap
+ * and its counter be deleted rather than merely made less reachable. Tracked in
+ * #1562.
+ * @returns true if the session is confirmed gone and leaving is warranted.
+ */
+export async function confirmSessionEnded(): Promise<boolean> {
+  try {
+    return (await getSession()) === null;
+  } catch {
+    // Threw rather than resolving: inconclusive, so hold the page. Staying on a
+    // stale page is recoverable; navigating away from unsaved work is not.
+    return false;
+  }
 }
 
 /**

@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 
 jest.mock("next/router", () => ({
   __esModule: true,
@@ -6,6 +6,11 @@ jest.mock("next/router", () => ({
 }));
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
+}));
+// The hook re-reads the session before navigating, so every test controls what
+// that confirming read returns. Default is "genuinely gone" (see beforeEach).
+jest.mock("next-auth/react", () => ({
+  getSession: jest.fn(),
 }));
 // `attemptLeaveStrandedPage` ends in `window.location.replace`, which jsdom
 // hard-locks (non-configurable `location`, non-writable `replace`) and refuses
@@ -38,9 +43,11 @@ import {
 import { ROUTE } from "@/app/routes/constants";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { AUTH_STATUS } from "@databiosphere/findable-ui/lib/auth/types/auth";
+import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
+const mockGetSession = getSession as jest.MockedFunction<typeof getSession>;
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
 const mockAttempt = attemptLeaveStrandedPage as jest.MockedFunction<
   typeof attemptLeaveStrandedPage
@@ -81,6 +88,17 @@ function setOnLine(onLine: boolean): void {
  */
 function setPath(asPath: string): void {
   mockUseRouter.mockReturnValue({ asPath } as ReturnType<typeof useRouter>);
+}
+
+/**
+ * Lets the confirming session read settle, so a navigation that is going to
+ * happen has happened by the time the assertion runs.
+ * @returns void.
+ */
+async function flushConfirm(): Promise<void> {
+  await act(async () => {
+    await Promise.resolve();
+  });
 }
 
 describe("isStrandedOnProtectedPath", () => {
@@ -274,11 +292,13 @@ describe("useSessionEndRedirect", () => {
     mockUseAuth.mockReset();
     mockUseRouter.mockReset();
     mockAttempt.mockReset();
+    mockGetSession.mockReset();
+    mockGetSession.mockResolvedValue(null);
     setOnLine(true);
     window.sessionStorage.clear();
   });
 
-  it("leaves the page by full load when the session ends on a protected page", () => {
+  it("leaves the page by full load when the session ends on a protected page", async () => {
     setPath(ROUTE.ATLASES);
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, true));
     const { rerender } = renderHook(() => useSessionEndRedirect());
@@ -287,7 +307,7 @@ describe("useSessionEndRedirect", () => {
     // Passive expiry: the next session poll reports no session.
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
     rerender();
-    expect(mockAttempt).toHaveBeenCalled();
+    await waitFor(() => expect(mockAttempt).toHaveBeenCalled());
   });
 
   it("does not navigate while auth is still pending", () => {
@@ -305,29 +325,31 @@ describe("useSessionEndRedirect", () => {
     expect(mockAttempt).not.toHaveBeenCalled();
   });
 
-  it("navigates once, not on every re-render", () => {
+  it("navigates once, not on every re-render", async () => {
     setPath(ROUTE.ATLASES);
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
     const { rerender } = renderHook(() => useSessionEndRedirect());
     rerender();
     rerender();
+    await flushConfirm();
     expect(mockAttempt).toHaveBeenCalledTimes(1);
   });
 
-  it("defers the navigation while offline, then goes once back online", () => {
+  it("defers the navigation while offline, then goes once back online", async () => {
     setOnLine(false);
     setPath(ROUTE.ATLASES);
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
     renderHook(() => useSessionEndRedirect());
     // Offline, the browser would only show its network error page.
+    await flushConfirm();
     expect(mockAttempt).not.toHaveBeenCalled();
 
     setOnLine(true);
     window.dispatchEvent(new Event("online"));
-    expect(mockAttempt).toHaveBeenCalled();
+    await waitFor(() => expect(mockAttempt).toHaveBeenCalled());
   });
 
-  it("resets the count once authenticated, so a later expiry still navigates", () => {
+  it("resets the count once authenticated, so a later expiry still navigates", async () => {
     window.sessionStorage.setItem(
       REDIRECT_ATTEMPTS_KEY,
       String(MAX_REDIRECT_ATTEMPTS),
@@ -339,10 +361,10 @@ describe("useSessionEndRedirect", () => {
 
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
     rerender();
-    expect(mockAttempt).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(mockAttempt).toHaveBeenCalledTimes(1));
   });
 
-  it("drops the deferred navigation when the page unmounts first", () => {
+  it("drops the deferred navigation when the page unmounts first", async () => {
     setOnLine(false);
     setPath(ROUTE.ATLASES);
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
@@ -351,6 +373,47 @@ describe("useSessionEndRedirect", () => {
 
     setOnLine(true);
     window.dispatchEvent(new Event("online"));
+    await flushConfirm();
+    expect(mockAttempt).not.toHaveBeenCalled();
+  });
+
+  it("does not navigate when the confirming read finds a live session", async () => {
+    // The false alarm this guards: next-auth reports no session on *any* failed
+    // `/api/auth/session` request, so one 502 on the poll is indistinguishable
+    // from a logout. Navigating on it would discard whatever the user was
+    // partway through typing.
+    mockGetSession.mockResolvedValue({ expires: "2099-01-01T00:00:00.000Z" });
+    setPath(ROUTE.ATLASES);
+    mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
+    renderHook(() => useSessionEndRedirect());
+    await flushConfirm();
+    expect(mockAttempt).not.toHaveBeenCalled();
+  });
+
+  it("holds the page when the confirming read itself fails", async () => {
+    // Inconclusive is not confirmation. Staying on a stale page is recoverable;
+    // navigating away from unsaved work is not.
+    mockGetSession.mockRejectedValue(new Error("network down"));
+    setPath(ROUTE.ATLASES);
+    mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
+    renderHook(() => useSessionEndRedirect());
+    await flushConfirm();
+    expect(mockAttempt).not.toHaveBeenCalled();
+  });
+
+  it("does not navigate if the page unmounts while the confirm is in flight", async () => {
+    let resolveConfirm: ((value: null) => void) | undefined;
+    mockGetSession.mockReturnValue(
+      new Promise<null>((r) => {
+        resolveConfirm = r;
+      }),
+    );
+    setPath(ROUTE.ATLASES);
+    mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
+    const { unmount } = renderHook(() => useSessionEndRedirect());
+    unmount();
+    resolveConfirm?.(null);
+    await flushConfirm();
     expect(mockAttempt).not.toHaveBeenCalled();
   });
 });

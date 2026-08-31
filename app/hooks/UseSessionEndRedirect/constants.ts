@@ -25,9 +25,23 @@ export const REDIRECT_ATTEMPTS_KEY = "hat.sessionEndRedirect.attempts";
  * How many times one tab may try to leave a stranded page before an
  * authenticated session resets the count.
  *
- * A cap rather than a single shot: it bounds a reload loop to something
- * harmless while still rescuing a user who presses Back onto an earlier
- * protected page, which `sessionStorage` alone cannot distinguish from a loop.
+ * The cap exists for one reason: to bound the cookie-valid / session-endpoint-
+ * failing loop, where every recovery lands somewhere that strands the tab again
+ * (see `claimSessionEndRedirect`).
+ *
+ * An earlier revision also justified the allowance being greater than one by
+ * rescuing a user who presses Back onto an earlier protected page. That does
+ * not hold, and `leaveStrandedPage`'s own reasoning is why: on a bfcache hit
+ * the page is restored with React state intact, so `isStranded` is already true
+ * and the effect's dependency is unchanged — nothing re-fires; on a miss the
+ * document reloads and `proxy.ts` redirects without this hook. Back never
+ * spends an attempt either way.
+ *
+ * So the number is a small tolerance for repeated genuine strands in one tab,
+ * not a load-bearing rescue. Three rather than one only trades a few extra
+ * document loads against giving up permanently after a single unlucky
+ * recovery. `confirmSessionEnded` now makes reaching the cap much less likely,
+ * and removing it altogether is part of #1562.
  */
 export const MAX_REDIRECT_ATTEMPTS = 3;
 

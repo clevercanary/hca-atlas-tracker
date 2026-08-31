@@ -3,6 +3,7 @@ import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { useEffect } from "react";
 import {
   attemptLeaveStrandedPage,
+  confirmSessionEnded,
   isStrandedOnProtectedPath,
   recordSessionSeen,
   releaseSessionEndRedirect,
@@ -64,8 +65,26 @@ export const useSessionEndRedirect = (): void => {
 
   useEffect(() => {
     if (!isStranded) return;
-    // The attempt is claimed at navigation time, not here — a deferred
-    // navigation dropped on unmount must not spend the allowance.
-    return whenOnline(attemptLeaveStrandedPage);
+    let cancelled = false;
+    // A fresh closure per effect run, not the module function itself:
+    // `addEventListener` dedupes on (type, listener, capture), so passing the
+    // singleton would collapse two mounts into one listener and let the first
+    // cleanup unregister it for the other — leaving that one stranded offline
+    // for good. Not reachable with today's single caller, but free to avoid.
+    const cleanup = whenOnline(() => {
+      // Confirm before destroying page state; see `confirmSessionEnded`. The
+      // attempt is claimed at navigation time, not here — a deferred navigation
+      // dropped on unmount must not spend the allowance.
+      // `confirmSessionEnded` swallows its own failures, so this never
+      // rejects and needs no catch.
+      confirmSessionEnded().then((ended) => {
+        if (cancelled || !ended) return;
+        attemptLeaveStrandedPage();
+      });
+    });
+    return (): void => {
+      cancelled = true;
+      cleanup?.();
+    };
   }, [isStranded]);
 };
