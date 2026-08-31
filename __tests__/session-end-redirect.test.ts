@@ -2,7 +2,13 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 
 jest.mock("next/router", () => ({
   __esModule: true,
+  // `getSessionRootUrl` reads `Router.router?.basePath` off the singleton, so
+  // the default export has to exist here as well as `useRouter`.
+  default: { router: null },
   useRouter: jest.fn(),
+}));
+jest.mock("@databiosphere/findable-ui/lib/hooks/useConfig", () => ({
+  useConfig: jest.fn(),
 }));
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
@@ -26,11 +32,11 @@ jest.mock("@/app/hooks/UseSessionEndRedirect/utils", () => ({
   attemptReloadStrandedPage: jest.fn(),
 }));
 
+import { normalizePagePath } from "@/app/hooks/UseCurrentPath/utils";
 import {
   CONFIRM_RETRY_INTERVAL,
   MAX_REDIRECT_ATTEMPTS,
   REDIRECT_ATTEMPTS_KEY,
-  SESSION_END_URL,
   SESSION_SEEN_KEY,
 } from "@/app/hooks/UseSessionEndRedirect/constants";
 import { useSessionEndRedirect } from "@/app/hooks/UseSessionEndRedirect/hook";
@@ -41,6 +47,7 @@ import {
   claimSessionEndRedirect,
   confirmSessionEnded,
   getSessionEndUrl,
+  getSessionRootUrl,
   isStrandedOnProtectedPath,
   releaseSessionEndRedirect,
   whenOnline,
@@ -48,11 +55,17 @@ import {
 import { ROUTE } from "@/app/routes/constants";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { AUTH_STATUS } from "@databiosphere/findable-ui/lib/auth/types/auth";
+import { setConfig } from "@databiosphere/findable-ui/lib/config/config";
+import { type SiteConfig } from "@databiosphere/findable-ui/lib/config/entities";
+import { useSessionCallbackUrl } from "@databiosphere/findable-ui/lib/hooks/authentication/session/useSessionCallbackUrl";
+import { INACTIVITY_PARAM } from "@databiosphere/findable-ui/lib/hooks/authentication/session/useSessionTimeout";
+import { useConfig } from "@databiosphere/findable-ui/lib/hooks/useConfig";
 import { getSession } from "next-auth/react";
-import { useRouter } from "next/router";
+import Router, { useRouter } from "next/router";
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockGetSession = getSession as jest.MockedFunction<typeof getSession>;
+const mockUseConfig = useConfig as jest.MockedFunction<typeof useConfig>;
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
 const mockAttempt = attemptLeaveStrandedPage as jest.MockedFunction<
   typeof attemptLeaveStrandedPage
@@ -109,6 +122,36 @@ async function flushConfirm(): Promise<void> {
   });
 }
 
+/**
+ * Points both session-end destinations at one `basePath` and
+ * `redirectRootToPath`: `getSessionRootUrl` reads `Router.router`, while
+ * findable-ui's `useSessionCallbackUrl` reads `useRouter()` and `useConfig()`.
+ * Feeding both from one call is what lets the drift test compare them.
+ *
+ * `redirectRootToPath` is a parameter even though this app's code no longer
+ * reads it — the hook still does, and the drift test's job is to prove that
+ * naming `ROUTE.LANDING` directly lands where the hook's config lookup does.
+ * Cast to the full types so TypeScript accepts these partials as mocks.
+ * @param basePath - Next.js `basePath`.
+ * @param redirectRootToPath - Configured app root, as the hook sees it.
+ * @returns void.
+ */
+function setRoot(basePath: string, redirectRootToPath: string): void {
+  Router.router = { basePath } as NonNullable<typeof Router.router>;
+  mockUseRouter.mockReturnValue({ basePath } as ReturnType<typeof useRouter>);
+  const config = { redirectRootToPath } as SiteConfig;
+  setConfig(config);
+  mockUseConfig.mockReturnValue({ config } as ReturnType<typeof useConfig>);
+}
+
+// `setConfig` writes a module global inside findable-ui and `Router.router` is
+// a singleton; neither is reset between tests by Jest config or `testing/setup`.
+// Pin both to the shipped defaults so no test inherits state left by an earlier
+// one.
+beforeEach(() => {
+  setRoot("", ROUTE.LANDING);
+});
+
 describe("isStrandedOnProtectedPath", () => {
   it("is true when the session is gone on a protected path", () => {
     expect(
@@ -136,6 +179,20 @@ describe("isStrandedOnProtectedPath", () => {
   ])("is false on the public path %s", (pathname) => {
     expect(
       isStrandedOnProtectedPath(AUTH_STATUS.SETTLED, false, pathname),
+    ).toBe(false);
+  });
+
+  it("is false on the session-end destination, so arriving cannot re-fire", () => {
+    // Not a runtime guard: the destination is `ROUTE.LANDING`, which
+    // `PUBLIC_PATHS` already contains. This pins that invariant — point the
+    // destination somewhere non-public and the hook would re-fire on arrival
+    // and spend every attempt on full document loads.
+    expect(
+      isStrandedOnProtectedPath(
+        AUTH_STATUS.SETTLED,
+        false,
+        normalizePagePath(getSessionEndUrl()),
+      ),
     ).toBe(false);
   });
 });
@@ -247,7 +304,7 @@ describe("getSessionEndUrl", () => {
 
   it("carries the inactivity param once a session has been held", () => {
     window.sessionStorage.setItem(SESSION_SEEN_KEY, "true");
-    expect(getSessionEndUrl()).toEqual(SESSION_END_URL);
+    expect(getSessionEndUrl()).toEqual("/?inactivityTimeout=true");
   });
 
   it("keeps the flag, so a re-strand still explains itself", () => {
@@ -257,10 +314,56 @@ describe("getSessionEndUrl", () => {
     // re-strands, and the next attempt used to land on a bare `/` — no
     // explanation, at the moment the session is provably unusable.
     window.sessionStorage.setItem(SESSION_SEEN_KEY, "true");
-    expect(getSessionEndUrl()).toEqual(SESSION_END_URL);
-    expect(getSessionEndUrl()).toEqual(SESSION_END_URL);
+    expect(getSessionEndUrl()).toEqual("/?inactivityTimeout=true");
+    expect(getSessionEndUrl()).toEqual("/?inactivityTimeout=true");
     expect(window.sessionStorage.getItem(SESSION_SEEN_KEY)).toEqual("true");
   });
+
+  it("carries the basePath through to the banner URL", () => {
+    // `location.replace` acts on the document URL, so the prefix has to be
+    // there or the recovery navigates out of the app.
+    setRoot("/tracker", ROUTE.LANDING);
+    window.sessionStorage.setItem(SESSION_SEEN_KEY, "true");
+    expect(getSessionEndUrl()).toEqual("/tracker/?inactivityTimeout=true");
+  });
+});
+
+describe("getSessionRootUrl", () => {
+  it("is the landing route when no basePath is set", () => {
+    expect(getSessionRootUrl()).toEqual(ROUTE.LANDING);
+  });
+
+  it("prefixes the basePath, as the idle timer's destination does", () => {
+    setRoot("/tracker", ROUTE.LANDING);
+    expect(getSessionRootUrl()).toEqual("/tracker/");
+  });
+
+  it("stays total before the router has initialized", () => {
+    // `Router.router` is null until the router mounts. Unreachable from this
+    // module, which only runs from an effect inside a mounted `_app`, but the
+    // recovery path must not throw — that would strand the page it exists to
+    // escape.
+    Router.router = null;
+    expect(getSessionRootUrl()).toEqual(ROUTE.LANDING);
+  });
+
+  it.each([[""], ["/tracker"]])(
+    "agrees with useSessionCallbackUrl for basePath %p",
+    (basePath) => {
+      // The drift guard for issue #1557. findable-ui's idle timer sends a
+      // session end to `useSessionCallbackUrl()`, built from `basePath` plus
+      // the config's `redirectRootToPath`; we name `ROUTE.LANDING`, which is
+      // what that config is set to. This proves the two land in the same place,
+      // so a change to either side fails here rather than silently diverging.
+      // The hook returns an absolute href, so compare as one.
+      setRoot(basePath, ROUTE.LANDING);
+      window.sessionStorage.setItem(SESSION_SEEN_KEY, "true");
+      const { result } = renderHook(() => useSessionCallbackUrl());
+      expect(result.current.callbackUrl).toEqual(
+        new URL(getSessionEndUrl(), window.location.origin).href,
+      );
+    },
+  );
 });
 
 describe("attempt timing", () => {
@@ -366,7 +469,7 @@ describe("useSessionEndRedirect", () => {
 
   it("does not navigate on a public path, so there is no redirect loop", () => {
     // The post-redirect URL itself: query string stripped, this is `/`.
-    setPath(SESSION_END_URL);
+    setPath(`${ROUTE.LANDING}?${INACTIVITY_PARAM}=true`);
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
     renderHook(() => useSessionEndRedirect());
     expect(mockAttempt).not.toHaveBeenCalled();
