@@ -28,11 +28,9 @@ import {
  * navigation, hence `sessionStorage`. Exhausting it degrades a persistent
  * failure to the pre-fix behaviour — a stranded page — rather than a loop.
  *
- * A small cap rather than a single attempt, because `replace` removes the
- * stranded URL from history but not any *earlier* protected page: a user who
- * presses Back onto one needs rescuing too, and that is indistinguishable from
- * a loop iteration. A cap serves both — a loop stops after a few harmless
- * bounces, and Back keeps working.
+ * Why the allowance is more than a single attempt is documented on
+ * `MAX_REDIRECT_ATTEMPTS`, and only there — stating it in both places is how
+ * the two came to disagree.
  *
  * Falls back to allowing the attempt when storage is unavailable (private
  * mode, blocked site data): recovering the common case matters more than

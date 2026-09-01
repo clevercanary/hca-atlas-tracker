@@ -43,7 +43,7 @@ import {
  *
  * Recovery is capped at `MAX_REDIRECT_ATTEMPTS` per authenticated session — see
  * `claimSessionEndRedirect` for the reload loop that cap exists to prevent, and
- * why it is a small allowance rather than a single attempt.
+ * `MAX_REDIRECT_ATTEMPTS` itself for why the allowance is more than one.
  * @returns void.
  */
 export const useSessionEndRedirect = (): void => {
