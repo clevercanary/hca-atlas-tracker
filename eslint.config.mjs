@@ -86,8 +86,13 @@ const config = [
               // and silently reintroduce the ~57px jump. Fence it instead.
               // Remove this when the seed lands upstream as a prop, or when
               // DataBiosphere/findable-ui#998 removes the offset entirely.
+              // Anchored on the package name and trailing-wildcarded: an exact
+              // path is bypassed by a `.js`-suffixed specifier, which resolves
+              // to the same upstream module and passes both eslint and tsc. A
+              // bare `**/layoutDimensions/provider*` would over-match and fence
+              // the local copy this rule points people at.
               group: [
-                "@databiosphere/findable-ui/lib/providers/layoutDimensions/provider",
+                "@databiosphere/findable-ui/**/layoutDimensions/provider*",
               ],
               message:
                 "Import LayoutDimensionsProvider from '@/app/providers/layoutDimensions/provider' — upstream's provider seeds the header offset as 0, reintroducing the first-paint jump (#1543).",

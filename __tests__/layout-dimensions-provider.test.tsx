@@ -16,7 +16,8 @@ import { LayoutDimensionsProvider } from "@/app/providers/layoutDimensions/provi
 import { HEADER_HEIGHT } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/common/constants";
 import { useResizeObserver } from "@databiosphere/findable-ui/lib/hooks/useResizeObserver";
 import { useLayoutDimensions } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/hook";
-import { type JSX } from "react";
+import { type LayoutDimensionsContextProps } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/types";
+import { type JSX, type RefObject, useEffect } from "react";
 
 const mockUseResizeObserver = useResizeObserver as jest.MockedFunction<
   typeof useResizeObserver
@@ -25,13 +26,24 @@ const mockUseResizeObserver = useResizeObserver as jest.MockedFunction<
 const FOOTER_TEST_ID = "footer-height";
 const HEADER_TEST_ID = "header-height";
 
+// What the Probe last read from context. A holder rather than a bare binding
+// because a component may not reassign an outer variable, and it is filled from
+// an effect rather than during render to keep the Probe pure. Lets a test assert
+// against the very ref objects the provider handed out, instead of inferring
+// which element an observer call meant from the order it arrived in.
+const observed: { context?: LayoutDimensionsContextProps } = {};
+
 /**
  * Reads the layout dimensions from context the way findable-ui's consumers do,
  * rendering them so the test can assert on the DOM.
  * @returns The dimensions as text.
  */
 function Probe(): JSX.Element {
-  const { dimensions } = useLayoutDimensions();
+  const context = useLayoutDimensions();
+  const { dimensions } = context;
+  useEffect(() => {
+    observed.context = context;
+  }, [context]);
   return (
     <>
       <span data-testid={HEADER_TEST_ID}>{dimensions.header.height}</span>
@@ -41,19 +53,45 @@ function Probe(): JSX.Element {
 }
 
 /**
- * Renders the probe inside the provider and returns the dimensions it saw.
- * @returns Header and footer heights read from context.
+ * Renders the probe inside the provider and returns what it saw: the heights,
+ * plus the refs the provider put on context.
+ * @returns Heights read from context, and the context's own refs.
  */
-function renderProvider(): { footer: number; header: number } {
+function renderProvider(): {
+  footer: number;
+  footerRef: RefObject<HTMLElement | null>;
+  header: number;
+  headerRef: RefObject<HTMLElement | null>;
+} {
   render(
     <LayoutDimensionsProvider>
       <Probe />
     </LayoutDimensionsProvider>,
   );
+  const { context } = observed;
+  if (!context) throw new Error("Probe did not render");
   return {
     footer: Number(screen.getByTestId(FOOTER_TEST_ID).textContent),
+    footerRef: context.footerRef,
     header: Number(screen.getByTestId(HEADER_TEST_ID).textContent),
+    headerRef: context.headerRef,
   };
+}
+
+/**
+ * Returns the height the observer reported for one specific ref, found by
+ * matching the argument each call received rather than by call position.
+ * @param ref - Ref to look up.
+ * @returns Reported height, or undefined if that ref reported nothing.
+ */
+function reportedHeightFor(
+  ref: RefObject<HTMLElement | null>,
+): number | undefined {
+  const index = mockUseResizeObserver.mock.calls.findIndex(
+    ([observedRef]) => observedRef === ref,
+  );
+  if (index === -1) throw new Error("Ref was never observed");
+  return mockUseResizeObserver.mock.results[index].value?.height;
 }
 
 describe("INITIAL_LAYOUT_DIMENSIONS", () => {
@@ -85,25 +123,29 @@ describe("INITIAL_LAYOUT_DIMENSIONS", () => {
 describe("LayoutDimensionsProvider", () => {
   beforeEach(() => {
     mockUseResizeObserver.mockReset();
+    delete observed.context;
   });
 
   it("serves the seed before the observer reports, so SSR and first paint agree", () => {
     mockUseResizeObserver.mockReturnValue(undefined);
-    expect(renderProvider()).toEqual({
-      footer: INITIAL_LAYOUT_DIMENSIONS.footer.height,
-      header: INITIAL_LAYOUT_DIMENSIONS.header.height,
-    });
+    const { footer, header } = renderProvider();
+    expect(footer).toEqual(INITIAL_LAYOUT_DIMENSIONS.footer.height);
+    expect(header).toEqual(INITIAL_LAYOUT_DIMENSIONS.header.height);
   });
 
   it("prefers the measured height once the observer reports", () => {
-    // Distinct values per call, not one shared value: the provider calls the
-    // observer for the footer first, so a transposed read would return the
-    // footer's height as the header's and a symmetric mock could not tell.
-    // A banner above the toolbar is why the header can exceed its seed.
-    mockUseResizeObserver
-      .mockReturnValueOnce({ height: 88 })
-      .mockReturnValueOnce({ height: 105 });
-    expect(renderProvider()).toEqual({ footer: 88, header: 105 });
+    // One shared value, deliberately unequal to either seed, so this asserts
+    // only what it is named for: a report wins over the fallback. Telling a
+    // header/footer transposition apart is the wiring test's job, and doing it
+    // there — against the ref each call received — pins any mutation rather
+    // than the single transposition that distinct values happened to catch.
+    // Keeping both jobs here is what coupled this test to the order the
+    // provider declares its two observers in.
+    // A banner above the toolbar is why a measured header can exceed its seed.
+    mockUseResizeObserver.mockReturnValue({ height: 88 });
+    const { footer, header } = renderProvider();
+    expect(footer).toEqual(88);
+    expect(header).toEqual(88);
   });
 
   it("keeps a measured zero rather than falling back to the seed", () => {
@@ -112,18 +154,29 @@ describe("LayoutDimensionsProvider", () => {
     mockUseResizeObserver
       .mockReturnValueOnce({ height: 0 })
       .mockReturnValueOnce({ height: 0 });
-    expect(renderProvider()).toEqual({ footer: 0, header: 0 });
+    const { footer, header } = renderProvider();
+    expect(footer).toEqual(0);
+    expect(header).toEqual(0);
   });
 
   it("maps each observed element to its own dimension", () => {
-    // Guards the wiring itself: only the footer is measured, so a transposed
-    // read would surface its height as the header's.
+    // Guards the wiring itself, by asserting against the ref each observer call
+    // actually received. Heights alone cannot: the mocked hook ignores its ref
+    // argument, so `mockReturnValueOnce` order satisfies the assertions
+    // whichever ref was passed — transposing the two reads in the provider left
+    // all eight tests green. That transposition is a live bug, since the header
+    // offset would then track the footer's taller, content-dependent height and
+    // push `<main>`, `ContentGrid` and `scroll-margin-top` down with it.
+    //
+    // Keying on the argument rather than the call position also means a
+    // behaviour-preserving reorder of the provider's two `useResizeObserver`
+    // lines stays green, where a position-keyed assertion would fail with a
+    // misleading message about heights.
     mockUseResizeObserver
       .mockReturnValueOnce({ height: 42 })
-      .mockReturnValueOnce(undefined);
-    expect(renderProvider()).toEqual({
-      footer: 42,
-      header: INITIAL_LAYOUT_DIMENSIONS.header.height,
-    });
+      .mockReturnValueOnce({ height: 99 });
+    const { footer, footerRef, header, headerRef } = renderProvider();
+    expect(footer).toEqual(reportedHeightFor(footerRef));
+    expect(header).toEqual(reportedHeightFor(headerRef));
   });
 });
