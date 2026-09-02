@@ -2,7 +2,10 @@ import { HEADER_HEIGHT } from "@databiosphere/findable-ui/lib/components/Layout/
 import { type LayoutDimensions } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/types";
 
 /**
- * Width of the AppBar's bottom border (`header.styles.ts` upstream).
+ * Thickness of the AppBar's bottom border — CSS `border-width`, which is what a
+ * border's thickness is called on every side (`border-bottom: 1px solid` in
+ * `header.styles.ts` upstream). Named for the property it mirrors, though what
+ * it contributes to here is a height.
  *
  * `headerRef` is attached to the AppBar rather than the Toolbar, so the
  * measured height includes this border — `HEADER_HEIGHT` alone would seed one
