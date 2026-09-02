@@ -95,12 +95,11 @@ function reportedHeightFor(
 }
 
 describe("INITIAL_LAYOUT_DIMENSIONS", () => {
-  // Asserted as literals, not as the formula the constant already encodes.
-  // Both mirror findable-ui CSS that is not imported — the AppBar's 1px border
-  // (`header.styles.ts`) and the footer toolbar's `min-height`
-  // (`footer.styles.ts`) — under a caret range, so a routine upgrade could
-  // change either while a formula-shaped assertion stayed green and every first
-  // paint was wrong. Failing here is the point: it forces a look.
+  // The header is asserted as a literal, not as the formula the constant
+  // already encodes. Its border half mirrors findable-ui CSS that is not
+  // imported (`header.styles.ts`) under a caret range, so a routine upgrade
+  // could change it while a formula-shaped assertion stayed green and every
+  // first paint was wrong. Failing here is the point: it forces a look.
   it("seeds the header at 57px — the toolbar plus the AppBar's border", () => {
     expect(INITIAL_LAYOUT_DIMENSIONS.header.height).toEqual(57);
   });
@@ -110,13 +109,17 @@ describe("INITIAL_LAYOUT_DIMENSIONS", () => {
     expect(INITIAL_LAYOUT_DIMENSIONS.header.height).toEqual(HEADER_HEIGHT + 1);
   });
 
-  it("seeds the footer at its 56px toolbar", () => {
-    expect(INITIAL_LAYOUT_DIMENSIONS.footer.height).toEqual(56);
+  it("leaves the footer unseeded, since nothing in this app reads it", () => {
+    // Deliberate, and asserted so a `56` cannot drift back in unnoticed: that
+    // literal has no upstream export to track and is roughly half the real
+    // footer below findable-ui's 768px `sm`, so the first `useLayoutSpacing`
+    // consumer would have inherited it as measured-looking prior art. See
+    // `FOOTER_HEIGHT`.
+    expect(INITIAL_LAYOUT_DIMENSIONS.footer.height).toEqual(0);
   });
 
-  it("never seeds zero, the value that produces the jump", () => {
+  it("never seeds the header at zero, the value that produces the jump", () => {
     expect(INITIAL_LAYOUT_DIMENSIONS.header.height).toBeGreaterThan(0);
-    expect(INITIAL_LAYOUT_DIMENSIONS.footer.height).toBeGreaterThan(0);
   });
 });
 
@@ -150,10 +153,15 @@ describe("LayoutDimensionsProvider", () => {
 
   it("keeps a measured zero rather than falling back to the seed", () => {
     // A genuinely measured 0 (e.g. a hidden footer) is data, not a missing
-    // reading, so the fallback must not treat it as absent.
-    mockUseResizeObserver
-      .mockReturnValueOnce({ height: 0 })
-      .mockReturnValueOnce({ height: 0 });
+    // reading, so the fallback must not treat it as absent — `??`, not `||`.
+    // The header assertion is what carries this: its seed is 57, so a `||`
+    // would show. The footer's is vacuous now that its seed is also 0, and is
+    // kept only so this starts testing something again if that ever changes.
+    // One shared value rather than two `Once`s: those pinned this test to the
+    // provider rendering exactly once, so StrictMode or an added state hook
+    // would send call 3+ to the `mockReset` default of `undefined` and fail
+    // with a misleading "expected 0, got 57" pointing at the fallback.
+    mockUseResizeObserver.mockReturnValue({ height: 0 });
     const { footer, header } = renderProvider();
     expect(footer).toEqual(0);
     expect(header).toEqual(0);
