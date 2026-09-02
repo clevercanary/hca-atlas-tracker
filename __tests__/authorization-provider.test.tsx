@@ -8,6 +8,13 @@ jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
 jest.mock("@/app/hooks/UseFetchActiveUser/hook", () => ({
   useFetchActiveUser: jest.fn(),
 }));
+// `useSessionEndRedirect` reads the router. `asPath: "/"` is a public path, so
+// the redirect stays inert and these assertions stay about the query cache.
+jest.mock("next/router", () => ({
+  __esModule: true,
+  default: { push: jest.fn() },
+  useRouter: (): { asPath: string } => ({ asPath: "/" }),
+}));
 
 import { type HCAAtlasTrackerActiveUser } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { useFetchActiveUser } from "@/app/hooks/UseFetchActiveUser/hook";

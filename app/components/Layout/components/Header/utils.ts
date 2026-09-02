@@ -7,9 +7,29 @@ import { type HeaderProps } from "@databiosphere/findable-ui/lib/components/Layo
 import { cloneElement, isValidElement, type ReactNode } from "react";
 
 /**
- * Returns the props for the stripped-down header rendered on logged-out
- * pages: keep the logo and the Help & Documentation menu (navigation slot 2),
- * drop the main app nav.
+ * Returns the props for the stripped-down header rendered on logged-out pages.
+ *
+ * This rebuilds `HeaderProps` rather than adapting it, so every field is either
+ * named below or dropped. That is deliberate — a logged-out visitor should be
+ * shown only what we have decided to show them — but it means the list has to
+ * be read as a decision, not as an inventory. Kept:
+ *
+ * - `logo` — re-pointed at the landing page (see `getLandingLogo`).
+ * - `navigation` — slot 2 only (Help & Documentation); the main app nav goes.
+ * - `authenticationEnabled` — the Sign In button is the point of this header.
+ * - `announcements` — the landing page is the only page a session end ever
+ *   lands on, so dropping it made the inactivity banner unreachable in
+ *   practice. That bug is why this list is now written out.
+ *
+ * Dropped, none of which our site config currently sets, so each is a latent
+ * decision rather than a live one: `actions`, `className`, `searchEnabled`,
+ * `searchURL`, `slogan`, `socialMedia`.
+ *
+ * A field added to `HeaderProps` upstream, or newly set in site config, is
+ * dropped here by default and will render on the app header while silently
+ * vanishing on the landing page — exactly how `announcements` went missing. If
+ * that default stops being what we want, spreading `header` and overriding
+ * `logo`/`navigation` inverts it. See #1556.
  * @param header - The full app header config (may be undefined).
  * @returns Header props to spread onto the `DXHeader`.
  */
@@ -21,6 +41,7 @@ export function getLandingHeaderProps(
     ? [undefined, undefined, helpAndDocs]
     : undefined;
   return {
+    announcements: header?.announcements,
     authenticationEnabled: header?.authenticationEnabled,
     logo: getLandingLogo(header?.logo),
     navigation,
