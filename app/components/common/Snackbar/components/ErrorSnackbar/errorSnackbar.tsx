@@ -21,11 +21,22 @@ import { StyledSnackbar } from "./errorSnackbar.styles";
  * put it inside `#__next` — and an open `Dialog` portals to `body` and has its
  * `ModalManager` mark every sibling of the modal `aria-hidden`, `#__next`
  * included. A toast raised by a failure inside a dialog (publish, create
- * revision) would then paint above the dialog yet be unannounced to screen
- * readers and untabbable behind the focus trap. Portalling puts it beside the
- * dialog rather than under the hidden subtree. Closing the dialog on failure
- * would also work, but would throw away the retry the user is most likely to
- * want.
+ * revision) would then paint above the dialog yet go unannounced, since
+ * `SnackbarContent` is `role="alert"` and an `aria-hidden` ancestor suppresses
+ * it. Portalling puts the toast beside the dialog rather than under the hidden
+ * subtree. Closing the dialog on failure would also work, but would throw away
+ * the retry the user is most likely to want.
+ *
+ * Two a11y gaps the portal does NOT close, tracked in #1563:
+ * - Tabbability. `Modal` defaults `disableEnforceFocus` to false and its
+ *   `FocusTrap` enforces focus by DOM containment within the modal node, so
+ *   where the toast sits in the tree is irrelevant — a keyboard user still
+ *   can't Tab to the close button until they Escape out of the dialog.
+ * - Ordering. `ariaHiddenSiblings` snapshots `container.children` when the
+ *   modal mounts, so the toast is skipped only when it doesn't exist yet.
+ *   Dialog-then-error is safe (`Snackbar` renders null while closed); a pinned
+ *   error followed by opening a dialog is not — the toast is an existing child
+ *   of `body` by then, and gets `aria-hidden="true"`.
  * @returns error snackbar component.
  */
 export const ErrorSnackbar = (): JSX.Element => {
