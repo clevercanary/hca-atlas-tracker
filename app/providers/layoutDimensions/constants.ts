@@ -11,26 +11,33 @@ import { type LayoutDimensions } from "@databiosphere/findable-ui/lib/providers/
 const APP_BAR_BORDER_WIDTH = 1;
 
 /**
- * Height of the footer toolbar (`footer.styles.ts` upstream).
+ * Deliberately left unseeded.
  *
- * Hardcoded because upstream sets it inline and exports no equivalent of
- * `HEADER_HEIGHT`, so this value mirrors `footer.styles.ts` and will not track
- * a change to it.
+ * The header seed earns its keep on two counts: it is anchored to an upstream
+ * export (`HEADER_HEIGHT`), and something in this app actually reads it. A
+ * footer seed has neither. `dimensions.footer.height` is read only through
+ * `useLayoutSpacing`, whose consumers — DataDictionary, IndexView, ResearchView
+ * — this app does not render, so nothing here benefits from a non-zero value.
  *
- * It is the `bpUpSm` `min-height`, and `sm` here is **768px** — findable-ui's
- * theme, not MUI's 600. The site-config `BREAKPOINTS` override (`sm: 1024`)
- * does not apply: `_app` scopes that ThemeProvider to the header subtree, and
- * the footer sits outside it. So below 768px — tablets and split-screen
- * laptops, not just phones — the toolbar is a gapped column with no minimum and
- * the real footer is well over 100px, where this seed is badly short. Still
- * closer than `0`, which is the bar it has to clear.
+ * A previous revision seeded `56`. Do not restore it without a consumer and a
+ * test. Upstream sets that height inline and exports no equivalent of
+ * `HEADER_HEIGHT`, so the literal cannot track `footer.styles.ts` and no test
+ * would notice it going stale. Worse, `56` is the `bpUpSm` `min-height` and
+ * `sm` here is **768px** — findable-ui's theme, not MUI's 600, and the
+ * site-config `BREAKPOINTS` override (`sm: 1024`) does not apply because `_app`
+ * scopes that ThemeProvider to the header subtree while the footer sits outside
+ * it. Below 768px — tablets and split-screen laptops, not just phones — the
+ * toolbar is a gapped column with no minimum and the real footer runs well over
+ * 100px. So the first `useLayoutSpacing` consumer would have silently inherited
+ * roughly half the real bottom spacing there, on the strength of a value that
+ * looked measured and was not.
  *
- * Presently inert either way: `dimensions.footer.height` is only read through
- * `useLayoutSpacing`, whose consumers (DataDictionary, IndexView, ResearchView)
- * this app does not render. Worth knowing before one is adopted and this value
- * is inherited as trusted prior art.
+ * `0` is not a legitimate footer height either, and a consumer adopted later
+ * will want a seed. The point is that it should be chosen against that
+ * consumer's needs and pinned by a test, rather than inherited as prior art
+ * from a branch that had no consumer at all.
  */
-const FOOTER_HEIGHT = 56;
+const FOOTER_HEIGHT = 0;
 
 /**
  * Dimensions used until the `ResizeObserver` reports, chosen so the
@@ -42,19 +49,31 @@ const FOOTER_HEIGHT = 56;
  * the fallback. At `0` that paint puts content behind the header and then
  * corrects itself, which is the ~57px jump in #1543.
  *
- * These are the layout at rest, not the whole truth: the announcements banner
- * renders inside the measured AppBar and makes the header taller, and the
- * footer grows on narrow viewports. The observer still runs and still corrects
- * both. The seed's job is only to replace `0` — a height the layout can never
- * legitimately have — with the height it usually has.
+ * Only the header is seeded; see `FOOTER_HEIGHT` for why the footer is
+ * deliberately left at `0`.
  *
- * One configured case misses on the very first paint rather than at rest: a
- * load carrying `?inactivityTimeout=true` (where a session end lands, see
- * #1544) mounts the session-timeout banner inside the measured AppBar from the
- * first render — `useSessionTimeout` initialises from the query param, and the
- * landing page is server-rendered — so the banner is in the SSR HTML and this
- * seed under-measures until the observer reports. Still strictly better than
- * `0`, and self-correcting; noted so it isn't mistaken for a regression.
+ * The header seed is the layout at rest, not the whole truth: the announcements
+ * banner renders inside the measured AppBar and makes the header taller. The
+ * observer still runs and still corrects it. The seed's job is only to replace
+ * `0` — a height the header can never legitimately have — with the height it
+ * usually has.
+ *
+ * One configured case will miss on the very first paint rather than at rest,
+ * though not yet on `main`: a load carrying `?inactivityTimeout=true` (where a
+ * session end lands, see #1544). `useSessionTimeout` initialises its state from
+ * the query param, so the banner is open from its first client render, and
+ * findable-ui's `Header` renders `Announcements` as the AppBar's first child —
+ * inside `headerRef` — so it grows the measured header and this seed
+ * under-measures until the observer reports.
+ *
+ * Unreachable as things stand, because `getLandingHeaderProps` drops
+ * `announcements` and the landing page is the only page that load can hit
+ * (`redirectRootToPath` is `/`, which is in `PUBLIC_PATHS`). #1548 restores
+ * `announcements` to the landing header — dropping it is what made the
+ * inactivity banner unreachable in the first place — and this becomes live when
+ * that merges. Recorded now so the under-measurement isn't then read as a
+ * regression in this change; still strictly better than `0`, and
+ * self-correcting.
  *
  * A note for the upstream fallback-as-prop change: a non-zero seed permanently
  * satisfies `header.height > 0`, which findable-ui's `UseMeasureFilters` passes
