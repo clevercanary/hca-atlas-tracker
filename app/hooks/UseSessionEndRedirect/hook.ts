@@ -1,8 +1,11 @@
 import { useCurrentPath } from "@/app/hooks/UseCurrentPath/hook";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { useEffect } from "react";
+import { CONFIRM_RETRY_INTERVAL } from "./constants";
+import { SESSION_CONFIRMATION, type SessionConfirmation } from "./types";
 import {
   attemptLeaveStrandedPage,
+  attemptReloadStrandedPage,
   confirmSessionEnded,
   isStrandedOnProtectedPath,
   recordSessionSeen,
@@ -44,6 +47,15 @@ import {
  * Recovery is capped at `MAX_REDIRECT_ATTEMPTS` per authenticated session — see
  * `claimSessionEndRedirect` for the reload loop that cap exists to prevent, and
  * `MAX_REDIRECT_ATTEMPTS` itself for why the allowance is more than one.
+ *
+ * The confirming read is retried until it says something, because nothing else
+ * can re-run this effect: `isStranded` is derived from auth state that is
+ * frozen by now — next-auth gates its poll off once `_session === null` and its
+ * focus refetch returns early — so a read that came up inconclusive would never
+ * be followed by a second one, and one 502 or one failed fetch on laptop wake
+ * was enough to strand the tab indefinitely. See `CONFIRM_RETRY_INTERVAL` for
+ * why the retry is unbounded, and `attemptReloadStrandedPage` for the read that
+ * comes back with a live session, where the client's `null` is known-wrong.
  * @returns void.
  */
 export const useSessionEndRedirect = (): void => {
@@ -66,25 +78,52 @@ export const useSessionEndRedirect = (): void => {
   useEffect(() => {
     if (!isStranded) return;
     let cancelled = false;
-    // A fresh closure per effect run, not the module function itself:
-    // `addEventListener` dedupes on (type, listener, capture), so passing the
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let offlineCleanup: (() => void) | undefined;
+
+    // Declared as a sibling of `attempt` and passed to `then` by reference
+    // rather than inlined there, which keeps the nesting within limits.
+    const onConfirmation = (confirmation: SessionConfirmation): void => {
+      if (cancelled) return;
+      switch (confirmation) {
+        case SESSION_CONFIRMATION.ENDED:
+          attemptLeaveStrandedPage();
+          return;
+        case SESSION_CONFIRMATION.LIVE:
+          // The client's `null` is known-wrong, and the tab cannot correct it.
+          attemptReloadStrandedPage();
+          return;
+        case SESSION_CONFIRMATION.INCONCLUSIVE:
+          retryTimer = setTimeout(attempt, CONFIRM_RETRY_INTERVAL);
+          return;
+      }
+    };
+
+    // A fresh closure per attempt, never the module function itself:
+    // `addEventListener` dedupes on (type, listener, capture), so passing a
     // singleton would collapse two mounts into one listener and let the first
     // cleanup unregister it for the other — leaving that one stranded offline
-    // for good. Not reachable with today's single caller, but free to avoid.
-    const cleanup = whenOnline(() => {
-      // Confirm before destroying page state; see `confirmSessionEnded`. The
-      // attempt is claimed at navigation time, not here — a deferred navigation
-      // dropped on unmount must not spend the allowance.
-      // `confirmSessionEnded` swallows its own failures, so this never
-      // rejects and needs no catch.
-      confirmSessionEnded().then((ended) => {
-        if (cancelled || !ended) return;
-        attemptLeaveStrandedPage();
+    // for good. Re-entering `whenOnline` per attempt is also what re-arms its
+    // `{ once: true }` listener: `online` fires on interface-up, not on
+    // reachability, so the read that follows a laptop wake commonly fails and
+    // the deferral must not be spent on it.
+    //
+    // The attempt allowance is claimed at navigation time, not here — a
+    // deferred navigation dropped on unmount must not spend it.
+    // `confirmSessionEnded` swallows its own failures, so this never rejects
+    // and needs no catch.
+    function attempt(): void {
+      offlineCleanup = whenOnline(() => {
+        confirmSessionEnded().then(onConfirmation);
       });
-    });
+    }
+
+    attempt();
+
     return (): void => {
       cancelled = true;
-      cleanup?.();
+      clearTimeout(retryTimer);
+      offlineCleanup?.();
     };
   }, [isStranded]);
 };

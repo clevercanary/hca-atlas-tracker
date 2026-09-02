@@ -8,6 +8,7 @@ import {
   SESSION_END_URL,
   SESSION_SEEN_KEY,
 } from "./constants";
+import { SESSION_CONFIRMATION, type SessionConfirmation } from "./types";
 
 /**
  * Claims one of this tab's attempts at leaving a stranded page, returning false
@@ -80,22 +81,31 @@ export function claimSessionEndRedirect(): boolean {
  * A second reading turns a single blip into two consecutive failures, which is
  * a far smaller class of event.
  *
- * What this does NOT do is disambiguate. `getSession()` goes through the same
- * `fetchData`, so a *persistently* failing endpoint still reads as an expiry —
- * it is a second sample, not a different signal. Telling "no session" apart
- * from "the request failed" needs the response status, which next-auth does not
- * surface here; that is the deeper fix, and it is what would let the attempt cap
- * and its counter be deleted rather than merely made less reachable. Tracked in
- * #1562.
- * @returns true if the session is confirmed gone and leaving is warranted.
+ * What this does NOT do is disambiguate a *resolved* `null`. `getSession()`
+ * goes through the same `fetchData`, which returns `null` for a non-OK response
+ * just as it does for a real expiry — so a persistently failing endpoint still
+ * reads as `ENDED`. It is a second sample, not a different signal. Telling "no
+ * session" apart from "the request failed" needs the response status, which
+ * next-auth does not surface here; that is the deeper fix, and it is what would
+ * let the attempt cap and its counter be deleted rather than merely made less
+ * reachable. Tracked in #1562.
+ *
+ * A throw *is* distinguishable, and is reported as `INCONCLUSIVE` rather than
+ * folded in with a live session. The two want opposite responses — retry versus
+ * recover — and collapsing them into one falsy answer is what made a single
+ * blip terminal.
+ * @returns whether the session is confirmed gone, confirmed live, or unknown.
  */
-export async function confirmSessionEnded(): Promise<boolean> {
+export async function confirmSessionEnded(): Promise<SessionConfirmation> {
   try {
-    return (await getSession()) === null;
+    return (await getSession()) === null
+      ? SESSION_CONFIRMATION.ENDED
+      : SESSION_CONFIRMATION.LIVE;
   } catch {
-    // Threw rather than resolving: inconclusive, so hold the page. Staying on a
-    // stale page is recoverable; navigating away from unsaved work is not.
-    return false;
+    // Threw rather than resolving: nothing was learned, so hold the page and
+    // let the caller retry. Staying on a stale page is recoverable; navigating
+    // away from unsaved work is not.
+    return SESSION_CONFIRMATION.INCONCLUSIVE;
   }
 }
 
@@ -153,6 +163,30 @@ export function leaveStrandedPage(): void {
 }
 
 /**
+ * Recovers a stranded page in place, by reloading the URL it is already on.
+ *
+ * For the case where the confirming read came back with a *live* session: the
+ * client's `null` is then known-wrong, and the tab cannot correct it on its own
+ * — next-auth gates its poll on a non-null session and its focus refetch bails
+ * on a null one. Ironically the confirming `getSession()` broadcasts by
+ * default, so sibling tabs are driven through the `storage` branch that does
+ * write `__NEXTAUTH._session` and recover, while the tab that did the work
+ * stays broken.
+ *
+ * Reloads rather than redirecting: the session was fine all along, so the user
+ * belongs on the page they were already on, not at the landing page. A full
+ * load is still required — it is what rebuilds the client session — and it
+ * leaves no history entry to go back to a broken page through.
+ *
+ * Deliberately does not touch `SESSION_SEEN_KEY`: no session ended here, so
+ * there is nothing to explain with the inactivity banner.
+ * @returns void.
+ */
+export function reloadStrandedPage(): void {
+  window.location.reload();
+}
+
+/**
  * Claims an attempt and, if granted, leaves the stranded page.
  *
  * The claim happens here rather than in the caller so the allowance is only
@@ -168,18 +202,43 @@ export function attemptLeaveStrandedPage(): void {
 }
 
 /**
+ * Claims an attempt and, if granted, reloads to recover a stranded page.
+ *
+ * Shares the allowance with `attemptLeaveStrandedPage` rather than reloading
+ * freely. A reload lands a brand-new client whose own session fetch can fail
+ * the same way the first one did, re-stranding the tab and confirming live
+ * again — so an uncapped reload is the same unbounded document-load loop the
+ * cap exists to bound, just reached by a different route.
+ * @returns void.
+ */
+export function attemptReloadStrandedPage(): void {
+  if (!claimSessionEndRedirect()) return;
+  reloadStrandedPage();
+}
+
+/**
  * Returns where a stranded page should go: the landing page, with the
  * inactivity param only when this tab has actually held a session.
  *
- * Consumed on use, so the banner is shown once per session that ends rather
- * than on every later strand in the same tab; an authenticated session sets the
- * flag again.
+ * Read, not consumed. An earlier revision removed the flag here so the banner
+ * could only appear once per session that ended, but the flag was then spent on
+ * a navigation that shows no banner at all: on the self-heal path the landing
+ * page's `getServerSideProps` 307s a still-cookied request to `/atlases` and
+ * drops the query string. If the session endpoint is still failing, that tab
+ * re-strands and the next attempt lands on a bare `/` — the user's session
+ * really is unusable at that point, and that is the moment they most need the
+ * explanation.
+ *
+ * Nothing is lost by keeping it. A successful self-heal re-records the flag
+ * anyway (see `recordSessionSeen`, called whenever an authenticated session is
+ * observed), and after a genuine expiry the user sits on public paths where
+ * `isStrandedOnProtectedPath` is false — so there is no later strand in the tab
+ * for the banner to repeat on.
  * @returns Landing URL, with the inactivity param when a session ended.
  */
 export function getSessionEndUrl(): string {
   try {
     if (!window.sessionStorage.getItem(SESSION_SEEN_KEY)) return ROUTE.LANDING;
-    window.sessionStorage.removeItem(SESSION_SEEN_KEY);
   } catch {
     // Storage unreadable; fall back to the plain landing page rather than
     // asserting an inactivity logout that may never have happened.

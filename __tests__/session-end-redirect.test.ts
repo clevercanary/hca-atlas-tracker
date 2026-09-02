@@ -23,18 +23,23 @@ jest.mock("next-auth/react", () => ({
 jest.mock("@/app/hooks/UseSessionEndRedirect/utils", () => ({
   ...jest.requireActual("@/app/hooks/UseSessionEndRedirect/utils"),
   attemptLeaveStrandedPage: jest.fn(),
+  attemptReloadStrandedPage: jest.fn(),
 }));
 
 import {
+  CONFIRM_RETRY_INTERVAL,
   MAX_REDIRECT_ATTEMPTS,
   REDIRECT_ATTEMPTS_KEY,
   SESSION_END_URL,
   SESSION_SEEN_KEY,
 } from "@/app/hooks/UseSessionEndRedirect/constants";
 import { useSessionEndRedirect } from "@/app/hooks/UseSessionEndRedirect/hook";
+import { SESSION_CONFIRMATION } from "@/app/hooks/UseSessionEndRedirect/types";
 import {
   attemptLeaveStrandedPage,
+  attemptReloadStrandedPage,
   claimSessionEndRedirect,
+  confirmSessionEnded,
   getSessionEndUrl,
   isStrandedOnProtectedPath,
   releaseSessionEndRedirect,
@@ -51,6 +56,9 @@ const mockGetSession = getSession as jest.MockedFunction<typeof getSession>;
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
 const mockAttempt = attemptLeaveStrandedPage as jest.MockedFunction<
   typeof attemptLeaveStrandedPage
+>;
+const mockReload = attemptReloadStrandedPage as jest.MockedFunction<
+  typeof attemptReloadStrandedPage
 >;
 
 /**
@@ -193,6 +201,38 @@ describe("claimSessionEndRedirect / releaseSessionEndRedirect", () => {
   });
 });
 
+describe("confirmSessionEnded", () => {
+  beforeEach(() => {
+    mockGetSession.mockReset();
+  });
+
+  it("reports ENDED when the read resolves without a session", async () => {
+    mockGetSession.mockResolvedValue(null);
+    await expect(confirmSessionEnded()).resolves.toEqual(
+      SESSION_CONFIRMATION.ENDED,
+    );
+  });
+
+  it("reports LIVE when the read comes back with a session", async () => {
+    // Distinguished from INCONCLUSIVE because the two want opposite responses:
+    // here the client's `null` is known-wrong, so the tab should recover rather
+    // than sit still.
+    mockGetSession.mockResolvedValue({ expires: "2099-01-01T00:00:00.000Z" });
+    await expect(confirmSessionEnded()).resolves.toEqual(
+      SESSION_CONFIRMATION.LIVE,
+    );
+  });
+
+  it("reports INCONCLUSIVE when the read itself throws", async () => {
+    // Nothing was learned, so the caller retries rather than treating one blip
+    // as terminal.
+    mockGetSession.mockRejectedValue(new Error("network down"));
+    await expect(confirmSessionEnded()).resolves.toEqual(
+      SESSION_CONFIRMATION.INCONCLUSIVE,
+    );
+  });
+});
+
 describe("getSessionEndUrl", () => {
   beforeEach(() => {
     window.sessionStorage.clear();
@@ -210,10 +250,16 @@ describe("getSessionEndUrl", () => {
     expect(getSessionEndUrl()).toEqual(SESSION_END_URL);
   });
 
-  it("consumes the flag, so a later strand does not repeat the banner", () => {
+  it("keeps the flag, so a re-strand still explains itself", () => {
+    // Consuming it here spent the banner on a navigation that shows no banner:
+    // the landing page 307s a still-cookied request to `/atlases` and drops the
+    // query string. If the session endpoint is still failing that tab
+    // re-strands, and the next attempt used to land on a bare `/` — no
+    // explanation, at the moment the session is provably unusable.
     window.sessionStorage.setItem(SESSION_SEEN_KEY, "true");
     expect(getSessionEndUrl()).toEqual(SESSION_END_URL);
-    expect(getSessionEndUrl()).toEqual(ROUTE.LANDING);
+    expect(getSessionEndUrl()).toEqual(SESSION_END_URL);
+    expect(window.sessionStorage.getItem(SESSION_SEEN_KEY)).toEqual("true");
   });
 });
 
@@ -292,6 +338,7 @@ describe("useSessionEndRedirect", () => {
     mockUseAuth.mockReset();
     mockUseRouter.mockReset();
     mockAttempt.mockReset();
+    mockReload.mockReset();
     mockGetSession.mockReset();
     mockGetSession.mockResolvedValue(null);
     setOnLine(true);
@@ -377,28 +424,32 @@ describe("useSessionEndRedirect", () => {
     expect(mockAttempt).not.toHaveBeenCalled();
   });
 
-  it("does not navigate when the confirming read finds a live session", async () => {
+  it("recovers in place, not to the landing page, when the read finds a live session", async () => {
     // The false alarm this guards: next-auth reports no session on *any* failed
     // `/api/auth/session` request, so one 502 on the poll is indistinguishable
-    // from a logout. Navigating on it would discard whatever the user was
-    // partway through typing.
+    // from a logout. Redirecting on it would discard whatever the user was
+    // partway through typing. But sitting still is wrong too — the client's
+    // `null` is now provably wrong and the tab cannot correct it, since the
+    // poll is gated on a non-null session and the focus refetch bails on null.
     mockGetSession.mockResolvedValue({ expires: "2099-01-01T00:00:00.000Z" });
     setPath(ROUTE.ATLASES);
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
     renderHook(() => useSessionEndRedirect());
     await flushConfirm();
     expect(mockAttempt).not.toHaveBeenCalled();
+    expect(mockReload).toHaveBeenCalledTimes(1);
   });
 
   it("holds the page when the confirming read itself fails", async () => {
     // Inconclusive is not confirmation. Staying on a stale page is recoverable;
-    // navigating away from unsaved work is not.
+    // navigating away from unsaved work is not. The retry is covered below.
     mockGetSession.mockRejectedValue(new Error("network down"));
     setPath(ROUTE.ATLASES);
     mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
     renderHook(() => useSessionEndRedirect());
     await flushConfirm();
     expect(mockAttempt).not.toHaveBeenCalled();
+    expect(mockReload).not.toHaveBeenCalled();
   });
 
   it("does not navigate if the page unmounts while the confirm is in flight", async () => {
@@ -415,5 +466,112 @@ describe("useSessionEndRedirect", () => {
     resolveConfirm?.(null);
     await flushConfirm();
     expect(mockAttempt).not.toHaveBeenCalled();
+  });
+});
+
+describe("confirm retry", () => {
+  // The reason this exists: `isStranded` is derived from auth state that is now
+  // frozen — next-auth gates its poll off once `_session === null` and its
+  // focus refetch returns early — so the effect never re-runs and an
+  // inconclusive read used to be the tab's one and only shot.
+  beforeEach(() => {
+    jest.useFakeTimers();
+    mockUseAuth.mockReset();
+    mockUseRouter.mockReset();
+    mockAttempt.mockReset();
+    mockReload.mockReset();
+    mockGetSession.mockReset();
+    setOnLine(true);
+    window.sessionStorage.clear();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it("retries after an inconclusive read, and leaves once one resolves", async () => {
+    // A single 502, or a failed fetch on laptop wake, must not be terminal.
+    mockGetSession
+      .mockRejectedValueOnce(new Error("network down"))
+      .mockResolvedValueOnce(null);
+    setPath(ROUTE.ATLASES);
+    mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
+    renderHook(() => useSessionEndRedirect());
+
+    await flushConfirm();
+    expect(mockAttempt).not.toHaveBeenCalled();
+
+    await act(async () => {
+      jest.advanceTimersByTime(CONFIRM_RETRY_INTERVAL);
+    });
+    await flushConfirm();
+    expect(mockAttempt).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps retrying while reads stay inconclusive", async () => {
+    // Unbounded on purpose: giving up returns the tab to exactly the stranded
+    // state this hook exists to remove.
+    mockGetSession.mockRejectedValue(new Error("network down"));
+    setPath(ROUTE.ATLASES);
+    mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
+    renderHook(() => useSessionEndRedirect());
+
+    await flushConfirm();
+    expect(mockGetSession).toHaveBeenCalledTimes(1);
+
+    for (const expected of [2, 3, 4]) {
+      await act(async () => {
+        jest.advanceTimersByTime(CONFIRM_RETRY_INTERVAL);
+      });
+      await flushConfirm();
+      expect(mockGetSession).toHaveBeenCalledTimes(expected);
+    }
+    expect(mockAttempt).not.toHaveBeenCalled();
+  });
+
+  it("re-arms the offline deferral, so one `online` event is not the only shot", async () => {
+    // `online` fires on interface-up, not on reachability, so the fetch that
+    // follows a laptop wake commonly fails. With `{ once: true }` spent on that
+    // attempt there was nothing left to re-trigger, and the tab stayed
+    // stranded.
+    setOnLine(false);
+    mockGetSession.mockRejectedValueOnce(new Error("still unreachable"));
+    setPath(ROUTE.ATLASES);
+    mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
+    renderHook(() => useSessionEndRedirect());
+
+    // Interface comes up; the confirming read fails anyway.
+    setOnLine(true);
+    await act(async () => {
+      window.dispatchEvent(new Event("online"));
+    });
+    await flushConfirm();
+    expect(mockAttempt).not.toHaveBeenCalled();
+
+    // The retry re-enters `whenOnline`, which now finds the browser online and
+    // reads again.
+    mockGetSession.mockResolvedValue(null);
+    await act(async () => {
+      jest.advanceTimersByTime(CONFIRM_RETRY_INTERVAL);
+    });
+    await flushConfirm();
+    expect(mockAttempt).toHaveBeenCalledTimes(1);
+  });
+
+  it("stops retrying once the page unmounts", async () => {
+    mockGetSession.mockRejectedValue(new Error("network down"));
+    setPath(ROUTE.ATLASES);
+    mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
+    const { unmount } = renderHook(() => useSessionEndRedirect());
+
+    await flushConfirm();
+    expect(mockGetSession).toHaveBeenCalledTimes(1);
+
+    unmount();
+    await act(async () => {
+      jest.advanceTimersByTime(CONFIRM_RETRY_INTERVAL * 3);
+    });
+    await flushConfirm();
+    expect(mockGetSession).toHaveBeenCalledTimes(1);
   });
 });
