@@ -6,6 +6,7 @@ jest.mock("@/app/common/utils", () => ({
 import { METHOD } from "@/app/common/entities";
 import { fetchResource } from "@/app/common/utils";
 import { queryFn } from "@/app/query/queryFn";
+import { createMockResponse } from "@/testing/utils";
 import { type QueryFunctionContext } from "@tanstack/react-query";
 
 const mockFetchResource = fetchResource as jest.MockedFunction<
@@ -17,17 +18,12 @@ const REQUEST_URL = "/api/x";
 /**
  * Resolve `fetchResource` with a response of the given status and JSON body.
  * @param status - Response status code.
- * @param body - JSON body (or a thrower to simulate an unparseable body).
+ * @param body - JSON body; omit to simulate an unparseable one, which makes
+ * `json()` reject.
  * @returns void.
  */
-function mockResponse(status: number, body: unknown): void {
-  mockFetchResource.mockResolvedValue({
-    json: async () => {
-      if (typeof body === "function") return body();
-      return body;
-    },
-    status,
-  } as Response);
+function mockResponse(status: number, body?: unknown): void {
+  mockFetchResource.mockResolvedValue(createMockResponse(status, body));
 }
 
 /**
@@ -93,9 +89,7 @@ describe("queryFn", () => {
   });
 
   it("falls back to the status when the error body is unparseable", async () => {
-    mockResponse(503, () => {
-      throw new Error("invalid json");
-    });
+    mockResponse(503);
     await expect(runQueryFn()).rejects.toThrow("Received 503 response");
   });
 });

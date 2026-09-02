@@ -17,6 +17,7 @@ import { getSourceStudyCitation } from "@/app/apis/catalog/hca-atlas-tracker/com
 import { fetchResource } from "@/app/common/utils";
 import { SourceStudy } from "@/app/components/Form/components/Select/components/SourceStudy/sourceStudy";
 import { useEntity } from "@/app/providers/entity/hook";
+import { createMockResponse } from "@/testing/utils";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
@@ -82,10 +83,7 @@ describe("SourceStudy select", () => {
   it("fetches source studies on mount and renders them as options", async () => {
     mockUseAuth.mockReturnValue(authStateOf(true));
     mockUseEntity.mockReturnValue(entityWithAtlas());
-    mockFetchResource.mockResolvedValue({
-      json: async () => [STUDY],
-      status: 200,
-    } as Response);
+    mockFetchResource.mockResolvedValue(createMockResponse(200, [STUDY]));
 
     renderSourceStudy();
 
