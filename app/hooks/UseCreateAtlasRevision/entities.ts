@@ -3,7 +3,7 @@ import { type HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/
 export type OnSubmitFn = (
   requestURL: string,
   options?: OnSubmitOptions,
-) => Promise<void>;
+) => Promise<boolean>;
 
 export interface OnSubmitOptions {
   onSuccess?: (atlas: HCAAtlasTrackerAtlas) => void;

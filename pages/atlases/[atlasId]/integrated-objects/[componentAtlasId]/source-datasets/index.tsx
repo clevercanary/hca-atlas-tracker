@@ -1,5 +1,4 @@
 import { type PathParameter } from "@/app/common/entities";
-import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/provider";
 import { IntegratedObjectSourceDatasetsView } from "@/app/views/IntegratedObjectSourceDatasetsView/integratedObjectSourceDatasetsView";
 import { type GetServerSideProps, type GetServerSidePropsContext } from "next";
 import { type ParsedUrlQuery } from "querystring";
@@ -30,11 +29,7 @@ export const getServerSideProps: GetServerSideProps = async (
 const ViewIntegratedObjectSourceDatasetsPage = ({
   pathParameter,
 }: IntegratedObjectSourceDatasetsPageProps): JSX.Element => {
-  return (
-    <SnackbarProvider>
-      <IntegratedObjectSourceDatasetsView pathParameter={pathParameter} />
-    </SnackbarProvider>
-  );
+  return <IntegratedObjectSourceDatasetsView pathParameter={pathParameter} />;
 };
 
 export default ViewIntegratedObjectSourceDatasetsPage;

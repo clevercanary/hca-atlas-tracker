@@ -1,5 +1,4 @@
 import { type PathParameter } from "@/app/common/entities";
-import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/provider";
 import { SourceDatasetsView } from "@/app/views/SourceDatasetsView/sourceDatasetsView";
 import { type GetServerSideProps, type GetServerSidePropsContext } from "next";
 import { type ParsedUrlQuery } from "querystring";
@@ -30,13 +29,7 @@ export const getServerSideProps: GetServerSideProps = async (
 const SourceStudySourceDatasetsPage = ({
   pathParameter,
 }: SourceStudySourceDatasetsPageProps): JSX.Element => {
-  // SnackbarProvider is required by the view's source study actions (delete
-  // routes its errors to the snackbar).
-  return (
-    <SnackbarProvider>
-      <SourceDatasetsView pathParameter={pathParameter} />
-    </SnackbarProvider>
-  );
+  return <SourceDatasetsView pathParameter={pathParameter} />;
 };
 
 export default SourceStudySourceDatasetsPage;

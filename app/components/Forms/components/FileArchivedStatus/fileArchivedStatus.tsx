@@ -14,19 +14,27 @@ export const FileArchivedStatus = ({
   options,
   payload,
 }: Props): JSX.Element | null => {
-  const { onSubmit } = useEditFileArchived();
+  const { isRequesting, onSubmit } = useEditFileArchived();
   const { pathParameter } = useEntity();
   return (
     <Button
       {...BUTTON_PROPS.SECONDARY_CONTAINED}
       className={className}
-      onClick={() =>
+      // Disabled until onSubmit settles: the endpoint rejects a repeated
+      // archive/unarchive, so a repeat click would surface an error for an
+      // action that succeeded. onSubmit awaits options.onSuccess, so when it
+      // (as all callers do) returns the query invalidations, the button stays
+      // disabled until the refetched isArchived lands — not just until the
+      // response, when a second click could still re-send the action against
+      // the stale isArchived.
+      disabled={isRequesting}
+      onClick={(): void => {
         onSubmit(
           getRequestURL(getEndpoint(isArchived), pathParameter),
           payload,
           options,
-        )
-      }
+        );
+      }}
     >
       {isArchived ? "Unarchive" : "Archive"}
     </Button>

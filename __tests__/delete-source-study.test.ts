@@ -18,6 +18,7 @@ import { useDeleteData } from "@/app/hooks/UseDeleteData/hook";
 import { SOURCE_STUDIES } from "@/app/views/SourceStudiesView/hooks/UseFetchSourceStudies/query/constants";
 import { SOURCE_STUDY } from "@/app/views/SourceStudyView/hooks/UseFetchSourceStudy/query/constants";
 import { useDeleteSourceStudy } from "@/app/views/SourceStudyView/hooks/useDeleteSourceStudy";
+import { createMockResponse } from "@/testing/utils";
 import Router from "next/router";
 
 const mockUseDeleteData = useDeleteData as jest.MockedFunction<
@@ -70,7 +71,7 @@ describe("useDeleteSourceStudy", () => {
 
     const onSuccess = mockUseDeleteData.mock.calls[0][2]?.onSuccess;
     expect(onSuccess).toBeDefined();
-    onSuccess?.();
+    onSuccess?.(createMockResponse(200, {}));
 
     // Deleted detail is dropped from cache via removeQueries (not invalidated —
     // that would refetch a now-404 resource on the still-mounted detail page).

@@ -35,3 +35,9 @@ export interface PathParameter {
   userId?: UserId;
   validatorName?: ValidatorName;
 }
+
+export interface PerformRequestOptions {
+  isSuccessStatus?: (status: number) => boolean;
+  onError: (error: Error) => void;
+  onSuccess?: (res: Response) => void | Promise<unknown>;
+}

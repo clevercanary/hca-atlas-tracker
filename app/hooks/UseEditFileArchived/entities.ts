@@ -2,10 +2,10 @@ export type OnSubmitFn = (
   requestURL: string,
   payload: Payload,
   options?: OnSubmitOptions,
-) => Promise<void>;
+) => Promise<boolean>;
 
 export interface OnSubmitOptions {
-  onSuccess?: () => void;
+  onSuccess?: () => void | Promise<unknown>;
 }
 
 export interface Payload {
@@ -13,5 +13,6 @@ export interface Payload {
 }
 
 export interface UseEditFileArchived {
+  isRequesting: boolean;
   onSubmit: OnSubmitFn;
 }
