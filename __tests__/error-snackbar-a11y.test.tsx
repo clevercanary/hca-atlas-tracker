@@ -140,8 +140,12 @@ describe("ErrorSnackbar accessibility", () => {
   });
 
   it("returns the toast to the body once the dialog closes", () => {
-    // The claim is released by the Paper unmounting, so a toast outliving the
-    // dialog is not left parented to a removed node.
+    // The claim is released on `open` flipping false, not on the Paper
+    // unmounting — MUI keeps the Paper mounted through the exit transition, so
+    // releasing on unmount would leave the toast inside a container fading to
+    // `opacity: 0`, visibly fading out with the dialog before reappearing.
+    // Asserting the toast is back on `body` while the dialog is still tearing
+    // down is what pins that.
     render(<Harness />);
     openError();
     openDialog();
