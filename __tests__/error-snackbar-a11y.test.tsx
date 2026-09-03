@@ -82,6 +82,47 @@ function UnclaimedHarness(): JSX.Element {
 }
 
 /**
+ * Mounts the provider with both a claiming dialog and an unrelated modal, so a
+ * test can put the toast through a container change and then open a modal that
+ * never claims.
+ * @returns harness component.
+ */
+function ReparentHarness(): JSX.Element {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [otherOpen, setOtherOpen] = useState(false);
+  return (
+    <SnackbarProvider>
+      <Opener />
+      <button
+        data-testid="open-dialog"
+        onClick={(): void => setDialogOpen(true)}
+      >
+        open claiming dialog
+      </button>
+      <button
+        data-testid="close-dialog"
+        onClick={(): void => setDialogOpen(false)}
+      >
+        close claiming dialog
+      </button>
+      <button data-testid="open-other" onClick={(): void => setOtherOpen(true)}>
+        open unrelated modal
+      </button>
+      <PublishDialog
+        atlas={undefined}
+        onCancel={(): void => setDialogOpen(false)}
+        onPublished={(): void => undefined}
+        open={dialogOpen}
+        pathParameter={TEST_PATH_PARAMETER}
+      />
+      <Dialog open={otherOpen}>
+        <div>an unrelated dialog</div>
+      </Dialog>
+    </SnackbarProvider>
+  );
+}
+
+/**
  * Returns the toast's root element, which is what MUI's ModalManager marks and
  * what the container claim re-parents.
  * @returns toast root.
@@ -174,6 +215,35 @@ describe("ErrorSnackbar accessibility", () => {
     // The guard is a MutationObserver, so its callback is a microtask: the
     // attribute is briefly set and then cleared. Harmless to a screen reader,
     // but it means this has to be awaited rather than asserted synchronously.
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(toastRoot()).not.toHaveAttribute("aria-hidden");
+  });
+
+  it("keeps guarding the toast after a container change has re-mounted it", async () => {
+    // The guard observes a DOM node, and changing the portal container remounts
+    // the toast into a *fresh* element — the same mechanism that makes a
+    // claiming dialog clear the mark incidentally. So a guard bound to a node
+    // captured once stops watching the node that actually exists: after a claim
+    // and release, it is observing a detached element, and the next modal to
+    // mark the live toast goes unnoticed.
+    render(<ReparentHarness />);
+    openError();
+
+    // Claim, then release — two re-mounts.
+    act(() => {
+      screen.getByTestId("open-dialog").click();
+    });
+    act(() => {
+      screen.getByTestId("close-dialog").click();
+    });
+
+    // A modal that never claims: only the guard can clear this one.
+    act(() => {
+      screen.getByTestId("open-other").click();
+    });
     await act(async () => {
       await Promise.resolve();
     });
