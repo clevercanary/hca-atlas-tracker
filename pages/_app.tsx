@@ -3,6 +3,7 @@ import { AppHeader } from "@/app/components/Layout/components/Header/appHeader";
 import { config } from "@/app/config/config";
 import { useLogoutCallbackUrl } from "@/app/hooks/UseLogoutCallbackUrl/hook";
 import { AuthorizationProvider } from "@/app/providers/authorization";
+import { LayoutDimensionsProvider } from "@/app/providers/layoutDimensions/provider";
 import { makeQueryClient } from "@/app/query/queryClient";
 import { ROUTE } from "@/app/routes/constants";
 import { mergeAppTheme } from "@/app/theme/theme";
@@ -23,7 +24,6 @@ import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout
 import { NextAuthAuthenticationProvider } from "@databiosphere/findable-ui/lib/nextauth/provider";
 import { ConfigProvider as DXConfigProvider } from "@databiosphere/findable-ui/lib/providers/config";
 import { ExploreStateProvider } from "@databiosphere/findable-ui/lib/providers/exploreState";
-import { LayoutDimensionsProvider } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/provider";
 import { ServicesProvider } from "@databiosphere/findable-ui/lib/providers/services/provider";
 import { SystemStatusProvider } from "@databiosphere/findable-ui/lib/providers/systemStatus";
 import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
