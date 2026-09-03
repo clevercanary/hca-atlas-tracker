@@ -29,8 +29,12 @@ export function SnackbarProvider({
   // Element the toast renders into, when a dialog has claimed it; null means
   // `document.body`. See `useSnackbarContainerRef` for why a dialog claims it.
   const [container, setContainer] = useState<HTMLElement | null>(null);
-  // Scope that opened the message currently showing, for scoped closes.
+  // Scope that opened the message currently showing. Held in a ref for scoped
+  // closes (which must not re-render action subscribers) and mirrored into
+  // state so a dialog can tell whether the showing error is its own before
+  // claiming the container — see `useSnackbarContainerRef`.
   const openedScopeRef = useRef<SnackbarScope | undefined>(undefined);
+  const [scope, setScope] = useState<SnackbarScope | undefined>(undefined);
 
   const onClose = useCallback((scope?: SnackbarScope): void => {
     // Scoped close: another feature's message has since replaced this scope's
@@ -55,6 +59,7 @@ export function SnackbarProvider({
   const onOpen = useCallback((message: string, scope: SnackbarScope): void => {
     setMessage(message);
     setOpen(true);
+    setScope(scope);
     openedScopeRef.current = scope;
   }, []);
 
@@ -63,8 +68,8 @@ export function SnackbarProvider({
     [claimContainer, onClose, onOpen, releaseContainer],
   );
   const state = useMemo(
-    () => ({ container, message, open }),
-    [container, message, open],
+    () => ({ container, message, open, scope }),
+    [container, message, open, scope],
   );
 
   return (

@@ -5,10 +5,11 @@ import { PublishDialog } from "@/app/views/AtlasView/components/PublishDialog/pu
 import { Dialog } from "@mui/material";
 import "@testing-library/jest-dom";
 import { act, render, screen } from "@testing-library/react";
-import { type JSX, useState } from "react";
+import { Fragment, type JSX, useState } from "react";
 
 const TEST_PATH_PARAMETER = { atlasId: "test-atlas-id" };
 const TEST_MESSAGE = "Publish failed";
+const TEST_FOREIGN_MESSAGE = "Failed to archive file";
 
 /**
  * Raises an error on the app-level snackbar when clicked, standing in for a
@@ -18,13 +19,33 @@ const TEST_MESSAGE = "Publish failed";
 function Opener(): JSX.Element {
   const { onOpen } = useSnackbar();
   return (
-    <button
-      data-testid="open-error"
-      onClick={(): void => onOpen(TEST_MESSAGE, SNACKBAR_SCOPE.PUBLISH_ATLAS)}
-    >
-      raise error
-    </button>
+    <Fragment>
+      <button
+        data-testid="open-error"
+        onClick={(): void => onOpen(TEST_MESSAGE, SNACKBAR_SCOPE.PUBLISH_ATLAS)}
+      >
+        raise error
+      </button>
+      <button
+        data-testid="open-foreign-error"
+        onClick={(): void =>
+          onOpen(TEST_FOREIGN_MESSAGE, SNACKBAR_SCOPE.EDIT_FILE_ARCHIVED)
+        }
+      >
+        raise a foreign error
+      </button>
+    </Fragment>
   );
+}
+
+/**
+ * Raises an error owned by a different feature than the dialog under test.
+ * @returns void.
+ */
+function openForeignError(): void {
+  act(() => {
+    screen.getByTestId("open-foreign-error").click();
+  });
 }
 
 /**
@@ -248,6 +269,32 @@ describe("ErrorSnackbar accessibility", () => {
       await Promise.resolve();
     });
 
+    expect(toastRoot()).not.toHaveAttribute("aria-hidden");
+  });
+
+  it("leaves another feature's error where it is, rather than adopting it", async () => {
+    // The container is app-global, so a claim that ignores ownership pulls
+    // whatever happens to be pinned into whichever dialog opens next. An
+    // archive failure re-parented into the Publish dialog is re-announced
+    // inside its `aria-modal="true"` and reads as a failure of the publish the
+    // user is being asked to confirm — an error attributed to the wrong action.
+    render(<Harness />);
+    openForeignError();
+    openDialog();
+
+    // Flushed first: an unclaimed toast is marked `aria-hidden` by the opening
+    // modal and only reachable by role once the guard's microtask clears it.
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole("alert")).toHaveTextContent(TEST_FOREIGN_MESSAGE);
+    const dialogContainer = document.querySelector(".MuiDialog-container");
+    expect(dialogContainer).not.toBeNull();
+    expect(dialogContainer?.contains(toastRoot())).toBe(false);
+    expect(toastRoot().parentElement).toBe(document.body);
+    // Declining the claim must not cost the guard, which is what keeps the
+    // error announced now that a modal is open over it.
     expect(toastRoot()).not.toHaveAttribute("aria-hidden");
   });
 });

@@ -16,4 +16,5 @@ export interface SnackbarStateContextProps {
   container: HTMLElement | null;
   message: string;
   open: boolean;
+  scope: SnackbarScope | undefined;
 }

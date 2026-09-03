@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/app/components/common/ConfirmationDialog/confirmationDialog.styles";
 import { useSnackbarContainerRef } from "@/app/components/common/Snackbar/hooks/UseSnackbarContainerRef/hook";
+import { SNACKBAR_SCOPE } from "@/app/components/common/Snackbar/types";
 import { useCreateAtlasRevision } from "@/app/hooks/UseCreateAtlasRevision/hook";
 import { ROUTE } from "@/app/routes/constants";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
@@ -30,7 +31,10 @@ export const CreateRevisionDialog = ({
   pathParameter,
 }: Props): JSX.Element => {
   const { isRequesting, onSubmit, succeeded } = useCreateAtlasRevision();
-  const snackbarContainerRef = useSnackbarContainerRef(open);
+  const snackbarContainerRef = useSnackbarContainerRef(
+    open,
+    SNACKBAR_SCOPE.CREATE_ATLAS_REVISION,
+  );
   return (
     // The toast renders inside this dialog while it is open, so a failure here
     // is reachable by Tab; see `useSnackbarContainerRef`.

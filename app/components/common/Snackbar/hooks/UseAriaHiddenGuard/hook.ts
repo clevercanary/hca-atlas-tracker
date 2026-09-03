@@ -1,7 +1,17 @@
 import { useEffect } from "react";
 
 /**
- * Keeps `aria-hidden` off the toast while it is showing.
+ * Keeps `aria-hidden` off the toast's own element while it is showing.
+ *
+ * The toast's *own* element, precisely: the observer watches one node, with no
+ * `subtree`. That is enough while the toast sits in `document.body`, which is
+ * where `ariaHiddenSiblings` marks it. It is not enough once a dialog has
+ * claimed the container, because the toast is then a descendant of that
+ * dialog's `.MuiModal-root` and a *second* modal opening marks the root rather
+ * than the toast — the observer never fires and the alert is suppressed again.
+ * Unreachable with today's claiming dialogs, which contain only buttons, and
+ * live the moment one gains a `Select`, `Menu`, `Popover`, `Autocomplete` or
+ * nested dialog, since each of those opens a Modal. Tracked in #1568.
  *
  * MUI's `ModalManager` marks every sibling of an opening modal `aria-hidden`,
  * and it does so by iterating `container.children` at modal-*mount* time
