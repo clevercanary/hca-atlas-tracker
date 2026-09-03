@@ -26,6 +26,9 @@ export function SnackbarProvider({
 }: SnackbarProviderProps): JSX.Element {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
+  // Element the toast renders into, when a dialog has claimed it; null means
+  // `document.body`. See `useSnackbarContainerRef` for why a dialog claims it.
+  const [container, setContainer] = useState<HTMLElement | null>(null);
   // Scope that opened the message currently showing, for scoped closes.
   const openedScopeRef = useRef<SnackbarScope | undefined>(undefined);
 
@@ -38,14 +41,31 @@ export function SnackbarProvider({
     setOpen(false);
   }, []);
 
+  const claimContainer = useCallback((node: HTMLElement): void => {
+    setContainer(node);
+  }, []);
+
+  const releaseContainer = useCallback((node: HTMLElement): void => {
+    // Only clear if this node is still the one showing. A dialog's exit
+    // transition can unmount it after a second dialog has already claimed the
+    // container, and the later claim must win.
+    setContainer((current) => (current === node ? null : current));
+  }, []);
+
   const onOpen = useCallback((message: string, scope: SnackbarScope): void => {
     setMessage(message);
     setOpen(true);
     openedScopeRef.current = scope;
   }, []);
 
-  const actions = useMemo(() => ({ onClose, onOpen }), [onClose, onOpen]);
-  const state = useMemo(() => ({ message, open }), [message, open]);
+  const actions = useMemo(
+    () => ({ claimContainer, onClose, onOpen, releaseContainer }),
+    [claimContainer, onClose, onOpen, releaseContainer],
+  );
+  const state = useMemo(
+    () => ({ container, message, open }),
+    [container, message, open],
+  );
 
   return (
     <SnackbarActionsContext.Provider value={actions}>

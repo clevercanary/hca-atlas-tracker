@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/app/components/common/ConfirmationDialog/confirmationDialog.styles";
+import { useSnackbarContainerRef } from "@/app/components/common/Snackbar/hooks/UseSnackbarContainerRef/hook";
 import { useCreateAtlasRevision } from "@/app/hooks/UseCreateAtlasRevision/hook";
 import { ROUTE } from "@/app/routes/constants";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
@@ -29,8 +30,17 @@ export const CreateRevisionDialog = ({
   pathParameter,
 }: Props): JSX.Element => {
   const { isRequesting, onSubmit, succeeded } = useCreateAtlasRevision();
+  const snackbarContainerRef = useSnackbarContainerRef(open);
   return (
-    <Dialog fullWidth maxWidth="xs" onClose={onCancel} open={open}>
+    // The toast renders inside this dialog while it is open, so a failure here
+    // is reachable by Tab; see `useSnackbarContainerRef`.
+    <Dialog
+      fullWidth
+      maxWidth="xs"
+      onClose={onCancel}
+      open={open}
+      PaperProps={{ ref: snackbarContainerRef }}
+    >
       <DialogTitle onClose={onCancel} title="Create New Version" />
       <DialogContent dividers>
         Are you sure you want to create a new version of{" "}
