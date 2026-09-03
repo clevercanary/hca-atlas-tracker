@@ -1,4 +1,7 @@
-import { useSnackbar } from "@/app/components/common/Snackbar/provider/hook";
+import {
+  useSnackbar,
+  useSnackbarState,
+} from "@/app/components/common/Snackbar/provider/hook";
 import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/provider";
 import { SNACKBAR_SCOPE } from "@/app/components/common/Snackbar/types";
 import { PublishDialog } from "@/app/views/AtlasView/components/PublishDialog/publishDialog";
@@ -46,6 +49,16 @@ function openForeignError(): void {
   act(() => {
     screen.getByTestId("open-foreign-error").click();
   });
+}
+
+/**
+ * Renders the snackbar's owning scope, so a test can assert on it without
+ * reaching into the provider.
+ * @returns the scope as text, or "none".
+ */
+function ScopeReader(): JSX.Element {
+  const { scope } = useSnackbarState();
+  return <span data-testid="scope">{scope ?? "none"}</span>;
 }
 
 /**
@@ -150,8 +163,10 @@ function ReparentHarness(): JSX.Element {
  */
 function toastRoot(): HTMLElement {
   const root = screen.getByRole("alert").closest(".MuiSnackbar-root");
-  if (!root) throw new Error("toast root not found");
-  return root as HTMLElement;
+  // A runtime check rather than an assertion: if the selector ever stops
+  // matching, this should say so rather than hand back a mistyped node.
+  if (!(root instanceof HTMLElement)) throw new Error("toast root not found");
+  return root;
 }
 
 /**
@@ -296,5 +311,31 @@ describe("ErrorSnackbar accessibility", () => {
     // Declining the claim must not cost the guard, which is what keeps the
     // error announced now that a modal is open over it.
     expect(toastRoot()).not.toHaveAttribute("aria-hidden");
+  });
+
+  it("clears ownership when the toast closes, so nothing reads a stale scope", () => {
+    // `scope` is exposed as who owns the message *currently showing*. Left set
+    // after a close it invites a consumer to treat a closed snackbar as still
+    // owned — the claim gate happens to check `open` first, so it can't act on
+    // a stale value, but that is the gate's accident rather than the
+    // provider's guarantee.
+    render(
+      <SnackbarProvider>
+        <Opener />
+        <ScopeReader />
+      </SnackbarProvider>,
+    );
+    expect(screen.getByTestId("scope")).toHaveTextContent("none");
+
+    openError();
+    expect(screen.getByTestId("scope")).toHaveTextContent(
+      SNACKBAR_SCOPE.PUBLISH_ATLAS,
+    );
+
+    act(() => {
+      screen.getByLabelText("Close error message").click();
+    });
+
+    expect(screen.getByTestId("scope")).toHaveTextContent("none");
   });
 });

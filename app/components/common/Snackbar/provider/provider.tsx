@@ -29,10 +29,10 @@ export function SnackbarProvider({
   // Element the toast renders into, when a dialog has claimed it; null means
   // `document.body`. See `useSnackbarContainerRef` for why a dialog claims it.
   const [container, setContainer] = useState<HTMLElement | null>(null);
-  // Scope that opened the message currently showing. Held in a ref for scoped
-  // closes (which must not re-render action subscribers) and mirrored into
-  // state so a dialog can tell whether the showing error is its own before
-  // claiming the container — see `useSnackbarContainerRef`.
+  // Scope that opened the message currently showing, cleared on close. Held in
+  // a ref for scoped closes (which must not re-render action subscribers) and
+  // mirrored into state so a dialog can tell whether the showing error is its
+  // own before claiming the container — see `useSnackbarContainerRef`.
   const openedScopeRef = useRef<SnackbarScope | undefined>(undefined);
   const [scope, setScope] = useState<SnackbarScope | undefined>(undefined);
 
@@ -43,6 +43,15 @@ export function SnackbarProvider({
     // Message is deliberately not cleared on close: MUI keeps the snackbar content mounted through its exit transition, so clearing it here would blank the toast while it animates out.
     // The next onOpen overwrites it.
     setOpen(false);
+    // Ownership *is* cleared. `scope` is exposed as who owns the message
+    // currently showing, and nothing is showing once closed, so leaving it set
+    // invites a consumer to treat a closed snackbar as still owned. The claim
+    // gate in `useSnackbarContainerRef` checks `open` before `scope` so it
+    // can't act on a stale value, but the next consumer has no such guarantee.
+    // Safe for the scoped close above too: once closed, a later scoped call
+    // finds no match and no-ops on something already shut.
+    openedScopeRef.current = undefined;
+    setScope(undefined);
   }, []);
 
   const claimContainer = useCallback((node: HTMLElement): void => {
