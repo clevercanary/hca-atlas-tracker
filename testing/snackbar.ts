@@ -64,16 +64,18 @@ export type SnackbarHookResult<H extends () => unknown> = RenderHookResult<
  * `act` boilerplate rather than the call — each suite still names its own
  * arguments.
  *
- * The `await` is load-bearing, and `return act(call)` is not the same thing:
- * RTL wraps React's `act` so that an async callback yields a hand-rolled
- * thenable rather than a real promise (`act-compat.js`), and handing that
- * straight back to the caller leaves the queued work undrained at the point the
- * assertions run — it fails five tests in `use-edit-file-archived` alone.
+ * `async` is load-bearing, and dropping it fails 13 tests across the three
+ * suites: RTL wraps React's `act` so that an async callback yields a
+ * hand-rolled thenable rather than a real promise (`act-compat.js`), and
+ * handing that straight back to the caller leaves the queued work undrained
+ * where the assertions run. An `async` function resolves it into a real promise
+ * on the way out, which is what drains it. The `await` is *not* what matters —
+ * `return act(call)` inside this async function passes all 23.
  * @param call - Call to run inside `act`.
  * @returns whatever the call resolves to.
  */
 export async function actAsync<T>(call: () => Promise<T>): Promise<T> {
-  return await act(call);
+  return act(call);
 }
 
 /**
