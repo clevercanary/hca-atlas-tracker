@@ -37,9 +37,10 @@ import { StyledSnackbar } from "./errorSnackbar.styles";
  * - Announcement, by `useAriaHiddenGuard`. Changing the portal container
  *   remounts the toast into a fresh element, so a claiming dialog clears
  *   `ariaHiddenSiblings`' mark as a side effect — but most of this app's
- *   dialogs never claim, and for those nothing else removes it. The guard is
- *   what covers them, and it is the only reason the announcement fix holds for
- *   more than these two dialogs.
+ *   dialogs never claim, and for those nothing else removes it. The guard
+ *   covers them, which is what makes the announcement fix hold for more than
+ *   these two dialogs. It covers marks on the toast itself, not on an ancestor
+ *   once claimed; see the hook and #1568 for the gap that leaves.
  * @returns error snackbar component.
  */
 export const ErrorSnackbar = (): JSX.Element => {
@@ -57,6 +58,15 @@ export const ErrorSnackbar = (): JSX.Element => {
       <StyledSnackbar
         anchorOrigin={SNACKBAR_PROPS.ORIGIN.TOP_RIGHT}
         ref={setSnackbarNode}
+        // Changing the portal container destroys and recreates this subtree, so
+        // every claim and release is a fresh mount. MUI builds the Snackbar's
+        // transition as `Grow` with `appear: true`, which would replay the
+        // enter animation each time — the toast popping out and growing back in
+        // on every dialog open and close, and the `role="alert"` node
+        // re-announcing with it. That is the flicker
+        // `useSnackbarContainerRef` keys its release on `open` to avoid, and a
+        // remount reintroduces it regardless.
+        slotProps={{ transition: { appear: false } }}
         action={
           <IconButton
             aria-label="Close error message"
