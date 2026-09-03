@@ -1,6 +1,6 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createQueryClientWrapper } from "@/testing/query";
+import { QueryClient } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
-import { type JSX, type ReactNode } from "react";
 
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
@@ -53,9 +53,7 @@ describe("AuthorizationProvider", () => {
     queryClient.setQueryData(["atlas", "a1"], { id: "a1" });
     expect(queryClient.getQueryCache().getAll()).toHaveLength(1);
 
-    const wrapper = ({ children }: { children: ReactNode }): JSX.Element => (
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    );
+    const wrapper = createQueryClientWrapper(queryClient);
 
     // Authenticated: cache is left intact.
     mockUseAuth.mockReturnValue(authStateOf(true));

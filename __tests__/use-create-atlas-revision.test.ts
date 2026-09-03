@@ -24,7 +24,7 @@ const mockFetchResource = fetchResource as jest.MockedFunction<
 const TEST_ATLAS = { id: "new-atlas-id" };
 const TEST_REQUEST_URL = "/api/test-atlas-versions";
 
-type Result = SnackbarHookResult<ReturnType<typeof useCreateAtlasRevision>>;
+type Result = SnackbarHookResult<typeof useCreateAtlasRevision>;
 
 /**
  * Calls onSubmit inside act() and returns its resolved value.

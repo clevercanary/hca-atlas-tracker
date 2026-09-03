@@ -9,10 +9,6 @@ jest.mock("@/app/common/utils", () => ({
 
 import { METHOD } from "@/app/common/entities";
 import { fetchResource } from "@/app/common/utils";
-import {
-  type SnackbarActionsContextProps,
-  type SnackbarStateContextProps,
-} from "@/app/components/common/Snackbar/provider/types";
 import { SNACKBAR_SCOPE } from "@/app/components/common/Snackbar/types";
 import {
   type OnSubmitFn,
@@ -22,7 +18,9 @@ import { useEditFileArchived } from "@/app/hooks/UseEditFileArchived/hook";
 import {
   actAsync,
   renderHookWithSnackbar,
+  type SnackbarActionsContextProps,
   type SnackbarHookResult,
+  type SnackbarStateContextProps,
   useSnackbarContexts,
   withSnackbarProvider,
 } from "@/testing/snackbar";
@@ -37,7 +35,7 @@ const mockFetchResource = fetchResource as jest.MockedFunction<
 const TEST_PAYLOAD = { fileIds: ["test-file-id"] };
 const TEST_REQUEST_URL = "/api/test-archive";
 
-type Result = SnackbarHookResult<ReturnType<typeof useEditFileArchived>>;
+type Result = SnackbarHookResult<typeof useEditFileArchived>;
 
 /**
  * Calls onSubmit inside act() and returns its resolved value.
@@ -87,12 +85,12 @@ function renderRemountHarness(): RemountHarness {
   const Harness: FunctionComponent = () => {
     const [mounted, setMounted] = useState(true);
     setConsumerMounted = setMounted;
-    return withSnackbarProvider({
-      children: [
-        mounted ? createElement(Consumer, { key: "consumer" }) : null,
-        createElement(StateReader, { key: "state-reader" }),
-      ],
-    });
+    return createElement(
+      withSnackbarProvider,
+      null,
+      mounted ? createElement(Consumer) : null,
+      createElement(StateReader),
+    );
   };
 
   render(createElement(Harness));
@@ -111,13 +109,10 @@ function renderRemountHarness(): RemountHarness {
       if (!snackbarState) throw new Error("snackbar state not rendered");
       return snackbarState;
     },
-    submit: async (): Promise<boolean> => {
-      let submitted = false;
-      await act(async () => {
-        submitted = (await onSubmit?.(TEST_REQUEST_URL, TEST_PAYLOAD)) ?? false;
-      });
-      return submitted;
-    },
+    submit: (): Promise<boolean> =>
+      actAsync(
+        async () => (await onSubmit?.(TEST_REQUEST_URL, TEST_PAYLOAD)) ?? false,
+      ),
   };
 }
 

@@ -1,12 +1,8 @@
 import { type HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createQueryClientWrapper } from "@/testing/query";
+import { QueryClient } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
-import {
-  createElement,
-  type FunctionComponent,
-  type PropsWithChildren,
-} from "react";
 
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
   useAuth: jest.fn(),
@@ -80,7 +76,7 @@ describe("useEditAtlasFormManager", () => {
 
     const { result } = renderHook(
       () => useEditAtlasFormManager(PATH_PARAMETER, formMethod),
-      { wrapper: wrapperFor(queryClient) },
+      { wrapper: createQueryClientWrapper(queryClient) },
     );
 
     // Trigger save.
@@ -108,20 +104,3 @@ describe("useEditAtlasFormManager", () => {
     expect(cancelSpy).toHaveBeenCalledWith({ queryKey: [ATLAS, ATLAS_ID] });
   });
 });
-
-/**
- * Build a QueryClientProvider wrapper around the given client.
- * @param queryClient - Query client to provide.
- * @returns Wrapper component.
- */
-function wrapperFor(
-  queryClient: QueryClient,
-): FunctionComponent<PropsWithChildren> {
-  return function QueryWrapper({ children }: PropsWithChildren) {
-    return createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      children,
-    );
-  };
-}

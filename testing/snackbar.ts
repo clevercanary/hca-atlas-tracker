@@ -7,7 +7,8 @@ import {
   type SnackbarActionsContextProps,
   type SnackbarStateContextProps,
 } from "@/app/components/common/Snackbar/provider/types";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createQueryClientWrapper } from "@/testing/query";
+import { type QueryClient } from "@tanstack/react-query";
 import { act, renderHook, type RenderHookResult } from "@testing-library/react";
 import {
   createElement,
@@ -16,47 +17,41 @@ import {
   type ReactNode,
 } from "react";
 
-/**
- * What `renderHookWithSnackbar` exposes: the hook under test alongside the
- * snackbar it writes to.
- *
- * Both snackbar contexts are exposed, not just the one a given suite happens to
- * need. `snackbarActions` is only used by suites that simulate an error opened
- * by another feature, but making it conditional would put the provider wiring
- * back in the test files, which is the duplication this helper exists to
- * remove. The actions context is identity-stable by design, so subscribing to
- * it costs no extra renders.
- */
-export interface SnackbarRenderResult<T> {
-  hook: T;
+// Re-exported so suites reading the contexts outside `renderHookWithSnackbar`
+// don't import the provider's own types, which would put a reshape of either
+// context back into every suite.
+export { type SnackbarActionsContextProps, type SnackbarStateContextProps };
+
+/** Both snackbar contexts, as a suite sees them. */
+export interface SnackbarContexts {
   snackbar: SnackbarStateContextProps;
   snackbarActions: SnackbarActionsContextProps;
 }
 
 /**
- * Reads both snackbar contexts.
+ * What `renderHookWithSnackbar` exposes: the hook under test alongside the
+ * snackbar it writes to.
  *
- * Exported so a suite that cannot use `renderHook` — see the remount harness in
- * `use-edit-file-archived` — still reads the provider through this module
- * rather than importing its hooks directly. That is what keeps a change to the
- * provider's contract a one-file edit here.
- * @returns the snackbar state and actions.
+ * Both contexts are exposed, not just the one a given suite needs.
+ * `snackbarActions` is used only by suites simulating an error opened by
+ * another feature, but making it conditional would put provider wiring back in
+ * the test files. The actions context is identity-stable, so subscribing to it
+ * costs no extra renders.
  */
-export function useSnackbarContexts(): Omit<
-  SnackbarRenderResult<never>,
-  "hook"
-> {
-  return { snackbar: useSnackbarState(), snackbarActions: useSnackbar() };
+export interface SnackbarRenderResult<T> extends SnackbarContexts {
+  hook: T;
 }
 
 /**
- * The `result` handle `renderHookWithSnackbar` returns, for suites that pass it
- * to their own submit helper. A named alias rather than an inline
- * `{ current: … }`, which jsdoc would treat as a destructured parameter and
- * demand per-property docs for.
+ * The `result` handle `renderHookWithSnackbar` returns, for suites passing it
+ * to their own submit helper.
+ *
+ * Takes the hook itself rather than its return type, matching
+ * `renderHookWithSnackbar`, so a suite writes `SnackbarHookResult<typeof useX>`
+ * without restating `ReturnType` at every call site.
  */
-export type SnackbarHookResult<T> = RenderHookResult<
-  SnackbarRenderResult<T>,
+export type SnackbarHookResult<H extends () => unknown> = RenderHookResult<
+  SnackbarRenderResult<ReturnType<H>>,
   unknown
 >["result"];
 
@@ -64,20 +59,33 @@ export type SnackbarHookResult<T> = RenderHookResult<
  * Runs an async call inside `act` and returns its resolved value.
  *
  * The mutation hooks' `onSubmit` updates both hook state and snackbar state, so
- * it has to be awaited inside `act` or React warns and the assertions race the
+ * it has to be awaited inside `act` or React warns and assertions race the
  * commit. Signatures differ per hook (payload, options), so this wraps the
- * `act` boilerplate rather than the call itself — each suite still names its
- * own arguments.
+ * `act` boilerplate rather than the call — each suite still names its own
+ * arguments.
+ *
+ * The `await` is load-bearing, and `return act(call)` is not the same thing:
+ * RTL wraps React's `act` so that an async callback yields a hand-rolled
+ * thenable rather than a real promise (`act-compat.js`), and handing that
+ * straight back to the caller leaves the queued work undrained at the point the
+ * assertions run — it fails five tests in `use-edit-file-archived` alone.
  * @param call - Call to run inside `act`.
  * @returns whatever the call resolves to.
  */
 export async function actAsync<T>(call: () => Promise<T>): Promise<T> {
-  let resolved: T;
-  await act(async () => {
-    resolved = await call();
-  });
-  // Assigned by the awaited `act` callback above, which TypeScript can't see.
-  return resolved!;
+  return await act(call);
+}
+
+/**
+ * Reads both snackbar contexts.
+ *
+ * Exported so a suite that cannot use `renderHook` — see the remount harness in
+ * `use-edit-file-archived`, which needs the consumer to unmount independently
+ * of the provider — still reads the provider through this module.
+ * @returns the snackbar state and actions.
+ */
+export function useSnackbarContexts(): SnackbarContexts {
+  return { snackbar: useSnackbarState(), snackbarActions: useSnackbar() };
 }
 
 /**
@@ -88,9 +96,6 @@ export async function actAsync<T>(call: () => Promise<T>): Promise<T> {
  * hooks' default error handling end to end — that a failure actually reaches
  * the snackbar, and that a scoped dismissal does or doesn't close it — which a
  * mock would assert against itself.
- *
- * Shared so that a change to the provider's contract is one edit here rather
- * than the same edit in every suite that renders it.
  * @param useHookUnderTest - Hook to render.
  * @returns render result exposing the hook and the snackbar.
  */
@@ -104,9 +109,7 @@ export function renderHookWithSnackbar<T>(
 }
 
 /**
- * Wraps children in a `SnackbarProvider`. Exported for the same reason as
- * `useSnackbarContexts`: suites composing their own tree still name the
- * provider once, here.
+ * Wraps children in a `SnackbarProvider`.
  * @param props - Wrapper props.
  * @param props.children - React children.
  * @returns children under a snackbar provider.
@@ -119,25 +122,22 @@ export function withSnackbarProvider({
 
 /**
  * Builds a wrapper providing a QueryClient alongside the snackbar, for hooks
- * that use both — `useQueryClient` for invalidation, `useSnackbar` for error
+ * using both — `useQueryClient` for invalidation, `useSnackbar` for error
  * reporting.
- *
- * Shared for the same reason as `renderHookWithSnackbar`: this pairing was
- * copy-pasted under two different names, so the provider wiring lived in as
- * many places as there were suites using it.
  * @param queryClient - Query client to provide; pass one in to spy on it.
  * @returns Wrapper component providing the QueryClient and the snackbar.
  */
 export function createQuerySnackbarWrapper(
-  queryClient = new QueryClient(),
+  queryClient?: QueryClient,
 ): FunctionComponent<PropsWithChildren> {
+  const QueryWrapper = createQueryClientWrapper(queryClient);
   return function QuerySnackbarWrapper({
     children,
   }: PropsWithChildren): ReactNode {
     return createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      withSnackbarProvider({ children }),
+      QueryWrapper,
+      null,
+      createElement(withSnackbarProvider, null, children),
     );
   };
 }

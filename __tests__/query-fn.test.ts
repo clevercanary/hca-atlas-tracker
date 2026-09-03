@@ -16,17 +16,6 @@ const mockFetchResource = fetchResource as jest.MockedFunction<
 const REQUEST_URL = "/api/x";
 
 /**
- * Resolve `fetchResource` with a response of the given status and JSON body.
- * @param status - Response status code.
- * @param body - JSON body; omit to simulate an unparseable one, which makes
- * `json()` reject.
- * @returns void.
- */
-function mockResponse(status: number, body?: unknown): void {
-  mockFetchResource.mockResolvedValue(createMockResponse(status, body));
-}
-
-/**
  * Invoke the query function built by `queryFn` with a minimal context.
  * @param signal - Optional abort signal to thread through the context.
  * @returns The resolved response data.
@@ -47,7 +36,7 @@ describe("queryFn", () => {
 
   it("resolves to the parsed JSON on an OK response", async () => {
     const data = { id: "1", name: "test" };
-    mockResponse(200, data);
+    mockFetchResource.mockResolvedValue(createMockResponse(200, data));
     await expect(runQueryFn()).resolves.toEqual(data);
     expect(mockFetchResource).toHaveBeenCalledWith(
       REQUEST_URL,
@@ -59,7 +48,7 @@ describe("queryFn", () => {
 
   it("threads the abort signal through to fetchResource", async () => {
     const controller = new AbortController();
-    mockResponse(200, {});
+    mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
     await runQueryFn(controller.signal);
     expect(mockFetchResource).toHaveBeenCalledWith(
       REQUEST_URL,
@@ -70,26 +59,33 @@ describe("queryFn", () => {
   });
 
   it("throws the top-level message on a { message } error body", async () => {
-    mockResponse(404, { message: "Not found" });
+    mockFetchResource.mockResolvedValue(
+      createMockResponse(404, { message: "Not found" }),
+    );
     await expect(runQueryFn()).rejects.toThrow("Not found");
   });
 
   it("throws the joined field messages on an { errors } error body", async () => {
-    mockResponse(400, {
-      errors: { name: ["is required"], title: ["too long", "bad chars"] },
-    });
+    mockFetchResource.mockResolvedValue(
+      createMockResponse(400, {
+        errors: { name: ["is required"], title: ["too long", "bad chars"] },
+      }),
+    );
     await expect(runQueryFn()).rejects.toThrow(
       "is required; too long; bad chars",
     );
   });
 
   it("falls back to the status when the error body has neither shape", async () => {
-    mockResponse(500, { unexpected: true });
+    mockFetchResource.mockResolvedValue(
+      createMockResponse(500, { unexpected: true }),
+    );
     await expect(runQueryFn()).rejects.toThrow("Received 500 response");
   });
 
   it("falls back to the status when the error body is unparseable", async () => {
-    mockResponse(503);
+    // Body omitted, so `json()` rejects: an unparseable error body.
+    mockFetchResource.mockResolvedValue(createMockResponse(503));
     await expect(runQueryFn()).rejects.toThrow("Received 503 response");
   });
 });

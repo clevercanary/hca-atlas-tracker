@@ -1,29 +1,8 @@
 import { ACTIVE_USER } from "@/app/hooks/UseFetchActiveUser/query/constants";
 import { useQuery } from "@/app/hooks/UseFetchActiveUser/query/useQuery";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createQueryClientWrapper } from "@/testing/query";
+import { QueryClient } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
-import {
-  createElement,
-  type FunctionComponent,
-  type PropsWithChildren,
-} from "react";
-
-/**
- * Wraps a rendered hook in a QueryClientProvider with retries disabled.
- * @param queryClient - The QueryClient to provide.
- * @returns Wrapper component.
- */
-function wrapperFor(
-  queryClient: QueryClient,
-): FunctionComponent<PropsWithChildren> {
-  return function Wrapper({ children }: PropsWithChildren) {
-    return createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      children,
-    );
-  };
-}
 
 describe("useFetchActiveUser query (throwOnError gating)", () => {
   it("does not re-throw a cached error to a logged-out user", async () => {
@@ -43,7 +22,7 @@ describe("useFetchActiveUser query (throwOnError gating)", () => {
     // the cached error must NOT be re-thrown (renderHook would crash if it did,
     // which is exactly the logout-trap regression this guards against).
     const { result } = renderHook(() => useQuery("/api/me", false), {
-      wrapper: wrapperFor(queryClient),
+      wrapper: createQueryClientWrapper(queryClient),
     });
 
     await waitFor(() => expect(result.current.isError).toBe(true));

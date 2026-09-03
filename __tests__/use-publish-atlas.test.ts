@@ -23,7 +23,7 @@ const mockFetchResource = fetchResource as jest.MockedFunction<
 // Test data
 const TEST_REQUEST_URL = "/api/test-publish";
 
-type Result = SnackbarHookResult<ReturnType<typeof usePublishAtlas>>;
+type Result = SnackbarHookResult<typeof usePublishAtlas>;
 
 /**
  * Calls onSubmit inside act() and returns its resolved value.
