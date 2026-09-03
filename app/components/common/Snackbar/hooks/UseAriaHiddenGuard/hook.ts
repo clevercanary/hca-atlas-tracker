@@ -1,4 +1,4 @@
-import { type RefObject, useEffect } from "react";
+import { useEffect } from "react";
 
 /**
  * Keeps `aria-hidden` off the toast while it is showing.
@@ -27,16 +27,22 @@ import { type RefObject, useEffect } from "react";
  * The callback is a microtask, so the attribute is set and then cleared rather
  * than never set. Immaterial to a screen reader, but it does mean a test has to
  * await a flush rather than assert synchronously.
- * @param ref - Ref to the toast's root element.
+ *
+ * Takes the node rather than a ref, and depends on it, because the toast's DOM
+ * element is not stable: changing the portal container remounts it into a fresh
+ * one. A ref object never changes identity, so an effect keyed on it would go
+ * on observing the element that existed when it first ran — detached after the
+ * first claim or release — and would silently miss every later mark on the
+ * element actually on screen.
+ * @param node - The toast's root element, or null before it mounts.
  * @param open - Whether the toast is showing.
  * @returns void.
  */
 export const useAriaHiddenGuard = (
-  ref: RefObject<HTMLElement | null>,
+  node: HTMLElement | null,
   open: boolean,
 ): void => {
   useEffect(() => {
-    const node = ref.current;
     if (!open || !node) return;
 
     const clear = (): void => {
@@ -53,5 +59,5 @@ export const useAriaHiddenGuard = (
       attributes: true,
     });
     return (): void => observer.disconnect();
-  }, [open, ref]);
+  }, [node, open]);
 };

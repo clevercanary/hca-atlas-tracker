@@ -8,7 +8,7 @@ import { ICON_BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { CloseRounded } from "@mui/icons-material";
 import { IconButton, Portal } from "@mui/material";
-import { type JSX, useRef } from "react";
+import { type JSX, useState } from "react";
 import { StyledSnackbar } from "./errorSnackbar.styles";
 
 /**
@@ -45,15 +45,18 @@ import { StyledSnackbar } from "./errorSnackbar.styles";
 export const ErrorSnackbar = (): JSX.Element => {
   const { onClose } = useSnackbar();
   const { container, message, open } = useSnackbarState();
-  const snackbarRef = useRef<HTMLDivElement | null>(null);
+  // State via a callback ref, not `useRef`: the toast is remounted into a fresh
+  // element whenever the portal container changes, and the guard has to follow
+  // it. A ref would hold the first element forever.
+  const [snackbarNode, setSnackbarNode] = useState<HTMLDivElement | null>(null);
 
-  useAriaHiddenGuard(snackbarRef, open);
+  useAriaHiddenGuard(snackbarNode, open);
 
   return (
     <Portal container={container ?? undefined}>
       <StyledSnackbar
         anchorOrigin={SNACKBAR_PROPS.ORIGIN.TOP_RIGHT}
-        ref={snackbarRef}
+        ref={setSnackbarNode}
         action={
           <IconButton
             aria-label="Close error message"
