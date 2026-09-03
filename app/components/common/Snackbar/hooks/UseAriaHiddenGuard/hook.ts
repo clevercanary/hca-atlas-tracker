@@ -23,6 +23,15 @@ import { useEffect } from "react";
  * ancestor suppresses, so the error the user most needs to hear is the one
  * they don't.
  *
+ * Why fight the mark at all, rather than accept it as ordinary modal
+ * behaviour: hiding background content from assistive tech while a modal is
+ * open is correct, but this toast is not background. `zIndex.snackbar` is 1400
+ * against `zIndex.modal`'s 1300, with no override anywhere in the app or site
+ * config, so it is deliberately painted *above* every dialog and select —
+ * foreground by design. Leaving the mark in place would show a sighted user an
+ * error on top of the dialog that an assistive-tech user never hears. The
+ * inconsistency is the defect, not the attribute.
+ *
  * An observer rather than an `aria-hidden={false}` prop: the attribute is set
  * imperatively after React has rendered, so React never re-asserts its own
  * value.
