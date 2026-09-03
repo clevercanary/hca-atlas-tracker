@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/app/components/common/ConfirmationDialog/confirmationDialog.styles";
+import { useSnackbarContainerRef } from "@/app/components/common/Snackbar/hooks/UseSnackbarContainerRef/hook";
 import { usePublishAtlas } from "@/app/hooks/UsePublishAtlas/hook";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button } from "@mui/material";
@@ -30,8 +31,17 @@ export const PublishDialog = ({
   pathParameter,
 }: Props): JSX.Element => {
   const { isRequesting, onSubmit } = usePublishAtlas();
+  const snackbarContainerRef = useSnackbarContainerRef(open);
   return (
-    <Dialog fullWidth maxWidth="xs" onClose={onCancel} open={open}>
+    // The toast renders inside this dialog while it is open, so a failure here
+    // is reachable by Tab; see `useSnackbarContainerRef`.
+    <Dialog
+      fullWidth
+      maxWidth="xs"
+      onClose={onCancel}
+      open={open}
+      PaperProps={{ ref: snackbarContainerRef }}
+    >
       <DialogTitle onClose={onCancel} title="Publish Atlas" />
       <DialogContent dividers>
         Are you sure you want to publish{" "}
