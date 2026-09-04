@@ -1,10 +1,5 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
-import {
-  createElement,
-  type FunctionComponent,
-  type PropsWithChildren,
-} from "react";
 
 // Mock dependencies before imports
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
@@ -19,7 +14,6 @@ jest.mock("@/app/common/utils", () => ({
 
 import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { fetchResource } from "@/app/common/utils";
-import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/provider";
 import { useDeleteData } from "@/app/hooks/UseDeleteData/hook";
 import { useEntity } from "@/app/providers/entity/hook";
 import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/constants";
@@ -31,6 +25,7 @@ import { type IntegratedObjectSourceDataset } from "@/app/views/IntegratedObject
 import { useEditIntegratedObjectSourceDatasets } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/useEditIntegratedObjectSourceDatasets";
 import { useFetchIntegratedObjectSourceDatasets } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/UseFetchIntegratedObjectSourceDatasets/hook";
 import { INTEGRATED_OBJECT_SOURCE_DATASETS } from "@/app/views/IntegratedObjectSourceDatasetsView/hooks/UseFetchIntegratedObjectSourceDatasets/query/constants";
+import { createQuerySnackbarWrapper } from "@/testing/snackbar";
 import { createMockResponse } from "@/testing/utils";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 
@@ -73,26 +68,6 @@ const TEST_INTEGRATED_OBJECT_SOURCE_DATASET = {
   atlasId: TEST_ATLAS_ID,
 } satisfies Partial<IntegratedObjectSourceDataset>;
 
-/**
- * Wraps a rendered hook in a QueryClientProvider and SnackbarProvider so hooks
- * that call useQueryClient (e.g. for invalidation) and useSnackbar have both
- * available.
- * @param queryClient - Query client to provide (defaults to a fresh one); pass
- * one in to spy on it.
- * @returns Wrapper component providing the QueryClient and snackbar state.
- */
-function createQueryWrapper(
-  queryClient = new QueryClient(),
-): FunctionComponent<PropsWithChildren> {
-  return function QueryWrapper({ children }: PropsWithChildren) {
-    return createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      createElement(SnackbarProvider, null, children),
-    );
-  };
-}
-
 describe("useEditIntegratedObjectSourceDatasets", () => {
   const mockOnDelete = jest.fn().mockResolvedValue(true);
 
@@ -104,7 +79,7 @@ describe("useEditIntegratedObjectSourceDatasets", () => {
   it("returns onDelete function", () => {
     const { result } = renderHook(
       () => useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
-      { wrapper: createQueryWrapper() },
+      { wrapper: createQuerySnackbarWrapper() },
     );
 
     expect(result.current.onDelete).toBeDefined();
@@ -114,7 +89,7 @@ describe("useEditIntegratedObjectSourceDatasets", () => {
   it("calls useDeleteData with correct API URL", () => {
     renderHook(
       () => useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
-      { wrapper: createQueryWrapper() },
+      { wrapper: createQuerySnackbarWrapper() },
     );
 
     expect(mockUseDeleteData).toHaveBeenCalledWith(
@@ -133,7 +108,7 @@ describe("useEditIntegratedObjectSourceDatasets", () => {
 
     renderHook(
       () => useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
-      { wrapper: createQueryWrapper(queryClient) },
+      { wrapper: createQuerySnackbarWrapper(queryClient) },
     );
 
     // Get the onSuccess callback passed to useDeleteData
@@ -166,17 +141,16 @@ describe("useFetchIntegratedObjectSourceDatasets", () => {
   });
 
   it("maps atlasId onto each fetched source dataset", async () => {
-    mockFetchResource.mockResolvedValue({
-      json: async () => [
+    mockFetchResource.mockResolvedValue(
+      createMockResponse(200, [
         { ...TEST_SOURCE_DATASET, id: "dataset-1" },
         { ...TEST_SOURCE_DATASET, id: "dataset-2" },
-      ],
-      status: 200,
-    } as Response);
+      ]),
+    );
 
     const { result } = renderHook(
       () => useFetchIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
-      { wrapper: createQueryWrapper() },
+      { wrapper: createQuerySnackbarWrapper() },
     );
 
     await waitFor(() => expect(result.current.data).toBeDefined());
@@ -191,14 +165,11 @@ describe("useFetchIntegratedObjectSourceDatasets", () => {
   });
 
   it("fetches from the integrated object's source datasets endpoint", async () => {
-    mockFetchResource.mockResolvedValue({
-      json: async () => [],
-      status: 200,
-    } as Response);
+    mockFetchResource.mockResolvedValue(createMockResponse(200, []));
 
     renderHook(
       () => useFetchIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
-      { wrapper: createQueryWrapper() },
+      { wrapper: createQuerySnackbarWrapper() },
     );
 
     await waitFor(() => expect(mockFetchResource).toHaveBeenCalled());

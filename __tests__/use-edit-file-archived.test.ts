@@ -1,15 +1,5 @@
-import {
-  act,
-  render,
-  renderHook,
-  type RenderHookResult,
-} from "@testing-library/react";
-import {
-  createElement,
-  type FunctionComponent,
-  type PropsWithChildren,
-  useState,
-} from "react";
+import { act, render } from "@testing-library/react";
+import { createElement, type FunctionComponent, useState } from "react";
 
 // Mock dependencies before imports
 jest.mock("@/app/common/utils", () => ({
@@ -19,21 +9,21 @@ jest.mock("@/app/common/utils", () => ({
 
 import { METHOD } from "@/app/common/entities";
 import { fetchResource } from "@/app/common/utils";
-import {
-  useSnackbar,
-  useSnackbarState,
-} from "@/app/components/common/Snackbar/provider/hook";
-import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/provider";
-import {
-  type SnackbarActionsContextProps,
-  type SnackbarStateContextProps,
-} from "@/app/components/common/Snackbar/provider/types";
 import { SNACKBAR_SCOPE } from "@/app/components/common/Snackbar/types";
 import {
   type OnSubmitFn,
   type OnSubmitOptions,
 } from "@/app/hooks/UseEditFileArchived/entities";
 import { useEditFileArchived } from "@/app/hooks/UseEditFileArchived/hook";
+import {
+  actAsync,
+  renderHookWithSnackbar,
+  type SnackbarActionsContextProps,
+  type SnackbarHookResult,
+  type SnackbarStateContextProps,
+  useSnackbarContexts,
+  withSnackbarProvider,
+} from "@/testing/snackbar";
 import { createMockResponse, withConsoleErrorHiding } from "@/testing/utils";
 
 // Type mocks
@@ -45,52 +35,18 @@ const mockFetchResource = fetchResource as jest.MockedFunction<
 const TEST_PAYLOAD = { fileIds: ["test-file-id"] };
 const TEST_REQUEST_URL = "/api/test-archive";
 
-interface RenderedHooks {
-  edit: ReturnType<typeof useEditFileArchived>;
-  snackbar: SnackbarStateContextProps;
-  snackbarActions: SnackbarActionsContextProps;
-}
-
-const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) =>
-  createElement(SnackbarProvider, null, children);
+type Result = SnackbarHookResult<typeof useEditFileArchived>;
 
 /**
- * Renders the hook under test together with the snackbar state and actions
- * (all under a SnackbarProvider) so tests can observe the default error
- * handling and simulate errors opened by other features.
- * @returns render result exposing the hook and the snackbar state/actions.
- */
-function renderUseEditFileArchived(): RenderHookResult<RenderedHooks, unknown> {
-  return renderHook(
-    () => ({
-      edit: useEditFileArchived(),
-      snackbar: useSnackbarState(),
-      snackbarActions: useSnackbar(),
-    }),
-    { wrapper },
-  );
-}
-
-/**
- * Calls onSubmit inside act() (it updates snackbar state) and returns its
- * resolved value.
- * @param result - Render result from renderUseEditFileArchived.
+ * Calls onSubmit inside act() and returns its resolved value.
+ * @param result - Render result from renderHookWithSnackbar.
  * @param options - Submit options.
  * @returns promise (true on success).
  */
-async function submit(
-  result: RenderHookResult<RenderedHooks, unknown>["result"],
-  options?: OnSubmitOptions,
-): Promise<boolean> {
-  let submitted = false;
-  await act(async () => {
-    submitted = await result.current.edit.onSubmit(
-      TEST_REQUEST_URL,
-      TEST_PAYLOAD,
-      options,
-    );
-  });
-  return submitted;
+function submit(result: Result, options?: OnSubmitOptions): Promise<boolean> {
+  return actAsync(() =>
+    result.current.hook.onSubmit(TEST_REQUEST_URL, TEST_PAYLOAD, options),
+  );
 }
 
 interface RemountHarness {
@@ -122,8 +78,7 @@ function renderRemountHarness(): RemountHarness {
   };
 
   const StateReader: FunctionComponent = () => {
-    snackbarState = useSnackbarState();
-    snackbarActions = useSnackbar();
+    ({ snackbar: snackbarState, snackbarActions } = useSnackbarContexts());
     return null;
   };
 
@@ -131,7 +86,7 @@ function renderRemountHarness(): RemountHarness {
     const [mounted, setMounted] = useState(true);
     setConsumerMounted = setMounted;
     return createElement(
-      SnackbarProvider,
+      withSnackbarProvider,
       null,
       mounted ? createElement(Consumer) : null,
       createElement(StateReader),
@@ -154,13 +109,10 @@ function renderRemountHarness(): RemountHarness {
       if (!snackbarState) throw new Error("snackbar state not rendered");
       return snackbarState;
     },
-    submit: async (): Promise<boolean> => {
-      let submitted = false;
-      await act(async () => {
-        submitted = (await onSubmit?.(TEST_REQUEST_URL, TEST_PAYLOAD)) ?? false;
-      });
-      return submitted;
-    },
+    submit: (): Promise<boolean> =>
+      actAsync(
+        async () => (await onSubmit?.(TEST_REQUEST_URL, TEST_PAYLOAD)) ?? false,
+      ),
   };
 }
 
@@ -175,7 +127,7 @@ describe("useEditFileArchived", () => {
   it("PATCHes the payload to the given URL and resolves true on an OK response", async () => {
     mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
 
-    const { result } = renderUseEditFileArchived();
+    const { result } = renderHookWithSnackbar(useEditFileArchived);
     await expect(submit(result, { onSuccess })).resolves.toBe(true);
     expect(mockFetchResource).toHaveBeenCalledWith(
       TEST_REQUEST_URL,
@@ -190,7 +142,7 @@ describe("useEditFileArchived", () => {
       createMockResponse(400, { errors: { fileIds: ["fileIds is invalid"] } }),
     );
 
-    const { result } = renderUseEditFileArchived();
+    const { result } = renderHookWithSnackbar(useEditFileArchived);
     await expect(submit(result)).resolves.toBe(false);
     expect(result.current.snackbar.open).toBe(true);
     expect(result.current.snackbar.message).toBe("fileIds is invalid");
@@ -199,7 +151,7 @@ describe("useEditFileArchived", () => {
   it("opens the error snackbar by default on a network-level error", async () => {
     mockFetchResource.mockRejectedValue(new Error("Failed to fetch"));
 
-    const { result } = renderUseEditFileArchived();
+    const { result } = renderHookWithSnackbar(useEditFileArchived);
     await expect(submit(result)).resolves.toBe(false);
     expect(result.current.snackbar.open).toBe(true);
     expect(result.current.snackbar.message).toBe("Failed to fetch");
@@ -208,14 +160,14 @@ describe("useEditFileArchived", () => {
   it("falls back to the status code when the error body is unparseable", async () => {
     mockFetchResource.mockResolvedValue(createMockResponse(500));
 
-    const { result } = renderUseEditFileArchived();
+    const { result } = renderHookWithSnackbar(useEditFileArchived);
     await expect(submit(result)).resolves.toBe(false);
     expect(result.current.snackbar.message).toBe("Received 500 response");
   });
 
   it("dismisses a stale error from a previous attempt on success", async () => {
     mockFetchResource.mockResolvedValue(createMockResponse(500));
-    const { result } = renderUseEditFileArchived();
+    const { result } = renderHookWithSnackbar(useEditFileArchived);
     await submit(result);
     expect(result.current.snackbar.open).toBe(true);
 
@@ -228,7 +180,7 @@ describe("useEditFileArchived", () => {
   it("does not dismiss an error opened by another feature on success", async () => {
     mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
 
-    const { result } = renderUseEditFileArchived();
+    const { result } = renderHookWithSnackbar(useEditFileArchived);
     // Simulate an unread error owned by an unrelated feature.
     act(() => {
       result.current.snackbarActions.onOpen(
@@ -244,7 +196,7 @@ describe("useEditFileArchived", () => {
 
   it("does not dismiss this hook's stale error once another feature's error replaces it", async () => {
     mockFetchResource.mockResolvedValue(createMockResponse(500));
-    const { result } = renderUseEditFileArchived();
+    const { result } = renderHookWithSnackbar(useEditFileArchived);
     await submit(result);
     expect(result.current.snackbar.open).toBe(true);
 
@@ -307,30 +259,30 @@ describe("useEditFileArchived", () => {
         }),
     );
 
-    const { result } = renderUseEditFileArchived();
-    expect(result.current.edit.isRequesting).toBe(false);
+    const { result } = renderHookWithSnackbar(useEditFileArchived);
+    expect(result.current.hook.isRequesting).toBe(false);
 
     let submitted: Promise<boolean> | undefined;
     await act(async () => {
-      submitted = result.current.edit.onSubmit(TEST_REQUEST_URL, TEST_PAYLOAD);
+      submitted = result.current.hook.onSubmit(TEST_REQUEST_URL, TEST_PAYLOAD);
     });
     // In flight: the button consuming this stays disabled, so the endpoint
     // can't reject a repeat click for an action that already succeeded.
-    expect(result.current.edit.isRequesting).toBe(true);
+    expect(result.current.hook.isRequesting).toBe(true);
 
     await act(async () => {
       release?.();
       await submitted;
     });
-    expect(result.current.edit.isRequesting).toBe(false);
+    expect(result.current.hook.isRequesting).toBe(false);
   });
 
   it("resets isRequesting on failure, so the button can't get stuck disabled", async () => {
     mockFetchResource.mockRejectedValue(new Error("Network error"));
 
-    const { result } = renderUseEditFileArchived();
+    const { result } = renderHookWithSnackbar(useEditFileArchived);
     await expect(submit(result)).resolves.toBe(false);
-    expect(result.current.edit.isRequesting).toBe(false);
+    expect(result.current.hook.isRequesting).toBe(false);
   });
 
   it("resolves true when onSuccess throws (the request itself succeeded)", async () => {
@@ -339,7 +291,7 @@ describe("useEditFileArchived", () => {
       throw new Error("invalidate error");
     });
 
-    const { result } = renderUseEditFileArchived();
+    const { result } = renderHookWithSnackbar(useEditFileArchived);
     await withConsoleErrorHiding(async () => {
       await expect(submit(result, { onSuccess })).resolves.toBe(true);
     });
@@ -355,7 +307,7 @@ describe("useEditFileArchived", () => {
       throw new Error("refetch error");
     });
 
-    const { result } = renderUseEditFileArchived();
+    const { result } = renderHookWithSnackbar(useEditFileArchived);
     await withConsoleErrorHiding(async () => {
       await expect(submit(result, { onSuccess })).resolves.toBe(true);
     });

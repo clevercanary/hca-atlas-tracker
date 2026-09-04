@@ -3,14 +3,10 @@ jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
 }));
 
 import { useAuthedQuery } from "@/app/query/useAuthedQuery";
+import { createQueryClientWrapper } from "@/testing/query";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
-import {
-  createElement,
-  type FunctionComponent,
-  type PropsWithChildren,
-} from "react";
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 
@@ -21,23 +17,6 @@ const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
  */
 function authStateOf(isAuthenticated: boolean): ReturnType<typeof useAuth> {
   return { authState: { isAuthenticated } } as ReturnType<typeof useAuth>;
-}
-
-/**
- * Wraps a rendered hook in a QueryClientProvider with retries disabled.
- * @param queryClient - The QueryClient to provide.
- * @returns Wrapper component.
- */
-function wrapperFor(
-  queryClient: QueryClient,
-): FunctionComponent<PropsWithChildren> {
-  return function Wrapper({ children }: PropsWithChildren) {
-    return createElement(
-      QueryClientProvider,
-      { client: queryClient },
-      children,
-    );
-  };
 }
 
 describe("useAuthedQuery (throwOnError gating)", () => {
@@ -70,7 +49,7 @@ describe("useAuthedQuery (throwOnError gating)", () => {
           queryKey: ["authed-query-test"],
           requestUrl: "/api/test",
         }),
-      { wrapper: wrapperFor(queryClient) },
+      { wrapper: createQueryClientWrapper(queryClient) },
     );
 
     await waitFor(() => expect(result.current.isError).toBe(true));

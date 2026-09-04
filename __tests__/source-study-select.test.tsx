@@ -1,4 +1,3 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 
 jest.mock("@databiosphere/findable-ui/lib/auth/hooks/useAuth", () => ({
@@ -17,6 +16,8 @@ import { getSourceStudyCitation } from "@/app/apis/catalog/hca-atlas-tracker/com
 import { fetchResource } from "@/app/common/utils";
 import { SourceStudy } from "@/app/components/Form/components/Select/components/SourceStudy/sourceStudy";
 import { useEntity } from "@/app/providers/entity/hook";
+import { createQueryClientWrapper } from "@/testing/query";
+import { createMockResponse } from "@/testing/utils";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
@@ -64,12 +65,7 @@ function entityWithAtlas(): ReturnType<typeof useEntity> {
  * @returns void.
  */
 function renderSourceStudy(): void {
-  const queryClient = new QueryClient();
-  render(
-    <QueryClientProvider client={queryClient}>
-      <SourceStudy open />
-    </QueryClientProvider>,
-  );
+  render(<SourceStudy open />, { wrapper: createQueryClientWrapper() });
 }
 
 describe("SourceStudy select", () => {
@@ -82,10 +78,7 @@ describe("SourceStudy select", () => {
   it("fetches source studies on mount and renders them as options", async () => {
     mockUseAuth.mockReturnValue(authStateOf(true));
     mockUseEntity.mockReturnValue(entityWithAtlas());
-    mockFetchResource.mockResolvedValue({
-      json: async () => [STUDY],
-      status: 200,
-    } as Response);
+    mockFetchResource.mockResolvedValue(createMockResponse(200, [STUDY]));
 
     renderSourceStudy();
 
