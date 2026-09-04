@@ -1,11 +1,12 @@
 import { ROUTE } from "@/app/routes/constants";
 import { PUBLIC_PATHS } from "@/app/routes/publicPaths";
 import { AUTH_STATUS } from "@databiosphere/findable-ui/lib/auth/types/auth";
+import { INACTIVITY_PARAM } from "@databiosphere/findable-ui/lib/hooks/authentication/session/useSessionTimeout";
 import { getSession } from "next-auth/react";
+import Router from "next/router";
 import {
   MAX_REDIRECT_ATTEMPTS,
   REDIRECT_ATTEMPTS_KEY,
-  SESSION_END_URL,
   SESSION_SEEN_KEY,
 } from "./constants";
 import { SESSION_CONFIRMATION, type SessionConfirmation } from "./types";
@@ -116,6 +117,10 @@ export async function confirmSessionEnded(): Promise<SessionConfirmation> {
  * Requires a settled status — while auth is `PENDING` the state is
  * indistinguishable from a logged-out visitor, and redirecting then would
  * bounce authenticated users off protected pages on every first load.
+ *
+ * The page a session end lands on is `ROUTE.LANDING`, which `PUBLIC_PATHS`
+ * contains — so arriving there cannot re-fire the hook. A test pins that
+ * invariant rather than a runtime guard restating it.
  * @param status - Auth status (pending until the session has settled).
  * @param isAuthenticated - User's authentication status.
  * @param pathname - Canonical current pathname.
@@ -217,15 +222,15 @@ export function attemptReloadStrandedPage(): void {
 }
 
 /**
- * Returns where a stranded page should go: the landing page, with the
- * inactivity param only when this tab has actually held a session.
+ * Returns where a stranded page should go: the app root, with the inactivity
+ * param only when this tab has actually held a session.
  *
  * Read, not consumed. An earlier revision removed the flag here so the banner
  * could only appear once per session that ended, but the flag was then spent on
- * a navigation that shows no banner at all: on the self-heal path the landing
+ * a navigation that shows no banner at all: on the self-heal path the root
  * page's `getServerSideProps` 307s a still-cookied request to `/atlases` and
  * drops the query string. If the session endpoint is still failing, that tab
- * re-strands and the next attempt lands on a bare `/` — the user's session
+ * re-strands and the next attempt lands on a bare root — the user's session
  * really is unusable at that point, and that is the moment they most need the
  * explanation.
  *
@@ -234,17 +239,47 @@ export function attemptReloadStrandedPage(): void {
  * observed), and after a genuine expiry the user sits on public paths where
  * `isStrandedOnProtectedPath` is false — so there is no later strand in the tab
  * for the banner to repeat on.
- * @returns Landing URL, with the inactivity param when a session ended.
+ * @returns Root URL, with the inactivity param when a session ended.
  */
 export function getSessionEndUrl(): string {
+  const rootUrl = getSessionRootUrl();
   try {
-    if (!window.sessionStorage.getItem(SESSION_SEEN_KEY)) return ROUTE.LANDING;
+    if (!window.sessionStorage.getItem(SESSION_SEEN_KEY)) return rootUrl;
   } catch {
-    // Storage unreadable; fall back to the plain landing page rather than
-    // asserting an inactivity logout that may never have happened.
-    return ROUTE.LANDING;
+    // Storage unreadable; fall back to the plain root rather than asserting an
+    // inactivity logout that may never have happened.
+    return rootUrl;
   }
-  return SESSION_END_URL;
+  // Set through `URLSearchParams`, as `useSessionCallbackUrl` does, so the
+  // param survives however the root is spelled. Kept relative, so the caller
+  // navigates within the app rather than to a pinned origin.
+  const url = new URL(rootUrl, window.location.origin);
+  url.searchParams.set(INACTIVITY_PARAM, "true");
+  return `${url.pathname}${url.search}`;
+}
+
+/**
+ * Returns the app root for a full document load: `ROUTE.LANDING`, prefixed with
+ * any `basePath`.
+ *
+ * Two things end a session and they must land the same way: findable-ui's
+ * 1-hour idle timer navigates to `useSessionCallbackUrl()`, while a passive
+ * expiry comes through here. That hook builds `basePath` + the config's
+ * `redirectRootToPath`, and the config sets `redirectRootToPath: ROUTE.LANDING`
+ * — so naming the same constant here is what keeps the two in step. Change
+ * `ROUTE.LANDING` and every session-end destination moves with it; point
+ * `redirectRootToPath` at anything else and the drift test fails.
+ *
+ * The `basePath` prefix is not optional: `location.replace` acts on the
+ * document URL, which router-relative paths like `asPath` omit. It is read off
+ * the singleton rather than `useRouter()` because this runs from a plain
+ * function at navigation time, not a hook. `Router.router` is null until the
+ * router initializes — unreachable from this module, which only runs from an
+ * effect inside a mounted `_app` — so `?? ""` just keeps the read total.
+ * @returns App root path, including any `basePath`.
+ */
+export function getSessionRootUrl(): string {
+  return `${Router.router?.basePath ?? ""}${ROUTE.LANDING}`;
 }
 
 /**

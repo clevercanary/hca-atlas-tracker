@@ -1,5 +1,6 @@
 import { withAuth } from "next-auth/middleware";
 import { isRequestAuthorized } from "./app/routes/authorization";
+import { ROUTE } from "./app/routes/constants";
 
 // Build-output gotcha: in Next 16 the `proxy.ts` convention compiles to a
 // NODEJS-runtime function registered in
@@ -31,15 +32,21 @@ import { isRequestAuthorized } from "./app/routes/authorization";
 // Role-based gate: public paths are open, any other path needs a valid
 // session, and admin-only paths (see `ADMIN_PATHS`) additionally require the
 // CONTENT_ADMIN role. When this returns false, `withAuth` redirects to
-// `pages.signIn` ("/") with a `callbackUrl` — for an authenticated non-admin
-// that bounces on to /atlases, the same UX as the unauthenticated case.
+// `pages.signIn` (`ROUTE.LANDING`) with a `callbackUrl` — for an authenticated
+// non-admin that bounces on to /atlases, the same UX as the unauthenticated
+// case.
+//
+// `ROUTE.LANDING` rather than a literal so this agrees with the other places a
+// user is sent to the app root — the config's `redirectRootToPath` (and so
+// findable-ui's idle-timer destination), `useLogoutCallbackUrl`, and
+// `UseSessionEndRedirect`. All four name the one constant.
 export default withAuth({
   callbacks: {
     authorized: ({ req, token }) =>
       isRequestAuthorized(req.nextUrl.pathname, token?.role, !!token),
   },
   pages: {
-    signIn: "/",
+    signIn: ROUTE.LANDING,
   },
 });
 
