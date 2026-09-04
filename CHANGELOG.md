@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.82.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.81.0...v1.82.0) (2026-09-04)
+
+
+### Features
+
+* expose atlas-level CAP and CELLxGENE collection links on /api/published-atlases ([#1546](https://github.com/clevercanary/hca-atlas-tracker/issues/1546)) ([#1547](https://github.com/clevercanary/hca-atlas-tracker/issues/1547)) ([62a420a](https://github.com/clevercanary/hca-atlas-tracker/commit/62a420ac0a0907e3cdce4a0be50cfbd08291dcd4))
+
+
+### Bug Fixes
+
+* leave the protected page when the session ends, and show the inactivity banner ([#1544](https://github.com/clevercanary/hca-atlas-tracker/issues/1544)) ([#1548](https://github.com/clevercanary/hca-atlas-tracker/issues/1548)) ([8d844ee](https://github.com/clevercanary/hca-atlas-tracker/commit/8d844ee8045efdc1c46d70038128cf4ed68f37e0))
+* surface archive/unarchive errors — useeditfilearchived's thrown error is never caught ([#1540](https://github.com/clevercanary/hca-atlas-tracker/issues/1540)) ([#1542](https://github.com/clevercanary/hca-atlas-tracker/issues/1542)) ([a7f7f89](https://github.com/clevercanary/hca-atlas-tracker/commit/a7f7f891334405a7ea1ff877a1353c53c7e9eed8))
+* surface delete errors — ondelete is fire-and-forget, so a failed delete fails silently ([#1520](https://github.com/clevercanary/hca-atlas-tracker/issues/1520)) ([#1539](https://github.com/clevercanary/hca-atlas-tracker/issues/1539)) ([9bad0cc](https://github.com/clevercanary/hca-atlas-tracker/commit/9bad0ccb23ab2491a373a7cebff32b29b10b352e))
+
+
+### Tests
+
+* share the snackbar test scaffolding and finish the createMockResponse consolidation ([#1555](https://github.com/clevercanary/hca-atlas-tracker/issues/1555)) ([#1565](https://github.com/clevercanary/hca-atlas-tracker/issues/1565)) ([ff2424d](https://github.com/clevercanary/hca-atlas-tracker/commit/ff2424d7cb9e4ad5094524a076f69ced3656822c))
+
 ## [1.81.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.80.1...v1.81.0) (2026-08-11)
 
 
