@@ -1,4 +1,5 @@
 import { SNACKBAR_PROPS } from "@/app/components/common/Snackbar/constants";
+import { useAriaHiddenGuard } from "@/app/components/common/Snackbar/hooks/UseAriaHiddenGuard/hook";
 import {
   useSnackbar,
   useSnackbarState,
@@ -7,7 +8,7 @@ import { ICON_BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { CloseRounded } from "@mui/icons-material";
 import { IconButton, Portal } from "@mui/material";
-import { type JSX } from "react";
+import { type JSX, useState } from "react";
 import { StyledSnackbar } from "./errorSnackbar.styles";
 
 /**
@@ -27,26 +28,45 @@ import { StyledSnackbar } from "./errorSnackbar.styles";
  * subtree. Closing the dialog on failure would also work, but would throw away
  * the retry the user is most likely to want.
  *
- * Two a11y gaps the portal does NOT close, tracked in #1563:
- * - Tabbability. `Modal` defaults `disableEnforceFocus` to false and its
- *   `FocusTrap` enforces focus by DOM containment within the modal node, so
- *   where the toast sits in the tree is irrelevant — a keyboard user still
- *   can't Tab to the close button until they Escape out of the dialog.
- * - Ordering. `ariaHiddenSiblings` snapshots `container.children` when the
- *   modal mounts, so the toast is skipped only when it doesn't exist yet.
- *   Dialog-then-error is safe (`Snackbar` renders null while closed); a pinned
- *   error followed by opening a dialog is not — the toast is an existing child
- *   of `body` by then, and gets `aria-hidden="true"`.
+ * The two a11y gaps portalling alone left open (#1563) are closed by the two
+ * mechanisms below, because portalling addressed neither:
+ * - Tabbability, by `useSnackbarContainerRef`. A dialog claims the container so
+ *   the toast renders inside it, and is therefore inside the focus trap — which
+ *   enforces by DOM containment, so tree position beside the dialog never
+ *   helped.
+ * - Announcement, by `useAriaHiddenGuard`. Changing the portal container
+ *   remounts the toast into a fresh element, so a claiming dialog clears
+ *   `ariaHiddenSiblings`' mark as a side effect — but most of this app's
+ *   dialogs never claim, and for those nothing else removes it. The guard
+ *   covers them, which is what makes the announcement fix hold for more than
+ *   these two dialogs. It covers marks on the toast itself, not on an ancestor
+ *   once claimed; see the hook and #1568 for the gap that leaves.
  * @returns error snackbar component.
  */
 export const ErrorSnackbar = (): JSX.Element => {
   const { onClose } = useSnackbar();
-  const { message, open } = useSnackbarState();
+  const { container, message, open } = useSnackbarState();
+  // State via a callback ref, not `useRef`: the toast is remounted into a fresh
+  // element whenever the portal container changes, and the guard has to follow
+  // it. A ref would hold the first element forever.
+  const [snackbarNode, setSnackbarNode] = useState<HTMLDivElement | null>(null);
+
+  useAriaHiddenGuard(snackbarNode, open);
 
   return (
-    <Portal>
+    <Portal container={container ?? undefined}>
       <StyledSnackbar
         anchorOrigin={SNACKBAR_PROPS.ORIGIN.TOP_RIGHT}
+        ref={setSnackbarNode}
+        // Changing the portal container destroys and recreates this subtree, so
+        // every claim and release is a fresh mount. MUI builds the Snackbar's
+        // transition as `Grow` with `appear: true`, which would replay the
+        // enter animation each time — the toast popping out and growing back in
+        // on every dialog open and close, and the `role="alert"` node
+        // re-announcing with it. That is the flicker
+        // `useSnackbarContainerRef` keys its release on `open` to avoid, and a
+        // remount reintroduces it regardless.
+        slotProps={{ transition: { appear: false } }}
         action={
           <IconButton
             aria-label="Close error message"
