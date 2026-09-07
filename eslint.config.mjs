@@ -73,6 +73,27 @@ const config = [
               message:
                 "Reach outside this directory via the '@/' alias; relative imports are for ./ same-dir and descendants only.",
             },
+            {
+              // #1543: our `LayoutDimensionsProvider` and findable-ui's share a
+              // name, and either satisfies the compiler at the call site. An
+              // editor auto-import, a merge resolution or an upgrade sweep can
+              // therefore swap ours for upstream's silently — upstream seeds the
+              // header at `0`, so the offset leaves the server-rendered HTML and
+              // the ~57px first-paint jump returns with every test still green
+              // (they build the provider tree themselves). Fence the upstream
+              // path; `app/providers/layoutDimensions/provider.tsx` overrides
+              // this below, since composing upstream is exactly its job.
+              //
+              // Trailing-wildcarded rather than exact: a `.js`-suffixed
+              // specifier resolves to the same module and would slip an exact
+              // match. Anchored on the package name so it cannot over-match the
+              // local copy this rule points people at.
+              group: [
+                "@databiosphere/findable-ui/**/layoutDimensions/provider*",
+              ],
+              message:
+                "Import LayoutDimensionsProvider from '@/app/providers/layoutDimensions/provider' — findable-ui's seeds the header offset as 0, reintroducing the first-paint jump (#1543).",
+            },
             // Bare repo-root imports (e.g. `app/foo`) need no lint rule: with no
             // `baseUrl` in tsconfig they fail typecheck (TS2307), which CI and
             // the pre-commit hook enforce. (jest's SWC transform still resolves a
@@ -133,6 +154,26 @@ const config = [
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "sonarjs/no-duplicate-string": "off",
+    },
+  },
+  {
+    // The one module that must import findable-ui's provider: it composes it
+    // with the seed. Everywhere else the fence above applies. Turning the rule
+    // off wholesale here would also drop the `../` ban, so it is restated.
+    files: ["app/providers/layoutDimensions/provider.tsx"],
+    rules: {
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["..", "../**"],
+              message:
+                "Reach outside this directory via the '@/' alias; relative imports are for ./ same-dir and descendants only.",
+            },
+          ],
+        },
+      ],
     },
   },
 ];
