@@ -9,7 +9,10 @@ import { type SnackbarProviderProps } from "./types";
  * fixed-position, so mount location is irrelevant). Mounted once in `_app`,
  * so every page has snackbar access without opting in.
  * Actions and state are exposed via separate contexts so opening/closing the
- * snackbar re-renders only the snackbar, not action subscribers.
+ * snackbar does not re-render action subscribers — the mutation hooks that only
+ * ever call `onOpen`/`onClose`. It no longer re-renders *only* the snackbar:
+ * `useSnackbarContainerRef` puts the two claiming dialogs on the state context
+ * as well (see `useSnackbarState`).
  * `onOpen` records the scope that opened the message; passing that scope to
  * `onClose` closes the snackbar only if that scope's message is still the one
  * showing, so a feature dismissing its own stale error can't dismiss an unread
@@ -26,8 +29,15 @@ export function SnackbarProvider({
 }: SnackbarProviderProps): JSX.Element {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
-  // Scope that opened the message currently showing, for scoped closes.
+  // Element the toast renders into, when a dialog has claimed it; null means
+  // `document.body`. See `useSnackbarContainerRef` for why a dialog claims it.
+  const [container, setContainer] = useState<HTMLElement | null>(null);
+  // Scope that opened the message currently showing, cleared on close. Held in
+  // a ref for scoped closes (which must not re-render action subscribers) and
+  // mirrored into state so a dialog can tell whether the showing error is its
+  // own before claiming the container — see `useSnackbarContainerRef`.
   const openedScopeRef = useRef<SnackbarScope | undefined>(undefined);
+  const [scope, setScope] = useState<SnackbarScope | undefined>(undefined);
 
   const onClose = useCallback((scope?: SnackbarScope): void => {
     // Scoped close: another feature's message has since replaced this scope's
@@ -36,16 +46,54 @@ export function SnackbarProvider({
     // Message is deliberately not cleared on close: MUI keeps the snackbar content mounted through its exit transition, so clearing it here would blank the toast while it animates out.
     // The next onOpen overwrites it.
     setOpen(false);
+    // Ownership *is* cleared. `scope` is exposed as who owns the message
+    // currently showing, and nothing is showing once closed, so leaving it set
+    // invites a consumer to treat a closed snackbar as still owned. The claim
+    // gate in `useSnackbarContainerRef` checks `open` before `scope` so it
+    // can't act on a stale value, but the next consumer has no such guarantee.
+    // Safe for the scoped close above too: once closed, a later scoped call
+    // finds no match and no-ops on something already shut.
+    //
+    // Known limitation while a dialog has claimed the container: clearing
+    // `scope` here fails `useSnackbarContainerRef`'s gate in the same commit,
+    // so the release, the portal change and the unmount all land together and
+    // the toast disappears without its exit fade. Dismissing it by its own
+    // close button also destroys the focused element, so `FocusTrap` returns
+    // focus to the dialog container and the user's Tab position resets to the
+    // top of the dialog. Holding the claim across the exit would need `scope`
+    // to outlive the close, which contradicts what it is exposed to mean.
+    // Not worked around, because #1569 moves the toast out of the dialog for
+    // good and the claim goes with it.
+    openedScopeRef.current = undefined;
+    setScope(undefined);
+  }, []);
+
+  const claimContainer = useCallback((node: HTMLElement): void => {
+    setContainer(node);
+  }, []);
+
+  const releaseContainer = useCallback((node: HTMLElement): void => {
+    // Only clear if this node is still the one showing. A dialog's exit
+    // transition can unmount it after a second dialog has already claimed the
+    // container, and the later claim must win.
+    setContainer((current) => (current === node ? null : current));
   }, []);
 
   const onOpen = useCallback((message: string, scope: SnackbarScope): void => {
     setMessage(message);
     setOpen(true);
+    setScope(scope);
     openedScopeRef.current = scope;
   }, []);
 
-  const actions = useMemo(() => ({ onClose, onOpen }), [onClose, onOpen]);
-  const state = useMemo(() => ({ message, open }), [message, open]);
+  const actions = useMemo(
+    () => ({ claimContainer, onClose, onOpen, releaseContainer }),
+    [claimContainer, onClose, onOpen, releaseContainer],
+  );
+  const state = useMemo(
+    () => ({ container, message, open, scope }),
+    [container, message, open, scope],
+  );
 
   return (
     <SnackbarActionsContext.Provider value={actions}>

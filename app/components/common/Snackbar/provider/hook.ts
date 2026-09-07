@@ -22,8 +22,16 @@ export const useSnackbar = (): SnackbarActionsContextProps => {
 };
 
 /**
- * Returns the snackbar state (message/open). Volatile — changes on every
- * open/close — so it's consumed only by the snackbar rendering it.
+ * Returns the snackbar state (message, open, scope, container). Volatile —
+ * changes on every open and close — so a consumer re-renders with the snackbar.
+ *
+ * `ErrorSnackbar` is the main consumer, but no longer the only one:
+ * `useSnackbarContainerRef` reads `open` and `scope` so a dialog can tell
+ * whether the showing error is its own before claiming the container (#1563).
+ * That puts the two claiming dialogs, and their whole Modal subtrees, on this
+ * context — they re-render on every snackbar change, not just their own. Cheap
+ * today because both hold only buttons, and it goes away with the claim itself
+ * (#1569). Weigh that before adding a third consumer.
  * @returns snackbar state context.
  * @throws Error - When used outside a `SnackbarProvider`.
  */
