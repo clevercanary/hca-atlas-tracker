@@ -1,5 +1,32 @@
 # Changelog
 
+## [1.82.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.81.0...v1.82.0) (2026-09-07)
+
+
+### Features
+
+* expose atlas-level CAP and CELLxGENE collection links on /api/published-atlases ([#1546](https://github.com/clevercanary/hca-atlas-tracker/issues/1546)) ([#1547](https://github.com/clevercanary/hca-atlas-tracker/issues/1547)) ([62a420a](https://github.com/clevercanary/hca-atlas-tracker/commit/62a420ac0a0907e3cdce4a0be50cfbd08291dcd4))
+
+
+### Bug Fixes
+
+* guard session_end_url against drifting from the config-derived session callback url ([#1557](https://github.com/clevercanary/hca-atlas-tracker/issues/1557)) ([#1561](https://github.com/clevercanary/hca-atlas-tracker/issues/1561)) ([74586d9](https://github.com/clevercanary/hca-atlas-tracker/commit/74586d9841fd25731b4cf9a764e1155979632a39))
+* leave the protected page when the session ends, and show the inactivity banner ([#1544](https://github.com/clevercanary/hca-atlas-tracker/issues/1544)) ([#1548](https://github.com/clevercanary/hca-atlas-tracker/issues/1548)) ([8d844ee](https://github.com/clevercanary/hca-atlas-tracker/commit/8d844ee8045efdc1c46d70038128cf4ed68f37e0))
+* put the error toast inside the dialog's focus trap and keep it announced ([#1563](https://github.com/clevercanary/hca-atlas-tracker/issues/1563)) ([#1567](https://github.com/clevercanary/hca-atlas-tracker/issues/1567)) ([38b24ae](https://github.com/clevercanary/hca-atlas-tracker/commit/38b24ae72cdfa5e7ea26fb821444b85bd16ec4bf))
+* seed the layout dimensions so the header offset ships with the server-rendered html ([#1543](https://github.com/clevercanary/hca-atlas-tracker/issues/1543)) ([#1549](https://github.com/clevercanary/hca-atlas-tracker/issues/1549)) ([79d8818](https://github.com/clevercanary/hca-atlas-tracker/commit/79d88186d443b8fb3a32bce5cc756734e8a546e6))
+* surface archive/unarchive errors — useeditfilearchived's thrown error is never caught ([#1540](https://github.com/clevercanary/hca-atlas-tracker/issues/1540)) ([#1542](https://github.com/clevercanary/hca-atlas-tracker/issues/1542)) ([a7f7f89](https://github.com/clevercanary/hca-atlas-tracker/commit/a7f7f891334405a7ea1ff877a1353c53c7e9eed8))
+* surface delete errors — ondelete is fire-and-forget, so a failed delete fails silently ([#1520](https://github.com/clevercanary/hca-atlas-tracker/issues/1520)) ([#1539](https://github.com/clevercanary/hca-atlas-tracker/issues/1539)) ([9bad0cc](https://github.com/clevercanary/hca-atlas-tracker/commit/9bad0ccb23ab2491a373a7cebff32b29b10b352e))
+
+
+### Documentation
+
+* scope the "fails the build" claim to required additions; name ([79d8818](https://github.com/clevercanary/hca-atlas-tracker/commit/79d88186d443b8fb3a32bce5cc756734e8a546e6))
+
+
+### Tests
+
+* share the snackbar test scaffolding and finish the createMockResponse consolidation ([#1555](https://github.com/clevercanary/hca-atlas-tracker/issues/1555)) ([#1565](https://github.com/clevercanary/hca-atlas-tracker/issues/1565)) ([ff2424d](https://github.com/clevercanary/hca-atlas-tracker/commit/ff2424d7cb9e4ad5094524a076f69ced3656822c))
+
 ## [1.81.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.80.1...v1.81.0) (2026-08-11)
 
 
