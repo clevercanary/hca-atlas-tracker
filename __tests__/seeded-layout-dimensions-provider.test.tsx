@@ -147,6 +147,14 @@ describe("SeededLayoutDimensionsProvider", () => {
     // findable-ui's `Main`, which is what turns the header height into
     // `margin-top`. On the server there is no ResizeObserver, so upstream
     // reports 0 and only the seed can put a non-zero offset in the HTML.
+    //
+    // The handle is the `offset` attribute, which only reaches the markup
+    // because emotion forwards it — `MainWithOffset` declares no
+    // `shouldForwardProp`, and `offset` is not valid on `<main>`. If upstream
+    // adds one (a plausible tidy-up), this goes red on a change that alters
+    // nothing about the fix. Read a failure here as "check that first" rather
+    // than as the seed having broken; under bare `renderToString` emotion emits
+    // no stylesheet, so there is no `margin-top` to assert on instead.
     const html = renderToString(
       <LayoutDimensionsProvider>
         <Main>content</Main>

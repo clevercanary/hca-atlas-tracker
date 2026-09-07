@@ -26,10 +26,11 @@ import { SEEDED_HEADER_HEIGHT } from "./constants";
  * `||`, not `??`: upstream has already collapsed "not yet measured" into `0` by
  * the time we read it, so the two states are indistinguishable here and a
  * genuinely measured `0` would be re-inflated to the seed. That is acceptable
- * for the header specifically — it is a `position: fixed` AppBar containing a
- * toolbar with a `min-height`, so while it is in the tree it cannot measure `0`
- * — and it is the price of not forking the provider. The footer is passed
- * through untouched, so nothing else inherits the ambiguity.
+ * for the header specifically — `header.styles.ts` gives the toolbar a fixed
+ * `height: ${HEADER_HEIGHT}px` (and explicitly `min-height: unset`), so while
+ * it is in the tree it cannot measure `0` — and it is the price of not forking
+ * the provider. The footer is passed through untouched, so nothing else
+ * inherits the ambiguity.
  * @param props - Provider props.
  * @param props.children - Children components.
  * @returns Layout dimensions provider with the header seeded.

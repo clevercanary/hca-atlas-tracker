@@ -91,9 +91,9 @@ function MyApp(props: AppPropsWithComponent): JSX.Element {
                     Both are composed in one component, so the nesting the fix
                     depends on can't be transposed here. */}
                     <LayoutDimensionsProvider>
-                      {/* SnackbarProvider wraps the whole layout (not just
-                        the page) so header/footer consumers are covered and an
-                        open snackbar survives a page render error. */}
+                      {/* SnackbarProvider wraps the whole layout (not just the
+                      page) so header/footer consumers are covered and an open
+                      snackbar survives a page render error. */}
                       <SnackbarProvider>
                         <AppLayout>
                           <ThemeProvider
