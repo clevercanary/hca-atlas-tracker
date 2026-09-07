@@ -1,5 +1,6 @@
 import { LayoutDimensionsContext } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/context";
 import { useLayoutDimensions } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/hook";
+import { LayoutDimensionsProvider as UpstreamLayoutDimensionsProvider } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/provider";
 import { type LayoutDimensionsProviderProps } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/types";
 import { type JSX, useMemo } from "react";
 import { SEEDED_HEADER_HEIGHT } from "./constants";
@@ -41,8 +42,12 @@ export function SeededLayoutDimensionsProvider({
   const { height: headerHeight } = dimensions.header;
 
   // Keyed on the heights rather than on the context object, which upstream
-  // rebuilds every render. Consumers then re-render only when a height actually
-  // changes, instead of on every render of the provider above.
+  // rebuilds every render, so the value keeps a stable identity across renders
+  // that changed nothing. Not a measurable re-render saving in this app —
+  // `MyApp` recreates `children` anyway, and upstream only re-renders on a real
+  // change (`getNextElementRect` returns the same reference when nothing moved,
+  // so its `setState` bails) — but it keeps the context honest for any consumer
+  // that memoizes on it.
   const value = useMemo(
     () => ({
       dimensions: {
@@ -61,5 +66,32 @@ export function SeededLayoutDimensionsProvider({
     <LayoutDimensionsContext.Provider value={value}>
       {children}
     </LayoutDimensionsContext.Provider>
+  );
+}
+
+/**
+ * Findable-ui's layout dimensions provider with the header height seeded.
+ *
+ * Composed here rather than nested at the call site so the order cannot be got
+ * wrong: the seed has to be *inside* upstream's provider to read its
+ * measurement, and transposing the two would silently put upstream innermost,
+ * returning the server-rendered offset to `0` and regressing #1543 with every
+ * test still green.
+ *
+ * This is what `_app` renders; {@link SeededLayoutDimensionsProvider} is
+ * exported for tests that need to drive the seed against a stubbed upstream.
+ * @param props - Provider props.
+ * @param props.children - Children components.
+ * @returns Upstream's provider with the header seeded beneath it.
+ */
+export function LayoutDimensionsProvider({
+  children,
+}: LayoutDimensionsProviderProps): JSX.Element {
+  return (
+    <UpstreamLayoutDimensionsProvider>
+      <SeededLayoutDimensionsProvider>
+        {children}
+      </SeededLayoutDimensionsProvider>
+    </UpstreamLayoutDimensionsProvider>
   );
 }

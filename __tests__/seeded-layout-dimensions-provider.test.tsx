@@ -2,11 +2,14 @@ import {
   APP_BAR_BORDER_WIDTH,
   SEEDED_HEADER_HEIGHT,
 } from "@/app/providers/layoutDimensions/constants";
-import { SeededLayoutDimensionsProvider } from "@/app/providers/layoutDimensions/provider";
+import {
+  LayoutDimensionsProvider,
+  SeededLayoutDimensionsProvider,
+} from "@/app/providers/layoutDimensions/provider";
 import { HEADER_HEIGHT } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/common/constants";
+import { Main } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
 import { LayoutDimensionsContext } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/context";
 import { useLayoutDimensions } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/hook";
-import { LayoutDimensionsProvider as UpstreamProvider } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/provider";
 import { type LayoutDimensionsContextProps } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/types";
 import { renderHook } from "@testing-library/react";
 import { type JSX, type ReactNode, createRef } from "react";
@@ -77,30 +80,25 @@ function renderSeeded({
   return result.current;
 }
 
-/**
- * Renders the header offset into an attribute, standing in for the consumers
- * that render it into CSS (`Main`'s margin-top, the explore grid's padding-top).
- * @returns Probe element carrying the offset.
- */
-function HeaderOffsetProbe(): JSX.Element {
-  const { dimensions } = useLayoutDimensions();
-  return <div data-header-offset={dimensions.header.height} />;
-}
-
 describe("SEEDED_HEADER_HEIGHT", () => {
-  // Asserted as a literal, not as the formula the constant already encodes.
-  // Its border half mirrors findable-ui CSS that is not imported
-  // (`header.styles.ts`) under a caret range, so a routine upgrade could change
-  // it while a formula-shaped assertion stayed green and every first paint was
-  // wrong. Failing here is the point: it forces a look.
+  // What this literal catches is `HEADER_HEIGHT` drift — a findable-ui bump
+  // that changes the toolbar height, which the formula assertion below cannot
+  // see because it recomputes from the same import. Failing here is the point:
+  // it forces a look at whether 57 is still the header at rest.
+  //
+  // What it does NOT catch, despite the obvious reading, is the border half.
+  // `APP_BAR_BORDER_WIDTH` is our own constant, so if upstream changed
+  // `border-bottom` to `2px` both assertions here would stay green while the
+  // real header measured 58 and every first paint was a pixel short. Nothing
+  // in this repo can catch that; the observer corrects it on the first report,
+  // so the cost is one wrong frame, not a wrong layout.
   it("seeds the header at 57px — the toolbar plus the AppBar's border", () => {
     expect(SEEDED_HEADER_HEIGHT).toEqual(57);
   });
 
   it("keeps the seed in step with upstream's HEADER_HEIGHT", () => {
-    // The toolbar half does track upstream, since it is imported. Independent
-    // of the literal above only in a two-step drift: someone hard-codes 57 here
-    // and upstream then bumps HEADER_HEIGHT.
+    // Independent of the literal above only in a two-step drift: someone
+    // hard-codes 57 here and upstream then bumps HEADER_HEIGHT.
     expect(SEEDED_HEADER_HEIGHT).toEqual(HEADER_HEIGHT + APP_BAR_BORDER_WIDTH);
   });
 });
@@ -142,17 +140,18 @@ describe("SeededLayoutDimensionsProvider", () => {
   });
 
   it("puts the header offset in the server-rendered markup", () => {
-    // The regression this PR exists to prevent (#1543), asserted end-to-end
-    // against the real upstream provider: on the server there is no
-    // ResizeObserver, so upstream reports 0 and only the seed can put a non-zero
-    // offset in the HTML.
+    // The regression this PR exists to prevent (#1543), asserted end to end
+    // over the production chain: the exported `LayoutDimensionsProvider` (so
+    // the nesting `_app` renders is the nesting under test — transposing the
+    // two providers fails here), findable-ui's real provider inside it, and
+    // findable-ui's `Main`, which is what turns the header height into
+    // `margin-top`. On the server there is no ResizeObserver, so upstream
+    // reports 0 and only the seed can put a non-zero offset in the HTML.
     const html = renderToString(
-      <UpstreamProvider>
-        <SeededLayoutDimensionsProvider>
-          <HeaderOffsetProbe />
-        </SeededLayoutDimensionsProvider>
-      </UpstreamProvider>,
+      <LayoutDimensionsProvider>
+        <Main>content</Main>
+      </LayoutDimensionsProvider>,
     );
-    expect(html).toContain(`data-header-offset="${SEEDED_HEADER_HEIGHT}"`);
+    expect(html).toContain(`offset="${SEEDED_HEADER_HEIGHT}"`);
   });
 });
