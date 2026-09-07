@@ -32,6 +32,17 @@ import { useEffect } from "react";
  * error on top of the dialog that an assistive-tech user never hears. The
  * inconsistency is the defect, not the attribute.
  *
+ * That premise holds while the toast sits in `document.body`, and stops holding
+ * while a dialog has claimed the container: `.MuiModal-root` is
+ * `position: fixed; z-index: 1300`, so it establishes a stacking context, and
+ * `zIndex.snackbar: 1400` is then scoped to that dialog rather than the page —
+ * a later modal, also 1300 but later in body order, paints over the toast. The
+ * design intent is the opposite (the toast above everything, outside any
+ * modal's portal, surviving the dialog's close), which is what #1569 settles by
+ * removing the claim. Latent until then for the same reason as #1568: both
+ * claiming dialogs contain only buttons, and it goes live on the first `Select`,
+ * `Menu`, `Popover`, `Autocomplete` or nested dialog.
+ *
  * An observer rather than an `aria-hidden={false}` prop: the attribute is set
  * imperatively after React has rendered, so React never re-asserts its own
  * value.
@@ -42,6 +53,16 @@ import { useEffect } from "react";
  * dialogs are incidentally fine. This exists for every other modal — file
  * download, publication status, source study, reprocessed status — which never
  * claims, leaving a pinned toast marked with nothing to clear it.
+ *
+ * Clearing `aria-hidden` is necessary but may not be sufficient, and the tests
+ * only prove the necessary half. The non-claiming dialogs this guard exists for
+ * also carry `aria-modal="true"`, which tells assistive tech to ignore content
+ * outside the dialog subtree — and the toast is outside it, precisely because it
+ * was not adopted. Whether a screen reader actually speaks a `role="alert"`
+ * raised outside an open `aria-modal` dialog varies by implementation, and every
+ * assertion here is at the DOM-attribute level (`not.toHaveAttribute`), so none
+ * of them settles it. Wants a real NVDA/VoiceOver pass; #1569 has to answer the
+ * same question for the stack, since that also lives outside the dialog.
  *
  * The callback is a microtask, so the attribute is set and then cleared rather
  * than never set. Immaterial to a screen reader, but it does mean a test has to

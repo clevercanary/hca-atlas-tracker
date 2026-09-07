@@ -43,7 +43,7 @@ export const CreateRevisionDialog = ({
       maxWidth="xs"
       onClose={onCancel}
       open={open}
-      PaperProps={{ ref: snackbarContainerRef }}
+      slotProps={{ paper: { ref: snackbarContainerRef } }}
     >
       <DialogTitle onClose={onCancel} title="Create New Version" />
       <DialogContent dividers>

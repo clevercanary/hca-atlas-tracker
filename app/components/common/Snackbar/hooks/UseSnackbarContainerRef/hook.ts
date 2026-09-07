@@ -9,6 +9,18 @@ import { useEffect, useState } from "react";
  * Returns a ref callback a dialog attaches to its Paper, so the error toast
  * renders inside the dialog while it is open.
  *
+ * A deliberate stopgap. The design intent is the opposite — the toast lives
+ * outside every modal's portal, paints above everything, and survives the
+ * dialog closing — and #1569 implements that when it replaces the single slot
+ * with a stack, answering its own open question ("which entries go inside the
+ * dialog") with none. This exists because the two a11y defects in #1563 are in
+ * `main` today and stacking does not address them, so #1567 lands first. Two
+ * known costs of the claim are recorded where they bite: the exit transition
+ * (see `SnackbarProvider`'s `onClose`) and the z-index stacking context (see
+ * `useAriaHiddenGuard`). Whatever replaces this still owes an answer on
+ * keyboard reach, since `FocusTrap` enforces by DOM containment and a toast
+ * outside the dialog cannot rely on it.
+ *
  * Why the toast has to move rather than sit in `document.body`: MUI's `Modal`
  * defaults `disableEnforceFocus` to false, and its `FocusTrap` enforces focus
  * by DOM *containment* — `contains(rootElement, activeElement)`, where the root
@@ -46,7 +58,7 @@ import { useEffect, useState } from "react";
  * `open` flips false hands it back before the fade starts.
  * @param open - Whether the dialog is open.
  * @param scope - Feature whose errors this dialog should adopt.
- * @returns ref callback for the dialog's `PaperProps`.
+ * @returns ref callback for the dialog's `slotProps.paper`.
  */
 export const useSnackbarContainerRef = (
   open: boolean,

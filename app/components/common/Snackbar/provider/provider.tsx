@@ -50,6 +50,17 @@ export function SnackbarProvider({
     // can't act on a stale value, but the next consumer has no such guarantee.
     // Safe for the scoped close above too: once closed, a later scoped call
     // finds no match and no-ops on something already shut.
+    //
+    // Known limitation while a dialog has claimed the container: clearing
+    // `scope` here fails `useSnackbarContainerRef`'s gate in the same commit,
+    // so the release, the portal change and the unmount all land together and
+    // the toast disappears without its exit fade. Dismissing it by its own
+    // close button also destroys the focused element, so `FocusTrap` returns
+    // focus to the dialog container and the user's Tab position resets to the
+    // top of the dialog. Holding the claim across the exit would need `scope`
+    // to outlive the close, which contradicts what it is exposed to mean.
+    // Not worked around, because #1569 moves the toast out of the dialog for
+    // good and the claim goes with it.
     openedScopeRef.current = undefined;
     setScope(undefined);
   }, []);

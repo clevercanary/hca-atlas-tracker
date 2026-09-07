@@ -201,6 +201,13 @@ describe("ErrorSnackbar accessibility", () => {
     openDialog();
     openError();
     expect(toastRoot()).not.toHaveAttribute("aria-hidden");
+    // Containment is asserted here too, not only in the error-then-dialog test
+    // below: this is the ordering production actually hits (open the dialog,
+    // click Publish, the request fails), so a regression that broke the claim
+    // only when the toast opens second would otherwise pass the whole suite.
+    expect(
+      document.querySelector(".MuiDialog-paper")?.contains(toastRoot()),
+    ).toBe(true);
   });
 
   it("renders the toast inside the dialog, so it is within the focus trap", () => {

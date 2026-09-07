@@ -44,7 +44,7 @@ export const PublishDialog = ({
       maxWidth="xs"
       onClose={onCancel}
       open={open}
-      PaperProps={{ ref: snackbarContainerRef }}
+      slotProps={{ paper: { ref: snackbarContainerRef } }}
     >
       <DialogTitle onClose={onCancel} title="Publish Atlas" />
       <DialogContent dividers>
