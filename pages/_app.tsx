@@ -3,7 +3,7 @@ import { AppHeader } from "@/app/components/Layout/components/Header/appHeader";
 import { config } from "@/app/config/config";
 import { useLogoutCallbackUrl } from "@/app/hooks/UseLogoutCallbackUrl/hook";
 import { AuthorizationProvider } from "@/app/providers/authorization";
-import { LayoutDimensionsProvider } from "@/app/providers/layoutDimensions/provider";
+import { SeededLayoutDimensionsProvider } from "@/app/providers/layoutDimensions/provider";
 import { makeQueryClient } from "@/app/query/queryClient";
 import { ROUTE } from "@/app/routes/constants";
 import { mergeAppTheme } from "@/app/theme/theme";
@@ -24,6 +24,7 @@ import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout
 import { NextAuthAuthenticationProvider } from "@databiosphere/findable-ui/lib/nextauth/provider";
 import { ConfigProvider as DXConfigProvider } from "@databiosphere/findable-ui/lib/providers/config";
 import { ExploreStateProvider } from "@databiosphere/findable-ui/lib/providers/exploreState";
+import { LayoutDimensionsProvider } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/provider";
 import { ServicesProvider } from "@databiosphere/findable-ui/lib/providers/services/provider";
 import { SystemStatusProvider } from "@databiosphere/findable-ui/lib/providers/systemStatus";
 import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
@@ -87,52 +88,58 @@ function MyApp(props: AppPropsWithComponent): JSX.Element {
                     refetchInterval={SESSION_REFETCH_INTERVAL}
                   >
                     <LayoutDimensionsProvider>
-                      {/* SnackbarProvider wraps the whole layout (not just the
-                      page) so header/footer consumers are covered and an open
-                      snackbar survives a page render error. */}
-                      <SnackbarProvider>
-                        <AppLayout>
-                          <ThemeProvider
-                            theme={(theme: Theme): Theme =>
-                              createTheme(
-                                deepmerge(theme, {
-                                  breakpoints: createBreakpoints(BREAKPOINTS),
-                                }),
-                              )
-                            }
-                          >
-                            <AppHeader header={header} />
-                          </ThemeProvider>
-                          <ExploreStateProvider entityListType={entityListType}>
-                            <AuthorizationProvider>
-                              <Main>
-                                <ErrorBoundary
-                                  fallbackRender={({
-                                    error,
-                                    reset,
-                                  }: {
-                                    error: DataExplorerError;
-                                    reset: () => void;
-                                  }): JSX.Element => (
-                                    <Error
-                                      errorMessage={error.message}
-                                      onReset={reset}
-                                      requestUrlMessage={
-                                        error.requestUrlMessage
-                                      }
-                                      rootPath={ROUTE.ATLASES}
-                                    />
-                                  )}
-                                >
-                                  <Component {...pageProps} />
-                                  <Floating {...floating} />
-                                </ErrorBoundary>
-                              </Main>
-                            </AuthorizationProvider>
-                          </ExploreStateProvider>
-                          <Footer {...footer} />
-                        </AppLayout>
-                      </SnackbarProvider>
+                      {/* Seeds the header height inside upstream's provider so
+                      the offset ships with the server-rendered HTML (#1543). */}
+                      <SeededLayoutDimensionsProvider>
+                        {/* SnackbarProvider wraps the whole layout (not just
+                        the page) so header/footer consumers are covered and an
+                        open snackbar survives a page render error. */}
+                        <SnackbarProvider>
+                          <AppLayout>
+                            <ThemeProvider
+                              theme={(theme: Theme): Theme =>
+                                createTheme(
+                                  deepmerge(theme, {
+                                    breakpoints: createBreakpoints(BREAKPOINTS),
+                                  }),
+                                )
+                              }
+                            >
+                              <AppHeader header={header} />
+                            </ThemeProvider>
+                            <ExploreStateProvider
+                              entityListType={entityListType}
+                            >
+                              <AuthorizationProvider>
+                                <Main>
+                                  <ErrorBoundary
+                                    fallbackRender={({
+                                      error,
+                                      reset,
+                                    }: {
+                                      error: DataExplorerError;
+                                      reset: () => void;
+                                    }): JSX.Element => (
+                                      <Error
+                                        errorMessage={error.message}
+                                        onReset={reset}
+                                        requestUrlMessage={
+                                          error.requestUrlMessage
+                                        }
+                                        rootPath={ROUTE.ATLASES}
+                                      />
+                                    )}
+                                  >
+                                    <Component {...pageProps} />
+                                    <Floating {...floating} />
+                                  </ErrorBoundary>
+                                </Main>
+                              </AuthorizationProvider>
+                            </ExploreStateProvider>
+                            <Footer {...footer} />
+                          </AppLayout>
+                        </SnackbarProvider>
+                      </SeededLayoutDimensionsProvider>
                     </LayoutDimensionsProvider>
                   </NextAuthAuthenticationProvider>
                 </SystemStatusProvider>
