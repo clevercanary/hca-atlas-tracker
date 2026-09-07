@@ -3,7 +3,21 @@ import {
   useSnackbarState,
 } from "@/app/components/common/Snackbar/provider/hook";
 import { type SnackbarScope } from "@/app/components/common/Snackbar/types";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
+
+/**
+ * `useLayoutEffect` on the client, `useEffect` on the server.
+ *
+ * React warns that `useLayoutEffect` does nothing during SSR, which is noise
+ * here: these dialogs are server-rendered with `open={false}`, so the effect
+ * bails before touching the DOM either way. The standard isomorphic shim.
+ *
+ * MUI ships the same thing as `unstable_useEnhancedEffect`, but this repo has
+ * no other `unstable_` imports and this file is deleted by #1569, so a local
+ * two-line definition beats taking on that API surface.
+ */
+const useIsomorphicLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 /**
  * Returns a ref callback a dialog attaches to its Paper, so the error toast
@@ -29,6 +43,13 @@ import { useEffect, useState } from "react";
  * close button until they Escape out of the dialog, and the toast deliberately
  * has no `autoHideDuration`. Rendering it inside the dialog's subtree puts it
  * inside the trap, so it is reachable by Tab.
+ *
+ * Where in the cycle: the Portal appends the Snackbar as the Paper's last
+ * child, every focusable in the dialog is `tabindex="0"` and nothing carries a
+ * positive tabindex, so sequential navigation follows document order — Cancel,
+ * then the confirm button, then "Close error message". The error's dismiss
+ * control therefore lands *after* the irreversible action it is warning about:
+ * reachable, but arguably the wrong end of the cycle.
  *
  * The Paper is the claim target rather than the modal root because the trap's
  * root is the dialog *container*, so only its descendants are contained. The
@@ -80,7 +101,19 @@ export const useSnackbarContainerRef = (
   // Paper mounts. A ref assignment wouldn't re-render to trigger it.
   const [node, setNode] = useState<HTMLElement | null>(null);
 
-  useEffect(() => {
+  // A layout effect, not a passive one, so the claim lands in the same commit
+  // as the Paper mounting rather than after the browser has painted. With
+  // `useEffect` the toast is committed *and painted* into `document.body`
+  // first, so its grow-in visibly starts, is torn down mid-animation by the
+  // re-parent, and restarts inside the dialog — on the primary flow (open the
+  // dialog, the request fails), not an edge case. This does not remove the
+  // remount itself: the `role="alert"` node is still recreated, so the
+  // re-announcement stands until #1569 stops the re-parenting altogether.
+  //
+  // `useIsomorphicLayoutEffect` rather than `useLayoutEffect` directly, since
+  // the latter warns during SSR and these dialogs are server-rendered with
+  // `open={false}`.
+  useIsomorphicLayoutEffect(() => {
     if (!open || !node) return;
     if (!toastOpen || toastScope !== scope) return;
     claimContainer(node);

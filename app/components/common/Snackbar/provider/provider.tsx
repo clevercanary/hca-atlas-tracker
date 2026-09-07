@@ -9,7 +9,10 @@ import { type SnackbarProviderProps } from "./types";
  * fixed-position, so mount location is irrelevant). Mounted once in `_app`,
  * so every page has snackbar access without opting in.
  * Actions and state are exposed via separate contexts so opening/closing the
- * snackbar re-renders only the snackbar, not action subscribers.
+ * snackbar does not re-render action subscribers — the mutation hooks that only
+ * ever call `onOpen`/`onClose`. It no longer re-renders *only* the snackbar:
+ * `useSnackbarContainerRef` puts the two claiming dialogs on the state context
+ * as well (see `useSnackbarState`).
  * `onOpen` records the scope that opened the message; passing that scope to
  * `onClose` closes the snackbar only if that scope's message is still the one
  * showing, so a feature dismissing its own stale error can't dismiss an unread

@@ -58,30 +58,28 @@ export const ErrorSnackbar = (): JSX.Element => {
       <StyledSnackbar
         anchorOrigin={SNACKBAR_PROPS.ORIGIN.TOP_RIGHT}
         ref={setSnackbarNode}
-        // No `transitionDuration` and, above all, no `appear: false`.
+        // No transition props, deliberately. Two look like they would stop the
+        // remount replay described below; neither does, and one is harmful.
         //
-        // `appear: false` was tried and is a real regression: `Snackbar`
-        // renders nothing while `!open && exited`, so every open is an
-        // *appear*; `appear: false` starts the transition at `ENTERED`, so
-        // `onEnter` never fires, `exited` never flips to false, and on close
-        // `!open && exited` is immediately true — the node is dropped
-        // synchronously and the exit fade is lost, on every toast on every
-        // page. Pinned by "keeps the toast mounted through its exit
-        // transition".
+        // `slotProps={{ transition: { appear: false } }}` breaks the *exit*:
+        // `Snackbar` renders nothing while `!open && exited`, so every open is
+        // an appear; starting at `ENTERED` means `onEnter` never fires,
+        // `exited` never flips, and on close `!open && exited` is immediately
+        // true — the node is dropped synchronously and the fade is lost, on
+        // every toast on every page. Pinned by "keeps the toast mounted through
+        // its exit transition".
         //
-        // It was replaced with `transitionDuration={{ appear: 0, … }}`, which
-        // does not work either and has now been dropped: MUI's `Grow` computes
-        // the CSS duration through `getTransitionProps(…, { mode: "enter" })`
-        // with `mode` hard-coded, so `timeout.appear` never reaches the
-        // animation — only react-transition-group's status timer reads it. The
-        // remaining keys were identical to `Snackbar`'s own defaults
-        // (`enteringScreen` / `leavingScreen`), so the whole prop was inert.
+        // `transitionDuration={{ appear: 0, … }}` does nothing: `Grow` computes
+        // its CSS duration through `getTransitionProps(…, { mode: "enter" })`
+        // with `mode` hard-coded, so `timeout.appear` reaches only
+        // react-transition-group's status timer. The other keys are
+        // `Snackbar`'s own defaults anyway.
         //
-        // The consequence, unfixed: changing the portal container remounts this
-        // subtree, so every claim and release replays the grow-in over ~225ms,
-        // and recreates the `role="alert"` node so the message is re-announced.
-        // Suppressing that needs the remount not to happen, which is what
-        // #1569 does by taking the toast out of the dialog for good.
+        // So the replay stands: changing the portal container remounts this
+        // subtree, replaying the grow-in and recreating the `role="alert"` node
+        // so the message is announced again. `useSnackbarContainerRef` claims
+        // in a layout effect so the intermediate mount is not painted, but the
+        // remount itself only stops when the re-parenting does — #1569.
         action={
           <IconButton
             aria-label="Close error message"
