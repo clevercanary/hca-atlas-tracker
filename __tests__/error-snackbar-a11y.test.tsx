@@ -345,4 +345,25 @@ describe("ErrorSnackbar accessibility", () => {
 
     expect(screen.getByTestId("scope")).toHaveTextContent("none");
   });
+  it("keeps the toast mounted through its exit transition", () => {
+    // Regression guard for the `appear: false` defect (#1563 review). That prop
+    // stops `onEnter` firing, so MUI's `exited` never flips to false; on close
+    // `!open && exited` is immediately true and `Snackbar` returns null in the
+    // same commit, dropping the node with no fade — on every toast on every
+    // page, dialog or no dialog. A still-mounted root one commit after close is
+    // what distinguishes a transition from a synchronous removal.
+    render(
+      <SnackbarProvider>
+        <Opener />
+      </SnackbarProvider>,
+    );
+    openError();
+    expect(toastRoot()).not.toBeNull();
+
+    act(() => {
+      screen.getByLabelText("Close error message").click();
+    });
+
+    expect(document.querySelector(".MuiSnackbar-root")).not.toBeNull();
+  });
 });

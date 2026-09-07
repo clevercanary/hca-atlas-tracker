@@ -7,7 +7,7 @@ import {
 import { ICON_BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/iconButton";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { CloseRounded } from "@mui/icons-material";
-import { IconButton, Portal, useTheme } from "@mui/material";
+import { IconButton, Portal } from "@mui/material";
 import { type JSX, useState } from "react";
 import { StyledSnackbar } from "./errorSnackbar.styles";
 
@@ -44,7 +44,6 @@ import { StyledSnackbar } from "./errorSnackbar.styles";
  * @returns error snackbar component.
  */
 export const ErrorSnackbar = (): JSX.Element => {
-  const theme = useTheme();
   const { onClose } = useSnackbar();
   const { container, message, open } = useSnackbarState();
   // State via a callback ref, not `useRef`: the toast is remounted into a fresh
@@ -59,28 +58,30 @@ export const ErrorSnackbar = (): JSX.Element => {
       <StyledSnackbar
         anchorOrigin={SNACKBAR_PROPS.ORIGIN.TOP_RIGHT}
         ref={setSnackbarNode}
-        // Zero-length *appear*, full-length enter and exit. Changing the
-        // portal container remounts this subtree, so every claim and release
-        // would replay MUI's `Grow` — the toast popping out and growing back in
-        // on each dialog open and close.
+        // No `transitionDuration` and, above all, no `appear: false`.
         //
-        // Suppressed by duration rather than `appear: false`, which looks
-        // equivalent and is not: `Snackbar` renders nothing while
-        // `!open && exited`, so every open is an *appear*, and `appear: false`
-        // starts the transition at `ENTERED` so `onEnter` never fires and
-        // `exited` never flips. On close `!open && exited` is then immediately
-        // true and the node is dropped synchronously, losing the exit fade on
-        // every toast on every page. A zero duration still runs the transition.
+        // `appear: false` was tried and is a real regression: `Snackbar`
+        // renders nothing while `!open && exited`, so every open is an
+        // *appear*; `appear: false` starts the transition at `ENTERED`, so
+        // `onEnter` never fires, `exited` never flips to false, and on close
+        // `!open && exited` is immediately true — the node is dropped
+        // synchronously and the exit fade is lost, on every toast on every
+        // page. Pinned by "keeps the toast mounted through its exit
+        // transition".
         //
-        // Two knock-ons: a toast's first appearance is instant, and the remount
-        // still recreates the `role="alert"` node, so a claim or release
-        // re-announces regardless of the transition. Both go away with the
-        // claim itself (#1569).
-        transitionDuration={{
-          appear: 0,
-          enter: theme.transitions.duration.enteringScreen,
-          exit: theme.transitions.duration.leavingScreen,
-        }}
+        // It was replaced with `transitionDuration={{ appear: 0, … }}`, which
+        // does not work either and has now been dropped: MUI's `Grow` computes
+        // the CSS duration through `getTransitionProps(…, { mode: "enter" })`
+        // with `mode` hard-coded, so `timeout.appear` never reaches the
+        // animation — only react-transition-group's status timer reads it. The
+        // remaining keys were identical to `Snackbar`'s own defaults
+        // (`enteringScreen` / `leavingScreen`), so the whole prop was inert.
+        //
+        // The consequence, unfixed: changing the portal container remounts this
+        // subtree, so every claim and release replays the grow-in over ~225ms,
+        // and recreates the `role="alert"` node so the message is re-announced.
+        // Suppressing that needs the remount not to happen, which is what
+        // #1569 does by taking the toast out of the dialog for good.
         action={
           <IconButton
             aria-label="Close error message"

@@ -46,8 +46,18 @@ import { useEffect, useState } from "react";
  * — gating on `open` alone still absorbs a foreign error, since that is exactly
  * the case where a toast *is* showing.
  *
- * Scope is the granularity available today. It cannot tell two concurrent
- * operations of the same feature apart, which is what #1564 is about.
+ * Scope is the granularity available today, and it is coarser than the check
+ * really wants in two ways. It cannot tell two concurrent operations of the
+ * same feature apart, which is what #1564 is about. And it carries no entity
+ * identity, so a *stale* error from another atlas is still adopted: publish
+ * fails on atlas A, the user leaves it pinned, navigates to atlas B and opens
+ * B's Publish dialog — `toastScope` is still `PUBLISH_ATLAS`, so this claims
+ * it, re-parents A's failure into B's `aria-modal="true"` confirmation and
+ * re-announces it against the irreversible action B is asking about. That is
+ * the same defect this gate closes for foreign scopes, surviving for the same
+ * scope across entities, and it is deliberately not covered by #1564, which is
+ * framed around concurrent operations rather than a navigation. Closing it
+ * needs per-message identity rather than a per-feature constant.
  *
  * Keyed on the dialog's `open` rather than on the Paper unmounting, even though
  * the ref callback alone would be simpler. MUI keeps the Paper mounted through the
