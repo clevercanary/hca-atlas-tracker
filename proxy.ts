@@ -38,8 +38,13 @@ import { ROUTE } from "./app/routes/constants";
 //
 // `ROUTE.LANDING` rather than a literal so this agrees with the other places a
 // user is sent to the app root — the config's `redirectRootToPath` (and so
-// findable-ui's idle-timer destination), `useLogoutCallbackUrl`, and
-// `UseSessionEndRedirect`. All four name the one constant.
+// findable-ui's idle-timer destination), `useLogoutCallbackUrl`,
+// `UseSessionEndRedirect`, and NextAuth's own `pages.signIn` in
+// `next-auth-config.ts`. All five name the one constant.
+//
+// This one and `pages.signIn` are set separately — middleware versus NextAuth's
+// own handler — and look identical, which is why the second was missed when the
+// first was fixed. Changing one is not changing both.
 export default withAuth({
   callbacks: {
     authorized: ({ req, token }) =>

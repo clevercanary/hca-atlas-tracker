@@ -1,3 +1,4 @@
+import { ROUTE } from "@/app/routes/constants";
 import { getUserRoleByEmail, registerUser } from "@/app/services/users";
 import { type NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
@@ -73,8 +74,13 @@ export const nextAuthOptions: NextAuthOptions = {
     },
   },
   debug: false,
+  // `ROUTE.LANDING` rather than a literal, for the same reason `proxy.ts` names
+  // it: this is where `signIn()` without a provider and the default error
+  // redirect land, so it has to move with every other app-root destination.
+  // It is NextAuth's own handler rather than the middleware, which is why the
+  // two are set separately and why this one was missed first time round.
   pages: {
-    signIn: "/",
+    signIn: ROUTE.LANDING,
   },
   providers: [
     GoogleProvider({

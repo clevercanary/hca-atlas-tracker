@@ -55,8 +55,6 @@ import {
 import { ROUTE } from "@/app/routes/constants";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { AUTH_STATUS } from "@databiosphere/findable-ui/lib/auth/types/auth";
-import { setConfig } from "@databiosphere/findable-ui/lib/config/config";
-import { type SiteConfig } from "@databiosphere/findable-ui/lib/config/entities";
 import { useSessionCallbackUrl } from "@databiosphere/findable-ui/lib/hooks/authentication/session/useSessionCallbackUrl";
 import { INACTIVITY_PARAM } from "@databiosphere/findable-ui/lib/hooks/authentication/session/useSessionTimeout";
 import { useConfig } from "@databiosphere/findable-ui/lib/hooks/useConfig";
@@ -131,7 +129,10 @@ async function flushConfirm(): Promise<void> {
  * `redirectRootToPath` is a parameter even though this app's code no longer
  * reads it — the hook still does, and the drift test's job is to prove that
  * naming `ROUTE.LANDING` directly lands where the hook's config lookup does.
- * Cast to the full types so TypeScript accepts these partials as mocks.
+ * Note this *supplies* that value rather than reading the real config, so no
+ * test here observes what the config actually says; `session-end-destination`
+ * is what holds the config to the constant. Cast to the full types so
+ * TypeScript accepts these partials as mocks.
  * @param basePath - Next.js `basePath`.
  * @param redirectRootToPath - Configured app root, as the hook sees it.
  * @returns void.
@@ -139,15 +140,15 @@ async function flushConfirm(): Promise<void> {
 function setRoot(basePath: string, redirectRootToPath: string): void {
   Router.router = { basePath } as NonNullable<typeof Router.router>;
   mockUseRouter.mockReturnValue({ basePath } as ReturnType<typeof useRouter>);
-  const config = { redirectRootToPath } as SiteConfig;
-  setConfig(config);
-  mockUseConfig.mockReturnValue({ config } as ReturnType<typeof useConfig>);
+  mockUseConfig.mockReturnValue({
+    config: { redirectRootToPath },
+  } as ReturnType<typeof useConfig>);
 }
 
-// `setConfig` writes a module global inside findable-ui and `Router.router` is
-// a singleton; neither is reset between tests by Jest config or `testing/setup`.
-// Pin both to the shipped defaults so no test inherits state left by an earlier
-// one.
+// `Router.router` is a singleton and is not reset between tests by Jest config
+// or `testing/setup` — the "stays total" test below nulls it outright. Pin it,
+// and the `useRouter`/`useConfig` mocks, to the shipped defaults so no test
+// inherits state left by an earlier one.
 beforeEach(() => {
   setRoot("", ROUTE.LANDING);
 });
@@ -187,6 +188,14 @@ describe("isStrandedOnProtectedPath", () => {
     // `PUBLIC_PATHS` already contains. This pins that invariant — point the
     // destination somewhere non-public and the hook would re-fire on arrival
     // and spend every attempt on full document loads.
+    //
+    // Deliberately not parameterized over `basePath` like its neighbours: this
+    // feeds a document URL (`getSessionEndUrl`, basePath included) into an
+    // argument production supplies from `useCurrentPath` → `asPath`, which Next
+    // strips basePath from. The two representations agree only while
+    // `next.config.mjs` sets `basePath: ""`; add one here and this fails on
+    // units rather than on the invariant. Not a production bug — the real call
+    // site passes `asPath` and `PUBLIC_PATHS` is keyed the same way.
     expect(
       isStrandedOnProtectedPath(
         AUTH_STATUS.SETTLED,
@@ -350,11 +359,19 @@ describe("getSessionRootUrl", () => {
   it.each([[""], ["/tracker"]])(
     "agrees with useSessionCallbackUrl for basePath %p",
     (basePath) => {
-      // The drift guard for issue #1557. findable-ui's idle timer sends a
-      // session end to `useSessionCallbackUrl()`, built from `basePath` plus
-      // the config's `redirectRootToPath`; we name `ROUTE.LANDING`, which is
-      // what that config is set to. This proves the two land in the same place,
-      // so a change to either side fails here rather than silently diverging.
+      // Half of the drift guard for issue #1557. findable-ui's idle timer sends
+      // a session end to `useSessionCallbackUrl()`, built from `basePath` plus
+      // the config's `redirectRootToPath`; we name `ROUTE.LANDING`.
+      //
+      // What this pins is the *composition* — basePath prefixing,
+      // `URLSearchParams`, ordering — matching the hook's, for a
+      // `redirectRootToPath` the test supplies. It does NOT observe the real
+      // config: `setRoot` feeds that value in, so pointing
+      // `config.redirectRootToPath` at `"/home"` leaves every test in this file
+      // green. Holding the config to the constant is
+      // `session-end-destination`'s job, and the guard is only sound as the two
+      // together.
+      //
       // The hook returns an absolute href, so compare as one.
       setRoot(basePath, ROUTE.LANDING);
       window.sessionStorage.setItem(SESSION_SEEN_KEY, "true");

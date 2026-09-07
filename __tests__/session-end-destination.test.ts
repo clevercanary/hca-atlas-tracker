@@ -13,13 +13,20 @@ import config from "@/site-config/hca-atlas-tracker/local/config";
  * have to agree.
  *
  * `app/hooks/UseSessionEndRedirect` (passive expiry), `useLogoutCallbackUrl`
- * (deliberate logout) and `proxy.ts` (`pages.signIn`) all name `ROUTE.LANDING`
- * directly, so they move together by construction and need no test. The one
- * that cannot is findable-ui's 1-hour idle timer: it builds its destination
- * from the config's `redirectRootToPath` inside `useSessionCallbackUrl`, code
- * this repo does not own. These tests hold that config value to the same
- * constant, so pointing it elsewhere fails loudly instead of silently splitting
- * the idle-timer path from every other one.
+ * (deliberate logout), `proxy.ts` (`pages.signIn`) and NextAuth's own
+ * `pages.signIn` in `next-auth-config.ts` all name `ROUTE.LANDING` directly, so
+ * they move together by construction and need no test. The one that cannot is
+ * findable-ui's 1-hour idle timer: it builds its destination from the config's
+ * `redirectRootToPath` inside `useSessionCallbackUrl`, code this repo does not
+ * own. These tests hold that config value to the same constant, so pointing it
+ * elsewhere fails loudly instead of silently splitting the idle-timer path from
+ * every other one.
+ *
+ * This is the only place that reads the real config. `session-end-redirect`'s
+ * comparison against `useSessionCallbackUrl` supplies `redirectRootToPath`
+ * itself, so it pins the composition rather than the configured value — point
+ * `config.redirectRootToPath` at `"/home"` and every test there stays green
+ * while the one below fails. Neither half guards #1557 alone.
  *
  * `dev` and `prod` both build from `local`'s `makeConfig`, so asserting against
  * `local` covers all three environments.
