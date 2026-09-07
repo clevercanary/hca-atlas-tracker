@@ -1,0 +1,21 @@
+# Keeps the pinned Node base image in Dockerfile.node current.
+#
+# The base image is pinned to an exact version (node:22.13.0) to remove the
+# unpinned `n` installer (#1063). An exact pin does not passively pick up newer
+# Node patch releases or OS-security rebuilds, so Dependabot opens a PR when a
+# newer image is published — keeping updates deliberate and reviewable rather
+# than silent (a floating tag) or never (a manual-only pin).
+#
+# Dependabot's docker ecosystem detects any file whose name contains
+# "dockerfile" (case-insensitive), so the non-standard `Dockerfile.node` name is
+# picked up at the repo root.
+version: 2
+updates:
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "build"
+    labels:
+      - "dependencies"
