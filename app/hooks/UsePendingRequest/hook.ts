@@ -13,7 +13,9 @@ import { type UsePendingRequest } from "./types";
  * subtree per request.
  *
  * `isRequesting` is reset on every outcome, so a control disabled on it cannot
- * stick.
+ * stick. In a `finally`, because the wrapped function is any `RequestFn`: the
+ * ones here bottom out in `performRequest`, which never rejects, but a wrapper
+ * that did would otherwise leave the control disabled for good.
  * @param onRequest - Request function to wrap.
  * @returns the wrapped request function and its in-flight flag.
  */
@@ -23,9 +25,11 @@ export const usePendingRequest = (onRequest: RequestFn): UsePendingRequest => {
   const onPendingRequest = useCallback<RequestFn>(
     async (requestURL, method, payload, options) => {
       setIsRequesting(true);
-      const success = await onRequest(requestURL, method, payload, options);
-      setIsRequesting(false);
-      return success;
+      try {
+        return await onRequest(requestURL, method, payload, options);
+      } finally {
+        setIsRequesting(false);
+      }
     },
     [onRequest],
   );
