@@ -1,11 +1,29 @@
-import { type SnackbarScope } from "@/app/components/common/Snackbar/types";
 import { type ReactNode } from "react";
 
 export interface SnackbarActionsContextProps {
-  claimContainer: (node: HTMLElement) => void;
-  onClose: (scope?: SnackbarScope) => void;
-  onOpen: (message: string, scope: SnackbarScope) => void;
-  releaseContainer: (node: HTMLElement) => void;
+  onClose: (id: SnackbarEntry["id"]) => void;
+  onDismissOperation: (operationKey: SnackbarEntry["operationKey"]) => void;
+  onExited: (id: SnackbarEntry["id"]) => void;
+  onOpen: (
+    message: string,
+    operationKey: SnackbarEntry["operationKey"],
+  ) => void;
+}
+
+/**
+ * One error on the app-level stack.
+ *
+ * `operationKey` is the request that raised it; that same operation succeeding
+ * is the only thing besides the close button that dismisses the entry.
+ *
+ * `open` is separate from membership in the list because a dismissed entry has
+ * to stay mounted for its exit transition. `onExited` removes it.
+ */
+export interface SnackbarEntry {
+  id: string;
+  message: string;
+  open: boolean;
+  operationKey: string;
 }
 
 export interface SnackbarProviderProps {
@@ -13,8 +31,5 @@ export interface SnackbarProviderProps {
 }
 
 export interface SnackbarStateContextProps {
-  container: HTMLElement | null;
-  message: string;
-  open: boolean;
-  scope: SnackbarScope | undefined;
+  entries: SnackbarEntry[];
 }

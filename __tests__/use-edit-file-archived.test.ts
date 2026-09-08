@@ -9,7 +9,6 @@ jest.mock("@/app/common/utils", () => ({
 
 import { METHOD } from "@/app/common/entities";
 import { fetchResource } from "@/app/common/utils";
-import { SNACKBAR_SCOPE } from "@/app/components/common/Snackbar/types";
 import {
   type OnSubmitFn,
   type OnSubmitOptions,
@@ -20,6 +19,7 @@ import {
   renderHookWithSnackbar,
   type SnackbarActionsContextProps,
   type SnackbarHookResult,
+  snackbarMessages,
   type SnackbarStateContextProps,
   useSnackbarContexts,
   withSnackbarProvider,
@@ -98,7 +98,7 @@ function renderRemountHarness(): RemountHarness {
   return {
     openForeignError: (message: string): void => {
       act(() => {
-        snackbarActions?.onOpen(message, SNACKBAR_SCOPE.DELETE_SOURCE_STUDY);
+        snackbarActions?.onOpen(message, TEST_FOREIGN_OPERATION);
       });
     },
     remountConsumer: async (): Promise<void> => {
@@ -115,6 +115,9 @@ function renderRemountHarness(): RemountHarness {
       ),
   };
 }
+
+// Stands in for an unrelated feature's operation key.
+const TEST_FOREIGN_OPERATION = "delete-source-study:other-study";
 
 describe("useEditFileArchived", () => {
   let onSuccess: jest.Mock;
@@ -144,8 +147,9 @@ describe("useEditFileArchived", () => {
 
     const { result } = renderHookWithSnackbar(useEditFileArchived);
     await expect(submit(result)).resolves.toBe(false);
-    expect(result.current.snackbar.open).toBe(true);
-    expect(result.current.snackbar.message).toBe("fileIds is invalid");
+    expect(snackbarMessages(result.current.snackbar)).toEqual([
+      "fileIds is invalid",
+    ]);
   });
 
   it("opens the error snackbar by default on a network-level error", async () => {
@@ -153,8 +157,9 @@ describe("useEditFileArchived", () => {
 
     const { result } = renderHookWithSnackbar(useEditFileArchived);
     await expect(submit(result)).resolves.toBe(false);
-    expect(result.current.snackbar.open).toBe(true);
-    expect(result.current.snackbar.message).toBe("Failed to fetch");
+    expect(snackbarMessages(result.current.snackbar)).toEqual([
+      "Failed to fetch",
+    ]);
   });
 
   it("falls back to the status code when the error body is unparseable", async () => {
@@ -162,18 +167,20 @@ describe("useEditFileArchived", () => {
 
     const { result } = renderHookWithSnackbar(useEditFileArchived);
     await expect(submit(result)).resolves.toBe(false);
-    expect(result.current.snackbar.message).toBe("Received 500 response");
+    expect(snackbarMessages(result.current.snackbar)).toEqual([
+      "Received 500 response",
+    ]);
   });
 
   it("dismisses a stale error from a previous attempt on success", async () => {
     mockFetchResource.mockResolvedValue(createMockResponse(500));
     const { result } = renderHookWithSnackbar(useEditFileArchived);
     await submit(result);
-    expect(result.current.snackbar.open).toBe(true);
+    expect(snackbarMessages(result.current.snackbar)).toHaveLength(1);
 
     mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
     await expect(submit(result, { onSuccess })).resolves.toBe(true);
-    expect(result.current.snackbar.open).toBe(false);
+    expect(snackbarMessages(result.current.snackbar)).toEqual([]);
     expect(onSuccess).toHaveBeenCalledTimes(1);
   });
 
@@ -185,33 +192,37 @@ describe("useEditFileArchived", () => {
     act(() => {
       result.current.snackbarActions.onOpen(
         "Forbidden for this atlas",
-        SNACKBAR_SCOPE.DELETE_SOURCE_STUDY,
+        TEST_FOREIGN_OPERATION,
       );
     });
 
     await expect(submit(result, { onSuccess })).resolves.toBe(true);
-    expect(result.current.snackbar.open).toBe(true);
-    expect(result.current.snackbar.message).toBe("Forbidden for this atlas");
+    expect(snackbarMessages(result.current.snackbar)).toEqual([
+      "Forbidden for this atlas",
+    ]);
   });
 
-  it("does not dismiss this hook's stale error once another feature's error replaces it", async () => {
+  it("dismisses only its own stale error when another feature's is also on the stack", async () => {
     mockFetchResource.mockResolvedValue(createMockResponse(500));
     const { result } = renderHookWithSnackbar(useEditFileArchived);
     await submit(result);
-    expect(result.current.snackbar.open).toBe(true);
+    expect(snackbarMessages(result.current.snackbar)).toHaveLength(1);
 
-    // Another feature's error replaces this hook's before the retry succeeds.
+    // Another feature raises an error alongside this hook's, before the retry
+    // succeeds. Under the single slot it *replaced* this hook's; on the stack
+    // both are present, and only this hook's is cleared.
     act(() => {
       result.current.snackbarActions.onOpen(
         "Unrelated error",
-        SNACKBAR_SCOPE.DELETE_SOURCE_STUDY,
+        TEST_FOREIGN_OPERATION,
       );
     });
 
     mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
     await expect(submit(result)).resolves.toBe(true);
-    expect(result.current.snackbar.open).toBe(true);
-    expect(result.current.snackbar.message).toBe("Unrelated error");
+    expect(snackbarMessages(result.current.snackbar)).toEqual([
+      "Unrelated error",
+    ]);
   });
 
   it("dismisses this feature's stale error after the hook remounts on another page", async () => {
@@ -222,16 +233,16 @@ describe("useEditFileArchived", () => {
       createMockResponse(403, { message: "Forbidden for this atlas" }),
     );
     await expect(harness.submit()).resolves.toBe(false);
-    expect(harness.snackbar().open).toBe(true);
+    expect(snackbarMessages(harness.snackbar())).toHaveLength(1);
 
-    // Navigating unmounts the hook; the app-level provider keeps the message.
+    // Navigating unmounts the hook; the app-level provider keeps the entry.
     await harness.remountConsumer();
-    expect(harness.snackbar().open).toBe(true);
+    expect(snackbarMessages(harness.snackbar())).toHaveLength(1);
 
-    // A success from the fresh instance still owns the message, so it clears.
+    // A success from the fresh instance still owns the entry, so it clears.
     mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
     await expect(harness.submit()).resolves.toBe(true);
-    expect(harness.snackbar().open).toBe(false);
+    expect(snackbarMessages(harness.snackbar())).toEqual([]);
   });
 
   it("still leaves another feature's error alone after the hook remounts", async () => {
@@ -241,13 +252,15 @@ describe("useEditFileArchived", () => {
     await harness.submit();
     await harness.remountConsumer();
 
-    // An unrelated feature's unread error replaces this one after the remount.
+    // An unrelated feature raises an unread error after the remount; this
+    // hook's stale one is still on the stack beside it.
     harness.openForeignError("Forbidden for this atlas");
 
     mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
     await expect(harness.submit()).resolves.toBe(true);
-    expect(harness.snackbar().open).toBe(true);
-    expect(harness.snackbar().message).toBe("Forbidden for this atlas");
+    expect(snackbarMessages(harness.snackbar())).toEqual([
+      "Forbidden for this atlas",
+    ]);
   });
 
   it("reports isRequesting while in flight and resets it on success", async () => {

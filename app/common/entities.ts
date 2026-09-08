@@ -41,3 +41,13 @@ export interface PerformRequestOptions {
   onError: (error: Error) => void;
   onSuccess?: (res: Response) => void | Promise<unknown>;
 }
+
+export type RequestOptions = Omit<PerformRequestOptions, "onError">;
+
+/** Signature the request hooks expose; they supply `onError` themselves. */
+export type RequestFn = <P>(
+  requestURL: string,
+  method: METHOD,
+  payload: P | undefined,
+  options?: RequestOptions,
+) => Promise<boolean>;
