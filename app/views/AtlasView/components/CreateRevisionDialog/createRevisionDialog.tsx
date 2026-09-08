@@ -9,12 +9,11 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/app/components/common/ConfirmationDialog/confirmationDialog.styles";
-import { useSnackbarContainerRef } from "@/app/components/common/Snackbar/hooks/UseSnackbarContainerRef/hook";
-import { SNACKBAR_SCOPE } from "@/app/components/common/Snackbar/types";
+import { TypographyError } from "@/app/components/common/Typography/components/TypographyError/typographyError";
 import { useCreateAtlasRevision } from "@/app/hooks/UseCreateAtlasRevision/hook";
 import { ROUTE } from "@/app/routes/constants";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { type JSX } from "react";
 
 interface Props {
@@ -30,27 +29,40 @@ export const CreateRevisionDialog = ({
   open,
   pathParameter,
 }: Props): JSX.Element => {
-  const { isRequesting, onSubmit, succeeded } = useCreateAtlasRevision();
-  const snackbarContainerRef = useSnackbarContainerRef(
-    open,
-    SNACKBAR_SCOPE.CREATE_ATLAS_REVISION,
-  );
+  const {
+    actions: { onDismissError, onSubmit },
+    status: { error, isRequesting, succeeded },
+  } = useCreateAtlasRevision();
+
   return (
-    // The toast renders inside this dialog while it is open, so a failure here
-    // is reachable by Tab; see `useSnackbarContainerRef`.
     <Dialog
       fullWidth
       maxWidth="xs"
-      onClose={onCancel}
+      // Undefined while the request is in flight, which blocks both escape and
+      // the backdrop: MUI routes each through onClose, so withholding it is the
+      // whole guard. The title's close button stays live on purpose — fetch has
+      // no timeout here, and a hung request with every exit blocked would trap
+      // the user in the dialog.
+      onClose={isRequesting ? undefined : onCancel}
       open={open}
-      slotProps={{ paper: { ref: snackbarContainerRef } }}
+      // Cleared on enter and on exited. Exited alone isn't enough: the title's
+      // close button still closes the dialog mid-request, so a failure can land
+      // after the exit has run and would greet the next confirmation; and an
+      // exit interrupted by a reopen never fires it at all. On exited rather
+      // than on close, so the message isn't removed while still on screen.
+      slotProps={{
+        transition: { onEnter: onDismissError, onExited: onDismissError },
+      }}
     >
       <DialogTitle onClose={onCancel} title="Create New Version" />
       <DialogContent dividers>
-        Are you sure you want to create a new version of{" "}
-        {atlas === undefined ? "this atlas" : getAtlasGenerationName(atlas)}?
-        This will create a new draft revision that will accept future file
-        uploads.
+        <Typography>
+          Are you sure you want to create a new version of{" "}
+          {atlas === undefined ? "this atlas" : getAtlasGenerationName(atlas)}?
+          This will create a new draft revision that will accept future file
+          uploads.
+        </Typography>
+        <TypographyError>{error}</TypographyError>
       </DialogContent>
       <DialogActions>
         <Button
