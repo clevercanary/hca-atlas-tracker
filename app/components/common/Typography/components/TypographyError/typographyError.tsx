@@ -19,9 +19,16 @@ import { StyledTypography } from "./typographyError.styles";
  * @param props.children - The content to be displayed as the error message.
  * @returns the error region.
  */
-export function TypographyError({ children }: TypographyProps): JSX.Element {
+export function TypographyError({
+  children,
+  ...props
+}: TypographyProps): JSX.Element {
   return (
-    <StyledTypography color={TYPOGRAPHY_PROPS.COLOR.ERROR} role="alert">
+    <StyledTypography
+      {...props}
+      color={TYPOGRAPHY_PROPS.COLOR.ERROR}
+      role="alert"
+    >
       {children}
     </StyledTypography>
   );
