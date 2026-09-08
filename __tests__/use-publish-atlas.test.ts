@@ -12,6 +12,7 @@ import {
   actAsync,
   renderHookWithSnackbar,
   type SnackbarHookResult,
+  snackbarMessages,
 } from "@/testing/snackbar";
 import { createMockResponse } from "@/testing/utils";
 
@@ -33,7 +34,7 @@ type Result = SnackbarHookResult<typeof usePublishAtlas>;
  */
 function submit(result: Result, options?: OnSubmitOptions): Promise<boolean> {
   return actAsync(() =>
-    result.current.hook.onSubmit(TEST_REQUEST_URL, options),
+    result.current.hook.actions.onSubmit(TEST_REQUEST_URL, options),
   );
 }
 
@@ -56,10 +57,10 @@ describe("usePublishAtlas", () => {
       undefined,
     );
     expect(onSuccess).toHaveBeenCalledTimes(1);
-    expect(result.current.hook.isRequesting).toBe(false);
+    expect(result.current.hook.status.isRequesting).toBe(false);
   });
 
-  it("opens the error snackbar and resets isRequesting on a non-OK response", async () => {
+  it("returns the error inline and resets isRequesting on a non-OK response", async () => {
     mockFetchResource.mockResolvedValue(
       createMockResponse(403, { message: "Forbidden for this atlas" }),
     );
@@ -67,33 +68,37 @@ describe("usePublishAtlas", () => {
     const { result } = renderHookWithSnackbar(usePublishAtlas);
     await expect(submit(result, { onSuccess })).resolves.toBe(false);
     expect(onSuccess).not.toHaveBeenCalled();
-    expect(result.current.snackbar.open).toBe(true);
-    expect(result.current.snackbar.message).toBe("Forbidden for this atlas");
+    expect(result.current.hook.status.error).toBe("Forbidden for this atlas");
+    // Routed inline, not onto the app stack: this dialog stays open on
+    // failure, and the stack is covered and aria-hidden while it is.
+    expect(snackbarMessages(result.current.snackbar)).toEqual([]);
     // The dialog buttons are disabled on isRequesting, so a failure must
     // reset it or the dialog is permanently dead.
-    expect(result.current.hook.isRequesting).toBe(false);
+    expect(result.current.hook.status.isRequesting).toBe(false);
   });
 
-  it("opens the error snackbar and resets isRequesting on a network-level error", async () => {
+  it("returns the error inline and resets isRequesting on a network-level error", async () => {
     mockFetchResource.mockRejectedValue(new Error("Failed to fetch"));
 
     const { result } = renderHookWithSnackbar(usePublishAtlas);
     await expect(submit(result, { onSuccess })).resolves.toBe(false);
     expect(onSuccess).not.toHaveBeenCalled();
-    expect(result.current.snackbar.open).toBe(true);
-    expect(result.current.snackbar.message).toBe("Failed to fetch");
-    expect(result.current.hook.isRequesting).toBe(false);
+    expect(result.current.hook.status.error).toBe("Failed to fetch");
+    // Routed inline, not onto the app stack: this dialog stays open on
+    // failure, and the stack is covered and aria-hidden while it is.
+    expect(snackbarMessages(result.current.snackbar)).toEqual([]);
+    expect(result.current.hook.status.isRequesting).toBe(false);
   });
 
-  it("dismisses a stale error from a previous attempt on success", async () => {
+  it("clears the error when a later attempt succeeds", async () => {
     mockFetchResource.mockRejectedValue(new Error("Failed to fetch"));
     const { result } = renderHookWithSnackbar(usePublishAtlas);
     await submit(result);
-    expect(result.current.snackbar.open).toBe(true);
+    expect(result.current.hook.status.error).toBeDefined();
 
     mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
     await expect(submit(result, { onSuccess })).resolves.toBe(true);
-    expect(result.current.snackbar.open).toBe(false);
+    expect(result.current.hook.status.error).toBeUndefined();
     expect(onSuccess).toHaveBeenCalledTimes(1);
   });
 });
