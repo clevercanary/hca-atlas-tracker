@@ -40,9 +40,17 @@ export const CreateRevisionDialog = ({
       maxWidth="xs"
       // Undefined while the request is in flight, which blocks both escape and
       // the backdrop: MUI routes each through onClose, so withholding it is the
-      // whole guard. The title's close button stays live on purpose — fetch has
-      // no timeout here, and a hung request with every exit blocked would trap
-      // the user in the dialog.
+      // whole guard. What it stops is the accidental early close — a stray
+      // backdrop click, a reflexive escape — which is also the path where a
+      // failure can land against a dialog that has already moved on. onEnter
+      // and onExited below cover that timing; this keeps them from being the
+      // only thing between a late failure and the next confirmation. It also
+      // keeps the exits consistent with the buttons, already disabled
+      // mid-request.
+      //
+      // The title's close button stays live: closing with the "x" is a
+      // deliberate act rather than a reflex, and fetch has no timeout here, so
+      // it is the out if a request hangs.
       onClose={isRequesting ? undefined : onCancel}
       open={open}
       // Cleared on enter and on exited. Exited alone isn't enough: the title's

@@ -1,5 +1,5 @@
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
-import type { TypographyProps } from "@mui/material";
+import { type TypographyProps } from "@mui/material";
 import { type JSX } from "react";
 import { StyledTypography } from "./typographyError.styles";
 
