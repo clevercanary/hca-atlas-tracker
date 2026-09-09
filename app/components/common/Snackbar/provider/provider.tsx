@@ -2,7 +2,13 @@ import { ErrorSnackbar } from "@/app/components/common/Snackbar/components/Error
 import { type JSX, useCallback, useMemo, useState } from "react";
 import { SnackbarActionsContext, SnackbarStateContext } from "./context";
 import { type SnackbarEntry, type SnackbarProviderProps } from "./types";
-import { closeEntry, closeOperation, openEntry, removeEntry } from "./utils";
+import {
+  closeEntry,
+  closeOperation,
+  createEntry,
+  openEntry,
+  removeEntry,
+} from "./utils";
 
 /**
  * Holds the snackbar entries and renders the `ErrorSnackbar` stack. Mounted
@@ -38,7 +44,11 @@ export function SnackbarProvider({
 
   const onOpen = useCallback(
     (message: string, operationKey: SnackbarEntry["operationKey"]): void => {
-      setEntries((entries) => openEntry(entries, message, operationKey));
+      // Built outside the updater, which keeps `openEntry` pure: the id is the
+      // React key, so minting it per invocation would remount the entry and
+      // replay the grow-in whenever React re-ran the updater.
+      const entry = createEntry(message, operationKey);
+      setEntries((entries) => openEntry(entries, entry));
     },
     [],
   );
