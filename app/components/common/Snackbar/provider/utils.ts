@@ -18,38 +18,6 @@ export function closeEntry(
 }
 
 /**
- * Starts the exit transition for the entry one operation raised, leaving every
- * other entry alone.
- * @param entries - Current entries.
- * @param operationKey - Operation whose entry to close.
- * @returns entries with that operation's entry marked closed.
- */
-export function closeOperation(
-  entries: SnackbarEntry[],
-  operationKey: SnackbarEntry["operationKey"],
-): SnackbarEntry[] {
-  return closeMatching(entries, (entry) => entry.operationKey === operationKey);
-}
-
-/**
- * Builds a new open entry with an id nothing else holds.
- * @param message - Error message to show.
- * @param operationKey - Operation the entry reports on.
- * @returns the new entry.
- */
-function createEntry(
-  message: string,
-  operationKey: SnackbarEntry["operationKey"],
-): SnackbarEntry {
-  return {
-    id: `snackbar-entry-${++entryCount}`,
-    message,
-    open: true,
-    operationKey,
-  };
-}
-
-/**
  * Marks the entries a predicate selects as closed, returning `entries`
  * unchanged when none match so React can bail out of the update. A success
  * dismisses its operation on every request, and the stack is usually empty.
@@ -68,6 +36,41 @@ function closeMatching(
 }
 
 /**
+ * Starts the exit transition for the entry one operation raised, leaving every
+ * other entry alone.
+ * @param entries - Current entries.
+ * @param operationKey - Operation whose entry to close.
+ * @returns entries with that operation's entry marked closed.
+ */
+export function closeOperation(
+  entries: SnackbarEntry[],
+  operationKey: SnackbarEntry["operationKey"],
+): SnackbarEntry[] {
+  return closeMatching(entries, (entry) => entry.operationKey === operationKey);
+}
+
+/**
+ * Builds a new open entry with an id nothing else holds.
+ *
+ * Advances a module-level counter, so call it from an event handler rather than
+ * from inside a `setState` updater — see `onOpen` in `provider.tsx`.
+ * @param message - Error message to show.
+ * @param operationKey - Operation the entry reports on.
+ * @returns the new entry.
+ */
+export function createEntry(
+  message: string,
+  operationKey: SnackbarEntry["operationKey"],
+): SnackbarEntry {
+  return {
+    id: `snackbar-entry-${++entryCount}`,
+    message,
+    open: true,
+    operationKey,
+  };
+}
+
+/**
  * Appends an error to the stack, or replaces the entry that operation already
  * has showing.
  *
@@ -76,19 +79,16 @@ function closeMatching(
  * so re-announces the message, and keeps its position in the list. Only open
  * entries are matched; one already animating out has been dismissed.
  * @param entries - Current entries.
- * @param message - Error message to show.
- * @param operationKey - Operation the entry reports on.
+ * @param entry - Entry to add, built by `createEntry`.
  * @returns entries with the error added, or that operation's entry replaced.
  */
 export function openEntry(
   entries: SnackbarEntry[],
-  message: string,
-  operationKey: SnackbarEntry["operationKey"],
+  entry: SnackbarEntry,
 ): SnackbarEntry[] {
   const showing = entries.findIndex(
-    (entry) => entry.open && entry.operationKey === operationKey,
+    (current) => current.open && current.operationKey === entry.operationKey,
   );
-  const entry = createEntry(message, operationKey);
   if (showing === -1) return [...entries, entry];
   return entries.map((current, index) => (index === showing ? entry : current));
 }
