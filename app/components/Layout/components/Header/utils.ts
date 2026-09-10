@@ -29,7 +29,12 @@ import { cloneElement, isValidElement, type ReactNode } from "react";
  * dropped here by default and will render on the app header while silently
  * vanishing on the landing page — exactly how `announcements` went missing. If
  * that default stops being what we want, spreading `header` and overriding
- * `logo`/`navigation` inverts it. See #1556.
+ * `logo`/`navigation` inverts it.
+ *
+ * The lists above are enforced, not just described: `landing-header-props`
+ * builds a `Required<HeaderProps>` fixture, so an upstream addition fails to
+ * compile until it is named here, and pins the returned key set, so a field
+ * added to or removed from the list below fails the suite.
  * @param header - The full app header config (may be undefined).
  * @returns Header props to spread onto the `DXHeader`.
  */
