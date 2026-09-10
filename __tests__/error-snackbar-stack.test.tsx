@@ -102,11 +102,14 @@ function DialogHarness(): JSX.Element {
 
 /**
  * The stack container, which is what MUI's ModalManager marks.
+ *
+ * Found as a direct child of `body` rather than through an entry: the container
+ * is mounted whether or not there are entries, and being a body child from the
+ * start is the property under test.
  * @returns stack container element.
  */
 function stackContainer(): HTMLElement {
-  const content = document.querySelector(".MuiSnackbarContent-root");
-  const container = content?.parentElement;
+  const container = document.body.querySelector(":scope > .MuiStack-root");
   // A runtime check rather than an assertion: if the structure ever changes,
   // this should say so rather than hand back a mistyped node.
   if (!(container instanceof HTMLElement))
@@ -297,21 +300,25 @@ describe("error snackbar stack", () => {
     await waitForStack([TEST_FOREIGN_MESSAGE]);
   });
 
-  it("removes nothing while the stack is empty, and mounts fresh on the next error", async () => {
-    // The container is unmounted whenever the stack empties, so its node
-    // identity changes — which is why the guard takes the node through state.
+  it("keeps one container across an empty stack, so a modal can always mark it", async () => {
+    // The container never unmounts: MUI's `ariaHiddenSiblings` snapshots
+    // `document.body.children` at modal *mount*, so a container that comes and
+    // goes with the entries can be absent from that snapshot and never marked.
+    // One stable body child is what makes the `aria-hidden` rule hold in every
+    // ordering — see the modal cases below.
     render(<StackHarness />);
+    const first = stackContainer();
     expect(screen.queryAllByRole("alert")).toHaveLength(0);
 
     click("open-error");
-    const first = stackContainer();
+    expect(stackContainer()).toBe(first);
     act(() => {
       closeButton(TEST_MESSAGE).click();
     });
     await waitForStack([]);
 
     click("open-error");
-    expect(stackContainer()).not.toBe(first);
+    expect(stackContainer()).toBe(first);
   });
 
   it("lets a modal cover the stack rather than fighting to stay announced", async () => {
@@ -362,6 +369,25 @@ describe("error snackbar stack", () => {
     if (!(entry instanceof HTMLElement)) throw new Error("entry not found");
     expect(getComputedStyle(stackContainer()).pointerEvents).toBe("none");
     expect(getComputedStyle(entry).pointerEvents).toBe("auto");
+  });
+
+  it("covers an error raised while the modal is already open", async () => {
+    // The ordering the rule above does not cover, and the one that breaks it:
+    // the request was already in flight when the dialog opened, so the stack
+    // was empty and its container did not exist. MUI's `ariaHiddenSiblings`
+    // snapshots `document.body.children` once, at modal *mount*, so a container
+    // appended afterwards is never marked — the entry stays live in the a11y
+    // tree while sitting behind a backdrop at `zIndex.modal - 1` and outside
+    // the focus trap: announced, but unreadable and unreachable.
+    render(<DialogHarness />);
+    click("open-dialog");
+    await actAsync(async () => undefined);
+
+    click("open-foreign-error");
+    await actAsync(async () => undefined);
+
+    expect(stackContainer()).toHaveAttribute("aria-hidden", "true");
+    expect(screen.queryAllByRole("alert")).toHaveLength(0);
   });
 
   it("hands the stack back once the modal closes", async () => {
