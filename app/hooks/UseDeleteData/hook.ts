@@ -1,37 +1,32 @@
-import { METHOD } from "@/app/common/entities";
-import { performRequest } from "@/app/common/requests";
+import { type METHOD } from "@/app/common/entities";
+import { useScopedRequest } from "@/app/hooks/UseScopedRequest/hook";
 import { useCallback } from "react";
 import { type UseDeleteData, type UseDeleteDataOptions } from "./types";
 
 /**
- * Returns a delete request function for the given request URL. `onDelete`
- * never rejects (see `performRequest`): any failure — a non-OK response or a
- * network-level fetch error — is routed to `options.onError` and resolves
- * `false`; success calls `options.onSuccess` and resolves `true`.
+ * Returns a delete request function for the given request URL, with failures
+ * raised on the app-level error snackbar.
  * @param requestUrl - Request URL.
- * @param method - Request method (defaults to DELETE).
- * @param options - Error and success callbacks, and an optional success-status
- * predicate. The default (`isFetchStatusOk`) accepts only 200 and 304, so an
- * endpoint answering 204 — the conventional success for DELETE — needs to say
- * so here; forwarded rather than dropped so the option this hook's type
- * advertises is the option it honours.
+ * @param method - Request method.
+ * @param options - Success callback, and an optional success-status predicate.
+ * The default (`isFetchStatusOk`) accepts only 200 and 304, so an endpoint
+ * answering 204 needs to say so here.
  * @returns delete request function, resolving `true` on success.
  */
 export const useDeleteData = <T>(
   requestUrl: string,
-  method = METHOD.DELETE,
+  method: METHOD,
   options: UseDeleteDataOptions,
 ): UseDeleteData<T> => {
-  const { isSuccessStatus, onError, onSuccess } = options;
+  const { isSuccessStatus, onSuccess } = options;
+  const {
+    actions: { onRequest },
+  } = useScopedRequest();
 
   const onDelete = useCallback(
     (payload?: T): Promise<boolean> =>
-      performRequest(requestUrl, method, payload, {
-        isSuccessStatus,
-        onError,
-        onSuccess,
-      }),
-    [isSuccessStatus, method, onError, onSuccess, requestUrl],
+      onRequest(requestUrl, method, payload, { isSuccessStatus, onSuccess }),
+    [isSuccessStatus, method, onRequest, onSuccess, requestUrl],
   );
 
   return {

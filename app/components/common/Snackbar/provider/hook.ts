@@ -6,9 +6,9 @@ import {
 } from "./types";
 
 /**
- * Returns the snackbar actions (open/close). The value is identity-stable, so
- * consumers (e.g. mutation hooks) don't re-render when the snackbar opens or
- * closes.
+ * Returns the snackbar actions: open an entry, close one by id, dismiss the
+ * entry an operation raised, and drop one that has finished its exit. The value
+ * is identity-stable.
  * @returns snackbar actions context.
  * @throws Error - When used outside a `SnackbarProvider`.
  */
@@ -22,16 +22,8 @@ export const useSnackbar = (): SnackbarActionsContextProps => {
 };
 
 /**
- * Returns the snackbar state (message, open, scope, container). Volatile —
- * changes on every open and close — so a consumer re-renders with the snackbar.
- *
- * `ErrorSnackbar` is the main consumer, but no longer the only one:
- * `useSnackbarContainerRef` reads `open` and `scope` so a dialog can tell
- * whether the showing error is its own before claiming the container (#1563).
- * That puts the two claiming dialogs, and their whole Modal subtrees, on this
- * context — they re-render on every snackbar change, not just their own. Cheap
- * today because both hold only buttons, and it goes away with the claim itself
- * (#1569). Weigh that before adding a third consumer.
+ * Returns the entries on the stack. Volatile, so a consumer re-renders whenever
+ * one is added or removed.
  * @returns snackbar state context.
  * @throws Error - When used outside a `SnackbarProvider`.
  */
