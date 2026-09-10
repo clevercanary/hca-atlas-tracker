@@ -15,6 +15,12 @@ import { StyledTypography } from "./typographyError.styles";
  * announced consistently. That is also why the empty region stays rendered
  * rather than hidden: `display: none` would take it back out of the tree and
  * reintroduce the same problem.
+ *
+ * `color` and `role` are omitted from the props rather than merely overridden:
+ * both are fixed by what this component is for — the error colour is the point
+ * of it, and the reliable announcement described above depends on the region
+ * being an alert. Omitting them says so at the call site instead of accepting
+ * the prop and silently discarding it.
  * @param props - Component props.
  * @param props.children - The content to be displayed as the error message.
  * @returns the error region.
@@ -22,7 +28,7 @@ import { StyledTypography } from "./typographyError.styles";
 export function TypographyError({
   children,
   ...props
-}: TypographyProps): JSX.Element {
+}: Omit<TypographyProps, "color" | "role">): JSX.Element {
   return (
     <StyledTypography
       {...props}

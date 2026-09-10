@@ -16,13 +16,18 @@ import { StyledStack } from "./errorSnackbar.styles";
  * closes. Errors raised by an action inside a dialog therefore belong in that
  * dialog (see `useInlineRequest`), not here.
  *
- * The container is mounted only while there are entries.
- * @returns error snackbar stack, or null while there is nothing to show.
+ * The container is mounted unconditionally, empty stack included. MUI's
+ * `ariaHiddenSiblings` snapshots `document.body.children` once, at modal
+ * *mount*, so a container created after a dialog opened is never marked — an
+ * error raised by a request that was already in flight would stay live in the
+ * accessibility tree while painted behind the backdrop and outside the focus
+ * trap. Always being a body child is what keeps the `aria-hidden` rule above
+ * true in every ordering. An empty container intercepts nothing: it is
+ * `pointer-events: none` and paints nothing of its own.
+ * @returns error snackbar stack.
  */
-export const ErrorSnackbar = (): JSX.Element | null => {
+export const ErrorSnackbar = (): JSX.Element => {
   const { entries } = useSnackbarState();
-
-  if (entries.length === 0) return null;
 
   return (
     <Portal>
