@@ -6,36 +6,66 @@ import { type LogoProps } from "@databiosphere/findable-ui/lib/components/Layout
 import { type HeaderProps } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header";
 import { cloneElement, isValidElement, type ReactNode } from "react";
 
+export const LANDING_HEADER_FIELD = {
+  DROPPED: "DROPPED",
+  KEPT: "KEPT",
+} as const;
+
+export type LandingHeaderField =
+  (typeof LANDING_HEADER_FIELD)[keyof typeof LANDING_HEADER_FIELD];
+
 /**
- * Returns the props for the stripped-down header rendered on logged-out pages.
+ * Whether each `HeaderProps` field reaches the stripped-down header rendered on
+ * logged-out pages.
  *
- * This rebuilds `HeaderProps` rather than adapting it, so every field is either
- * named below or dropped. That is deliberate — a logged-out visitor should be
- * shown only what we have decided to show them — but it means the list has to
- * be read as a decision, not as an inventory. Kept:
+ * `getLandingHeaderProps` rebuilds `HeaderProps` by naming the fields to keep,
+ * so anything unnamed is dropped by omission — which is how the inactivity
+ * banner became unreachable in #1544: `announcements` never failed, it was
+ * simply never copied, and nothing surfaced that.
+ *
+ * Typing this as `Record<keyof HeaderProps, ...>` is what stops that recurring.
+ * A field added to `HeaderProps` upstream leaves this map missing a key, which
+ * fails to compile *here* — so the keep/drop call has to be made rather than
+ * defaulted into. `landing-header-props` then asserts the function agrees with
+ * this map, so classifying a field `KEPT` without adding it to the returned
+ * object fails the suite.
+ *
+ * Reasons for the kept four:
  *
  * - `logo` — re-pointed at the landing page (see `getLandingLogo`).
  * - `navigation` — slot 2 only (Help & Documentation); the main app nav goes.
  * - `authenticationEnabled` — the Sign In button is the point of this header.
  * - `announcements` — the landing page is the only page a session end ever
- *   lands on, so dropping it made the inactivity banner unreachable in
- *   practice. That bug is why this list is now written out.
+ *   lands on, so dropping it is what made the banner unreachable.
  *
- * Dropped, none of which our site config currently sets, so each is a latent
- * decision rather than a live one: `actions`, `className`, `searchEnabled`,
- * `searchURL`, `slogan`, `socialMedia`.
+ * The six dropped are latent rather than live decisions: our site config sets
+ * none of them today. If deny-by-default ever stops being what we want,
+ * spreading `header` and overriding `logo`/`navigation` inverts it.
+ */
+export const LANDING_HEADER_FIELDS: Record<
+  keyof HeaderProps,
+  LandingHeaderField
+> = {
+  actions: LANDING_HEADER_FIELD.DROPPED,
+  announcements: LANDING_HEADER_FIELD.KEPT,
+  authenticationEnabled: LANDING_HEADER_FIELD.KEPT,
+  className: LANDING_HEADER_FIELD.DROPPED,
+  logo: LANDING_HEADER_FIELD.KEPT,
+  navigation: LANDING_HEADER_FIELD.KEPT,
+  searchEnabled: LANDING_HEADER_FIELD.DROPPED,
+  searchURL: LANDING_HEADER_FIELD.DROPPED,
+  slogan: LANDING_HEADER_FIELD.DROPPED,
+  socialMedia: LANDING_HEADER_FIELD.DROPPED,
+};
+
+/**
+ * Returns the props for the stripped-down header rendered on logged-out pages.
  *
- * A field added to `HeaderProps` upstream, or newly set in site config, is
- * dropped here by default and will render on the app header while silently
- * vanishing on the landing page — exactly how `announcements` went missing. If
- * that default stops being what we want, spreading `header` and overriding
- * `logo`/`navigation` inverts it.
- *
- * The lists above are enforced, not just described: `landing-header-props`
- * builds a `Required<HeaderProps>` fixture, so an upstream addition fails to
- * compile until it is named here, and pins the returned key set, so a field
- * added to or removed from the list below fails the suite.
- * @param header - The full app header config (may be undefined).
+ * Which fields survive, and why, is declared in `LANDING_HEADER_FIELDS`; this
+ * function is the implementation of that decision and is pinned against it by
+ * `landing-header-props`.
+ * @param header - The full app header config (optional; the sole caller guards
+ * on it, so the undefined path is defensive rather than live).
  * @returns Header props to spread onto the `DXHeader`.
  */
 export function getLandingHeaderProps(

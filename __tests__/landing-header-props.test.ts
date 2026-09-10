@@ -1,26 +1,38 @@
-import { getLandingHeaderProps } from "@/app/components/Layout/components/Header/utils";
+import {
+  getLandingHeaderProps,
+  LANDING_HEADER_FIELD,
+  LANDING_HEADER_FIELDS,
+} from "@/app/components/Layout/components/Header/utils";
+import { ROUTE } from "@/app/routes/constants";
+import { Logo } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/components/Content/components/Logo/logo";
 import { type HeaderProps } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header";
+import { createElement, isValidElement } from "react";
+
+const APP_LOGO = createElement(Logo, {
+  alt: "HCA Atlas Tracker",
+  height: 32.5,
+  link: ROUTE.ATLASES,
+  src: "/images/hcaAtlasTracker.webp",
+});
 
 /**
  * Every field on `HeaderProps`, populated.
  *
- * Typed `Required` on purpose: `getLandingHeaderProps` rebuilds its result by
- * naming the fields to keep, so a field added to `HeaderProps` upstream is
- * dropped by omission and vanishes from the landing header with nothing
- * failing — the mechanism that made the inactivity banner unreachable in
- * #1544. `Required` turns that silent drop into a compile error here: the new
- * field has to be added to this fixture, which forces the keep/drop call to be
- * made rather than defaulted into.
+ * `Required` rather than `HeaderProps`, so a field added upstream has to be
+ * given a value here too — otherwise this fixture would keep compiling while
+ * silently testing less than it claims to. The compile error that forces the
+ * keep/drop decision lives on `LANDING_HEADER_FIELDS` in `utils.ts`; this one
+ * only keeps the fixture honest.
  *
- * The values are placeholders. What is under test is which keys survive, not
- * what the header does with them.
+ * The values are placeholders apart from `logo`, which has to be a real element
+ * for `getLandingLogo` to clone.
  */
 const FULL_HEADER: Required<HeaderProps> = {
   actions: "actions",
   announcements: [],
   authenticationEnabled: true,
   className: "class-name",
-  logo: "logo",
+  logo: APP_LOGO,
   navigation: [
     [{ label: "Atlases", url: "/atlases" }],
     [{ label: "Reports", url: "/reports" }],
@@ -32,21 +44,21 @@ const FULL_HEADER: Required<HeaderProps> = {
   socialMedia: { socials: [] },
 };
 
-// The fields the landing header keeps, per the decision recorded on
-// `getLandingHeaderProps`. Sorted, so the assertions can compare directly.
-const KEPT_FIELDS = [
-  "announcements",
-  "authenticationEnabled",
-  "logo",
-  "navigation",
-];
+// Derived from the declaration rather than restated, so the two can't drift:
+// this is what `LANDING_HEADER_FIELDS` says should survive.
+const KEPT_FIELDS = Object.keys(LANDING_HEADER_FIELDS)
+  .filter(
+    (field) =>
+      LANDING_HEADER_FIELDS[field as keyof HeaderProps] ===
+      LANDING_HEADER_FIELD.KEPT,
+  )
+  .sort();
 
 describe("landing header props", () => {
-  it("keeps exactly the fields the decision names, given every field", () => {
-    // The drop list is deny-by-default and documented in prose, which cannot
-    // defend against the drift it describes. This is the enforcement: adding a
-    // field to the returned literal without revisiting the decision fails here,
-    // and so does dropping one that is meant to be kept.
+  it("keeps exactly the fields the classification says it keeps", () => {
+    // The link between the declared decision and the code that implements it.
+    // Classifying a field `KEPT` without adding it to the returned object fails
+    // here, and so does returning one classified `DROPPED`.
     const props = getLandingHeaderProps(FULL_HEADER);
 
     expect(Object.keys(props).sort()).toEqual(KEPT_FIELDS);
@@ -54,13 +66,25 @@ describe("landing header props", () => {
 
   it("carries the kept fields through rather than merely declaring them", () => {
     // A key present with an undefined value would satisfy the assertion above
-    // while the field still never reaches the header. `logo` is excluded: it is
-    // deliberately rewritten by `getLandingLogo`, and `navigation` is asserted
-    // separately below because only one slot survives.
+    // while the field still never reaches the header. `logo` and `navigation`
+    // are deliberately rewritten, so they are asserted separately below.
     const props = getLandingHeaderProps(FULL_HEADER);
 
     expect(props.announcements).toBe(FULL_HEADER.announcements);
     expect(props.authenticationEnabled).toBe(FULL_HEADER.authenticationEnabled);
+  });
+
+  it("re-points the logo at the landing page", () => {
+    // The configured app-header logo links to the atlas list, which a logged-out
+    // visitor bounces off the auth middleware trying to reach. Asserted on the
+    // cloned element's props because that rewrite is the whole job of
+    // `getLandingLogo` — without this, replacing the logo with `undefined`
+    // passed every test in the repo.
+    const { logo } = getLandingHeaderProps(FULL_HEADER);
+
+    if (!isValidElement<{ link: string }>(logo))
+      throw new Error("logo is not an element");
+    expect(logo.props.link).toBe(ROUTE.LANDING);
   });
 
   it("keeps only the Help & Documentation navigation slot", () => {
@@ -77,9 +101,10 @@ describe("landing header props", () => {
   });
 
   it("returns the same shape when there is no header config at all", () => {
-    // `header` is optional at the call site, and the undefined path builds the
-    // result through a different branch (no navigation slot to lift). The key
-    // set is a contract, so it should not depend on the input.
+    // The parameter is optional and the undefined path builds the result
+    // through a different branch (no navigation slot to lift). `AppHeader`
+    // guards before calling, so this is a defensive pin on the signature rather
+    // than a live path — the key set is a contract either way.
     const props = getLandingHeaderProps(undefined);
 
     expect(Object.keys(props).sort()).toEqual(KEPT_FIELDS);
