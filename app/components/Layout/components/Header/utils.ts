@@ -30,7 +30,7 @@ export type LandingHeaderField =
  * this map, so classifying a field `KEPT` without adding it to the returned
  * object fails the suite.
  *
- * Reasons for the kept four:
+ * Reasons for the fields kept:
  *
  * - `logo` — re-pointed at the landing page (see `getLandingLogo`).
  * - `navigation` — slot 2 only (Help & Documentation); the main app nav goes.
@@ -38,8 +38,8 @@ export type LandingHeaderField =
  * - `announcements` — the landing page is the only page a session end ever
  *   lands on, so dropping it is what made the banner unreachable.
  *
- * The six dropped are latent rather than live decisions: our site config sets
- * none of them today. If deny-by-default ever stops being what we want,
+ * The dropped fields are latent rather than live decisions: our site config
+ * sets none of them today. If deny-by-default ever stops being what we want,
  * spreading `header` and overriding `logo`/`navigation` inverts it.
  */
 export const LANDING_HEADER_FIELDS: Record<

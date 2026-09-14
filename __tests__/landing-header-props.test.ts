@@ -27,13 +27,20 @@ const APP_LOGO_PROPS: LogoProps = {
  * keep/drop decision lives on `LANDING_HEADER_FIELDS` in `utils.ts`; this one
  * only keeps the fixture honest.
  *
- * The values are placeholders apart from `logo`, which has to be a real element
- * for `getLandingLogo` to clone.
+ * The values are placeholders apart from two. `logo` has to be a real element
+ * for `getLandingLogo` to clone. `authenticationEnabled` is a *string* on
+ * purpose, and specifically the one the site config passes
+ * (`local/config.ts` sets `ROUTE.LANDING`): findable-ui's `getSignInPath`
+ * branches on the type, returning the string as the sign-in path and falling
+ * back to `/login` otherwise — a route this app doesn't have. With `true` here,
+ * hardcoding `authenticationEnabled: true` in `getLandingHeaderProps` passed
+ * the whole suite while pointing the Sign In button at a 404, because the
+ * assertion was comparing a constant to itself. Don't simplify it back.
  */
 const FULL_HEADER: Required<HeaderProps> = {
   actions: "actions",
   announcements: [],
-  authenticationEnabled: true,
+  authenticationEnabled: ROUTE.LANDING,
   className: "class-name",
   logo: createElement(Logo, APP_LOGO_PROPS),
   navigation: [
@@ -91,7 +98,7 @@ describe("landing header props", () => {
     expect(Object.keys(props).sort()).toEqual(KEPT_FIELDS);
   });
 
-  it("asserts the value of every kept field, carried through or rewritten", () => {
+  it("covers every kept field with a value assertion", () => {
     // Keeping a field is two claims: the key is present (asserted above) and
     // the value actually arrives. A key present with an undefined value would
     // satisfy the assertion above while the field still never reaches the
