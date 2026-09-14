@@ -10,8 +10,62 @@ import {
   getComponentAtlasBreadcrumb,
   getComponentAtlasesBreadcrumb,
 } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
+import { type OnSubmitOptions } from "@/app/hooks/UseEditFileArchived/entities";
+import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { ROUTE } from "@/app/routes/constants";
+import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/constants";
+import { type QueryKey as IntegratedObjectQueryKey } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/types";
 import { type Tab } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
+import { type QueryClient } from "@tanstack/react-query";
+
+/**
+ * Returns the archive/unarchive options for the integrated object view.
+ *
+ * Archiving changes the integrated object detail (`isArchived`) and
+ * atlas-derived data, so both caches are invalidated. The integrated object
+ * list needs no entry: it isn't mounted on this view, and it sets
+ * `staleTime: 0`, so it refetches on navigate-back on its own.
+ *
+ * Only the detail invalidation is returned. `onSubmit` awaits `onSuccess`, so
+ * whatever is returned holds the archive button disabled, and the guard that
+ * window exists for — not acting twice on a stale `isArchived` — depends on the
+ * detail refetch alone. The atlas invalidation is for cache correctness
+ * elsewhere, so it is fired rather than awaited: awaiting it stretched the
+ * dead-button window to whichever roundtrip was slower, and `useFetchAtlas` is
+ * mounted on this view, so the atlas key triggers a live refetch on every
+ * click.
+ *
+ * Dropping the await loses no error handling. `refetchQueries` catches each
+ * query's rejection itself unless `throwOnError` is set, which it isn't here,
+ * so these promises resolve either way and there is nothing for a `catch` to
+ * do.
+ * @param queryClient - Query client.
+ * @param pathParameter - Path parameter.
+ * @returns archive/unarchive options.
+ */
+export function getArchiveOptions(
+  queryClient: QueryClient,
+  pathParameter: PathParameter,
+): OnSubmitOptions {
+  return {
+    onSuccess: (): Promise<unknown> => {
+      // Typed as the fetch hook's own key tuple, so a segment added to the
+      // detail key is a compile error here rather than an invalidation matching
+      // nothing — which resolves immediately and silently shrinks this window
+      // back to the request alone.
+      const queryKey: IntegratedObjectQueryKey = [
+        INTEGRATED_OBJECT,
+        pathParameter.atlasId,
+        pathParameter.componentAtlasId,
+      ];
+      const detail = queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({
+        queryKey: [ATLAS, pathParameter.atlasId],
+      });
+      return detail;
+    },
+  };
+}
 
 /**
  * Returns the breadcrumbs for the component atlas view.

@@ -20,20 +20,22 @@ export const EditFileArchivedStatus = <T extends RowData>({
       isArchived={archived}
       payload={mapPayload(rows)}
       options={{
-        // The invalidations are returned so onSubmit (which awaits onSuccess)
-        // keeps the action pending until the refetched data lands — which is
-        // what the two detail-view call sites need, where the button survives
-        // the success. On the bulk row-selection surface it buys nothing: the
-        // reset below empties the selection, RowSelection returns null at zero
-        // rows, and the whole toolbar (button included) unmounts before the
-        // invalidations settle.
-        onSuccess: (): Promise<unknown> => {
+        // Nothing is returned, so the action's pending window covers the
+        // request alone. The two detail-view call sites return their detail
+        // invalidation because the button survives the success there and must
+        // not be clickable against a stale `isArchived`; on this bulk surface
+        // there is no such button to protect — the reset below empties the
+        // selection, RowSelection returns null at zero rows, and the whole
+        // toolbar unmounts before the invalidations settle. Awaiting them only
+        // held an unmounting toolbar disabled.
+        //
+        // The invalidations are still dispatched, synchronously, before the
+        // unmount; only the waiting is dropped.
+        onSuccess: (): void => {
           table.resetRowSelection();
-          return Promise.all(
-            (queryKeys ?? []).map((queryKey) =>
-              queryClient.invalidateQueries({ queryKey }),
-            ),
-          );
+          for (const queryKey of queryKeys ?? []) {
+            queryClient.invalidateQueries({ queryKey });
+          }
         },
       }}
     />
