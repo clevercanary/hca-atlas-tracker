@@ -255,6 +255,32 @@ describe("confirmation dialog inline errors", () => {
     expect(errorRegion()).toBeEmptyDOMElement();
   });
 
+  it("ignores a failure from a session the user already closed and reopened", async () => {
+    // The other ordering of the test above, and the one the enter/exited clears
+    // can't reach: closing mid-request, reopening, and only *then* having the
+    // first request fail. Both clears have already run by the time the failure
+    // lands, so without an attempt guard the dead confirmation's error is shown
+    // against the live one — on an irreversible action, attached to a request
+    // the user abandoned.
+    render(<Harness />);
+    openDialog();
+    const respond = publishPending();
+
+    act(() => {
+      titleCloseButton().click();
+    });
+    await waitFor(() =>
+      expect(document.querySelector(".MuiDialog-root")).toBeNull(),
+    );
+    openDialog();
+
+    await act(async () => {
+      respond(createMockResponse(403, { message: "Forbidden for this atlas" }));
+    });
+
+    expect(errorRegion()).toBeEmptyDOMElement();
+  });
+
   it("ignores escape while the request is in flight, and honours it after", async () => {
     // The dialog confirms an irreversible action and the request is already
     // away, so a stray escape must not close it — that would leave the user

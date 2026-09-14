@@ -1,7 +1,7 @@
 import { type RequestFn } from "@/app/common/entities";
 import { performRequest } from "@/app/common/requests";
 import { usePendingRequest } from "@/app/hooks/UsePendingRequest/hook";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { type UseInlineRequest } from "./types";
 
 /**
@@ -15,14 +15,34 @@ import { type UseInlineRequest } from "./types";
 export const useInlineRequest = (): UseInlineRequest => {
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const onDismissError = useCallback((): void => setError(undefined), []);
+  /*
+   * The attempt an incoming failure is allowed to report on. The hook outlives
+   * the dialog's visibility, so a request can still be in flight after the
+   * dialog it was started from has closed — the title's close button stays live
+   * mid-request by design. Clearing on enter and on exited handles the failure
+   * that lands while the dialog is closed, but not the reverse order: closing
+   * mid-request, reopening, and only then having the first request fail puts a
+   * dead confirmation's error in front of a live one, for an irreversible
+   * action. Both dismissing and starting a request move this on, so a failure
+   * is shown only while it is still the current attempt's.
+   */
+  const attemptRef = useRef(0);
+
+  const onDismissError = useCallback((): void => {
+    attemptRef.current++;
+    setError(undefined);
+  }, []);
 
   const onErrorRequest = useCallback<RequestFn>(
     async (requestURL, method, payload, options) => {
+      const attempt = ++attemptRef.current;
       setError(undefined);
       return performRequest(requestURL, method, payload, {
         ...options,
-        onError: (error) => setError(error.message),
+        onError: (error) => {
+          if (attempt !== attemptRef.current) return;
+          setError(error.message);
+        },
       });
     },
     [],
