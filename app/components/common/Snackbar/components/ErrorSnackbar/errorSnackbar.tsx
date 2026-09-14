@@ -10,11 +10,18 @@ import { StyledStack } from "./errorSnackbar.styles";
  * No `autoHideDuration`: an error stays until the user closes it, or until the
  * operation it reports on succeeds (see `useScopedRequest`).
  *
- * Portalled to `document.body` and never re-parented. It sits below
- * `zIndex.modal` and outside every dialog's focus trap, so an open modal covers
+ * Portalled to `document.body` and never re-parented. It sits below every Modal
+ * the app opens and outside every dialog's focus trap, so an open modal covers
  * it and MUI marks it `aria-hidden` — the error is background until the modal
  * closes. Errors raised by an action inside a dialog therefore belong in that
  * dialog (see `useInlineRequest`), not here.
+ *
+ * "Below every Modal" is `zIndex.drawer - 1`, not `zIndex.modal - 1`: MUI marks
+ * siblings at modal-*mount* regardless of where that modal paints, so a Modal
+ * painting lower than the stack would hide it from assistive tech while leaving
+ * it visible and clickable. `Drawer` is that case — findable-ui's `RowDrawer`
+ * is a `.MuiDrawer-modal` sitting at `zIndex.drawer` (1200). See
+ * `errorSnackbar.styles`.
  *
  * The container is mounted unconditionally, empty stack included. MUI's
  * `ariaHiddenSiblings` snapshots `document.body.children` once, at modal

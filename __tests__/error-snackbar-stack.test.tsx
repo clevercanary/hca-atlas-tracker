@@ -343,18 +343,25 @@ describe("error snackbar stack", () => {
     expect(screen.queryAllByRole("alert")).toHaveLength(0);
   });
 
-  it("paints the stack below the modal, so hiding it from assistive tech is honest", () => {
+  it("paints the stack below every modal, so hiding it from assistive tech is honest", () => {
     // The mark asserted above is only *correct* while the stack is genuinely
-    // behind the dialog. Raising it back to `zIndex.snackbar` (1400) would put
+    // behind the modal. Raising it back to `zIndex.snackbar` (1400) would put
     // the two out of step — an error painted over the dialog for a sighted user
     // and silent for everyone else, which is the inconsistency the deleted
     // guard existed to paper over. Compared against MUI's own value rather than
     // a literal, so a MUI change moves the assertion with it.
+    //
+    // Bounded by `zIndex.drawer`, not `zIndex.modal`: MUI marks siblings at
+    // modal-*mount* wherever that modal paints, and `Drawer` is a Modal that
+    // paints at 1200 (findable-ui's `RowDrawer` is a `.MuiDrawer-modal`, used
+    // by the tasks row preview). At `zIndex.modal - 1` the stack stayed visible
+    // and clickable above an open drawer while being `aria-hidden` to everyone
+    // else — the same sighted/AT split, one band lower.
     render(<StackHarness />);
     click("open-error");
 
     const zIndex = Number(getComputedStyle(stackContainer()).zIndex);
-    expect(zIndex).toBeLessThan(createTheme().zIndex.modal);
+    expect(zIndex).toBeLessThan(createTheme().zIndex.drawer);
   });
 
   it("lets clicks through the container while the entries keep taking theirs", () => {
@@ -377,7 +384,7 @@ describe("error snackbar stack", () => {
     // was empty and its container did not exist. MUI's `ariaHiddenSiblings`
     // snapshots `document.body.children` once, at modal *mount*, so a container
     // appended afterwards is never marked — the entry stays live in the a11y
-    // tree while sitting behind a backdrop at `zIndex.modal - 1` and outside
+    // tree while sitting behind the dialog's backdrop and outside
     // the focus trap: announced, but unreadable and unreachable.
     render(<DialogHarness />);
     click("open-dialog");
