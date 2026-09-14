@@ -144,7 +144,7 @@ describe("confirmation dialog inline errors", () => {
   });
 
   it("shows a failure inside the dialog rather than on the error stack", async () => {
-    // The stack sits below `zIndex.modal`, outside the focus trap, and is
+    // The stack sits below every modal, outside the focus trap, and is
     // marked `aria-hidden` while a dialog is open — and this app's backdrop is
     // 90% ink. A publish failure routed there would be neither readable nor
     // announced until the dialog was closed, on an irreversible action.
