@@ -79,14 +79,47 @@ const CARRIED_FIELDS = [
 ] as const satisfies readonly (keyof HeaderProps)[];
 
 /**
- * The kept fields `getLandingHeaderProps` deliberately rewrites, so their value
- * can't be compared to `FULL_HEADER` and is asserted individually instead.
- * Adding a field here is a claim that it has its own assertion below.
+ * Assertions for the kept fields `getLandingHeaderProps` deliberately rewrites,
+ * whose value therefore can't be compared to `FULL_HEADER`.
+ *
+ * A map of assertions rather than a list of names. The partition test derives
+ * its key set from these keys, so declaring a newly-kept field "rewritten"
+ * means writing the assertion that says what it was rewritten *to*. With a bare
+ * list, a field could be parked here to satisfy the partition while nothing
+ * checked its value at all — the field could be returned as `undefined` and the
+ * suite would still pass, which is the failure this file exists to prevent.
  */
-const REWRITTEN_FIELDS = [
-  "logo",
-  "navigation",
-] as const satisfies readonly (keyof HeaderProps)[];
+const REWRITTEN_ASSERTIONS = {
+  logo: (props: HeaderProps): void => {
+    // The configured app-header logo links to the atlas list, which a
+    // logged-out visitor bounces off the auth middleware trying to reach.
+    // Asserted on the cloned element's props because that rewrite is the whole
+    // job of `getLandingLogo` — without this, replacing the logo with
+    // `undefined` passed every test in the repo. `src` and `alt` are asserted
+    // alongside `link` because re-pointing is a clone, not a rebuild:
+    // constructing a new `Logo` with only `link` would satisfy the link
+    // assertion while rendering a broken, unlabelled image.
+    if (!isValidElement<LogoProps>(props.logo))
+      throw new Error("logo is not an element");
+
+    expect(props.logo.props).toMatchObject({
+      ...APP_LOGO_PROPS,
+      link: ROUTE.LANDING,
+    });
+  },
+  navigation: (props: HeaderProps): void => {
+    // The other half of what "kept" means for `navigation`: the field survives,
+    // but the main app nav in slots 0 and 1 does not — a logged-out visitor
+    // can't reach those routes past the auth middleware.
+    expect(props.navigation).toEqual([
+      undefined,
+      undefined,
+      FULL_HEADER.navigation[2],
+    ]);
+  },
+} as const satisfies Partial<
+  Record<keyof HeaderProps, (props: HeaderProps) => void>
+>;
 
 describe("landing header props", () => {
   it("keeps exactly the fields the classification says it keeps", () => {
@@ -103,11 +136,12 @@ describe("landing header props", () => {
     // the value actually arrives. A key present with an undefined value would
     // satisfy the assertion above while the field still never reaches the
     // header — #1544 one step further down the funnel. This is what makes the
-    // value claim cover fields added later: a newly-kept field is absent from
-    // both tuples and fails here until it's put in one.
-    expect([...CARRIED_FIELDS, ...REWRITTEN_FIELDS].sort()).toEqual(
-      KEPT_FIELDS,
-    );
+    // value claim cover fields added later: a newly-kept field is in neither
+    // `CARRIED_FIELDS` nor `REWRITTEN_ASSERTIONS` and fails here until it is —
+    // and landing in either one means an executable value check exists for it.
+    expect(
+      [...CARRIED_FIELDS, ...Object.keys(REWRITTEN_ASSERTIONS)].sort(),
+    ).toEqual(KEPT_FIELDS);
   });
 
   it.each(CARRIED_FIELDS)("carries %s through unchanged", (field) => {
@@ -116,37 +150,19 @@ describe("landing header props", () => {
     expect(props[field]).toBe(FULL_HEADER[field]);
   });
 
-  it("re-points the logo at the landing page, keeping its other props", () => {
-    // The configured app-header logo links to the atlas list, which a logged-out
-    // visitor bounces off the auth middleware trying to reach. Asserted on the
-    // cloned element's props because that rewrite is the whole job of
-    // `getLandingLogo` — without this, replacing the logo with `undefined`
-    // passed every test in the repo. `src` and `alt` are asserted alongside
-    // `link` because re-pointing is a clone, not a rebuild: constructing a new
-    // `Logo` with only `link` would satisfy the link assertion while rendering
-    // a broken, unlabelled image.
-    const { logo } = getLandingHeaderProps(FULL_HEADER);
+  it.each(Object.entries(REWRITTEN_ASSERTIONS))(
+    "rewrites %s",
+    (_field, assertRewritten) => {
+      // `hasAssertions` is what makes an entry here cost something. Without it
+      // a newly-kept field could be parked in the map as `() => undefined`:
+      // that satisfies the partition test above and runs green, leaving the
+      // field returned as `undefined` with nothing checking it — the same
+      // escape hatch a bare list of field names left open.
+      expect.hasAssertions();
 
-    if (!isValidElement<LogoProps>(logo))
-      throw new Error("logo is not an element");
-    expect(logo.props).toMatchObject({
-      ...APP_LOGO_PROPS,
-      link: ROUTE.LANDING,
-    });
-  });
-
-  it("keeps only the Help & Documentation navigation slot", () => {
-    // The other half of what "kept" means for `navigation`: the field survives,
-    // but the main app nav in slots 0 and 1 does not — a logged-out visitor
-    // can't reach those routes past the auth middleware.
-    const props = getLandingHeaderProps(FULL_HEADER);
-
-    expect(props.navigation).toEqual([
-      undefined,
-      undefined,
-      FULL_HEADER.navigation[2],
-    ]);
-  });
+      assertRewritten(getLandingHeaderProps(FULL_HEADER));
+    },
+  );
 
   it("returns the same shape when there is no header config at all", () => {
     // The parameter is optional and the undefined path builds the result
