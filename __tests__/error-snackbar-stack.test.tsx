@@ -1,10 +1,11 @@
+import { STACK_CONTAINER_ID } from "@/app/components/common/Snackbar/components/ErrorSnackbar/utils";
 import { useSnackbar } from "@/app/components/common/Snackbar/provider/hook";
 import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/provider";
 import { actAsync } from "@/testing/snackbar";
 import { createTheme, Dialog } from "@mui/material";
 import "@testing-library/jest-dom";
 import { act, render, screen, waitFor } from "@testing-library/react";
-import { Fragment, type JSX, useState } from "react";
+import { Fragment, type JSX, useEffect, useState } from "react";
 
 const TEST_MESSAGE = "Failed to delete source study";
 const TEST_SECOND_MESSAGE = "Failed to delete another source study";
@@ -109,12 +110,31 @@ function DialogHarness(): JSX.Element {
  * @returns stack container element.
  */
 function stackContainer(): HTMLElement {
-  const container = document.body.querySelector(":scope > .MuiStack-root");
+  const container = document.body.querySelector(
+    `:scope > #${STACK_CONTAINER_ID}`,
+  );
   // A runtime check rather than an assertion: if the structure ever changes,
   // this should say so rather than hand back a mistyped node.
   if (!(container instanceof HTMLElement))
     throw new Error("stack container not found");
   return container;
+}
+
+/**
+ * The styled list inside the container: the element carrying the z-index and
+ * pointer-events the tests below assert on.
+ *
+ * Separate from `stackContainer` because the two are different elements with
+ * different jobs. The container is the plain body child a modal marks
+ * `aria-hidden`; this is what is portalled into it. Asserting styles on the
+ * container would pass vacuously — an unset `z-index` reads as `""`, which
+ * `Number` turns into 0, satisfying any "below the modal" bound.
+ * @returns the styled stack element.
+ */
+function stackList(): HTMLElement {
+  const list = stackContainer().querySelector(".MuiStack-root");
+  if (!(list instanceof HTMLElement)) throw new Error("stack list not found");
+  return list;
 }
 
 /**
@@ -169,6 +189,31 @@ function click(testId: string): void {
   act(() => {
     screen.getByTestId(testId).click();
   });
+}
+
+/**
+ * Mounts the provider with a dialog already open and an error raised on mount,
+ * so the modal and the stack container belong to the same first commit.
+ * @returns harness component.
+ */
+function FirstCommitDialogHarness(): JSX.Element {
+  return (
+    <SnackbarProvider>
+      <OpenOnMount />
+    </SnackbarProvider>
+  );
+}
+
+/**
+ * Raises an error on mount and renders an already-open dialog.
+ * @returns the dialog.
+ */
+function OpenOnMount(): JSX.Element {
+  const { onOpen } = useSnackbar();
+  useEffect(() => {
+    onOpen("first commit failure", "first-commit-op");
+  }, [onOpen]);
+  return <Dialog open>dialog body</Dialog>;
 }
 
 describe("error snackbar stack", () => {
@@ -343,6 +388,30 @@ describe("error snackbar stack", () => {
     expect(screen.queryAllByRole("alert")).toHaveLength(0);
   });
 
+  it("is marked even by a modal open in the provider's own first commit", async () => {
+    // The container is created during render rather than by `Portal`'s effect,
+    // and this is the ordering that distinguishes the two. Effects run
+    // children-first and the provider renders `{children}` before
+    // `ErrorSnackbar`, so with a modal open from the very first commit its
+    // `ariaHiddenSiblings` snapshot runs before any effect of ours. A container
+    // appended by `Portal`'s effect isn't in `document.body` yet at that point
+    // and is never marked — leaving the error live in the accessibility tree
+    // while painted behind the modal and outside its focus trap.
+    render(<FirstCommitDialogHarness />);
+    await actAsync(async () => undefined);
+
+    // Queried from the document rather than through `stackContainer`, and
+    // asserted as "sits inside a marked subtree" rather than on the container's
+    // own attribute. Both deliberate: against a plain `<Portal>` the stack is
+    // still found — appended straight to `body` — so this fails on the missing
+    // `aria-hidden` ancestor, which is the property, rather than on a helper
+    // not finding an element that no longer exists.
+    const list = document.querySelector(".MuiStack-root");
+    if (!(list instanceof HTMLElement)) throw new Error("stack list not found");
+
+    expect(list.closest('[aria-hidden="true"]')).not.toBeNull();
+  });
+
   it("paints the stack below every modal, so hiding it from assistive tech is honest", () => {
     // The mark asserted above is only *correct* while the stack is genuinely
     // behind the modal. Raising it back to `zIndex.snackbar` (1400) would put
@@ -360,7 +429,7 @@ describe("error snackbar stack", () => {
     render(<StackHarness />);
     click("open-error");
 
-    const zIndex = Number(getComputedStyle(stackContainer()).zIndex);
+    const zIndex = Number(getComputedStyle(stackList()).zIndex);
     expect(zIndex).toBeLessThan(createTheme().zIndex.drawer);
   });
 
@@ -374,7 +443,7 @@ describe("error snackbar stack", () => {
 
     const entry = document.querySelector(".MuiSnackbarContent-root");
     if (!(entry instanceof HTMLElement)) throw new Error("entry not found");
-    expect(getComputedStyle(stackContainer()).pointerEvents).toBe("none");
+    expect(getComputedStyle(stackList()).pointerEvents).toBe("none");
     expect(getComputedStyle(entry).pointerEvents).toBe("auto");
   });
 

@@ -1,8 +1,9 @@
 import { useSnackbarState } from "@/app/components/common/Snackbar/provider/hook";
 import { Portal } from "@mui/material";
-import { type JSX } from "react";
+import { type JSX, useState } from "react";
 import { SnackbarContent } from "./components/SnackbarContent/snackbarContent";
 import { StyledStack } from "./errorSnackbar.styles";
+import { getStackContainer } from "./utils";
 
 /**
  * App-level error stack: one entry per error, each dismissed on its own.
@@ -23,21 +24,26 @@ import { StyledStack } from "./errorSnackbar.styles";
  * is a `.MuiDrawer-modal` sitting at `zIndex.drawer` (1200). See
  * `errorSnackbar.styles`.
  *
- * The container is mounted unconditionally, empty stack included. MUI's
- * `ariaHiddenSiblings` snapshots `document.body.children` once, at modal
- * *mount*, so a container created after a dialog opened is never marked — an
- * error raised by a request that was already in flight would stay live in the
- * accessibility tree while painted behind the backdrop and outside the focus
- * trap. Always being a body child is what keeps the `aria-hidden` rule above
- * true in every ordering. An empty container intercepts nothing: it is
+ * The container is mounted unconditionally, empty stack included, and is
+ * created during render rather than by `Portal`'s own effect (see
+ * `getStackContainer`). MUI's `ariaHiddenSiblings` snapshots
+ * `document.body.children` once, at modal *mount*, so a container that appears
+ * after a modal opened is never marked — the error would stay live in the
+ * accessibility tree while painted behind the modal and outside its focus
+ * trap. Being a body child before any effect runs is what keeps the
+ * `aria-hidden` rule above true in every ordering: an error raised by a
+ * request already in flight, and a modal open in the same commit as the
+ * provider. An empty container intercepts nothing: the styled list inside it is
  * `pointer-events: none` and paints nothing of its own.
  * @returns error snackbar stack.
  */
 export const ErrorSnackbar = (): JSX.Element => {
   const { entries } = useSnackbarState();
+  // Lazy initializer, so the element is in `body` from the first render on.
+  const [container] = useState(getStackContainer);
 
   return (
-    <Portal>
+    <Portal container={container}>
       <StyledStack>
         {entries.map((entry) => (
           <SnackbarContent entry={entry} key={entry.id} />
