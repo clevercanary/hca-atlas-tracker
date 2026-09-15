@@ -13,6 +13,7 @@ jest.mock("@/app/common/utils", () => ({
 }));
 
 import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { METHOD } from "@/app/common/entities";
 import { fetchResource } from "@/app/common/utils";
 import { useDeleteData } from "@/app/hooks/UseDeleteData/hook";
 import { useEntity } from "@/app/providers/entity/hook";
@@ -86,19 +87,17 @@ describe("useEditIntegratedObjectSourceDatasets", () => {
     expect(typeof result.current.onDelete).toBe("function");
   });
 
-  it("calls useDeleteData with correct API URL", () => {
+  it("calls useDeleteData with the API URL", () => {
     renderHook(
       () => useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
       { wrapper: createQuerySnackbarWrapper() },
     );
 
+    // No `onError`: the hook wires the snackbar itself.
     expect(mockUseDeleteData).toHaveBeenCalledWith(
       expect.stringContaining(TEST_ATLAS_ID),
-      undefined,
-      expect.objectContaining({
-        onError: expect.any(Function),
-        onSuccess: expect.any(Function),
-      }),
+      METHOD.DELETE,
+      expect.objectContaining({ onSuccess: expect.any(Function) }),
     );
   });
 

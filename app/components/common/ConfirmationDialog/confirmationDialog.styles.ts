@@ -34,6 +34,10 @@ export const DialogTitle = styled(DXDialogTitle)`
 export const DialogContent = styled(MDialogContent)`
   font: ${FONT.BODY_400};
   padding: 16px;
+
+  p + p {
+    margin: 8px 0 0;
+  }
 `;
 
 export const DialogActions = styled(MDialogActions)`

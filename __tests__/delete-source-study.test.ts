@@ -31,18 +31,16 @@ beforeEach(() => {
 });
 
 describe("useDeleteSourceStudy", () => {
-  it("wires useDeleteData with the source-study DELETE endpoint, an onError, and an onSuccess", () => {
+  it("wires useDeleteData with the source-study DELETE endpoint, and an onSuccess", () => {
     renderHook(() => useDeleteSourceStudy(PATH_PARAMETER), {
       wrapper: createQuerySnackbarWrapper(new QueryClient()),
     });
 
+    // No `onError`: the hook wires the snackbar itself.
     expect(mockUseDeleteData).toHaveBeenCalledWith(
       expect.stringContaining(SOURCE_STUDY_ID),
       METHOD.DELETE,
-      expect.objectContaining({
-        onError: expect.any(Function),
-        onSuccess: expect.any(Function),
-      }),
+      expect.objectContaining({ onSuccess: expect.any(Function) }),
     );
     // The request URL is atlas-scoped.
     expect(mockUseDeleteData.mock.calls[0][0]).toContain(ATLAS_ID);
