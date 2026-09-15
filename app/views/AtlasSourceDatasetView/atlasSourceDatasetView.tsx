@@ -7,16 +7,13 @@ import { useBackPath } from "@/app/components/Layout/components/Detail/component
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
 import { type Payload } from "@/app/hooks/UseEditFileArchived/entities";
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
-import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { EntityProvider } from "@/app/providers/entity/provider";
-import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/UseFetchAtlasSourceDatasets/query/constants";
-import { SOURCE_DATASET } from "@/app/views/AtlasSourceDatasetView/hooks/UseFetchAtlasSourceDataset/query/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { useQueryClient } from "@tanstack/react-query";
 import { Fragment, type JSX } from "react";
 import { StyledFileArchivedStatus } from "./atlasSourceDatasetView.styles";
 import { VIEW_ATLAS_SOURCE_DATASET_SECTION_CONFIGS } from "./common/sections";
-import { getBreadcrumbs, getTabs } from "./common/utils";
+import { getArchiveOptions, getBreadcrumbs, getTabs } from "./common/utils";
 import { useEditAtlasSourceDatasetForm } from "./hooks/useEditAtlasSourceDatasetForm";
 import { useEditAtlasSourceDatasetFormManager } from "./hooks/useEditAtlasSourceDatasetFormManager";
 
@@ -54,30 +51,7 @@ export const AtlasSourceDatasetView = ({
               <StyledFileArchivedStatus
                 isArchived={sourceDataset.isArchived}
                 payload={mapPayload(sourceDataset)}
-                options={{
-                  // Archiving changes the source dataset detail (isArchived)
-                  // and atlas-derived data; invalidate the React Query caches
-                  // (and the list, for when the user navigates back). The
-                  // invalidations are returned so onSubmit (which awaits
-                  // onSuccess) keeps the button pending until the refetched
-                  // isArchived lands.
-                  onSuccess: (): Promise<unknown> =>
-                    Promise.all([
-                      queryClient.invalidateQueries({
-                        queryKey: [
-                          SOURCE_DATASET,
-                          pathParameter.atlasId,
-                          pathParameter.sourceDatasetId,
-                        ],
-                      }),
-                      queryClient.invalidateQueries({
-                        queryKey: [ATLAS, pathParameter.atlasId],
-                      }),
-                      queryClient.invalidateQueries({
-                        queryKey: [SOURCE_DATASETS, pathParameter.atlasId],
-                      }),
-                    ]),
-                }}
+                options={getArchiveOptions(queryClient, pathParameter)}
               />
             )
           }
