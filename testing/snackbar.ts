@@ -79,6 +79,16 @@ export async function actAsync<T>(call: () => Promise<T>): Promise<T> {
 }
 
 /**
+ * The messages currently readable on the error stack, oldest first. Entries
+ * still running their exit transition are excluded.
+ * @param state - Snackbar state context.
+ * @returns messages of the open entries, in the order they were raised.
+ */
+export function snackbarMessages(state: SnackbarStateContextProps): string[] {
+  return state.entries.filter(({ open }) => open).map(({ message }) => message);
+}
+
+/**
  * Reads both snackbar contexts.
  *
  * Exported so a suite that cannot use `renderHook` — see the remount harness in

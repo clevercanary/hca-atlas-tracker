@@ -14,12 +14,14 @@ export const DropdownMenu = ({
   isDirty,
   pathParameter,
 }: DropdownMenuProps): JSX.Element => {
-  const { onDelete } = useDeleteSourceStudy(pathParameter);
+  const { isDeleting, onDelete } = useDeleteSourceStudy(pathParameter);
   return (
     <MoreDropdownMenu disabled={isDirty}>
       {({ closeMenu }): JSX.Element[] => [
         <MenuItem
           key="delete-source-study"
+          // Re-entry is guarded in the hook too; this is what the user sees.
+          disabled={isDeleting}
           onClick={(): void => {
             closeMenu();
             // A failed delete is reported via the error snackbar (the

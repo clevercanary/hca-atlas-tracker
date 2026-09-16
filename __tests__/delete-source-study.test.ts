@@ -1,6 +1,6 @@
 import { METHOD } from "@/app/common/entities";
 import { QueryClient } from "@tanstack/react-query";
-import { renderHook } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
 
 jest.mock("@/app/hooks/UseDeleteData/hook");
 jest.mock("next/router", () => ({
@@ -13,7 +13,7 @@ import { SOURCE_STUDIES } from "@/app/views/SourceStudiesView/hooks/UseFetchSour
 import { SOURCE_STUDY } from "@/app/views/SourceStudyView/hooks/UseFetchSourceStudy/query/constants";
 import { useDeleteSourceStudy } from "@/app/views/SourceStudyView/hooks/useDeleteSourceStudy";
 import { createQuerySnackbarWrapper } from "@/testing/snackbar";
-import { createMockResponse } from "@/testing/utils";
+import { createMockResponse, promiseWithResolvers } from "@/testing/utils";
 import Router from "next/router";
 
 const mockUseDeleteData = useDeleteData as jest.MockedFunction<
@@ -31,21 +31,80 @@ beforeEach(() => {
 });
 
 describe("useDeleteSourceStudy", () => {
-  it("wires useDeleteData with the source-study DELETE endpoint, an onError, and an onSuccess", () => {
+  it("wires useDeleteData with the source-study DELETE endpoint, and an onSuccess", () => {
     renderHook(() => useDeleteSourceStudy(PATH_PARAMETER), {
       wrapper: createQuerySnackbarWrapper(new QueryClient()),
     });
 
+    // No `onError`: the hook wires the snackbar itself.
     expect(mockUseDeleteData).toHaveBeenCalledWith(
       expect.stringContaining(SOURCE_STUDY_ID),
       METHOD.DELETE,
-      expect.objectContaining({
-        onError: expect.any(Function),
-        onSuccess: expect.any(Function),
-      }),
+      expect.objectContaining({ onSuccess: expect.any(Function) }),
     );
     // The request URL is atlas-scoped.
     expect(mockUseDeleteData.mock.calls[0][0]).toContain(ATLAS_ID);
+  });
+
+  it("ignores a second delete while the first is still away", async () => {
+    // The menu closes on click but can be reopened mid-request, so this was
+    // reachable. Two in-flight copies of the same DELETE share a snackbar
+    // entry — the key is method, URL and payload — and the second's success
+    // dismisses that key, erasing the first's unread failure. Guarded with a
+    // ref as well as state, because the state update doesn't land before a
+    // second click in the same tick could read it.
+    const [pending, respond] = promiseWithResolvers<boolean>();
+    const onDelete = jest.fn().mockReturnValue(pending);
+    mockUseDeleteData.mockReturnValue({ onDelete });
+
+    const { result } = renderHook(() => useDeleteSourceStudy(PATH_PARAMETER), {
+      wrapper: createQuerySnackbarWrapper(new QueryClient()),
+    });
+
+    let first: Promise<boolean> | undefined;
+    let second: Promise<boolean> | undefined;
+    await act(async () => {
+      first = result.current.onDelete();
+      second = result.current.onDelete();
+    });
+
+    expect(onDelete).toHaveBeenCalledTimes(1);
+    expect(await second).toBe(false);
+
+    await act(async () => {
+      respond(false);
+      await first;
+    });
+  });
+
+  it("reports the delete as in flight, and stops once it settles", async () => {
+    // What disables the menu item. Reset on every outcome, so a failed delete
+    // — where the study is still there to retry — doesn't leave the action
+    // stuck.
+    const [pending, respond] = promiseWithResolvers<boolean>();
+    mockUseDeleteData.mockReturnValue({
+      onDelete: jest.fn().mockReturnValue(pending),
+    });
+
+    const { result } = renderHook(() => useDeleteSourceStudy(PATH_PARAMETER), {
+      wrapper: createQuerySnackbarWrapper(new QueryClient()),
+    });
+
+    expect(result.current.isDeleting).toBe(false);
+
+    let deleting: Promise<boolean> | undefined;
+    await act(async () => {
+      deleting = result.current.onDelete();
+    });
+
+    expect(result.current.isDeleting).toBe(true);
+
+    await act(async () => {
+      respond(false);
+      await deleting;
+    });
+
+    expect(result.current.isDeleting).toBe(false);
   });
 
   it("removes the deleted detail from cache and redirects on delete success", () => {

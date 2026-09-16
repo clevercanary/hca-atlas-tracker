@@ -9,11 +9,10 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/app/components/common/ConfirmationDialog/confirmationDialog.styles";
-import { useSnackbarContainerRef } from "@/app/components/common/Snackbar/hooks/UseSnackbarContainerRef/hook";
-import { SNACKBAR_SCOPE } from "@/app/components/common/Snackbar/types";
+import { TypographyError } from "@/app/components/common/Typography/components/TypographyError/typographyError";
 import { usePublishAtlas } from "@/app/hooks/UsePublishAtlas/hook";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import { type JSX } from "react";
 
 interface Props {
@@ -31,27 +30,54 @@ export const PublishDialog = ({
   open,
   pathParameter,
 }: Props): JSX.Element => {
-  const { isRequesting, onSubmit } = usePublishAtlas();
-  const snackbarContainerRef = useSnackbarContainerRef(
-    open,
-    SNACKBAR_SCOPE.PUBLISH_ATLAS,
-  );
+  const {
+    actions: { onDismissError, onSubmit },
+    status: { error, isRequesting },
+  } = usePublishAtlas();
+
   return (
-    // The toast renders inside this dialog while it is open, so a failure here
-    // is reachable by Tab; see `useSnackbarContainerRef`.
     <Dialog
       fullWidth
       maxWidth="xs"
-      onClose={onCancel}
+      // Undefined while the request is in flight, which blocks both escape and
+      // the backdrop: MUI routes each through onClose, so withholding it is the
+      // whole guard. The title's close button is withheld the same way, and
+      // Cancel is already disabled on the flag — so no exit is open until the
+      // request settles, and a failure can never land against a dialog that has
+      // moved on.
+      //
+      // The cost is deliberate: `fetch` has no timeout here, so a hung request
+      // leaves the dialog with no way out until it settles. Accepted because
+      // the alternative — a live exit on an irreversible action — is the worse
+      // of the two, and because the exit that was left open was an icon button
+      // with no accessible name (#1578), so it was never an exit for everyone
+      // anyway.
+      onClose={isRequesting ? undefined : onCancel}
       open={open}
-      slotProps={{ paper: { ref: snackbarContainerRef } }}
+      // Cleared on enter and on exited. Both are now defence in depth rather
+      // than load-bearing: with every exit withheld mid-request, the dialog
+      // can't be closed before the request settles, so a failure has no closed
+      // dialog to land on. They still cover a close this dialog doesn't
+      // control — a route change or a remount when `isDirty` flips — and an
+      // exit interrupted by a reopen never fires `onExited` at all. On exited
+      // rather than on close, so the message isn't removed while still on
+      // screen.
+      slotProps={{
+        transition: { onEnter: onDismissError, onExited: onDismissError },
+      }}
     >
-      <DialogTitle onClose={onCancel} title="Publish Atlas" />
+      <DialogTitle
+        onClose={isRequesting ? undefined : onCancel}
+        title="Publish Atlas"
+      />
       <DialogContent dividers>
-        Are you sure you want to publish{" "}
-        {atlas === undefined ? "this atlas" : getAtlasName(atlas)}? This action
-        is irreversible and will freeze the source dataset and integrated object
-        lists for this version.
+        <Typography>
+          Are you sure you want to publish{" "}
+          {atlas === undefined ? "this atlas" : getAtlasName(atlas)}? This
+          action is irreversible and will freeze the source dataset and
+          integrated object lists for this version.
+        </Typography>
+        <TypographyError>{error}</TypographyError>
       </DialogContent>
       <DialogActions>
         <Button
