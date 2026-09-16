@@ -6,6 +6,7 @@ jest.mock("@/app/common/utils", () => ({
 
 import { fetchResource } from "@/app/common/utils";
 import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/provider";
+import { CreateRevisionDialog } from "@/app/views/AtlasView/components/CreateRevisionDialog/createRevisionDialog";
 import { PublishDialog } from "@/app/views/AtlasView/components/PublishDialog/publishDialog";
 import { createMockResponse, promiseWithResolvers } from "@/testing/utils";
 import "@testing-library/jest-dom";
@@ -159,6 +160,136 @@ function publishPending(): (response: Response) => void {
 function errorRegion(): HTMLElement {
   return screen.getByRole("alert");
 }
+
+/**
+ * The two confirmation dialogs, which carry the same mid-request guard —
+ * withheld `onClose`, withheld title close button, disabled buttons, inline
+ * error region — written out separately in each component.
+ *
+ * Parameterised rather than tested once against `PublishDialog`: the guard is
+ * duplicated, so testing one copy proves nothing about the other, and the two
+ * would drift silently. Only the guard is shared here; behaviour that differs
+ * (the revision dialog latches `succeeded` and navigates with
+ * `location.assign`) stays with its own hook suite.
+ */
+const GUARDED_DIALOGS = [
+  {
+    confirmName: "Publish",
+    label: "PublishDialog",
+    renderDialog: (onCancel: () => void, open: boolean): JSX.Element => (
+      <PublishDialog
+        atlas={undefined}
+        onCancel={onCancel}
+        onPublished={(): void => undefined}
+        open={open}
+        pathParameter={TEST_PATH_PARAMETER}
+      />
+    ),
+  },
+  {
+    confirmName: "Create Version",
+    label: "CreateRevisionDialog",
+    renderDialog: (onCancel: () => void, open: boolean): JSX.Element => (
+      <CreateRevisionDialog
+        atlas={undefined}
+        onCancel={onCancel}
+        open={open}
+        pathParameter={TEST_PATH_PARAMETER}
+      />
+    ),
+  },
+];
+
+describe.each(GUARDED_DIALOGS)(
+  "$label mid-request guard",
+  ({ confirmName, renderDialog }) => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    /**
+     * Renders the dialog open, with an observable `onCancel`.
+     * @returns the onCancel mock.
+     */
+    function renderGuarded(): jest.Mock {
+      const onCancel = jest.fn();
+      render(
+        <SnackbarProvider>{renderDialog(onCancel, true)}</SnackbarProvider>,
+      );
+      return onCancel;
+    }
+
+    /**
+     * Starts the confirmed action and leaves the request in flight.
+     * @returns resolve function for the pending response.
+     */
+    function confirmPending(): (response: Response) => void {
+      const [pending, respond] = promiseWithResolvers<Response>();
+      mockFetchResource.mockReturnValue(pending);
+      act(() => {
+        screen.getByRole("button", { name: confirmName }).click();
+      });
+      return respond;
+    }
+
+    it("shows a failure inline rather than on the app stack", async () => {
+      // The stack sits below every modal and is marked `aria-hidden` while one
+      // is open, behind a 90%-ink backdrop. A failure routed there would be
+      // neither readable nor announced until the dialog closed — on an
+      // irreversible action.
+      mockFetchResource.mockResolvedValue(
+        createMockResponse(403, { message: "Forbidden for this atlas" }),
+      );
+      renderGuarded();
+
+      await act(async () => {
+        screen.getByRole("button", { name: confirmName }).click();
+      });
+
+      const alert = screen.getByRole("alert");
+      expect(alert).toHaveTextContent("Forbidden for this atlas");
+      expect(document.querySelector(".MuiDialog-paper")?.contains(alert)).toBe(
+        true,
+      );
+      expect(document.querySelector(".MuiSnackbarContent-root")).toBeNull();
+    });
+
+    it("withholds every exit while the request is in flight", async () => {
+      // Escape, the backdrop, Cancel and the title's "x" together. Each is a
+      // separate line in the component, so each copy has to be checked.
+      const onCancel = renderGuarded();
+      expect(titleCloseButton()).toBeInTheDocument();
+
+      const respond = confirmPending();
+
+      expect(
+        document.querySelector(".MuiDialogTitle-root .MuiIconButton-root"),
+      ).toBeNull();
+      expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
+      expect(screen.getByRole("button", { name: confirmName })).toBeDisabled();
+
+      fireEvent.keyDown(screen.getByRole("dialog"), {
+        code: "Escape",
+        key: "Escape",
+      });
+      fireEvent.click(backdrop());
+      expect(onCancel).not.toHaveBeenCalled();
+
+      await act(async () => {
+        respond(createMockResponse(403, { message: "Forbidden" }));
+      });
+
+      // And every exit is live again once it settles.
+      expect(titleCloseButton()).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled();
+      fireEvent.keyDown(screen.getByRole("dialog"), {
+        code: "Escape",
+        key: "Escape",
+      });
+      expect(onCancel).toHaveBeenCalled();
+    });
+  },
+);
 
 describe("confirmation dialog inline errors", () => {
   beforeEach(() => {

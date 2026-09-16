@@ -6,9 +6,10 @@ import { ROUTE } from "@/app/routes/constants";
 import { SOURCE_STUDY } from "@/app/views/SourceStudyView/hooks/UseFetchSourceStudy/query/constants";
 import { useQueryClient } from "@tanstack/react-query";
 import Router from "next/router";
-import { useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 
 export interface UseDeleteSourceStudy {
+  isDeleting: boolean;
   onDelete: () => Promise<boolean>;
 }
 
@@ -37,13 +38,41 @@ export const useDeleteSourceStudy = (
 
   // A failed delete is surfaced via the app-level error snackbar; onDelete
   // resolves false rather than rejecting.
-  const { onDelete } = useDeleteData(
+  const { onDelete: deleteSourceStudy } = useDeleteData(
     getRequestURL(API.ATLAS_SOURCE_STUDY, pathParameter),
     METHOD.DELETE,
     { onSuccess },
   );
 
+  /*
+   * One delete at a time. The menu closes on click but can be reopened while
+   * the request is still away, and a second identical DELETE is not merely
+   * redundant: the snackbar keys an entry by method, URL and payload, so two
+   * in-flight copies of this request share one. The second's success then
+   * dismisses that key and erases the first's unread failure — the operation
+   * being reported on did fail, and the user never sees it.
+   *
+   * A ref as well as state because the state update doesn't land before a
+   * second click in the same tick could read it. The ref is the guard; the
+   * state is what disables the menu item.
+   */
+  const isDeletingRef = useRef(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const onDelete = useCallback(async (): Promise<boolean> => {
+    if (isDeletingRef.current) return false;
+    isDeletingRef.current = true;
+    setIsDeleting(true);
+    try {
+      return await deleteSourceStudy();
+    } finally {
+      isDeletingRef.current = false;
+      setIsDeleting(false);
+    }
+  }, [deleteSourceStudy]);
+
   return {
+    isDeleting,
     onDelete,
   };
 };

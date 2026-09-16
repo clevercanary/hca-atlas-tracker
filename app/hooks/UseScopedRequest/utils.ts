@@ -23,12 +23,17 @@ import { hashKey } from "@tanstack/react-query";
  * and it would cost the retry-replaces-its-own-entry behaviour that issue
  * wanted.
  *
- * Not reachable today. The consumers are `useEditFileArchived`, whose button is
- * disabled while its own request runs and which never has two controls over the
- * same payload mounted at once — the detail and list surfaces are separate
- * routes — and `useDeleteData`, whose one call site keys on a specific source
- * study. Worth revisiting only if a surface ever fires the same operation from
- * two controls concurrently.
+ * So a caller that can fire the same operation twice has to serialize it
+ * itself, and one did: the source study delete menu closes on click but can be
+ * reopened while the request is away, sending an identical DELETE. First
+ * failing and second succeeding erased the unread failure. `useDeleteSourceStudy`
+ * now guards re-entry, and `delete-source-study` pins it.
+ *
+ * The remaining consumer is safe by construction rather than by guard:
+ * `useEditFileArchived`'s button is disabled while its own request runs, and no
+ * two controls over the same payload are mounted at once — the detail and list
+ * surfaces are separate routes. That is a property of the surfaces, not of this
+ * key, so a new caller needs checking rather than assuming.
  * @param method - Request method.
  * @param requestURL - Request URL.
  * @param payload - Request payload, if any.
