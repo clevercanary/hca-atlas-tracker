@@ -18,12 +18,15 @@ export const useInlineRequest = (): UseInlineRequest => {
   /*
    * The attempt an incoming failure is allowed to report on. The hook outlives
    * the dialog's visibility, so a request can still be in flight after the
-   * dialog it was started from has closed — the title's close button stays live
-   * mid-request by design. Clearing on enter and on exited handles the failure
-   * that lands while the dialog is closed, but not the reverse order: closing
-   * mid-request, reopening, and only then having the first request fail puts a
-   * dead confirmation's error in front of a live one, for an irreversible
-   * action. Both dismissing and starting a request move this on, so a failure
+   * dialog it was started from has closed.
+   *
+   * The consumers now withhold every exit mid-request, so the user can't be the
+   * one who closes it — but a close this dialog doesn't control still can be,
+   * such as a route change or a remount. Clearing on enter and on exited
+   * handles a failure that lands while the dialog is closed; it does not handle
+   * the reverse order, where the dialog is closed, reopened, and only then does
+   * the first request fail, putting a dead confirmation's error in front of a
+   * live one. Both dismissing and starting a request move this on, so a failure
    * is shown only while it is still the current attempt's.
    */
   const attemptRef = useRef(0);

@@ -36,6 +36,18 @@ function Harness(): JSX.Element {
       <button data-testid="open" onClick={(): void => setOpen(true)}>
         open
       </button>
+      {/*
+       * A close the dialog doesn't control — a route change or a remount when
+       * `isDirty` flips. Since every exit the dialog owns is withheld
+       * mid-request, this is the only way a confirmation can now disappear
+       * while its request is still running.
+       */}
+      <button
+        data-testid="close-externally"
+        onClick={(): void => setOpen(false)}
+      >
+        close
+      </button>
       <PublishDialog
         atlas={undefined}
         onCancel={(): void => setOpen(false)}
@@ -64,6 +76,16 @@ async function publish(): Promise<void> {
 function openDialog(): void {
   act(() => {
     screen.getByTestId("open").click();
+  });
+}
+
+/**
+ * Closes the dialog from outside, bypassing its own controls.
+ * @returns void.
+ */
+function closeDialogExternally(): void {
+  act(() => {
+    screen.getByTestId("close-externally").click();
   });
 }
 
@@ -231,18 +253,16 @@ describe("confirmation dialog inline errors", () => {
   });
 
   it("clears a failure that landed after the dialog was closed mid-request", async () => {
-    // The title's close button is the one exit left open mid-request — Cancel
-    // is disabled, escape and the backdrop are guarded — so the failure
-    // arrives after `onExited` has already run and sets `error` on a closed
-    // but still-mounted dialog. Without the enter clear, the next confirmation
-    // for an irreversible action opens showing it.
+    // Every exit the dialog owns is withheld mid-request, so the user can no
+    // longer be the one who closes it — but a close it doesn't control can,
+    // and then the failure arrives after `onExited` has run and sets `error`
+    // on a closed but still-mounted dialog. Without the enter clear, the next
+    // confirmation for an irreversible action opens showing it.
     render(<Harness />);
     openDialog();
     const respond = publishPending();
 
-    act(() => {
-      titleCloseButton().click();
-    });
+    closeDialogExternally();
     await waitFor(() =>
       expect(document.querySelector(".MuiDialog-root")).toBeNull(),
     );
@@ -257,18 +277,15 @@ describe("confirmation dialog inline errors", () => {
 
   it("ignores a failure from a session the user already closed and reopened", async () => {
     // The other ordering of the test above, and the one the enter/exited clears
-    // can't reach: closing mid-request, reopening, and only *then* having the
-    // first request fail. Both clears have already run by the time the failure
+    // can't reach: closed mid-request, reopened, and only *then* the first
+    // request fails. Both clears have already run by the time the failure
     // lands, so without an attempt guard the dead confirmation's error is shown
-    // against the live one — on an irreversible action, attached to a request
-    // the user abandoned.
+    // against the live one — on an irreversible action.
     render(<Harness />);
     openDialog();
     const respond = publishPending();
 
-    act(() => {
-      titleCloseButton().click();
-    });
+    closeDialogExternally();
     await waitFor(() =>
       expect(document.querySelector(".MuiDialog-root")).toBeNull(),
     );
@@ -279,6 +296,33 @@ describe("confirmation dialog inline errors", () => {
     });
 
     expect(errorRegion()).toBeEmptyDOMElement();
+  });
+
+  it("withholds the title's close button while the request is in flight", async () => {
+    // The last exit to be closed. Escape and the backdrop were already guarded
+    // and Cancel already disabled, leaving the "x" as the one way out of a
+    // confirmation for an irreversible action while it was still running — and
+    // the path by which a failure could land against a dialog that had moved
+    // on. findable-ui's `DialogTitle` renders the button only when `onClose` is
+    // given and has no `disabled` prop, so withholding `onClose` is what the
+    // guard looks like here: the button is absent rather than greyed out.
+    render(<Harness />);
+    openDialog();
+    expect(titleCloseButton()).toBeInTheDocument();
+
+    const respond = publishPending();
+
+    expect(
+      document.querySelector(".MuiDialogTitle-root .MuiIconButton-root"),
+    ).toBeNull();
+
+    // And back once the request settles, so the dialog is never left unclosable
+    // after the fact.
+    await act(async () => {
+      respond(createMockResponse(403, { message: "Forbidden for this atlas" }));
+    });
+
+    expect(titleCloseButton()).toBeInTheDocument();
   });
 
   it("ignores escape while the request is in flight, and honours it after", async () => {

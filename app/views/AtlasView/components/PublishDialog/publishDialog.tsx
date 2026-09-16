@@ -41,29 +41,35 @@ export const PublishDialog = ({
       maxWidth="xs"
       // Undefined while the request is in flight, which blocks both escape and
       // the backdrop: MUI routes each through onClose, so withholding it is the
-      // whole guard. What it stops is the accidental early close — a stray
-      // backdrop click, a reflexive escape — which is also the path where a
-      // failure can land against a dialog that has already moved on. onEnter
-      // and onExited below cover that timing; this keeps them from being the
-      // only thing between a late failure and the next confirmation. It also
-      // keeps the exits consistent with the buttons, already disabled
-      // mid-request.
+      // whole guard. The title's close button is withheld the same way, and
+      // Cancel is already disabled on the flag — so no exit is open until the
+      // request settles, and a failure can never land against a dialog that has
+      // moved on.
       //
-      // The title's close button stays live: closing with the "x" is a
-      // deliberate act rather than a reflex, and fetch has no timeout here, so
-      // it is the out if a request hangs.
+      // The cost is deliberate: `fetch` has no timeout here, so a hung request
+      // leaves the dialog with no way out until it settles. Accepted because
+      // the alternative — a live exit on an irreversible action — is the worse
+      // of the two, and because the exit that was left open was an icon button
+      // with no accessible name (#1578), so it was never an exit for everyone
+      // anyway.
       onClose={isRequesting ? undefined : onCancel}
       open={open}
-      // Cleared on enter and on exited. Exited alone isn't enough: the title's
-      // close button still closes the dialog mid-request, so a failure can land
-      // after the exit has run and would greet the next confirmation; and an
-      // exit interrupted by a reopen never fires it at all. On exited rather
-      // than on close, so the message isn't removed while still on screen.
+      // Cleared on enter and on exited. Both are now defence in depth rather
+      // than load-bearing: with every exit withheld mid-request, the dialog
+      // can't be closed before the request settles, so a failure has no closed
+      // dialog to land on. They still cover a close this dialog doesn't
+      // control — a route change or a remount when `isDirty` flips — and an
+      // exit interrupted by a reopen never fires `onExited` at all. On exited
+      // rather than on close, so the message isn't removed while still on
+      // screen.
       slotProps={{
         transition: { onEnter: onDismissError, onExited: onDismissError },
       }}
     >
-      <DialogTitle onClose={onCancel} title="Publish Atlas" />
+      <DialogTitle
+        onClose={isRequesting ? undefined : onCancel}
+        title="Publish Atlas"
+      />
       <DialogContent dividers>
         <Typography>
           Are you sure you want to publish{" "}
