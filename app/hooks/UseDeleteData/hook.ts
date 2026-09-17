@@ -8,8 +8,9 @@ import { type UseDeleteData, type UseDeleteDataOptions } from "./types";
  * raised on the app-level error snackbar.
  * @param requestUrl - Request URL.
  * @param method - Request method.
- * @param options - Success callback, and an optional success-status predicate.
- * The default (`isFetchStatusOk`) accepts only 200 and 304, so an endpoint
+ * @param options - Success callback, the query caches to invalidate on success
+ * (see `onRequestSuccess`), and an optional success-status predicate. The
+ * default (`isFetchStatusOk`) accepts only 200 and 304, so an endpoint
  * answering 204 needs to say so here.
  * @returns delete request function, resolving `true` on success.
  */
@@ -18,15 +19,26 @@ export const useDeleteData = <T>(
   method: METHOD,
   options: UseDeleteDataOptions,
 ): UseDeleteData<T> => {
-  const { isSuccessStatus, onSuccess } = options;
+  const { invalidateQueryKeys, isSuccessStatus, onSuccess } = options;
   const {
     actions: { onRequest },
   } = useScopedRequest();
 
   const onDelete = useCallback(
     (payload?: T): Promise<boolean> =>
-      onRequest(requestUrl, method, payload, { isSuccessStatus, onSuccess }),
-    [isSuccessStatus, method, onRequest, onSuccess, requestUrl],
+      onRequest(requestUrl, method, payload, {
+        invalidateQueryKeys,
+        isSuccessStatus,
+        onSuccess,
+      }),
+    [
+      invalidateQueryKeys,
+      isSuccessStatus,
+      method,
+      onRequest,
+      onSuccess,
+      requestUrl,
+    ],
   );
 
   return {

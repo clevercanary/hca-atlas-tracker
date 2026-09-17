@@ -1,8 +1,14 @@
+jest.mock(
+  "@/app/components/Forms/components/FileArchivedStatus/fileArchivedStatus",
+);
+
+import { EditFileArchivedStatus } from "@/app/components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/editFileArchivedStatus";
 import {
   getArchiveOptions,
   mapPayload,
 } from "@/app/components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/utils";
 import { RowSelection } from "@/app/components/Entity/components/common/Table/components/TableFeatures/RowSelection/rowSelection";
+import { FileArchivedStatus } from "@/app/components/Forms/components/FileArchivedStatus/fileArchivedStatus";
 import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/UseFetchAtlasSourceDatasets/query/constants";
 import { type QueryKey } from "@tanstack/react-query";
@@ -10,6 +16,10 @@ import { type Row, type RowData, type Table } from "@tanstack/react-table";
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
 import { type JSX } from "react";
+
+const mockFileArchivedStatus = FileArchivedStatus as jest.MockedFunction<
+  typeof FileArchivedStatus
+>;
 
 const TEST_ATLAS_ID = "test-atlas-id";
 
@@ -47,6 +57,29 @@ function table<T extends RowData>(
 describe("bulk archive selection", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe("EditFileArchivedStatus", () => {
+    it("wires the selected rows, the table and the keys into the archive control", () => {
+      // The helpers below are pinned on their own; this pins that the component
+      // actually reaches them with its props, so a regression in that wiring
+      // can't hide behind passing helper tests.
+      mockFileArchivedStatus.mockImplementation((): JSX.Element => <div />);
+      const resetRowSelection = jest.fn();
+      render(
+        <EditFileArchivedStatus
+          queryKeys={QUERY_KEYS}
+          rows={[row("file-1"), row("file-2")]}
+          table={table([], resetRowSelection)}
+        />,
+      );
+
+      const { options, payload } = mockFileArchivedStatus.mock.calls[0][0];
+      expect(payload).toEqual({ fileIds: ["file-1", "file-2"] });
+      expect(options?.invalidateQueryKeys).toEqual({ dispatched: QUERY_KEYS });
+      options?.onSuccess?.();
+      expect(resetRowSelection).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("getArchiveOptions", () => {

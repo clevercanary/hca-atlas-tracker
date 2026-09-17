@@ -7,6 +7,7 @@ jest.mock("@/app/common/utils", () => ({
 import { METHOD } from "@/app/common/entities";
 import { fetchResource } from "@/app/common/utils";
 import { useDeleteData } from "@/app/hooks/UseDeleteData/hook";
+import { mockQueryClient } from "@/testing/query";
 import {
   actAsync,
   renderHookWithSnackbar,
@@ -157,5 +158,31 @@ describe("useDeleteData", () => {
       ).resolves.toBe(true);
     });
     expect(snackbarMessages(result.current.snackbar)).toEqual([]);
+  });
+
+  it("forwards invalidateQueryKeys, so a delete can declare the caches it refreshes", async () => {
+    // The options type advertises the declarative invalidation the request
+    // layer performs; dropping it here would leave a caller's declared caches
+    // stale while type-checking as if they were honoured.
+    mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
+    const { invalidatedKeys, queryClient, resolve } = mockQueryClient();
+    const { result } = renderHookWithSnackbar(
+      () =>
+        useDeleteData(TEST_REQUEST_URL, METHOD.DELETE, {
+          invalidateQueryKeys: { awaited: [["detail"]] },
+        }),
+      queryClient,
+    );
+
+    let deleted: Promise<boolean> | undefined;
+    await actAsync(async () => {
+      deleted = result.current.hook.onDelete();
+    });
+    expect(invalidatedKeys()).toEqual([["detail"]]);
+
+    await actAsync(async () => {
+      resolve(["detail"]);
+    });
+    await expect(deleted).resolves.toBe(true);
   });
 });
