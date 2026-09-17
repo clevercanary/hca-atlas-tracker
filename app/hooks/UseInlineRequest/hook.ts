@@ -1,19 +1,25 @@
 import { type RequestFn } from "@/app/common/entities";
-import { performRequest } from "@/app/common/requests";
+import { onRequestSuccess, performRequest } from "@/app/common/requests";
 import { usePendingRequest } from "@/app/hooks/UsePendingRequest/hook";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
 import { type UseInlineRequest } from "./types";
 
 /**
  * Performs a request, returning any failure as `error` for the caller to
- * render. The error is cleared at the start of each request.
+ * render. The error is cleared at the start of each request. On success the
+ * caches declared in `options.invalidateQueryKeys` are invalidated, and the
+ * request resolves once the awaited ones have refetched (see
+ * `onRequestSuccess`).
  *
- * `isRequesting` is true only while a request is in flight, and is reset on
- * every outcome, so controls disabled on it cannot stick.
+ * `isRequesting` is true while a request is in flight and while its awaited
+ * invalidations refetch, and is reset on every outcome, so controls disabled
+ * on it cannot stick.
  * @returns the request actions and their status.
  */
 export const useInlineRequest = (): UseInlineRequest => {
   const [error, setError] = useState<string | undefined>(undefined);
+  const queryClient = useQueryClient();
 
   /*
    * The attempt an incoming failure is allowed to report on. The hook outlives
@@ -41,14 +47,15 @@ export const useInlineRequest = (): UseInlineRequest => {
       const attempt = ++attemptRef.current;
       setError(undefined);
       return performRequest(requestURL, method, payload, {
-        ...options,
+        isSuccessStatus: options?.isSuccessStatus,
         onError: (error) => {
           if (attempt !== attemptRef.current) return;
           setError(error.message);
         },
+        onSuccess: (res) => onRequestSuccess(queryClient, res, options),
       });
     },
-    [],
+    [queryClient],
   );
 
   const { isRequesting, onRequest } = usePendingRequest(onErrorRequest);

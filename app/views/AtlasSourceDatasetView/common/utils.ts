@@ -7,14 +7,13 @@ import {
   getAtlasSourceDatasetBreadcrumb,
   getAtlasSourceDatasetsBreadcrumb,
 } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
-import { type OnSubmitOptions } from "@/app/hooks/UseEditFileArchived/entities";
+import { type OnSubmitOptions } from "@/app/hooks/UseEditFileArchived/types";
 import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { ROUTE } from "@/app/routes/constants";
 import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/UseFetchAtlasSourceDatasets/query/constants";
 import { SOURCE_DATASET } from "@/app/views/AtlasSourceDatasetView/hooks/UseFetchAtlasSourceDataset/query/constants";
 import { type QueryKey as SourceDatasetQueryKey } from "@/app/views/AtlasSourceDatasetView/hooks/UseFetchAtlasSourceDataset/query/types";
 import { type Tab } from "@databiosphere/findable-ui/lib/components/common/Tabs/tabs";
-import { type QueryClient } from "@tanstack/react-query";
 
 /**
  * Returns the archive/unarchive options for the source dataset view.
@@ -29,46 +28,35 @@ import { type QueryClient } from "@tanstack/react-query";
  * its list for exactly that reason; the two differ only in that this one keeps
  * the explicit call.)
  *
- * Only the detail invalidation is returned. `onSubmit` awaits `onSuccess`, so
- * whatever is returned holds the archive button disabled, and the guard that
- * window exists for — not acting twice on a stale `isArchived` — depends on the
- * detail refetch alone. The other two are for cache correctness elsewhere, so
- * they are fired rather than awaited: awaiting them stretched the dead-button
+ * Only the detail invalidation is awaited. The archive button stays disabled
+ * for as long as the hook's success handling takes, and the guard that window
+ * exists for — not acting twice on a stale `isArchived` — depends on the detail
+ * refetch alone. The other two are for cache correctness elsewhere, so they are
+ * dispatched rather than awaited: awaiting them stretched the dead-button
  * window to the slowest of the three roundtrips, and `useFetchAtlas` is mounted
  * on this view, so the atlas key triggers a live refetch on every click.
- *
- * Dropping the await loses no error handling. `refetchQueries` catches each
- * query's rejection itself unless `throwOnError` is set, which it isn't here,
- * so these promises resolve either way and there is nothing for a `catch` to
- * do.
- * @param queryClient - Query client.
  * @param pathParameter - Path parameter.
  * @returns archive/unarchive options.
  */
 export function getArchiveOptions(
-  queryClient: QueryClient,
   pathParameter: PathParameter,
 ): OnSubmitOptions {
+  // Typed as the fetch hook's own key tuple: a segment added to the detail key
+  // (the list keys already carry an `archived` one) is then a compile error
+  // here, rather than an invalidation matching nothing — which resolves
+  // immediately and silently shrinks this window back to the request alone.
+  const detailQueryKey: SourceDatasetQueryKey = [
+    SOURCE_DATASET,
+    pathParameter.atlasId,
+    pathParameter.sourceDatasetId,
+  ];
   return {
-    onSuccess: (): Promise<unknown> => {
-      // Typed as the fetch hook's own key tuple: a segment added to the detail
-      // key (the list keys already carry an `archived` one) is then a compile
-      // error here, rather than an invalidation matching nothing — which
-      // resolves immediately and silently shrinks this window back to the
-      // request alone.
-      const queryKey: SourceDatasetQueryKey = [
-        SOURCE_DATASET,
-        pathParameter.atlasId,
-        pathParameter.sourceDatasetId,
-      ];
-      const detail = queryClient.invalidateQueries({ queryKey });
-      queryClient.invalidateQueries({
-        queryKey: [ATLAS, pathParameter.atlasId],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [SOURCE_DATASETS, pathParameter.atlasId],
-      });
-      return detail;
+    invalidateQueryKeys: {
+      awaited: [detailQueryKey],
+      dispatched: [
+        [ATLAS, pathParameter.atlasId],
+        [SOURCE_DATASETS, pathParameter.atlasId],
+      ],
     },
   };
 }
