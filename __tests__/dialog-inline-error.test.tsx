@@ -5,9 +5,9 @@ jest.mock("@/app/common/utils", () => ({
 }));
 
 import { fetchResource } from "@/app/common/utils";
-import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/provider";
 import { CreateRevisionDialog } from "@/app/views/AtlasView/components/CreateRevisionDialog/createRevisionDialog";
 import { PublishDialog } from "@/app/views/AtlasView/components/PublishDialog/publishDialog";
+import { createQuerySnackbarWrapper } from "@/testing/snackbar";
 import { createMockResponse, promiseWithResolvers } from "@/testing/utils";
 import "@testing-library/jest-dom";
 import {
@@ -25,6 +25,9 @@ const mockFetchResource = fetchResource as jest.MockedFunction<
 
 const TEST_PATH_PARAMETER = { atlasId: "test-atlas-id" };
 
+// The dialogs' request hook reads the query client as well as the snackbar.
+const Providers = createQuerySnackbarWrapper();
+
 /**
  * Mounts the dialog the way `AtlasView` does — rendered always, opened by a
  * prop — so it stays mounted across open and close.
@@ -33,7 +36,7 @@ const TEST_PATH_PARAMETER = { atlasId: "test-atlas-id" };
 function Harness(): JSX.Element {
   const [open, setOpen] = useState(false);
   return (
-    <SnackbarProvider>
+    <Providers>
       <button data-testid="open" onClick={(): void => setOpen(true)}>
         open
       </button>
@@ -56,7 +59,7 @@ function Harness(): JSX.Element {
         open={open}
         pathParameter={TEST_PATH_PARAMETER}
       />
-    </SnackbarProvider>
+    </Providers>
   );
 }
 
@@ -99,7 +102,7 @@ function closeDialogExternally(): void {
 function renderOpen(): jest.Mock {
   const onCancel = jest.fn();
   render(
-    <SnackbarProvider>
+    <Providers>
       <PublishDialog
         atlas={undefined}
         onCancel={onCancel}
@@ -107,7 +110,7 @@ function renderOpen(): jest.Mock {
         open
         pathParameter={TEST_PATH_PARAMETER}
       />
-    </SnackbarProvider>,
+    </Providers>,
   );
   return onCancel;
 }
@@ -213,9 +216,7 @@ describe.each(GUARDED_DIALOGS)(
      */
     function renderGuarded(): jest.Mock {
       const onCancel = jest.fn();
-      render(
-        <SnackbarProvider>{renderDialog(onCancel, true)}</SnackbarProvider>,
-      );
+      render(<Providers>{renderDialog(onCancel, true)}</Providers>);
       return onCancel;
     }
 

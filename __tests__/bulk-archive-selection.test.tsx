@@ -1,26 +1,15 @@
-jest.mock(
-  "@/app/components/Forms/components/FileArchivedStatus/fileArchivedStatus",
-);
-
-import { EditFileArchivedStatus } from "@/app/components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/editFileArchivedStatus";
+import {
+  getArchiveOptions,
+  mapPayload,
+} from "@/app/components/Entity/components/common/Table/components/TableFeatures/RowSelection/components/EditFileArchivedStatus/utils";
 import { RowSelection } from "@/app/components/Entity/components/common/Table/components/TableFeatures/RowSelection/rowSelection";
-import { FileArchivedStatus } from "@/app/components/Forms/components/FileArchivedStatus/fileArchivedStatus";
-import { type OnSubmitOptions } from "@/app/hooks/UseEditFileArchived/entities";
 import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/UseFetchAtlasSourceDatasets/query/constants";
-import {
-  QueryClient,
-  QueryClientProvider,
-  type QueryKey,
-} from "@tanstack/react-query";
+import { type QueryKey } from "@tanstack/react-query";
 import { type Row, type RowData, type Table } from "@tanstack/react-table";
 import "@testing-library/jest-dom";
 import { render } from "@testing-library/react";
 import { type JSX } from "react";
-
-const mockFileArchivedStatus = FileArchivedStatus as jest.MockedFunction<
-  typeof FileArchivedStatus
->;
 
 const TEST_ATLAS_ID = "test-atlas-id";
 
@@ -60,77 +49,43 @@ describe("bulk archive selection", () => {
     jest.clearAllMocks();
   });
 
-  describe("EditFileArchivedStatus onSuccess", () => {
-    /**
-     * Renders the bulk control and returns the options it handed down, so the
-     * success handler can be invoked directly rather than through a request.
-     * @param resetRowSelection - Reset spy.
-     * @param queryClient - Query client.
-     * @returns the captured options.
-     */
-    function renderAndCaptureOptions(
-      resetRowSelection: () => void,
-      queryClient: QueryClient,
-    ): OnSubmitOptions | undefined {
-      mockFileArchivedStatus.mockImplementation((): JSX.Element => <div />);
-      render(
-        <QueryClientProvider client={queryClient}>
-          <EditFileArchivedStatus
-            queryKeys={QUERY_KEYS}
-            rows={[row("file-1")]}
-            table={table([row("file-1")], resetRowSelection)}
-          />
-        </QueryClientProvider>,
-      );
-      return mockFileArchivedStatus.mock.calls[0][0].options;
-    }
-
-    it("clears the selection and invalidates every supplied key", () => {
-      // The bulk surface returns nothing, so the action's pending window covers
+  describe("getArchiveOptions", () => {
+    it("dispatches every supplied key and awaits none", () => {
+      // The bulk surface awaits nothing, so the action's pending window covers
       // the request alone. Narrowing what is *awaited* must not narrow what is
-      // invalidated: dropping these calls would shorten the window just as well
+      // invalidated: dropping these keys would shorten the window just as well
       // and silently leave the caches stale. The two detail helpers are pinned
       // the same way in `archive-options`; this is the third call site.
-      const resetRowSelection = jest.fn();
-      const queryClient = new QueryClient();
-      const invalidateQueries = jest
-        .spyOn(queryClient, "invalidateQueries")
-        .mockResolvedValue(undefined);
+      const { invalidateQueryKeys } = getArchiveOptions(table([]), QUERY_KEYS);
 
-      const options = renderAndCaptureOptions(resetRowSelection, queryClient);
-      const returned = options?.onSuccess?.();
-
-      expect(resetRowSelection).toHaveBeenCalledTimes(1);
-      expect(invalidateQueries).toHaveBeenCalledTimes(QUERY_KEYS.length);
-      for (const queryKey of QUERY_KEYS) {
-        expect(invalidateQueries).toHaveBeenCalledWith({ queryKey });
-      }
-      // Nothing awaited: returning a promise here would hold a toolbar that is
-      // already unmounting (see the RowSelection test below).
-      expect(returned).toBeUndefined();
+      expect(invalidateQueryKeys?.dispatched).toEqual(QUERY_KEYS);
+      // Awaiting here would hold a toolbar that is already unmounting (see the
+      // RowSelection test below).
+      expect(invalidateQueryKeys?.awaited).toBeUndefined();
     });
 
-    it("invalidates nothing when no keys are supplied", () => {
-      // `queryKeys` is optional, and the `?? []` fallback is the only thing
-      // between an omitted prop and a throw on iteration.
-      const queryClient = new QueryClient();
-      const invalidateQueries = jest
-        .spyOn(queryClient, "invalidateQueries")
-        .mockResolvedValue(undefined);
-      mockFileArchivedStatus.mockImplementation((): JSX.Element => <div />);
-      render(
-        <QueryClientProvider client={queryClient}>
-          <EditFileArchivedStatus
-            rows={[row("file-1")]}
-            table={table([row("file-1")])}
-          />
-        </QueryClientProvider>,
-      );
+    it("clears the selection on success", () => {
+      const resetRowSelection = jest.fn();
 
-      expect(() =>
-        mockFileArchivedStatus.mock.calls[0][0].options?.onSuccess?.(),
-      ).not.toThrow();
-      expect(invalidateQueries).not.toHaveBeenCalled();
+      getArchiveOptions(table([], resetRowSelection), QUERY_KEYS).onSuccess?.();
+
+      expect(resetRowSelection).toHaveBeenCalledTimes(1);
+    });
+
+    it("declares no keys when none are supplied", () => {
+      // `queryKeys` is optional; an omitted prop has to reach the request layer
+      // as an absent list rather than as anything it would iterate.
+      const { invalidateQueryKeys } = getArchiveOptions(table([]));
+
+      expect(invalidateQueryKeys?.dispatched).toBeUndefined();
+    });
+  });
+
+  describe("mapPayload", () => {
+    it("collects the selected rows' file ids", () => {
+      expect(mapPayload([row("file-1"), row("file-2")])).toEqual({
+        fileIds: ["file-1", "file-2"],
+      });
     });
   });
 

@@ -1,5 +1,10 @@
 import { makeQueryClient } from "@/app/query/queryClient";
-import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { promiseWithResolvers } from "@/testing/utils";
+import {
+  QueryClient,
+  QueryClientProvider,
+  type QueryKey,
+} from "@tanstack/react-query";
 import {
   createElement,
   type FunctionComponent,
@@ -39,5 +44,42 @@ export function createQueryClientWrapper(
       { client: queryClient },
       children,
     );
+  };
+}
+
+/** A query client whose invalidations settle only when the suite says so. */
+export interface MockQueryClient {
+  /** The keys invalidated so far, in call order. */
+  invalidatedKeys: () => QueryKey[];
+  queryClient: QueryClient;
+  /** Settles the invalidation of the given key. */
+  resolve: (queryKey: QueryKey) => void;
+}
+
+/**
+ * Builds a query client whose `invalidateQueries` resolves only when told to,
+ * so the width of an awaited invalidation window can be observed.
+ *
+ * A real `QueryClient` with a spy rather than a hand-built object, so the mock
+ * can't drift from the interface the code under test actually calls.
+ * @returns the client, the resolver for a named key, and the calls made.
+ */
+export function mockQueryClient(): MockQueryClient {
+  const resolvers = new Map<string, () => void>();
+  const invalidated: QueryKey[] = [];
+  const queryClient = new QueryClient();
+  jest
+    .spyOn(queryClient, "invalidateQueries")
+    .mockImplementation((filters): Promise<void> => {
+      const queryKey = filters?.queryKey ?? [];
+      invalidated.push(queryKey);
+      const [pending, respond] = promiseWithResolvers<void>();
+      resolvers.set(JSON.stringify(queryKey), () => respond());
+      return pending;
+    });
+  return {
+    invalidatedKeys: (): QueryKey[] => invalidated,
+    queryClient,
+    resolve: (queryKey): void => resolvers.get(JSON.stringify(queryKey))?.(),
   };
 }

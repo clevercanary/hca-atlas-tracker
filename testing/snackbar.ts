@@ -101,22 +101,28 @@ export function useSnackbarContexts(): SnackbarContexts {
 }
 
 /**
- * Renders a hook under a real `SnackbarProvider`, exposing the hook and the
- * snackbar state and actions.
+ * Renders a hook under a real `SnackbarProvider` and a `QueryClientProvider`,
+ * exposing the hook and the snackbar state and actions.
  *
  * A real provider rather than a mocked context: these suites exist to check the
  * hooks' default error handling end to end — that a failure actually reaches
  * the snackbar, and that a scoped dismissal does or doesn't close it — which a
  * mock would assert against itself.
+ *
+ * The query client is provided unconditionally rather than per suite: the
+ * mutation hooks rendered through here invalidate caches on success, so one of
+ * them needs it and the rest are unaffected by a provider they never read.
  * @param useHookUnderTest - Hook to render.
+ * @param queryClient - Query client to provide; pass one in to spy on it.
  * @returns render result exposing the hook and the snackbar.
  */
 export function renderHookWithSnackbar<T>(
   useHookUnderTest: () => T,
+  queryClient?: QueryClient,
 ): RenderHookResult<SnackbarRenderResult<T>, unknown> {
   return renderHook(
     () => ({ hook: useHookUnderTest(), ...useSnackbarContexts() }),
-    { wrapper: withSnackbarProvider },
+    { wrapper: createQuerySnackbarWrapper(queryClient) },
   );
 }
 
