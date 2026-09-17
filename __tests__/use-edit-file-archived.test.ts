@@ -404,10 +404,10 @@ describe("useEditFileArchived", () => {
       ]);
     });
 
-    it("runs onSuccess ahead of the invalidations", async () => {
-      // `onSuccess` is for side effects only — the bulk toolbar's selection
-      // reset, which unmounts the toolbar — so it runs before the caches it
-      // would otherwise wait behind are touched.
+    it("dispatches the invalidations before onSuccess runs", async () => {
+      // The side effect and the cache declaration are independent in timing as
+      // well as outcome: a slow or async `onSuccess` must not hold the declared
+      // refetches back, so every key is already in flight when it is called.
       //
       // Recorded into a local rather than asserted inside the mock: a failing
       // `expect` in there throws inside the guarded callback, is logged by the
@@ -438,7 +438,7 @@ describe("useEditFileArchived", () => {
       });
 
       expect(onSuccess).toHaveBeenCalledTimes(1);
-      expect(invalidatedBeforeSideEffect).toBe(0);
+      expect(invalidatedBeforeSideEffect).toBe(1);
     });
 
     it("still invalidates the declared keys when onSuccess throws", async () => {
@@ -505,9 +505,9 @@ describe("useEditFileArchived", () => {
           { invalidateQueryKeys: { awaited: [TEST_AWAITED_KEY] }, onSuccess },
         );
       });
+      // Already dispatched: the rejection still hasn't landed at this point.
+      expect(invalidatedKeys()).toEqual([TEST_AWAITED_KEY]);
       await act(async () => {
-        // The invalidation is only dispatched once the rejection has landed.
-        await delay(10);
         resolve(TEST_AWAITED_KEY);
         await expect(submitted).resolves.toBe(true);
       });

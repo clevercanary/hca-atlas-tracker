@@ -87,18 +87,22 @@ async function invalidateQueryCaches(
 }
 
 /**
- * Success handling shared by the request hooks: runs the caller's `onSuccess`,
- * then performs its declared invalidations, resolving once the awaited ones
- * have settled.
+ * Success handling shared by the request hooks: dispatches the caller's
+ * declared invalidations, runs its `onSuccess`, and resolves once both the
+ * callback and the awaited invalidations have settled.
  *
  * The invalidations are performed here rather than left to `onSuccess` so the
  * pending window a call site declares can't be lost to a forgotten `return`
  * (#1553): `onSuccess?: () => void | Promise<unknown>` type-checks either way,
  * and without the `return` the control re-enabled before the refetched state
- * landed. They also run whether or not `onSuccess` throws — the two are
- * independent by design, and a stale list left behind by a thrown side effect
- * would survive until a manual refresh — so the callback is guarded here, with
- * its error logged, rather than allowed to skip them.
+ * landed.
+ *
+ * They are dispatched *before* the callback runs, so the two are independent in
+ * timing as well as in outcome: a slow or async `onSuccess` (one that parses
+ * the body first, say) can't hold the declared refetches back, and a throwing
+ * one can't skip them — a stale list left behind by a thrown side effect would
+ * survive until a manual refresh. The callback is guarded here, with its error
+ * logged, rather than allowed to reject.
  *
  * `onSuccess` keeps `performRequest`'s awaited contract, for the consumers that
  * still sequence their own work in it (e.g. a redirect after a cache removal).
@@ -113,12 +117,15 @@ export async function onRequestSuccess(
   options: RequestOptions = {},
 ): Promise<void> {
   const { invalidateQueryKeys, onSuccess } = options;
+  // Every key is dispatched synchronously inside this call, before the first
+  // await below, so the callback can neither delay nor skip them.
+  const invalidated = invalidateQueryCaches(queryClient, invalidateQueryKeys);
   try {
     await onSuccess?.(res);
   } catch (e) {
     console.error(e);
   }
-  await invalidateQueryCaches(queryClient, invalidateQueryKeys);
+  await invalidated;
 }
 
 /**

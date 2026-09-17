@@ -185,4 +185,25 @@ describe("useDeleteData", () => {
     });
     await expect(deleted).resolves.toBe(true);
   });
+
+  it("keeps onDelete's identity across renders when invalidateQueryKeys is written inline", async () => {
+    // The option is naturally an inline object of inline arrays, a new
+    // reference every render. `onDelete` is what consumers memoize their
+    // context values on, so taking those by reference would re-render every
+    // subscriber per parent render. Compared structurally instead.
+    mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
+    const { queryClient } = mockQueryClient();
+    const { rerender, result } = renderHookWithSnackbar(
+      () =>
+        useDeleteData(TEST_REQUEST_URL, METHOD.DELETE, {
+          invalidateQueryKeys: { dispatched: [["list", "atlas-id"]] },
+        }),
+      queryClient,
+    );
+    const first = result.current.hook.onDelete;
+
+    rerender();
+
+    expect(result.current.hook.onDelete).toBe(first);
+  });
 });
