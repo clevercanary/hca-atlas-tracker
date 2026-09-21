@@ -186,11 +186,39 @@ describe("useDeleteData", () => {
     await expect(deleted).resolves.toBe(true);
   });
 
+  it("forwards invalidateQueryKeys as given, so a key holding undefined still matches", async () => {
+    // Regression: the keys were once stabilised by a hashKey → JSON.parse round
+    // trip, which turned an undefined segment into null and dropped undefined
+    // object properties — so a key built from an unset optional path parameter
+    // silently matched nothing and the awaited window collapsed to the request.
+    mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
+    const { invalidatedKeys, queryClient, resolve } = mockQueryClient();
+    const queryKey = ["list", undefined, { archived: undefined }];
+    const { result } = renderHookWithSnackbar(
+      () =>
+        useDeleteData(TEST_REQUEST_URL, METHOD.DELETE, {
+          invalidateQueryKeys: { awaited: [queryKey] },
+        }),
+      queryClient,
+    );
+
+    let deleted: Promise<boolean> | undefined;
+    await actAsync(async () => {
+      deleted = result.current.hook.onDelete();
+    });
+    expect(invalidatedKeys()).toStrictEqual([queryKey]);
+
+    await actAsync(async () => {
+      resolve(queryKey);
+    });
+    await expect(deleted).resolves.toBe(true);
+  });
+
   it("keeps onDelete's identity across renders when invalidateQueryKeys is written inline", async () => {
     // The option is naturally an inline object of inline arrays, a new
     // reference every render. `onDelete` is what consumers memoize their
     // context values on, so taking those by reference would re-render every
-    // subscriber per parent render. Compared structurally instead.
+    // subscriber per parent render. Read at call time instead.
     mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
     const { queryClient } = mockQueryClient();
     const { rerender, result } = renderHookWithSnackbar(
