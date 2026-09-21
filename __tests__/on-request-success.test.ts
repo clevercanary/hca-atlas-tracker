@@ -46,12 +46,17 @@ describe("onRequestSuccess", () => {
       staleTime: Infinity,
     }).subscribe(() => undefined);
 
-    const settled = onRequestSuccess(queryClient, createMockResponse(200), {
-      invalidateQueryKeys: {
-        awaited: [["atlas", "id", "x"]],
-        dispatched: [["atlas", "id"]],
+    const settled = onRequestSuccess(
+      queryClient,
+      createMockResponse(200),
+      undefined,
+      {
+        invalidateQueryKeys: {
+          awaited: [["atlas", "id", "x"]],
+          dispatched: [["atlas", "id"]],
+        },
       },
-    });
+    );
 
     // Let a cancellation propagate: had the awaited fetch been cancelled,
     // `settled` would have resolved here with the cache still stale.
@@ -95,7 +100,7 @@ describe("onRequestSuccess", () => {
     // Not awaited: this is the fetch still in flight when the mutation lands.
     const inFlight = queryClient.refetchQueries({ queryKey });
     serverValue = "post-mutation";
-    await onRequestSuccess(queryClient, createMockResponse(200), {
+    await onRequestSuccess(queryClient, createMockResponse(200), undefined, {
       invalidateQueryKeys: { dispatched: [queryKey] },
     });
 

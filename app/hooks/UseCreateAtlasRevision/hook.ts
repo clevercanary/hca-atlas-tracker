@@ -1,3 +1,4 @@
+import { type HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { isFetchStatusCreated } from "@/app/common/utils";
 import { useInlineRequest } from "@/app/hooks/UseInlineRequest/hook";
@@ -24,11 +25,20 @@ export const useCreateAtlasRevision = (): UseCreateAtlasRevision => {
   const onSubmit = useCallback(
     async (requestURL: string, options?: OnSubmitOptions): Promise<boolean> => {
       setSucceeded(false);
-      const success = await onRequest(requestURL, METHOD.POST, undefined, {
-        // The endpoint answers 201, not 200.
-        isSuccessStatus: isFetchStatusCreated,
-        onSuccess: async (res) => options?.onSuccess?.(await res.json()),
-      });
+      const success = await onRequest<undefined, HCAAtlasTrackerAtlas>(
+        requestURL,
+        METHOD.POST,
+        undefined,
+        {
+          // The endpoint answers 201, not 200.
+          isSuccessStatus: isFetchStatusCreated,
+          onSuccess: (_, atlas) => options?.onSuccess?.(atlas),
+          // Parsed as a request step rather than inside onSuccess so a 201 whose
+          // body can't be read is reported as a failure, not a silent success
+          // (#1550).
+          parseBody: (res) => res.json(),
+        },
+      );
       if (success) setSucceeded(true);
       return success;
     },

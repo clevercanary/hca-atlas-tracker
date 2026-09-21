@@ -52,10 +52,21 @@ export interface PathParameter {
   validatorName?: ValidatorName;
 }
 
-export interface PerformRequestOptions {
+/**
+ * Options for `performRequest`. `T` is the parsed body `parseBody` yields and
+ * `onSuccess` receives; it defaults to `void` for the callers that don't parse
+ * one, whose `onSuccess` is given `undefined`.
+ */
+export interface PerformRequestOptions<T = void> {
   isSuccessStatus?: (status: number) => boolean;
   onError: (error: Error) => void;
-  onSuccess?: (res: Response) => void | Promise<unknown>;
+  onSuccess?: (res: Response, body: T) => void | Promise<unknown>;
+  /**
+   * Parses the success response's body. Part of determining success, unlike
+   * `onSuccess`: a rejection is routed to `onError` and the request resolves
+   * `false` (#1550).
+   */
+  parseBody?: (res: Response) => Promise<T>;
 }
 
 /**
@@ -64,14 +75,17 @@ export interface PerformRequestOptions {
  * site declares which caches a success refreshes rather than wiring the
  * invalidation — and its `await` — into `onSuccess` by hand.
  */
-export interface RequestOptions extends Omit<PerformRequestOptions, "onError"> {
+export interface RequestOptions<T = void> extends Omit<
+  PerformRequestOptions<T>,
+  "onError"
+> {
   invalidateQueryKeys?: InvalidateQueryKeys;
 }
 
 /** Signature the request hooks expose; they supply `onError` themselves. */
-export type RequestFn = <P>(
+export type RequestFn = <P, T = void>(
   requestURL: string,
   method: METHOD,
   payload: P | undefined,
-  options?: RequestOptions,
+  options?: RequestOptions<T>,
 ) => Promise<boolean>;

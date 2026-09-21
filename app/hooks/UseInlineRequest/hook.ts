@@ -56,8 +56,8 @@ export const useInlineRequest = (): UseInlineRequest => {
           if (attempt !== attemptRef.current) return;
           setError(error.message);
         },
-        onSuccess: (res) =>
-          onRequestSuccess(queryClient, res, {
+        onSuccess: (res, body) =>
+          onRequestSuccess(queryClient, res, body, {
             invalidateQueryKeys,
             onSuccess,
           }),

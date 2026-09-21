@@ -114,6 +114,20 @@ describe("useCreateAtlasRevision", () => {
     expect(result.current.hook.status.error).toBeUndefined();
   });
 
+  it("returns the error inline and resolves false on a 201 whose body can't be parsed (#1550)", async () => {
+    // createMockResponse rejects json() when given no body.
+    mockFetchResource.mockResolvedValue(createMockResponse(201));
+
+    const { result } = renderHookWithSnackbar(useCreateAtlasRevision);
+    await expect(submit(result, { onSuccess })).resolves.toBe(false);
+    // The revision exists server-side but the caller never learns which one:
+    // a failure to report, not a success to latch on.
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(result.current.hook.status.error).toBe("no body");
+    expect(result.current.hook.status.succeeded).toBe(false);
+    expect(result.current.hook.status.isRequesting).toBe(false);
+  });
+
   it("resolves true when onSuccess throws (the request itself succeeded)", async () => {
     mockFetchResource.mockResolvedValue(createMockResponse(201, TEST_ATLAS));
     onSuccess.mockImplementation(() => {

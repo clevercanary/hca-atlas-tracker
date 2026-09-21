@@ -73,24 +73,26 @@ async function invalidateQueryCaches(
  * landed.
  *
  * They are dispatched *before* the callback runs, so the two are independent in
- * timing as well as in outcome: a slow or async `onSuccess` (one that parses
- * the body first, say) can't hold the declared refetches back, and a throwing
- * one can't skip them — a stale list left behind by a thrown side effect would
- * survive until a manual refresh. Both are awaited with `allSettled` so a
- * rejecting callback still waits for the invalidations; its error is logged
- * here since `allSettled` would otherwise swallow it.
+ * timing as well as in outcome: a slow or async `onSuccess` can't hold the
+ * declared refetches back, and a throwing one can't skip them — a stale list
+ * left behind by a thrown side effect would survive until a manual refresh.
+ * Both are awaited with `allSettled` so a rejecting callback still waits for
+ * the invalidations; its error is logged here since `allSettled` would
+ * otherwise swallow it.
  *
  * `onSuccess` keeps `performRequest`'s awaited contract, for the consumers that
  * still sequence their own work in it (e.g. a redirect after a cache removal).
  * @param queryClient - Query client.
  * @param res - Successful response.
+ * @param body - Body parsed from the response by `options.parseBody`.
  * @param options - Request options carrying the callback and the query keys.
  * @returns promise resolving once the awaited invalidations have settled.
  */
-export async function onRequestSuccess(
+export async function onRequestSuccess<T>(
   queryClient: QueryClient,
   res: Response,
-  options: RequestOptions = {},
+  body: T,
+  options: RequestOptions<T>,
 ): Promise<void> {
   const { invalidateQueryKeys, onSuccess } = options;
   // Every key is dispatched synchronously inside this call, before the first
@@ -99,34 +101,64 @@ export async function onRequestSuccess(
   // The async wrapper calls the callback synchronously but turns a throw into
   // a rejection, so `allSettled` sees it rather than this function throwing.
   const [callback] = await Promise.allSettled([
-    (async (): Promise<unknown> => onSuccess?.(res))(),
+    (async (): Promise<unknown> => onSuccess?.(res, body))(),
     invalidated,
   ]);
   if (callback.status === "rejected") console.error(callback.reason);
 }
 
 /**
+ * Parses the response body with the given parser, or yields nothing when the
+ * caller supplied none.
+ * @param res - Successful response.
+ * @param parseBody - Body parser, when the caller wants the body.
+ * @returns promise resolving to the parsed body.
+ */
+async function parseBodyOrNothing<T>(
+  res: Response,
+  parseBody: ((res: Response) => Promise<T>) | undefined,
+): Promise<T> {
+  // With no parser, `T` is the `void` default and `undefined` is its only
+  // value; the assertion records what the default parameter already implies.
+  if (!parseBody) return undefined as T;
+  return parseBody(res);
+}
+
+/**
  * Performs a mutation request with a never-rejects contract: any failure — a
- * non-success response or a network-level fetch error — is routed to
- * `options.onError` and resolves `false`; success calls (and awaits, so
- * callers can defer to e.g. a query-cache refetch) `options.onSuccess` with
- * the response, then resolves `true`. Both callbacks are guarded, so a
- * throwing or rejecting callback is logged rather than allowed to reject the
- * returned promise.
+ * non-success response, a network-level fetch error, or a success response
+ * whose body `options.parseBody` can't parse — is routed to `options.onError`
+ * and resolves `false`; success calls (and awaits, so callers can defer to
+ * e.g. a query-cache refetch) `options.onSuccess` with the response and the
+ * parsed body, then resolves `true`. Both callbacks are guarded, so a throwing
+ * or rejecting callback is logged rather than allowed to reject the returned
+ * promise.
+ *
+ * Parsing the body is a separate step from `onSuccess` because the two fail
+ * differently (#1550): an unreadable body means the caller never learns what
+ * the request produced, so it's a failure to report, whereas a throwing side
+ * effect (e.g. a navigation) happens after the request has already succeeded
+ * and must not be misreported as a failed one.
  * @param requestURL - Request URL.
  * @param method - Request method.
  * @param payload - Request payload, JSON-serialized when defined.
- * @param options - Error and success callbacks, and an optional success-status
- * predicate for endpoints that don't answer 200 (defaults to `isFetchStatusOk`).
+ * @param options - Error and success callbacks, an optional body parser, and
+ * an optional success-status predicate for endpoints that don't answer 200
+ * (defaults to `isFetchStatusOk`).
  * @returns promise resolving `true` on success.
  */
-export async function performRequest<P>(
+export async function performRequest<P, T = void>(
   requestURL: string,
   method: METHOD,
   payload: P | undefined,
-  options: PerformRequestOptions,
+  options: PerformRequestOptions<T>,
 ): Promise<boolean> {
-  const { isSuccessStatus = isFetchStatusOk, onError, onSuccess } = options;
+  const {
+    isSuccessStatus = isFetchStatusOk,
+    onError,
+    onSuccess,
+    parseBody,
+  } = options;
   let res: Response;
   try {
     res = await fetchResource(requestURL, method, payload);
@@ -138,12 +170,19 @@ export async function performRequest<P>(
     reportError(onError, new Error(await getResponseErrorMessage(res)));
     return false;
   }
-  // Called after the request is known to have succeeded so an exception
-  // thrown by onSuccess (e.g. Router.push, or parsing the response body)
-  // isn't misreported as a failed request; caught and logged here so it also
-  // can't reject and break the never-rejects contract.
+  let body: T;
   try {
-    await onSuccess?.(res);
+    body = await parseBodyOrNothing(res, parseBody);
+  } catch (e) {
+    reportError(onError, toError(e));
+    return false;
+  }
+  // Called after the request is known to have succeeded so an exception
+  // thrown by onSuccess (e.g. Router.push) isn't misreported as a failed
+  // request; caught and logged here so it also can't reject and break the
+  // never-rejects contract.
+  try {
+    await onSuccess?.(res, body);
   } catch (e) {
     console.error(e);
   }

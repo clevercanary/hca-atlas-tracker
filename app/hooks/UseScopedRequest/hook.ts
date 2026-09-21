@@ -32,10 +32,10 @@ export const useScopedRequest = (): UseScopedRequest => {
       return performRequest(requestURL, method, payload, {
         ...performOptions,
         onError: (error) => onOpen(error.message, operationKey),
-        onSuccess: (res) => {
+        onSuccess: (res, body) => {
           // Started first: it dispatches every declared key synchronously, so
           // a throwing dismiss can't skip the invalidations.
-          const settled = onRequestSuccess(queryClient, res, {
+          const settled = onRequestSuccess(queryClient, res, body, {
             invalidateQueryKeys,
             onSuccess,
           });
