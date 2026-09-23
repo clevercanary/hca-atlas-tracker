@@ -1,4 +1,3 @@
-import { QueryClient } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 
 // Mock dependencies before imports
@@ -87,46 +86,39 @@ describe("useEditIntegratedObjectSourceDatasets", () => {
     expect(typeof result.current.onDelete).toBe("function");
   });
 
-  it("calls useDeleteData with the API URL", () => {
+  it("calls useDeleteData with the API URL and no onSuccess", () => {
     renderHook(
       () => useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
       { wrapper: createQuerySnackbarWrapper() },
     );
 
-    // No `onError`: the hook wires the snackbar itself.
+    // No `onError`: the hook wires the snackbar itself. No `onSuccess` either:
+    // the caches are declared, not invalidated by hand.
     expect(mockUseDeleteData).toHaveBeenCalledWith(
       expect.stringContaining(TEST_ATLAS_ID),
       METHOD.DELETE,
-      expect.objectContaining({ onSuccess: expect.any(Function) }),
+      expect.not.objectContaining({ onSuccess: expect.anything() }),
     );
   });
 
-  it("invalidates the integrated object and its source datasets on successful delete", () => {
-    const queryClient = new QueryClient();
-    const invalidateSpy = jest.spyOn(queryClient, "invalidateQueries");
-
+  it("declares the source datasets list as awaited and the integrated object as dispatched", () => {
     renderHook(
       () => useEditIntegratedObjectSourceDatasets(TEST_PATH_PARAMETER),
-      { wrapper: createQuerySnackbarWrapper(queryClient) },
+      { wrapper: createQuerySnackbarWrapper() },
     );
 
-    // Get the onSuccess callback passed to useDeleteData
-    const onSuccessCallback = mockUseDeleteData.mock.calls[0][2]?.onSuccess;
-    expect(onSuccessCallback).toBeDefined();
-
-    // Call the onSuccess callback: both the integrated object detail and its
-    // source datasets list are invalidated.
-    onSuccessCallback?.(createMockResponse(200, {}));
-
-    expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: [INTEGRATED_OBJECT, TEST_ATLAS_ID, TEST_COMPONENT_ATLAS_ID],
-    });
-    expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: [
-        INTEGRATED_OBJECT_SOURCE_DATASETS,
-        TEST_ATLAS_ID,
-        TEST_COMPONENT_ATLAS_ID,
+    // Both change when datasets are removed. The list is what the view shows,
+    // so the request stays pending until it has refetched; the detail is
+    // refreshed alongside but not waited on.
+    expect(mockUseDeleteData.mock.calls[0][2]?.invalidateQueryKeys).toEqual({
+      awaited: [
+        [
+          INTEGRATED_OBJECT_SOURCE_DATASETS,
+          TEST_ATLAS_ID,
+          TEST_COMPONENT_ATLAS_ID,
+        ],
       ],
+      dispatched: [[INTEGRATED_OBJECT, TEST_ATLAS_ID, TEST_COMPONENT_ATLAS_ID]],
     });
   });
 });

@@ -65,6 +65,13 @@ export async function performRequest<P>(
  * resets its row selection) still gets its invalidations in flight, and the
  * `dispatched` keys never queue behind an `awaited` refetch.
  *
+ * The `dispatched` keys go first, and without `cancelRefetch` (which defaults
+ * to true), so they can't cancel an awaited refetch: a dispatched key that
+ * equals or prefixes an awaited one would otherwise abort the awaited fetch
+ * already running. TanStack currently chains a silently cancelled fetch onto
+ * its replacement, so the awaited window held regardless; this ordering makes
+ * the window hold by construction rather than by that library internal.
+ *
  * Nothing is caught: `invalidateQueries` catches each query's rejection itself
  * unless `throwOnError` is set, which it isn't here, so these promises resolve
  * either way.
@@ -77,13 +84,12 @@ async function invalidateQueryCaches(
   invalidateQueryKeys: InvalidateQueryKeys = {},
 ): Promise<void> {
   const { awaited = [], dispatched = [] } = invalidateQueryKeys;
-  const pending = awaited.map((queryKey) =>
-    queryClient.invalidateQueries({ queryKey }),
-  );
   for (const queryKey of dispatched) {
-    queryClient.invalidateQueries({ queryKey });
+    queryClient.invalidateQueries({ queryKey }, { cancelRefetch: false });
   }
-  await Promise.all(pending);
+  await Promise.all(
+    awaited.map((queryKey) => queryClient.invalidateQueries({ queryKey })),
+  );
 }
 
 /**
@@ -101,8 +107,9 @@ async function invalidateQueryCaches(
  * timing as well as in outcome: a slow or async `onSuccess` (one that parses
  * the body first, say) can't hold the declared refetches back, and a throwing
  * one can't skip them — a stale list left behind by a thrown side effect would
- * survive until a manual refresh. The callback is guarded here, with its error
- * logged, rather than allowed to reject.
+ * survive until a manual refresh. Both are awaited with `allSettled` so a
+ * rejecting callback still waits for the invalidations; its error is logged
+ * here since `allSettled` would otherwise swallow it.
  *
  * `onSuccess` keeps `performRequest`'s awaited contract, for the consumers that
  * still sequence their own work in it (e.g. a redirect after a cache removal).
@@ -120,12 +127,13 @@ export async function onRequestSuccess(
   // Every key is dispatched synchronously inside this call, before the first
   // await below, so the callback can neither delay nor skip them.
   const invalidated = invalidateQueryCaches(queryClient, invalidateQueryKeys);
-  try {
-    await onSuccess?.(res);
-  } catch (e) {
-    console.error(e);
-  }
-  await invalidated;
+  // The async wrapper calls the callback synchronously but turns a throw into
+  // a rejection, so `allSettled` sees it rather than this function throwing.
+  const [callback] = await Promise.allSettled([
+    (async (): Promise<unknown> => onSuccess?.(res))(),
+    invalidated,
+  ]);
+  if (callback.status === "rejected") console.error(callback.reason);
 }
 
 /**

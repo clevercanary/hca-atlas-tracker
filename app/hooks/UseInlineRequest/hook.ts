@@ -46,13 +46,21 @@ export const useInlineRequest = (): UseInlineRequest => {
     async (requestURL, method, payload, options) => {
       const attempt = ++attemptRef.current;
       setError(undefined);
+      // Rest-spread so an option added to `PerformRequestOptions` later still
+      // reaches `performRequest`; only the two handled here are picked off.
+      const { invalidateQueryKeys, onSuccess, ...performOptions } =
+        options ?? {};
       return performRequest(requestURL, method, payload, {
-        isSuccessStatus: options?.isSuccessStatus,
+        ...performOptions,
         onError: (error) => {
           if (attempt !== attemptRef.current) return;
           setError(error.message);
         },
-        onSuccess: (res) => onRequestSuccess(queryClient, res, options),
+        onSuccess: (res) =>
+          onRequestSuccess(queryClient, res, {
+            invalidateQueryKeys,
+            onSuccess,
+          }),
       });
     },
     [queryClient],

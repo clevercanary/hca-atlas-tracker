@@ -8,10 +8,11 @@ import { getOperationKey } from "./utils";
 
 /**
  * Performs a request, raising any failure on the app-level error snackbar. The
- * entry is dismissed when the same operation later succeeds. On success the
- * caches declared in `options.invalidateQueryKeys` are invalidated, and the
- * request resolves once the awaited ones have refetched (see
- * `onRequestSuccess`).
+ * entry is dismissed as soon as the same operation later succeeds — before the
+ * awaited invalidations refetch, so a stale "failed" message doesn't outlive
+ * the retry that fixed it. On success the caches declared in
+ * `options.invalidateQueryKeys` are invalidated, and the request resolves once
+ * the awaited ones have refetched (see `onRequestSuccess`).
  *
  * Holds no state of its own: a consumer that disables a control while the
  * request runs wraps this in `usePendingRequest`.
@@ -22,15 +23,23 @@ export const useScopedRequest = (): UseScopedRequest => {
   const queryClient = useQueryClient();
 
   const onRequest = useCallback<RequestFn>(
-    async (requestURL, method, payload, options) => {
+    (requestURL, method, payload, options) => {
       const operationKey = getOperationKey(method, requestURL, payload);
-      const success = await performRequest(requestURL, method, payload, {
-        isSuccessStatus: options?.isSuccessStatus,
+      // Rest-spread so an option added to `PerformRequestOptions` later still
+      // reaches `performRequest`; only the two handled here are picked off.
+      const { invalidateQueryKeys, onSuccess, ...performOptions } =
+        options ?? {};
+      return performRequest(requestURL, method, payload, {
+        ...performOptions,
         onError: (error) => onOpen(error.message, operationKey),
-        onSuccess: (res) => onRequestSuccess(queryClient, res, options),
+        onSuccess: (res) => {
+          onDismissOperation(operationKey);
+          return onRequestSuccess(queryClient, res, {
+            invalidateQueryKeys,
+            onSuccess,
+          });
+        },
       });
-      if (success) onDismissOperation(operationKey);
-      return success;
     },
     [onDismissOperation, onOpen, queryClient],
   );

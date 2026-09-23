@@ -397,10 +397,11 @@ describe("useEditFileArchived", () => {
       });
 
       // The dispatched key is never resolved, so reaching this line at all is
-      // the proof it wasn't awaited.
+      // the proof it wasn't awaited. It is dispatched first so it can't cancel
+      // the awaited refetch.
       expect(invalidatedKeys()).toEqual([
-        TEST_AWAITED_KEY,
         TEST_DISPATCHED_KEY,
+        TEST_AWAITED_KEY,
       ]);
     });
 

@@ -221,7 +221,8 @@ describe("useScopedRequest", () => {
         },
       );
     });
-    expect(invalidatedKeys()).toEqual([["detail"], ["list"]]);
+    // Dispatched keys go first so they can't cancel an awaited refetch.
+    expect(invalidatedKeys()).toEqual([["list"], ["detail"]]);
     expect(await isPending(requested)).toBe(true);
 
     await act(async () => {

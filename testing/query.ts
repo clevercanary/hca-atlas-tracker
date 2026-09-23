@@ -11,6 +11,7 @@ import {
   type PropsWithChildren,
   type ReactNode,
 } from "react";
+import { isDeepStrictEqual } from "util";
 
 /**
  * Builds a wrapper providing a QueryClient, for hooks that read the cache or
@@ -62,10 +63,16 @@ export interface MockQueryClient {
  *
  * A real `QueryClient` with a spy rather than a hand-built object, so the mock
  * can't drift from the interface the code under test actually calls.
+ *
+ * Pending invalidations are kept as a per-call list and matched structurally,
+ * not keyed by `JSON.stringify`: that serialization turns `undefined` into
+ * `null` and drops undefined object properties, so `["list", undefined]` and
+ * `["list", null]` would collide, the second call overwrite the first, and a
+ * test awaiting the first would hang rather than fail.
  * @returns the client, the resolver for a named key, and the calls made.
  */
 export function mockQueryClient(): MockQueryClient {
-  const resolvers = new Map<string, () => void>();
+  const pendings: { queryKey: QueryKey; respond: () => void }[] = [];
   const invalidated: QueryKey[] = [];
   const queryClient = new QueryClient();
   jest
@@ -74,12 +81,16 @@ export function mockQueryClient(): MockQueryClient {
       const queryKey = filters?.queryKey ?? [];
       invalidated.push(queryKey);
       const [pending, respond] = promiseWithResolvers<void>();
-      resolvers.set(JSON.stringify(queryKey), () => respond());
+      pendings.push({ queryKey, respond: () => respond() });
       return pending;
     });
   return {
     invalidatedKeys: (): QueryKey[] => invalidated,
     queryClient,
-    resolve: (queryKey): void => resolvers.get(JSON.stringify(queryKey))?.(),
+    resolve: (queryKey): void => {
+      for (const pending of pendings) {
+        if (isDeepStrictEqual(pending.queryKey, queryKey)) pending.respond();
+      }
+    },
   };
 }
