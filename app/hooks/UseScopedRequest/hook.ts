@@ -33,11 +33,14 @@ export const useScopedRequest = (): UseScopedRequest => {
         ...performOptions,
         onError: (error) => onOpen(error.message, operationKey),
         onSuccess: (res) => {
-          onDismissOperation(operationKey);
-          return onRequestSuccess(queryClient, res, {
+          // Started first: it dispatches every declared key synchronously, so
+          // a throwing dismiss can't skip the invalidations.
+          const settled = onRequestSuccess(queryClient, res, {
             invalidateQueryKeys,
             onSuccess,
           });
+          onDismissOperation(operationKey);
+          return settled;
         },
       });
     },

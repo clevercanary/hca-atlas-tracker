@@ -27,12 +27,13 @@ function seedControlledQuery(
 describe("onRequestSuccess", () => {
   it("does not let a dispatched key cancel an awaited refetch", async () => {
     // A dispatched key equal to (or prefixing) an awaited key aborts, with
-    // TanStack's default `cancelRefetch: true`, the awaited fetch already in
-    // flight. Were the awaited promise to settle on that cancellation, the
-    // pending window would close before the new data landed — #1553's stale
-    // state again. The layer dispatches first, without `cancelRefetch`, so the
-    // window holds by construction; this pins it against a real client, so a
-    // library change to how a cancelled fetch settles is caught here.
+    // TanStack's default `cancelRefetch: true`, any fetch already in flight.
+    // Were that the awaited fetch, and the awaited promise to settle on the
+    // cancellation, the pending window would close before the new data landed
+    // — #1553's stale state again. This pins the outcome against a real
+    // client: the window holds when the keys overlap. It does not pin the
+    // dispatch order. On the current TanStack a silently cancelled fetch hands
+    // its promise to the replacement, so the window holds in either order.
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     });
@@ -61,6 +62,47 @@ describe("onRequestSuccess", () => {
     detail.finish();
     await settled;
     expect(queryClient.getQueryData(["atlas", "id", "x"])).toBe("fresh");
+    unsubscribe();
+  });
+
+  it("refetches a dispatched key whose fetch was already in flight, so pre-mutation data can't win", async () => {
+    // A focus or mount refetch sent before the mutation landed is still in
+    // flight when the dispatched key is invalidated. Reusing it (as
+    // `cancelRefetch: false` does) lets it settle with pre-mutation data and
+    // clear the invalidated flag, leaving the cache stale despite the
+    // declaration. The default cancels it and fetches again.
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const queryKey = ["integratedObject", "a", "c"];
+    let serverValue = "pre-mutation";
+    const responders: (() => void)[] = [];
+    queryClient.setQueryData(queryKey, "initial");
+    queryClient.setQueryDefaults(queryKey, {
+      queryFn: () => {
+        // What the server answers is fixed when the request reaches it.
+        const answer = serverValue;
+        return new Promise<string>((resolve) => {
+          responders.push(() => resolve(answer));
+        });
+      },
+    });
+    const unsubscribe = new QueryObserver(queryClient, {
+      queryKey,
+      staleTime: Infinity,
+    }).subscribe(() => undefined);
+
+    // Not awaited: this is the fetch still in flight when the mutation lands.
+    const inFlight = queryClient.refetchQueries({ queryKey });
+    serverValue = "post-mutation";
+    await onRequestSuccess(queryClient, createMockResponse(200), {
+      invalidateQueryKeys: { dispatched: [queryKey] },
+    });
+
+    for (const respond of responders) respond();
+    await inFlight;
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(queryClient.getQueryData(queryKey)).toBe("post-mutation");
     unsubscribe();
   });
 });

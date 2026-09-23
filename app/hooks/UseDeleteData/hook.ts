@@ -1,6 +1,7 @@
 import { type METHOD } from "@/app/common/entities";
+import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import { useScopedRequest } from "@/app/hooks/UseScopedRequest/hook";
-import { useCallback, useLayoutEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { type UseDeleteData, type UseDeleteDataOptions } from "./types";
 
 /**
@@ -29,14 +30,15 @@ export const useDeleteData = <T>(
   // The options are naturally written inline — `invalidateQueryKeys` as nested
   // arrays, `onSuccess` as an arrow — so each is a new reference every render,
   // and depending on either would remake `onDelete` each time. The whole
-  // object is held in a ref, brought up to date in a layout effect (so an
-  // `onDelete` fired from another effect in the same commit already sees the
-  // new options) and read only when the request is made. Kept as the caller's
-  // own object: an earlier hash-and-parse round trip turned an `undefined` key
-  // segment into `null`, so an optional path parameter left unset made the
-  // key match nothing.
+  // object is held in a ref, brought up to date in a layout effect and read
+  // only when the request is made. The layout effect means an `onDelete` fired
+  // from an event handler or a passive effect in the same commit sees the new
+  // options; a descendant's layout effect runs before this one and would still
+  // read the previous ones. Kept as the caller's own object: an earlier
+  // hash-and-parse round trip turned an `undefined` key segment into `null`, so
+  // an optional path parameter left unset made the key match nothing.
   const optionsRef = useRef(options);
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     optionsRef.current = options;
   });
 
