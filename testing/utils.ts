@@ -469,6 +469,21 @@ export function delay(ms = 5): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * Whether a promise is still unsettled once the microtask queue has drained.
+ * @param promise - Promise to inspect.
+ * @returns true while the promise has neither resolved nor rejected.
+ */
+export async function isPending(promise?: Promise<unknown>): Promise<boolean> {
+  let settled = false;
+  const observe = (): void => {
+    settled = true;
+  };
+  Promise.resolve(promise).then(observe, observe);
+  await delay();
+  return !settled;
+}
+
 export function testApiRole(
   testNameBase: string,
   route: string,

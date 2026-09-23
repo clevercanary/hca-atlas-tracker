@@ -5,11 +5,10 @@ import { Tabs } from "@/app/components/Entity/components/common/Tabs/tabs";
 import { EntityForm } from "@/app/components/Entity/components/EntityForm/entityForm";
 import { useBackPath } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
-import { type Payload } from "@/app/hooks/UseEditFileArchived/entities";
+import { type Payload } from "@/app/hooks/UseEditFileArchived/types";
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { useQueryClient } from "@tanstack/react-query";
 import { Fragment, type JSX } from "react";
 import { VIEW_INTEGRATED_OBJECT_SECTION_CONFIGS } from "./common/sections";
 import { getArchiveOptions, getBreadcrumbs, getTabs } from "./common/utils";
@@ -25,7 +24,6 @@ export const ComponentAtlasView = ({
   pathParameter,
 }: ComponentAtlasViewProps): JSX.Element => {
   const { data: atlas } = useFetchAtlas(pathParameter);
-  const queryClient = useQueryClient();
   const formMethod = useViewComponentAtlasForm(pathParameter);
   const formManager = useEditIntegratedObjectFormManager(
     pathParameter,
@@ -55,7 +53,7 @@ export const ComponentAtlasView = ({
               <StyledFileArchivedStatus
                 isArchived={componentAtlas.isArchived}
                 payload={mapPayload(componentAtlas)}
-                options={getArchiveOptions(queryClient, pathParameter)}
+                options={getArchiveOptions(pathParameter)}
               />
             )
           }

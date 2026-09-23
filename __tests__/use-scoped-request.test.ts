@@ -8,12 +8,14 @@ import { METHOD } from "@/app/common/entities";
 import { fetchResource } from "@/app/common/utils";
 import { useScopedRequest } from "@/app/hooks/UseScopedRequest/hook";
 import { getOperationKey } from "@/app/hooks/UseScopedRequest/utils";
+import { mockQueryClient } from "@/testing/query";
 import {
   actAsync,
   renderHookWithSnackbar,
   snackbarMessages,
 } from "@/testing/snackbar";
-import { createMockResponse } from "@/testing/utils";
+import { createMockResponse, isPending } from "@/testing/utils";
+import { act } from "@testing-library/react";
 
 // Type mocks
 const mockFetchResource = fetchResource as jest.MockedFunction<
@@ -189,5 +191,43 @@ describe("useScopedRequest", () => {
     expect(snackbarMessages(result.current.snackbar)).toEqual([
       "Received 500 response",
     ]);
+  });
+
+  it("invalidates the declared keys, staying pending only for the awaited ones", async () => {
+    // The shared implementation behind every request hook's
+    // `invalidateQueryKeys` (#1553): a call site declares which caches a
+    // success refreshes and which of them its pending window waits for, and
+    // the layer performs both, so neither can be lost to a forgotten `return`
+    // in `onSuccess`. Resolving the awaited key *alone* is what makes this a
+    // test: an implementation awaiting both keys is still pending here.
+    mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
+    const { invalidatedKeys, queryClient, resolve } = mockQueryClient();
+    const { result } = renderHookWithSnackbar(
+      () => useScopedRequest(),
+      queryClient,
+    );
+
+    let requested: Promise<boolean> | undefined;
+    await act(async () => {
+      requested = result.current.hook.actions.onRequest(
+        UNLINK_URL,
+        METHOD.DELETE,
+        ROW_A,
+        {
+          invalidateQueryKeys: {
+            awaited: [["detail"]],
+            dispatched: [["list"]],
+          },
+        },
+      );
+    });
+    // Dispatched keys go first so they can't cancel an awaited refetch.
+    expect(invalidatedKeys()).toEqual([["list"], ["detail"]]);
+    expect(await isPending(requested)).toBe(true);
+
+    await act(async () => {
+      resolve(["detail"]);
+    });
+    await expect(requested).resolves.toBe(true);
   });
 });

@@ -9,22 +9,29 @@ jest.mock("@/app/common/utils", () => ({
 
 import { METHOD } from "@/app/common/entities";
 import { fetchResource } from "@/app/common/utils";
+import { useEditFileArchived } from "@/app/hooks/UseEditFileArchived/hook";
 import {
   type OnSubmitFn,
   type OnSubmitOptions,
-} from "@/app/hooks/UseEditFileArchived/entities";
-import { useEditFileArchived } from "@/app/hooks/UseEditFileArchived/hook";
+} from "@/app/hooks/UseEditFileArchived/types";
+import { mockQueryClient } from "@/testing/query";
 import {
   actAsync,
+  createQuerySnackbarWrapper,
   renderHookWithSnackbar,
   type SnackbarActionsContextProps,
   type SnackbarHookResult,
   snackbarMessages,
   type SnackbarStateContextProps,
   useSnackbarContexts,
-  withSnackbarProvider,
 } from "@/testing/snackbar";
-import { createMockResponse, withConsoleErrorHiding } from "@/testing/utils";
+import {
+  createMockResponse,
+  delay,
+  isPending,
+  withConsoleErrorHiding,
+} from "@/testing/utils";
+import { type QueryKey } from "@tanstack/react-query";
 
 // Type mocks
 const mockFetchResource = fetchResource as jest.MockedFunction<
@@ -32,6 +39,8 @@ const mockFetchResource = fetchResource as jest.MockedFunction<
 >;
 
 // Test data
+const TEST_AWAITED_KEY: QueryKey = ["test-detail", "test-atlas-id"];
+const TEST_DISPATCHED_KEY: QueryKey = ["test-atlas", "test-atlas-id"];
 const TEST_PAYLOAD = { fileIds: ["test-file-id"] };
 const TEST_REQUEST_URL = "/api/test-archive";
 
@@ -82,11 +91,16 @@ function renderRemountHarness(): RemountHarness {
     return null;
   };
 
+  // Built once, outside the render: a fresh wrapper identity per render would
+  // remount the consumer on every state change, which is the very thing the
+  // remount tests below control deliberately.
+  const Providers = createQuerySnackbarWrapper();
+
   const Harness: FunctionComponent = () => {
     const [mounted, setMounted] = useState(true);
     setConsumerMounted = setMounted;
     return createElement(
-      withSnackbarProvider,
+      Providers,
       null,
       mounted ? createElement(Consumer) : null,
       createElement(StateReader),
@@ -310,20 +324,214 @@ describe("useEditFileArchived", () => {
     });
   });
 
-  it("awaits an async onSuccess and resolves true when it rejects (the request itself succeeded)", async () => {
-    mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
-    let settled = false;
-    onSuccess.mockImplementation(async () => {
-      // Yield a microtask so resolution order proves onSuccess was awaited.
-      await Promise.resolve();
-      settled = true;
-      throw new Error("refetch error");
+  // The mechanism lives in the request layer (`onRequestSuccess`), shared with
+  // every other request hook; what is pinned here is that this hook forwards
+  // the declaration intact, observed end to end through its own `onSubmit`.
+  describe("invalidateQueryKeys", () => {
+    it("stays pending until the awaited invalidations settle, and no longer", async () => {
+      // The declared window, performed by the hook rather than by whatever a
+      // call site remembered to return: the control stays disabled until the
+      // awaited refetch lands, so it can't be clicked against stale state.
+      //
+      // The awaited key is resolved *alone*, leaving the dispatched one
+      // pending. An implementation awaiting both is still waiting at that
+      // point, so it fails the second assertion. Resolving the dispatched key
+      // first instead would pass either way — which is no test at all.
+      mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
+      const { queryClient, resolve } = mockQueryClient();
+      const { result } = renderHookWithSnackbar(
+        useEditFileArchived,
+        queryClient,
+      );
+
+      let submitted: Promise<boolean> | undefined;
+      await act(async () => {
+        submitted = result.current.hook.onSubmit(
+          TEST_REQUEST_URL,
+          TEST_PAYLOAD,
+          {
+            invalidateQueryKeys: {
+              awaited: [TEST_AWAITED_KEY],
+              dispatched: [TEST_DISPATCHED_KEY],
+            },
+          },
+        );
+      });
+
+      expect(await isPending(submitted)).toBe(true);
+
+      await act(async () => {
+        resolve(TEST_AWAITED_KEY);
+      });
+      expect(await isPending(submitted)).toBe(false);
+      await expect(submitted).resolves.toBe(true);
     });
 
-    const { result } = renderHookWithSnackbar(useEditFileArchived);
-    await withConsoleErrorHiding(async () => {
-      await expect(submit(result, { onSuccess })).resolves.toBe(true);
+    it("invalidates the dispatched keys too, without waiting for them", async () => {
+      // The other half of the contract: narrowing what is *awaited* must not
+      // narrow what is invalidated. Dropping the dispatched calls would shorten
+      // the window just as well and silently leave those caches stale.
+      mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
+      const { invalidatedKeys, queryClient, resolve } = mockQueryClient();
+      const { result } = renderHookWithSnackbar(
+        useEditFileArchived,
+        queryClient,
+      );
+
+      let submitted: Promise<boolean> | undefined;
+      await act(async () => {
+        submitted = result.current.hook.onSubmit(
+          TEST_REQUEST_URL,
+          TEST_PAYLOAD,
+          {
+            invalidateQueryKeys: {
+              awaited: [TEST_AWAITED_KEY],
+              dispatched: [TEST_DISPATCHED_KEY],
+            },
+          },
+        );
+      });
+      await act(async () => {
+        resolve(TEST_AWAITED_KEY);
+        await submitted;
+      });
+
+      // The dispatched key is never resolved, so reaching this line at all is
+      // the proof it wasn't awaited. It is dispatched first so it can't cancel
+      // the awaited refetch.
+      expect(invalidatedKeys()).toEqual([
+        TEST_DISPATCHED_KEY,
+        TEST_AWAITED_KEY,
+      ]);
     });
-    expect(settled).toBe(true);
+
+    it("dispatches the invalidations before onSuccess runs", async () => {
+      // The side effect and the cache declaration are independent in timing as
+      // well as outcome: a slow or async `onSuccess` must not hold the declared
+      // refetches back, so every key is already in flight when it is called.
+      //
+      // Recorded into a local rather than asserted inside the mock: a failing
+      // `expect` in there throws inside the guarded callback, is logged by the
+      // request layer, and the submit still resolves `true` — the test would
+      // stay green for exactly the regression it pins.
+      mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
+      const { invalidatedKeys, queryClient, resolve } = mockQueryClient();
+      let invalidatedBeforeSideEffect: number | undefined;
+      onSuccess.mockImplementation(() => {
+        invalidatedBeforeSideEffect = invalidatedKeys().length;
+      });
+      const { result } = renderHookWithSnackbar(
+        useEditFileArchived,
+        queryClient,
+      );
+
+      let submitted: Promise<boolean> | undefined;
+      await act(async () => {
+        submitted = result.current.hook.onSubmit(
+          TEST_REQUEST_URL,
+          TEST_PAYLOAD,
+          { invalidateQueryKeys: { awaited: [TEST_AWAITED_KEY] }, onSuccess },
+        );
+      });
+      await act(async () => {
+        resolve(TEST_AWAITED_KEY);
+        await submitted;
+      });
+
+      expect(onSuccess).toHaveBeenCalledTimes(1);
+      expect(invalidatedBeforeSideEffect).toBe(1);
+    });
+
+    it("still invalidates the declared keys when onSuccess throws", async () => {
+      // The side effect and the cache declaration are independent by design. A
+      // throwing `resetRowSelection` leaving the list caches stale — until a
+      // manual refresh — is exactly what declaring the keys is meant to rule
+      // out, so the invalidations can't sit behind it.
+      mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
+      const { invalidatedKeys, queryClient, resolve } = mockQueryClient();
+      onSuccess.mockImplementation(() => {
+        throw new Error("side effect error");
+      });
+      const { result } = renderHookWithSnackbar(
+        useEditFileArchived,
+        queryClient,
+      );
+
+      await withConsoleErrorHiding(async () => {
+        let submitted: Promise<boolean> | undefined;
+        await act(async () => {
+          submitted = result.current.hook.onSubmit(
+            TEST_REQUEST_URL,
+            TEST_PAYLOAD,
+            {
+              invalidateQueryKeys: { awaited: [TEST_AWAITED_KEY] },
+              onSuccess,
+            },
+          );
+        });
+        await act(async () => {
+          resolve(TEST_AWAITED_KEY);
+          await expect(submitted).resolves.toBe(true);
+        });
+      });
+
+      expect(invalidatedKeys()).toEqual([TEST_AWAITED_KEY]);
+    });
+
+    it("logs a rejection from an async onSuccess and still invalidates", async () => {
+      // `() => void` still accepts an async function — TypeScript's void-return
+      // bivariance lets one through — so a rejection from one is handled the
+      // same way as a synchronous throw: logged, with the declared caches
+      // invalidated regardless.
+      mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
+      const { invalidatedKeys, queryClient, resolve } = mockQueryClient();
+      const rejection = new Error("async side effect error");
+      onSuccess.mockImplementation(async () => {
+        await delay();
+        throw rejection;
+      });
+      const { result } = renderHookWithSnackbar(
+        useEditFileArchived,
+        queryClient,
+      );
+
+      const consoleError = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => undefined);
+      let submitted: Promise<boolean> | undefined;
+      await act(async () => {
+        submitted = result.current.hook.onSubmit(
+          TEST_REQUEST_URL,
+          TEST_PAYLOAD,
+          { invalidateQueryKeys: { awaited: [TEST_AWAITED_KEY] }, onSuccess },
+        );
+      });
+      // Already dispatched: the rejection still hasn't landed at this point.
+      expect(invalidatedKeys()).toEqual([TEST_AWAITED_KEY]);
+      await act(async () => {
+        resolve(TEST_AWAITED_KEY);
+        await expect(submitted).resolves.toBe(true);
+      });
+
+      expect(consoleError).toHaveBeenCalledWith(rejection);
+      expect(invalidatedKeys()).toEqual([TEST_AWAITED_KEY]);
+      consoleError.mockRestore();
+    });
+
+    it("invalidates nothing when no keys are declared", async () => {
+      // Both lists are optional, and the request layer's defaults are the only
+      // thing between an omitted option and a throw on iteration.
+      mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
+      const { invalidatedKeys, queryClient } = mockQueryClient();
+      const { result } = renderHookWithSnackbar(
+        useEditFileArchived,
+        queryClient,
+      );
+
+      await expect(submit(result, { onSuccess })).resolves.toBe(true);
+
+      expect(invalidatedKeys()).toEqual([]);
+      expect(onSuccess).toHaveBeenCalledTimes(1);
+    });
   });
 });
