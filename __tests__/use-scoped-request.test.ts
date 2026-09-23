@@ -230,4 +230,46 @@ describe("useScopedRequest", () => {
     });
     await expect(requested).resolves.toBe(true);
   });
+
+  it("still invalidates the declared keys when the success body can't be parsed", async () => {
+    // The server accepted the request, so the mutation has taken effect: the
+    // caller not being able to read its result is a failure to report, not a
+    // reason to leave the caches it changed stale.
+    mockFetchResource.mockResolvedValue(createMockResponse(200));
+    const { invalidatedKeys, queryClient, resolve } = mockQueryClient();
+    const { result } = renderHookWithSnackbar(
+      () => useScopedRequest(),
+      queryClient,
+    );
+    const onSuccess = jest.fn();
+
+    let requested: Promise<boolean> | undefined;
+    await act(async () => {
+      requested = result.current.hook.actions.onRequest(
+        UNLINK_URL,
+        METHOD.DELETE,
+        ROW_A,
+        {
+          invalidateQueryKeys: {
+            awaited: [["detail"]],
+            dispatched: [["list"]],
+          },
+          onSuccess,
+          parseBody: () => Promise.reject(new Error("unreadable body")),
+        },
+      );
+    });
+    expect(invalidatedKeys()).toEqual([["list"], ["detail"]]);
+    expect(snackbarMessages(result.current.snackbar)).toEqual([
+      "unreadable body",
+    ]);
+    // Held until the awaited refetch lands, as on any committed request.
+    expect(await isPending(requested)).toBe(true);
+
+    await act(async () => {
+      resolve(["detail"]);
+    });
+    await expect(requested).resolves.toBe(false);
+    expect(onSuccess).not.toHaveBeenCalled();
+  });
 });

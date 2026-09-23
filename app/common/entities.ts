@@ -53,31 +53,69 @@ export interface PathParameter {
 }
 
 /**
- * Options for `performRequest`. `T` is the parsed body `parseBody` yields and
- * `onSuccess` receives; it defaults to `void` for the callers that don't parse
- * one, whose `onSuccess` is given `undefined`.
+ * Options for a request whose success body the caller doesn't read:
+ * `onSuccess` takes no body.
  */
-export interface PerformRequestOptions<T = void> {
-  isSuccessStatus?: (status: number) => boolean;
-  onError: (error: Error) => void;
-  onSuccess?: (res: Response, body: T) => void | Promise<unknown>;
-  /**
-   * Parses the success response's body. Part of determining success, unlike
-   * `onSuccess`: a rejection is routed to `onError` and the request resolves
-   * `false` (#1550).
-   */
-  parseBody?: (res: Response) => Promise<T>;
+export interface BodylessRequestOptions {
+  onSuccess?: () => void | Promise<unknown>;
+  parseBody?: undefined;
 }
 
 /**
+ * Options for a request whose success body the caller reads: `onSuccess`
+ * receives what `parseBody` resolved to.
+ */
+export interface ParsedBodyRequestOptions<T> {
+  onSuccess?: (body: T) => void | Promise<unknown>;
+  /**
+   * Parses the success response's body. Part of determining success, unlike
+   * `onSuccess`: a rejection is routed to `onError` and the request resolves
+   * `false` (#1550). The rejection's message is what the user is shown, so a
+   * parser for a request that has already taken effect should say so.
+   */
+  parseBody: (res: Response) => Promise<T>;
+}
+
+/** Options for `performRequest`, apart from how the success body is read. */
+export interface PerformRequestBaseOptions {
+  isSuccessStatus?: (status: number) => boolean;
+  /**
+   * Runs as soon as the status shows the server accepted the request, before
+   * the body is parsed, so it runs whether or not the body can be read: for
+   * effects a committed mutation needs either way, such as the request hooks'
+   * cache invalidations. Called synchronously at that point, and awaited
+   * before the request resolves on either outcome.
+   */
+  onCommitted?: () => void | Promise<unknown>;
+  onError: (error: Error) => void;
+}
+
+/**
+ * Options for `performRequest`. The two body shapes are kept apart so the body
+ * `onSuccess` receives is always one `parseBody` produced: a callback that
+ * takes a body without a parser to supply it doesn't type-check.
+ */
+export type PerformRequestOptions<T = void> = PerformRequestBaseOptions &
+  RequestBodyOptions<T>;
+
+/** How a request's success body is read; see `PerformRequestOptions`. */
+export type RequestBodyOptions<T> =
+  | BodylessRequestOptions
+  | ParsedBodyRequestOptions<T>;
+
+/**
  * Options the request hooks accept. `onError` is supplied by the hook, and
- * `invalidateQueryKeys` is performed by it (see `onRequestSuccess`), so a call
- * site declares which caches a success refreshes rather than wiring the
+ * `invalidateQueryKeys` is performed by it (see `invalidateQueryCaches`), so a
+ * call site declares which caches a success refreshes rather than wiring the
  * invalidation — and its `await` — into `onSuccess` by hand.
  */
-export interface RequestOptions<T = void> extends Omit<
-  PerformRequestOptions<T>,
-  "onError"
+export type RequestOptions<T = void> = RequestBaseOptions &
+  RequestBodyOptions<T>;
+
+/** Options the request hooks accept, apart from how the success body is read. */
+export interface RequestBaseOptions extends Pick<
+  PerformRequestBaseOptions,
+  "isSuccessStatus"
 > {
   invalidateQueryKeys?: InvalidateQueryKeys;
 }

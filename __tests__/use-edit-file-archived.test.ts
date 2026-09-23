@@ -324,9 +324,10 @@ describe("useEditFileArchived", () => {
     });
   });
 
-  // The mechanism lives in the request layer (`onRequestSuccess`), shared with
-  // every other request hook; what is pinned here is that this hook forwards
-  // the declaration intact, observed end to end through its own `onSubmit`.
+  // The mechanism lives in the request layer (`invalidateQueryCaches`), shared
+  // with every other request hook; what is pinned here is that this hook
+  // forwards the declaration intact, observed end to end through its own
+  // `onSubmit`.
   describe("invalidateQueryKeys", () => {
     it("stays pending until the awaited invalidations settle, and no longer", async () => {
       // The declared window, performed by the hook rather than by whatever a

@@ -6,7 +6,11 @@ jest.mock("@/app/common/utils", () => ({
 import { METHOD } from "@/app/common/entities";
 import { performRequest } from "@/app/common/requests";
 import { fetchResource } from "@/app/common/utils";
-import { createMockResponse, withConsoleErrorHiding } from "@/testing/utils";
+import {
+  createMockResponse,
+  isPending,
+  withConsoleErrorHiding,
+} from "@/testing/utils";
 
 const mockFetchResource = fetchResource as jest.MockedFunction<
   typeof fetchResource
@@ -36,13 +40,12 @@ describe("performRequest", () => {
         parseBody: (res) => res.json(),
       }),
     ).resolves.toBe(true);
-    expect(onSuccess).toHaveBeenCalledWith(res, TEST_BODY);
+    expect(onSuccess).toHaveBeenCalledWith(TEST_BODY);
     expect(onError).not.toHaveBeenCalled();
   });
 
-  it("passes undefined as the body to onSuccess when no parser is given", async () => {
-    const res = createMockResponse(200);
-    mockFetchResource.mockResolvedValue(res);
+  it("calls onSuccess with no body when no parser is given", async () => {
+    mockFetchResource.mockResolvedValue(createMockResponse(200));
 
     await expect(
       performRequest(TEST_REQUEST_URL, METHOD.POST, undefined, {
@@ -50,7 +53,18 @@ describe("performRequest", () => {
         onSuccess,
       }),
     ).resolves.toBe(true);
-    expect(onSuccess).toHaveBeenCalledWith(res, undefined);
+    expect(onSuccess).toHaveBeenCalledWith();
+  });
+
+  it("does not type a body onSuccess can't be given", () => {
+    // Type-level only: a callback that takes a body needs a parser to supply
+    // it, or it would be handed `undefined` at runtime.
+    const options: Parameters<typeof performRequest>[3] = {
+      onError,
+      // @ts-expect-error -- takes a body but no parseBody supplies one.
+      onSuccess: (body: { id: string }): string => body.id,
+    };
+    expect(options).toBeDefined();
   });
 
   it("routes a parse failure on a success status to onError and resolves false (#1550)", async () => {
@@ -67,6 +81,81 @@ describe("performRequest", () => {
     ).resolves.toBe(false);
     expect(onError).toHaveBeenCalledWith(new Error("no body"));
     expect(onSuccess).not.toHaveBeenCalled();
+  });
+
+  it("runs onCommitted before the body is parsed, and awaits it even when parsing fails", async () => {
+    // A success status means the mutation has taken effect, so what it needs
+    // (the hooks' cache invalidations) can't wait on, or be skipped by, a body
+    // that turns out to be unreadable.
+    mockFetchResource.mockResolvedValue(createMockResponse(201));
+    const calls: string[] = [];
+    let finishCommitted: () => void = () => undefined;
+    const onCommitted = jest.fn(() => {
+      calls.push("committed");
+      return new Promise<void>((resolve) => {
+        finishCommitted = resolve;
+      });
+    });
+
+    const requested = performRequest(TEST_REQUEST_URL, METHOD.POST, undefined, {
+      isSuccessStatus: (status) => status === 201,
+      onCommitted,
+      onError: (error) => calls.push(`error: ${error.message}`),
+      onSuccess,
+      parseBody: async (res) => {
+        calls.push("parse");
+        return res.json();
+      },
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(calls).toEqual(["committed", "parse", "error: no body"]);
+    // Still held open by the committed work.
+    expect(await isPending(requested)).toBe(true);
+
+    finishCommitted();
+    await expect(requested).resolves.toBe(false);
+    expect(onSuccess).not.toHaveBeenCalled();
+  });
+
+  it("does not run onCommitted when the request fails", async () => {
+    const onCommitted = jest.fn();
+    mockFetchResource.mockResolvedValueOnce(createMockResponse(500));
+    mockFetchResource.mockRejectedValueOnce(new Error("Failed to fetch"));
+
+    for (let i = 0; i < 2; i++) {
+      await expect(
+        performRequest(TEST_REQUEST_URL, METHOD.POST, undefined, {
+          onCommitted,
+          onError,
+        }),
+      ).resolves.toBe(false);
+    }
+    expect(onCommitted).not.toHaveBeenCalled();
+    expect(onError).toHaveBeenCalledTimes(2);
+  });
+
+  it("resolves true and only logs when onCommitted throws", async () => {
+    mockFetchResource.mockResolvedValue(createMockResponse(200));
+
+    const errors: unknown[][] = [];
+    await withConsoleErrorHiding(
+      async () => {
+        await expect(
+          performRequest(TEST_REQUEST_URL, METHOD.POST, undefined, {
+            onCommitted: () => {
+              throw new Error("commit error");
+            },
+            onError,
+            onSuccess,
+          }),
+        ).resolves.toBe(true);
+      },
+      true,
+      errors,
+    );
+    expect(onSuccess).toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
+    expect(errors).toEqual([[new Error("commit error")]]);
   });
 
   it("does not parse the body of a non-success response", async () => {
