@@ -403,7 +403,8 @@ export function getAllTestFiles(): TestFile[] {
 /**
  * Builds a minimal mock Response with the given status and JSON body.
  * @param status - Response status.
- * @param body - Parsed JSON body (json() rejects when omitted).
+ * @param body - Parsed JSON body (when omitted, json() rejects and text()
+ * resolves empty, as for a real response with no body).
  * @returns mock response.
  */
 export function createMockResponse(status: number, body?: unknown): Response {
@@ -413,6 +414,8 @@ export function createMockResponse(status: number, body?: unknown): Response {
       return body;
     },
     status,
+    text: async (): Promise<string> =>
+      body === undefined ? "" : JSON.stringify(body),
   } as Response;
 }
 

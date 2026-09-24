@@ -1,5 +1,5 @@
 import { type RequestFn } from "@/app/common/entities";
-import { onRequestSuccess, performRequest } from "@/app/common/requests";
+import { invalidateQueryCaches, performRequest } from "@/app/common/requests";
 import { usePendingRequest } from "@/app/hooks/UsePendingRequest/hook";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useRef, useState } from "react";
@@ -7,10 +7,10 @@ import { type UseInlineRequest } from "./types";
 
 /**
  * Performs a request, returning any failure as `error` for the caller to
- * render. The error is cleared at the start of each request. On success the
- * caches declared in `options.invalidateQueryKeys` are invalidated, and the
- * request resolves once the awaited ones have refetched (see
- * `onRequestSuccess`).
+ * render. The error is cleared at the start of each request. Once the server
+ * accepts the request the caches declared in `options.invalidateQueryKeys` are
+ * invalidated, whether or not its body can be read, and the request resolves
+ * once the awaited ones have refetched (see `invalidateQueryCaches`).
  *
  * `isRequesting` is true while a request is in flight and while its awaited
  * invalidations refetch, and is reset on every outcome, so controls disabled
@@ -47,20 +47,16 @@ export const useInlineRequest = (): UseInlineRequest => {
       const attempt = ++attemptRef.current;
       setError(undefined);
       // Rest-spread so an option added to `PerformRequestOptions` later still
-      // reaches `performRequest`; only the two handled here are picked off.
-      const { invalidateQueryKeys, onSuccess, ...performOptions } =
-        options ?? {};
+      // reaches `performRequest`; only the one handled here is picked off.
+      const { invalidateQueryKeys, ...performOptions } = options ?? {};
       return performRequest(requestURL, method, payload, {
         ...performOptions,
+        onCommitted: () =>
+          invalidateQueryCaches(queryClient, invalidateQueryKeys),
         onError: (error) => {
           if (attempt !== attemptRef.current) return;
           setError(error.message);
         },
-        onSuccess: (res) =>
-          onRequestSuccess(queryClient, res, {
-            invalidateQueryKeys,
-            onSuccess,
-          }),
       });
     },
     [queryClient],

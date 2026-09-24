@@ -15,9 +15,10 @@ import {
  * `options.invalidateQueryKeys` and resolves `true` once the awaited
  * invalidations have settled.
  *
- * The invalidations are performed by the request layer (`onRequestSuccess`)
- * rather than by the call site, so the pending window a caller declares can't
- * be lost to a forgotten `return`, and a throwing `onSuccess` can't skip them.
+ * The invalidations are performed by the request layer
+ * (`invalidateQueryCaches`) rather than by the call site, so the pending window
+ * a caller declares can't be lost to a forgotten `return`, and a throwing
+ * `onSuccess` can't skip them.
  *
  * `isRequesting` is true while the request is in flight and while the awaited
  * invalidations refetch, and is reset on every outcome. Consumers should

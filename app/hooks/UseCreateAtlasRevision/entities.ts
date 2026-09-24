@@ -11,8 +11,14 @@ export interface CreateAtlasRevisionStatus {
   succeeded: boolean;
 }
 
+/**
+ * The created atlas, as far as the 201 body is checked: its `id`, which is what
+ * a caller needs to open it.
+ */
+export type CreatedAtlas = Pick<HCAAtlasTrackerAtlas, "id">;
+
 export interface OnSubmitOptions {
-  onSuccess?: (atlas: HCAAtlasTrackerAtlas) => void;
+  onSuccess?: (atlas: CreatedAtlas) => void;
 }
 
 export type OnSubmitFn = (

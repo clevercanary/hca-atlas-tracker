@@ -3,10 +3,12 @@ import { isFetchStatusCreated } from "@/app/common/utils";
 import { useInlineRequest } from "@/app/hooks/UseInlineRequest/hook";
 import { useCallback, useState } from "react";
 import { type OnSubmitOptions, type UseCreateAtlasRevision } from "./entities";
+import { parseCreatedAtlas } from "./utils";
 
 /**
  * Returns a request function for creating an atlas revision. `onSubmit` never
- * rejects: a failure is returned as `error` and resolves `false`; success calls
+ * rejects: a failure — including a 201 whose body doesn't identify the new
+ * atlas — is returned as `error` and resolves `false`; success calls
  * `options.onSuccess` with the created atlas and resolves `true`.
  *
  * `error` is cleared at the start of every attempt. `isRequesting` is true only
@@ -27,7 +29,11 @@ export const useCreateAtlasRevision = (): UseCreateAtlasRevision => {
       const success = await onRequest(requestURL, METHOD.POST, undefined, {
         // The endpoint answers 201, not 200.
         isSuccessStatus: isFetchStatusCreated,
-        onSuccess: async (res) => options?.onSuccess?.(await res.json()),
+        onSuccess: options?.onSuccess,
+        // Parsed as a request step rather than inside onSuccess so a 201 whose
+        // body can't be read is reported as a failure, not a silent success
+        // (#1550).
+        parseBody: parseCreatedAtlas,
       });
       if (success) setSucceeded(true);
       return success;

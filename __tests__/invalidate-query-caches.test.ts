@@ -1,5 +1,5 @@
-import { onRequestSuccess } from "@/app/common/requests";
-import { createMockResponse, isPending } from "@/testing/utils";
+import { invalidateQueryCaches } from "@/app/common/requests";
+import { isPending } from "@/testing/utils";
 import { QueryClient, QueryObserver } from "@tanstack/react-query";
 
 /**
@@ -24,7 +24,7 @@ function seedControlledQuery(
   return { finish: () => finish() };
 }
 
-describe("onRequestSuccess", () => {
+describe("invalidateQueryCaches", () => {
   it("does not let a dispatched key cancel an awaited refetch", async () => {
     // A dispatched key equal to (or prefixing) an awaited key aborts, with
     // TanStack's default `cancelRefetch: true`, any fetch already in flight.
@@ -46,11 +46,9 @@ describe("onRequestSuccess", () => {
       staleTime: Infinity,
     }).subscribe(() => undefined);
 
-    const settled = onRequestSuccess(queryClient, createMockResponse(200), {
-      invalidateQueryKeys: {
-        awaited: [["atlas", "id", "x"]],
-        dispatched: [["atlas", "id"]],
-      },
+    const settled = invalidateQueryCaches(queryClient, {
+      awaited: [["atlas", "id", "x"]],
+      dispatched: [["atlas", "id"]],
     });
 
     // Let a cancellation propagate: had the awaited fetch been cancelled,
@@ -95,9 +93,7 @@ describe("onRequestSuccess", () => {
     // Not awaited: this is the fetch still in flight when the mutation lands.
     const inFlight = queryClient.refetchQueries({ queryKey });
     serverValue = "post-mutation";
-    await onRequestSuccess(queryClient, createMockResponse(200), {
-      invalidateQueryKeys: { dispatched: [queryKey] },
-    });
+    await invalidateQueryCaches(queryClient, { dispatched: [queryKey] });
 
     for (const respond of responders) respond();
     await inFlight;

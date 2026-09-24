@@ -6,6 +6,7 @@ jest.mock("@/app/common/utils", () => ({
 
 import { METHOD } from "@/app/common/entities";
 import { fetchResource } from "@/app/common/utils";
+import { UNREADABLE_CREATED_ATLAS_MESSAGE } from "@/app/hooks/UseCreateAtlasRevision/constants";
 import { type OnSubmitOptions } from "@/app/hooks/UseCreateAtlasRevision/entities";
 import { useCreateAtlasRevision } from "@/app/hooks/UseCreateAtlasRevision/hook";
 import {
@@ -113,6 +114,38 @@ describe("useCreateAtlasRevision", () => {
     await expect(submit(result, { onSuccess })).resolves.toBe(true);
     expect(result.current.hook.status.error).toBeUndefined();
   });
+
+  it.each([
+    ["an empty body", createMockResponse(201)],
+    [
+      "a body that isn't JSON",
+      {
+        json: async () => JSON.parse("<html>"),
+        status: 201,
+        text: async () => "<html>",
+      } as Response,
+    ],
+    ["a null body", createMockResponse(201, null)],
+    ["a body without the atlas id", createMockResponse(201, {})],
+    ["a body with an empty id", createMockResponse(201, { id: "" })],
+  ])(
+    "returns the error inline and resolves false on a 201 with %s (#1550)",
+    async (_, response) => {
+      mockFetchResource.mockResolvedValue(response);
+
+      const { result } = renderHookWithSnackbar(useCreateAtlasRevision);
+      await expect(submit(result, { onSuccess })).resolves.toBe(false);
+      // The revision exists server-side but the caller never learns which
+      // one: a failure to report, not a success to latch on — and one whose
+      // message says the version was created, since a retry would be refused.
+      expect(onSuccess).not.toHaveBeenCalled();
+      expect(result.current.hook.status.error).toBe(
+        UNREADABLE_CREATED_ATLAS_MESSAGE,
+      );
+      expect(result.current.hook.status.succeeded).toBe(false);
+      expect(result.current.hook.status.isRequesting).toBe(false);
+    },
+  );
 
   it("resolves true when onSuccess throws (the request itself succeeded)", async () => {
     mockFetchResource.mockResolvedValue(createMockResponse(201, TEST_ATLAS));

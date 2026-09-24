@@ -10,7 +10,7 @@ import { type UseDeleteData, type UseDeleteDataOptions } from "./types";
  * @param requestUrl - Request URL.
  * @param method - Request method.
  * @param options - Success callback, the query caches to invalidate on success
- * (see `onRequestSuccess`), and an optional success-status predicate. The
+ * (see `invalidateQueryCaches`), and an optional success-status predicate. The
  * default (`isFetchStatusOk`) accepts only 200 and 304, so an endpoint
  * answering 204 needs to say so here. The options are read when `onDelete` is
  * called rather than captured, so a caller can write them inline without
