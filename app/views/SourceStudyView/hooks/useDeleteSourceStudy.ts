@@ -1,16 +1,15 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
 import { METHOD, type PathParameter } from "@/app/common/entities";
 import { getRequestURL, getRouteURL } from "@/app/common/utils";
-import { useErrorSnackbar } from "@/app/components/common/Snackbar/hooks/UseErrorSnackbar/hook";
-import { SNACKBAR_SCOPE } from "@/app/components/common/Snackbar/types";
 import { useDeleteData } from "@/app/hooks/UseDeleteData/hook";
 import { ROUTE } from "@/app/routes/constants";
 import { SOURCE_STUDY } from "@/app/views/SourceStudyView/hooks/UseFetchSourceStudy/query/constants";
 import { useQueryClient } from "@tanstack/react-query";
 import Router from "next/router";
-import { useCallback } from "react";
+import { useCallback, useRef, useState } from "react";
 
 export interface UseDeleteSourceStudy {
+  isDeleting: boolean;
   onDelete: () => Promise<boolean>;
 }
 
@@ -18,17 +17,8 @@ export const useDeleteSourceStudy = (
   pathParameter: PathParameter,
 ): UseDeleteSourceStudy => {
   const queryClient = useQueryClient();
-  // A failed delete (including a network-level error) is surfaced via the
-  // app-level error snackbar (SnackbarProvider is mounted in _app); onDelete
-  // resolves false rather than rejecting.
-  const { dismissError, onError } = useErrorSnackbar(
-    SNACKBAR_SCOPE.DELETE_SOURCE_STUDY,
-  );
 
   const onSuccess = useCallback((): void => {
-    // Dismiss this feature's stale error from a previous attempt before
-    // redirecting (scoped; see useErrorSnackbar).
-    dismissError();
     const { atlasId, sourceStudyId } = pathParameter;
     // Drop the deleted study's own detail query from the cache.
     // removeQueries, not invalidateQueries: invalidateQueries would refetch
@@ -44,15 +34,45 @@ export const useDeleteSourceStudy = (
     // Per app/query/README, navigation staleness is the staleTime: 0 axis;
     // invalidation is only for mutating a list that stays mounted.
     Router.push(getRouteURL(ROUTE.ATLAS_SOURCE_STUDIES, pathParameter));
-  }, [dismissError, pathParameter, queryClient]);
+  }, [pathParameter, queryClient]);
 
-  const { onDelete } = useDeleteData(
+  // A failed delete is surfaced via the app-level error snackbar; onDelete
+  // resolves false rather than rejecting.
+  const { onDelete: deleteSourceStudy } = useDeleteData(
     getRequestURL(API.ATLAS_SOURCE_STUDY, pathParameter),
     METHOD.DELETE,
-    { onError, onSuccess },
+    { onSuccess },
   );
 
+  /*
+   * One delete at a time. The menu closes on click but can be reopened while
+   * the request is still away, and a second identical DELETE is not merely
+   * redundant: the snackbar keys an entry by method, URL and payload, so two
+   * in-flight copies of this request share one. The second's success then
+   * dismisses that key and erases the first's unread failure — the operation
+   * being reported on did fail, and the user never sees it.
+   *
+   * A ref as well as state because the state update doesn't land before a
+   * second click in the same tick could read it. The ref is the guard; the
+   * state is what disables the menu item.
+   */
+  const isDeletingRef = useRef(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const onDelete = useCallback(async (): Promise<boolean> => {
+    if (isDeletingRef.current) return false;
+    isDeletingRef.current = true;
+    setIsDeleting(true);
+    try {
+      return await deleteSourceStudy();
+    } finally {
+      isDeletingRef.current = false;
+      setIsDeleting(false);
+    }
+  }, [deleteSourceStudy]);
+
   return {
+    isDeleting,
     onDelete,
   };
 };

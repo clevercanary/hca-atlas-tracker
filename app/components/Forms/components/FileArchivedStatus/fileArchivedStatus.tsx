@@ -22,11 +22,20 @@ export const FileArchivedStatus = ({
       className={className}
       // Disabled until onSubmit settles: the endpoint rejects a repeated
       // archive/unarchive, so a repeat click would surface an error for an
-      // action that succeeded. onSubmit awaits options.onSuccess, so when it
-      // (as all callers do) returns the query invalidations, the button stays
-      // disabled until the refetched isArchived lands — not just until the
-      // response, when a second click could still re-send the action against
-      // the stale isArchived.
+      // action that succeeded. onSubmit awaits the invalidations a caller
+      // declares in options.invalidateQueryKeys.awaited, so those widen this
+      // window.
+      //
+      // What a caller should await depends on whether this button survives the
+      // success. The detail views await their detail invalidation, so the
+      // button stays disabled until the refetched isArchived lands rather than
+      // only until the response, when a second click could still re-send the
+      // action against the stale isArchived. The bulk row-selection caller
+      // awaits nothing: it resets the selection, which unmounts this button
+      // altogether, so there is no stale state left to guard.
+      //
+      // Neither awaits invalidations it doesn't need to wait on — that only
+      // stretches the dead window to the slowest roundtrip.
       disabled={isRequesting}
       onClick={(): void => {
         onSubmit(

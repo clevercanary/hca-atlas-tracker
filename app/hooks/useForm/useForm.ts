@@ -3,6 +3,7 @@ import {
   fetchResource,
   isFetchStatusCreated,
   isFetchStatusOk,
+  readJsonBody,
 } from "@/app/common/utils";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useCallback, useMemo } from "react";
@@ -98,26 +99,21 @@ export const useForm = <T extends FieldValues, R = undefined>(
       const apiPayload = mapApiValues ? mapApiValues(payload) : payload;
       const res = await fetchResource(requestURL, requestMethod, apiPayload);
       if (isFetchStatusCreated(res.status) || isFetchStatusOk(res.status)) {
-        // Read the body as text first so an intentionally empty success body
-        // (e.g. 204/no content) is distinguishable from a non-empty but
-        // malformed one: only the latter is an error. Then call onSuccess/
-        // onReset OUTSIDE any try, so an exception they throw (e.g. Router.push)
-        // isn't caught and re-run as a second onSuccess(undefined) — a
-        // double-call that in the setQueryData managers would overwrite the
-        // cache with undefined.
-        const body = await res.text();
-        // An empty body is a valid success: some bulk-edit endpoints respond
-        // 2xx with no content and rely on onSuccess firing with undefined.
-        let response: R = undefined as R;
-        if (body) {
-          try {
-            response = JSON.parse(body);
-          } catch {
-            // Non-empty but unparseable body on a success status — surface it as
-            // an error rather than proceeding as a successful (empty) save.
-            onError({ message: "Received an unparseable response body." });
-            return;
-          }
+        // An empty body reads as undefined, a valid success: some bulk-edit
+        // endpoints respond 2xx with no content and rely on onSuccess firing
+        // with undefined. Then call onSuccess/onReset OUTSIDE the try, so an
+        // exception they throw (e.g. Router.push) isn't caught and re-run as a
+        // second onSuccess(undefined) — a double-call that in the setQueryData
+        // managers would overwrite the cache with undefined.
+        let response: R;
+        try {
+          // Parsed JSON, taken as the caller's declared response type.
+          response = (await readJsonBody(res)) as R;
+        } catch {
+          // Non-empty but unparseable body on a success status — surface it as
+          // an error rather than proceeding as a successful (empty) save.
+          onError({ message: "Received an unparseable response body." });
+          return;
         }
         options?.onSuccess?.(response);
         options?.onReset?.(schema.cast(mapSchemaValues?.(response)));

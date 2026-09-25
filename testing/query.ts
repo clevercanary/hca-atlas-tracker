@@ -1,11 +1,17 @@
 import { makeQueryClient } from "@/app/query/queryClient";
-import { type QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { promiseWithResolvers } from "@/testing/utils";
+import {
+  QueryClient,
+  QueryClientProvider,
+  type QueryKey,
+} from "@tanstack/react-query";
 import {
   createElement,
   type FunctionComponent,
   type PropsWithChildren,
   type ReactNode,
 } from "react";
+import { isDeepStrictEqual } from "util";
 
 /**
  * Builds a wrapper providing a QueryClient, for hooks that read the cache or
@@ -39,5 +45,52 @@ export function createQueryClientWrapper(
       { client: queryClient },
       children,
     );
+  };
+}
+
+/** A query client whose invalidations settle only when the suite says so. */
+export interface MockQueryClient {
+  /** The keys invalidated so far, in call order. */
+  invalidatedKeys: () => QueryKey[];
+  queryClient: QueryClient;
+  /** Settles the invalidation of the given key. */
+  resolve: (queryKey: QueryKey) => void;
+}
+
+/**
+ * Builds a query client whose `invalidateQueries` resolves only when told to,
+ * so the width of an awaited invalidation window can be observed.
+ *
+ * A real `QueryClient` with a spy rather than a hand-built object, so the mock
+ * can't drift from the interface the code under test actually calls.
+ *
+ * Pending invalidations are kept as a per-call list and matched structurally,
+ * not keyed by `JSON.stringify`: that serialization turns `undefined` into
+ * `null` and drops undefined object properties, so `["list", undefined]` and
+ * `["list", null]` would collide, the second call overwrite the first, and a
+ * test awaiting the first would hang rather than fail.
+ * @returns the client, the resolver for a named key, and the calls made.
+ */
+export function mockQueryClient(): MockQueryClient {
+  const pendings: { queryKey: QueryKey; respond: () => void }[] = [];
+  const invalidated: QueryKey[] = [];
+  const queryClient = new QueryClient();
+  jest
+    .spyOn(queryClient, "invalidateQueries")
+    .mockImplementation((filters): Promise<void> => {
+      const queryKey = filters?.queryKey ?? [];
+      invalidated.push(queryKey);
+      const [pending, respond] = promiseWithResolvers<void>();
+      pendings.push({ queryKey, respond: () => respond() });
+      return pending;
+    });
+  return {
+    invalidatedKeys: (): QueryKey[] => invalidated,
+    queryClient,
+    resolve: (queryKey): void => {
+      for (const pending of pendings) {
+        if (isDeepStrictEqual(pending.queryKey, queryKey)) pending.respond();
+      }
+    },
   };
 }

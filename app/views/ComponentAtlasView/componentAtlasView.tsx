@@ -5,18 +5,15 @@ import { Tabs } from "@/app/components/Entity/components/common/Tabs/tabs";
 import { EntityForm } from "@/app/components/Entity/components/EntityForm/entityForm";
 import { useBackPath } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/hooks/UseBackPath/hook";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
-import { type Payload } from "@/app/hooks/UseEditFileArchived/entities";
+import { type Payload } from "@/app/hooks/UseEditFileArchived/types";
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
-import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { useQueryClient } from "@tanstack/react-query";
 import { Fragment, type JSX } from "react";
 import { VIEW_INTEGRATED_OBJECT_SECTION_CONFIGS } from "./common/sections";
-import { getBreadcrumbs, getTabs } from "./common/utils";
+import { getArchiveOptions, getBreadcrumbs, getTabs } from "./common/utils";
 import { StyledFileArchivedStatus } from "./componentAtlasView.styles";
 import { useEditIntegratedObjectFormManager } from "./hooks/useEditIntegratedObjectFormManager";
-import { INTEGRATED_OBJECT } from "./hooks/UseFetchComponentAtlas/query/constants";
 import { useViewComponentAtlasForm } from "./hooks/useViewComponentAtlasForm";
 
 interface ComponentAtlasViewProps {
@@ -27,7 +24,6 @@ export const ComponentAtlasView = ({
   pathParameter,
 }: ComponentAtlasViewProps): JSX.Element => {
   const { data: atlas } = useFetchAtlas(pathParameter);
-  const queryClient = useQueryClient();
   const formMethod = useViewComponentAtlasForm(pathParameter);
   const formManager = useEditIntegratedObjectFormManager(
     pathParameter,
@@ -57,28 +53,7 @@ export const ComponentAtlasView = ({
               <StyledFileArchivedStatus
                 isArchived={componentAtlas.isArchived}
                 payload={mapPayload(componentAtlas)}
-                options={{
-                  // The invalidations are returned so onSubmit (which awaits
-                  // onSuccess) keeps the button pending until the refetched
-                  // isArchived lands.
-                  onSuccess: (): Promise<unknown> =>
-                    Promise.all([
-                      queryClient.invalidateQueries({
-                        queryKey: [
-                          INTEGRATED_OBJECT,
-                          pathParameter.atlasId,
-                          pathParameter.componentAtlasId,
-                        ],
-                      }),
-                      // Archiving changes atlas-derived data, so the atlas
-                      // detail must refetch too (matches the source-dataset
-                      // archive flows). The atlas list is staleTime:0 and
-                      // self-refreshes.
-                      queryClient.invalidateQueries({
-                        queryKey: [ATLAS, pathParameter.atlasId],
-                      }),
-                    ]),
-                }}
+                options={getArchiveOptions(pathParameter)}
               />
             )
           }

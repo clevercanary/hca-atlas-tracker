@@ -79,6 +79,16 @@ export async function actAsync<T>(call: () => Promise<T>): Promise<T> {
 }
 
 /**
+ * The messages currently readable on the error stack, oldest first. Entries
+ * still running their exit transition are excluded.
+ * @param state - Snackbar state context.
+ * @returns messages of the open entries, in the order they were raised.
+ */
+export function snackbarMessages(state: SnackbarStateContextProps): string[] {
+  return state.entries.filter(({ open }) => open).map(({ message }) => message);
+}
+
+/**
  * Reads both snackbar contexts.
  *
  * Exported so a suite that cannot use `renderHook` — see the remount harness in
@@ -91,22 +101,28 @@ export function useSnackbarContexts(): SnackbarContexts {
 }
 
 /**
- * Renders a hook under a real `SnackbarProvider`, exposing the hook and the
- * snackbar state and actions.
+ * Renders a hook under a real `SnackbarProvider` and a `QueryClientProvider`,
+ * exposing the hook and the snackbar state and actions.
  *
  * A real provider rather than a mocked context: these suites exist to check the
  * hooks' default error handling end to end — that a failure actually reaches
  * the snackbar, and that a scoped dismissal does or doesn't close it — which a
  * mock would assert against itself.
+ *
+ * The query client is provided unconditionally rather than per suite: the
+ * mutation hooks rendered through here invalidate caches on success, so one of
+ * them needs it and the rest are unaffected by a provider they never read.
  * @param useHookUnderTest - Hook to render.
+ * @param queryClient - Query client to provide; pass one in to spy on it.
  * @returns render result exposing the hook and the snackbar.
  */
 export function renderHookWithSnackbar<T>(
   useHookUnderTest: () => T,
+  queryClient?: QueryClient,
 ): RenderHookResult<SnackbarRenderResult<T>, unknown> {
   return renderHook(
     () => ({ hook: useHookUnderTest(), ...useSnackbarContexts() }),
-    { wrapper: withSnackbarProvider },
+    { wrapper: createQuerySnackbarWrapper(queryClient) },
   );
 }
 

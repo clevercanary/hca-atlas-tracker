@@ -6,12 +6,14 @@ jest.mock("@/app/common/utils", () => ({
 
 import { METHOD } from "@/app/common/entities";
 import { fetchResource } from "@/app/common/utils";
+import { UNREADABLE_CREATED_ATLAS_MESSAGE } from "@/app/hooks/UseCreateAtlasRevision/constants";
 import { type OnSubmitOptions } from "@/app/hooks/UseCreateAtlasRevision/entities";
 import { useCreateAtlasRevision } from "@/app/hooks/UseCreateAtlasRevision/hook";
 import {
   actAsync,
   renderHookWithSnackbar,
   type SnackbarHookResult,
+  snackbarMessages,
 } from "@/testing/snackbar";
 import { createMockResponse, withConsoleErrorHiding } from "@/testing/utils";
 
@@ -34,7 +36,7 @@ type Result = SnackbarHookResult<typeof useCreateAtlasRevision>;
  */
 function submit(result: Result, options?: OnSubmitOptions): Promise<boolean> {
   return actAsync(() =>
-    result.current.hook.onSubmit(TEST_REQUEST_URL, options),
+    result.current.hook.actions.onSubmit(TEST_REQUEST_URL, options),
   );
 }
 
@@ -57,9 +59,9 @@ describe("useCreateAtlasRevision", () => {
       undefined,
     );
     expect(onSuccess).toHaveBeenCalledWith(TEST_ATLAS);
-    expect(result.current.hook.succeeded).toBe(true);
-    expect(result.current.hook.isRequesting).toBe(false);
-    expect(result.current.snackbar.open).toBe(false);
+    expect(result.current.hook.status.succeeded).toBe(true);
+    expect(result.current.hook.status.isRequesting).toBe(false);
+    expect(result.current.hook.status.error).toBeUndefined();
   });
 
   it("treats a 200 as a failure (the endpoint answers 201)", async () => {
@@ -72,42 +74,78 @@ describe("useCreateAtlasRevision", () => {
     expect(onSuccess).not.toHaveBeenCalled();
   });
 
-  it("opens the error snackbar and resolves false on a non-201 response", async () => {
+  it("returns the error inline and resolves false on a non-201 response", async () => {
     mockFetchResource.mockResolvedValue(
       createMockResponse(403, { message: "Forbidden for this atlas" }),
     );
 
     const { result } = renderHookWithSnackbar(useCreateAtlasRevision);
     await expect(submit(result, { onSuccess })).resolves.toBe(false);
-    expect(result.current.snackbar.open).toBe(true);
-    expect(result.current.snackbar.message).toBe("Forbidden for this atlas");
+    expect(result.current.hook.status.error).toBe("Forbidden for this atlas");
+    // Routed inline, not onto the app stack: this dialog stays open on
+    // failure, and the stack is covered and aria-hidden while it is.
+    expect(snackbarMessages(result.current.snackbar)).toEqual([]);
     expect(onSuccess).not.toHaveBeenCalled();
     // Not thrown to the error boundary, and the dialog's buttons are usable
     // again rather than stuck disabled.
-    expect(result.current.hook.succeeded).toBe(false);
-    expect(result.current.hook.isRequesting).toBe(false);
+    expect(result.current.hook.status.succeeded).toBe(false);
+    expect(result.current.hook.status.isRequesting).toBe(false);
   });
 
-  it("opens the error snackbar and resolves false on a network-level error", async () => {
+  it("returns the error inline and resolves false on a network-level error", async () => {
     mockFetchResource.mockRejectedValue(new Error("Failed to fetch"));
 
     const { result } = renderHookWithSnackbar(useCreateAtlasRevision);
     await expect(submit(result, { onSuccess })).resolves.toBe(false);
-    expect(result.current.snackbar.open).toBe(true);
-    expect(result.current.snackbar.message).toBe("Failed to fetch");
-    expect(result.current.hook.isRequesting).toBe(false);
+    expect(result.current.hook.status.error).toBe("Failed to fetch");
+    // Routed inline, not onto the app stack: this dialog stays open on
+    // failure, and the stack is covered and aria-hidden while it is.
+    expect(snackbarMessages(result.current.snackbar)).toEqual([]);
+    expect(result.current.hook.status.isRequesting).toBe(false);
   });
 
-  it("dismisses a stale error from a previous attempt on success", async () => {
+  it("clears the error when a later attempt succeeds", async () => {
     mockFetchResource.mockResolvedValue(createMockResponse(500));
     const { result } = renderHookWithSnackbar(useCreateAtlasRevision);
     await submit(result);
-    expect(result.current.snackbar.open).toBe(true);
+    expect(result.current.hook.status.error).toBeDefined();
 
     mockFetchResource.mockResolvedValue(createMockResponse(201, TEST_ATLAS));
     await expect(submit(result, { onSuccess })).resolves.toBe(true);
-    expect(result.current.snackbar.open).toBe(false);
+    expect(result.current.hook.status.error).toBeUndefined();
   });
+
+  it.each([
+    ["an empty body", createMockResponse(201)],
+    [
+      "a body that isn't JSON",
+      {
+        json: async () => JSON.parse("<html>"),
+        status: 201,
+        text: async () => "<html>",
+      } as Response,
+    ],
+    ["a null body", createMockResponse(201, null)],
+    ["a body without the atlas id", createMockResponse(201, {})],
+    ["a body with an empty id", createMockResponse(201, { id: "" })],
+  ])(
+    "returns the error inline and resolves false on a 201 with %s (#1550)",
+    async (_, response) => {
+      mockFetchResource.mockResolvedValue(response);
+
+      const { result } = renderHookWithSnackbar(useCreateAtlasRevision);
+      await expect(submit(result, { onSuccess })).resolves.toBe(false);
+      // The revision exists server-side but the caller never learns which
+      // one: a failure to report, not a success to latch on — and one whose
+      // message says the version was created, since a retry would be refused.
+      expect(onSuccess).not.toHaveBeenCalled();
+      expect(result.current.hook.status.error).toBe(
+        UNREADABLE_CREATED_ATLAS_MESSAGE,
+      );
+      expect(result.current.hook.status.succeeded).toBe(false);
+      expect(result.current.hook.status.isRequesting).toBe(false);
+    },
+  );
 
   it("resolves true when onSuccess throws (the request itself succeeded)", async () => {
     mockFetchResource.mockResolvedValue(createMockResponse(201, TEST_ATLAS));
@@ -120,6 +158,6 @@ describe("useCreateAtlasRevision", () => {
     await withConsoleErrorHiding(async () => {
       await expect(submit(result, { onSuccess })).resolves.toBe(true);
     });
-    expect(result.current.hook.succeeded).toBe(true);
+    expect(result.current.hook.status.succeeded).toBe(true);
   });
 });

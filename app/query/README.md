@@ -44,6 +44,15 @@ At a mutation site, prefer `setQueryData(key, response)` when the mutation
 response is the same shape as the cached value (no refetch needed); otherwise
 `invalidateQueries({ queryKey })` to refetch server truth.
 
+Through the request hooks (`useScopedRequest`, `useInlineRequest`, and the
+hooks built on them), declare the keys in `options.invalidateQueryKeys` rather
+than calling `invalidateQueries` inside `onSuccess`: `awaited` keys hold the
+request — and any control disabled on it — pending until the refetch lands;
+`dispatched` keys are invalidated in the same pass but not waited on. The hook
+performs both as soon as the server accepts the request (`invalidateQueryCaches`
+in `app/common/requests.ts`), so the pending window can't be lost to a forgotten
+`return`, and a success body that can't be read doesn't skip them.
+
 ## Query keys
 
 Keys are atlas-scoped and must encode **every** input the request URL depends on

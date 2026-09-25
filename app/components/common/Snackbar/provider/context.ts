@@ -6,11 +6,9 @@ import {
 
 /**
  * Snackbar contexts, provided app-wide by the `SnackbarProvider` mounted in
- * `_app`. The context is split so mutation hooks subscribe only to the stable
- * actions, and opening/closing the snackbar re-renders only the state
- * consumer (the snackbar itself), not everything that can trigger it.
- * Both default to undefined so a consumer rendered without a provider fails
- * loud in the hooks instead of silently routing messages to a no-op.
+ * `_app`. Split so consumers can subscribe to the stable actions without
+ * re-rendering when an entry is added or removed. Both default to undefined so
+ * a consumer rendered without a provider fails loud in the hooks.
  */
 export const SnackbarActionsContext = createContext<
   SnackbarActionsContextProps | undefined

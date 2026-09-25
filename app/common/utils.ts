@@ -112,6 +112,20 @@ export function getRequestURL(
 }
 
 /**
+ * Reads a success response's JSON body. The body is read as text first so an
+ * intentionally empty one (e.g. a 204, or a 2xx some bulk-edit endpoints send
+ * with no content) is told apart from a malformed one: an empty body reads as
+ * `undefined`, while a non-empty body that isn't JSON rejects.
+ * @param res - Successful response.
+ * @returns promise resolving to the parsed body, or `undefined` when empty.
+ */
+export async function readJsonBody(res: Response): Promise<unknown> {
+  const text = await res.text();
+  if (!text) return undefined;
+  return JSON.parse(text);
+}
+
+/**
  * Replaces Route URL path parameters e.g. [atlasId] with the given corresponding ID.
  * @param route - Route.
  * @param pathParameter - Route path parameter.
