@@ -46,11 +46,6 @@ interface RequestUserCache {
 // without threading a context object through `MiddlewareFunction`.
 const requestUserCaches = new WeakMap<NextApiRequest, RequestUserCache>();
 
-// Handlers built by `handler` with the `bearerAllowed` middleware, so that
-// `handleByMethod` can tell which of the handlers it dispatches to accept
-// non-GET requests authenticated with an API token.
-const bearerWriteHandlers = new WeakSet<Handler>();
-
 export type MiddlewareFunction = (
   req: NextApiRequest,
   res: NextApiResponse,
@@ -69,7 +64,7 @@ export type Handler = (
  */
 export function handler(...funcs: MiddlewareFunction[]): Handler {
   const allowsBearerWrites = funcs.includes(bearerAllowed);
-  const builtHandler: Handler = async (req, res) => {
+  return async (req, res) => {
     try {
       await checkApiTokenAccess(req, res, allowsBearerWrites);
       for (const f of funcs) {
@@ -82,12 +77,11 @@ export function handler(...funcs: MiddlewareFunction[]): Handler {
       respondError(res, e);
     }
   };
-  if (allowsBearerWrites) bearerWriteHandlers.add(builtHandler);
-  return builtHandler;
 }
 
 /**
  * Creates an API handler function that calls different handlers depending on request method, responding with an error if none match.
+ * The handlers should be built with `handler`, which is what applies the API token checks (see `checkApiTokenAccess`).
  * @param handlers - Object mapping request method to handler function.
  * @returns API handler function.
  */
@@ -100,9 +94,6 @@ export function handleByMethod(
       const method = req.method;
       const handler = hasHandlerForMethod(method) && handlers[method];
       if (handler) {
-        // Handlers built with `handler` repeat this check themselves; it's
-        // made here too so a handler that isn't built that way can't skip it.
-        await checkApiTokenAccess(req, res, bearerWriteHandlers.has(handler));
         return await handler(req, res);
       } else {
         res.status(405).setHeader("Allow", allowHeaderText).end();
@@ -436,8 +427,7 @@ async function loadActiveUser(
 ): Promise<HCAAtlasTrackerDBUser | null> {
   const userProfile = await getProvidedUserProfile(req, res);
   const email = userProfile?.email;
-  if (email) return await queryUserByEmail(email);
-  return null;
+  return email ? await queryUserByEmail(email) : null;
 }
 
 /**

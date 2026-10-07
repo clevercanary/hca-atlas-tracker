@@ -56,16 +56,13 @@ export async function issueApiToken(
  * @throws UnauthenticatedError - If the token is malformed, expired, encrypted with a different key (e.g. it's a session cookie), or lacks the API token scope or an email.
  */
 export async function verifyApiToken(token: string): Promise<string> {
-  const secret = getSecret();
-  let payload;
-  try {
-    payload = await decode({ salt: API_TOKEN_SALT, secret, token });
-  } catch {
-    // The underlying error is deliberately dropped: it's never needed to
-    // explain a rejection, and keeping it out of the thrown error keeps it out
-    // of the logs.
-    throw new UnauthenticatedError("Invalid or expired API token");
-  }
+  // The underlying decode error is deliberately dropped: it's never needed to
+  // explain a rejection, and leaving it out keeps it out of the logs.
+  const payload = await decode({
+    salt: API_TOKEN_SALT,
+    secret: getSecret(),
+    token,
+  }).catch(() => null);
   if (
     payload?.scope !== API_TOKEN_SCOPE ||
     typeof payload.email !== "string" ||

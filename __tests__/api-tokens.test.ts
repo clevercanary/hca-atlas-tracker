@@ -4,6 +4,7 @@ import {
   verifyApiToken,
 } from "@/app/services/api-tokens";
 import { UnauthenticatedError } from "@/app/utils/api-errors";
+import { encodeTestJwt } from "@/testing/api-tokens";
 import { encode } from "next-auth/jwt";
 
 const TEST_EMAIL = "test-api-token@example.com";
@@ -51,9 +52,18 @@ describe("verifyApiToken", () => {
     expect(await verifyApiToken(token)).toEqual(TEST_EMAIL);
   });
 
+  // Pins the salt and scope the other forged-token cases rely on, so they
+  // can't pass for the wrong reason.
+  it("accepts a token forged with the API token salt and scope", async () => {
+    const token = await encodeTestJwt({
+      token: { email: TEST_EMAIL, scope: "api-read" },
+    });
+    expect(await verifyApiToken(token)).toEqual(TEST_EMAIL);
+  });
+
   it("rejects a session token, which is encrypted with NextAuth's default salt", async () => {
-    const sessionToken = await encode({
-      secret: getSecret(),
+    const sessionToken = await encodeTestJwt({
+      salt: "",
       token: { email: TEST_EMAIL, scope: "api-read" },
     });
     await expect(verifyApiToken(sessionToken)).rejects.toThrow(
@@ -71,27 +81,21 @@ describe("verifyApiToken", () => {
   });
 
   it("rejects a token with the wrong scope", async () => {
-    const token = await encode({
-      salt: "hat-api-token",
-      secret: getSecret(),
+    const token = await encodeTestJwt({
       token: { email: TEST_EMAIL, scope: "api-write" },
     });
     await expect(verifyApiToken(token)).rejects.toThrow(UnauthenticatedError);
   });
 
   it("rejects a token with no scope", async () => {
-    const token = await encode({
-      salt: "hat-api-token",
-      secret: getSecret(),
+    const token = await encodeTestJwt({
       token: { email: TEST_EMAIL },
     });
     await expect(verifyApiToken(token)).rejects.toThrow(UnauthenticatedError);
   });
 
   it("rejects a token with no email", async () => {
-    const token = await encode({
-      salt: "hat-api-token",
-      secret: getSecret(),
+    const token = await encodeTestJwt({
       token: { scope: "api-read" },
     });
     await expect(verifyApiToken(token)).rejects.toThrow(UnauthenticatedError);
@@ -107,9 +111,3 @@ describe("verifyApiToken", () => {
     await expect(verifyApiToken("")).rejects.toThrow(UnauthenticatedError);
   });
 });
-
-function getSecret(): string {
-  const secret = process.env.NEXTAUTH_SECRET;
-  if (!secret) throw new Error("NEXTAUTH_SECRET must be set in tests");
-  return secret;
-}

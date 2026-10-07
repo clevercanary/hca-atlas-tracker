@@ -52,12 +52,7 @@ export const IssuedToken = ({
           {copied ? "Copied" : "Copy"}
         </Button>
       </Stack>
-      <div>
-        Expires{" "}
-        {expiresDateTime
-          ? `${expiresDateTime[0]} ${expiresDateTime[1]}`
-          : expires}
-      </div>
+      <div>Expires {expiresDateTime?.join(" ") ?? expires}</div>
       <Alert {...ALERT_PROPS.STANDARD_WARNING}>
         Copy this token now: it won&apos;t be shown again. It can&apos;t be
         revoked on its own; revoking it means rotating{" "}

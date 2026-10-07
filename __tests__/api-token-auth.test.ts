@@ -8,6 +8,7 @@ import presignedUrlHandler from "@/pages/api/atlases/[atlasId]/files/[fileId]/pr
 import meHandler from "@/pages/api/me";
 import publishedAtlasesHandler from "@/pages/api/published-atlases";
 import snsHandler from "@/pages/api/sns";
+import { encodeTestJwt } from "@/testing/api-tokens";
 import {
   ATLAS_DRAFT,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
@@ -24,7 +25,6 @@ import { resetDatabase } from "@/testing/db-utils";
 import { type TestUser } from "@/testing/entities";
 import { withConsoleErrorHiding } from "@/testing/utils";
 import { type NextApiRequest, type NextApiResponse } from "next";
-import { encode } from "next-auth/jwt";
 import httpMocks from "node-mocks-http";
 
 jest.mock(
@@ -187,27 +187,23 @@ describe("API token authentication", () => {
       {
         description: "an expired token",
         getAuthorization: async () =>
-          `Bearer ${await encode({
+          `Bearer ${await encodeTestJwt({
             maxAge: -60,
-            salt: "hat-api-token",
-            secret: getSecret(),
             token: { email: USER_CONTENT_ADMIN.email, scope: "api-read" },
           })}`,
       },
       {
         description: "a token with the wrong scope",
         getAuthorization: async () =>
-          `Bearer ${await encode({
-            salt: "hat-api-token",
-            secret: getSecret(),
+          `Bearer ${await encodeTestJwt({
             token: { email: USER_CONTENT_ADMIN.email, scope: "api-write" },
           })}`,
       },
       {
         description: "a session token",
         getAuthorization: async () =>
-          `Bearer ${await encode({
-            secret: getSecret(),
+          `Bearer ${await encodeTestJwt({
+            salt: "",
             token: { email: USER_CONTENT_ADMIN.email },
           })}`,
       },
@@ -311,10 +307,4 @@ async function doRequest(
   });
   await withConsoleErrorHiding(() => handler(req, res), hideConsoleError);
   return res;
-}
-
-function getSecret(): string {
-  const secret = process.env.NEXTAUTH_SECRET;
-  if (!secret) throw new Error("NEXTAUTH_SECRET must be set in tests");
-  return secret;
 }

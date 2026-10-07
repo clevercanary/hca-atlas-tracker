@@ -428,6 +428,15 @@ export function createMockResponse(status: number, body?: unknown): Response {
   } as Response;
 }
 
+/**
+ * Builds a mock Response whose body is the given raw text.
+ * @param text - Raw body text.
+ * @returns mock response.
+ */
+export function responseWithText(text: string): Response {
+  return { text: async (): Promise<string> => text } as Response;
+}
+
 export function withConsoleErrorHiding<T>(
   fn: () => Promise<T>,
   hideConsoleError = true,

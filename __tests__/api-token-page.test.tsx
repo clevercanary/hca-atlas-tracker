@@ -3,6 +3,7 @@ import {
   ROLE,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { TEST_THEME } from "@/testing/theme";
+import { responseWithText } from "@/testing/utils";
 
 jest.mock("@/app/hooks/UseCreateApiToken/hook", () => ({
   useCreateApiToken: jest.fn(),
@@ -121,7 +122,7 @@ describe("parseIssuedApiToken", () => {
   it("parses a body with a token and expiry", async () => {
     expect(
       await parseIssuedApiToken(
-        responseOf(
+        responseWithText(
           JSON.stringify({ expires: TEST_EXPIRES, token: TEST_TOKEN }),
         ),
       ),
@@ -138,7 +139,7 @@ describe("parseIssuedApiToken", () => {
       JSON.stringify({ expires: TEST_EXPIRES, token: "" }),
     ],
   ])("rejects %s", async (_, text) => {
-    await expect(parseIssuedApiToken(responseOf(text))).rejects.toThrow(
+    await expect(parseIssuedApiToken(responseWithText(text))).rejects.toThrow(
       UNREADABLE_API_TOKEN_MESSAGE,
     );
   });
@@ -175,13 +176,4 @@ function renderForm(
       </AuthorizationContext.Provider>
     </ThemeProvider>,
   );
-}
-
-/**
- * Build a minimal response whose body is the given text.
- * @param text - Response body.
- * @returns Mock response.
- */
-function responseOf(text: string): Response {
-  return { text: async (): Promise<string> => text } as Response;
 }
