@@ -2,8 +2,9 @@ import {
   type HCAAtlasTrackerDBUser,
   ROLE,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { type METHOD } from "@/app/common/entities";
+import { METHOD } from "@/app/common/entities";
 import { type FormResponseErrors } from "@/app/hooks/useForm/common/entities";
+import { verifyApiToken } from "@/app/services/api-tokens";
 import {
   atlasIsPublished,
   getAtlasIdByUrlParameter,
@@ -45,6 +46,11 @@ interface RequestUserCache {
 // without threading a context object through `MiddlewareFunction`.
 const requestUserCaches = new WeakMap<NextApiRequest, RequestUserCache>();
 
+// Handlers built by `handler` with the `bearerAllowed` middleware, so that
+// `handleByMethod` can tell which of the handlers it dispatches to accept
+// non-GET requests authenticated with an API token.
+const bearerWriteHandlers = new WeakSet<Handler>();
+
 export type MiddlewareFunction = (
   req: NextApiRequest,
   res: NextApiResponse,
@@ -62,8 +68,10 @@ export type Handler = (
  * @returns API handler function.
  */
 export function handler(...funcs: MiddlewareFunction[]): Handler {
-  return async (req, res) => {
+  const allowsBearerWrites = funcs.includes(bearerAllowed);
+  const builtHandler: Handler = async (req, res) => {
     try {
+      await checkApiTokenAccess(req, res, allowsBearerWrites);
       for (const f of funcs) {
         let done = true;
         await f(req, res, () => (done = false));
@@ -74,6 +82,8 @@ export function handler(...funcs: MiddlewareFunction[]): Handler {
       respondError(res, e);
     }
   };
+  if (allowsBearerWrites) bearerWriteHandlers.add(builtHandler);
+  return builtHandler;
 }
 
 /**
@@ -90,6 +100,9 @@ export function handleByMethod(
       const method = req.method;
       const handler = hasHandlerForMethod(method) && handlers[method];
       if (handler) {
+        // Handlers built with `handler` repeat this check themselves; it's
+        // made here too so a handler that isn't built that way can't skip it.
+        await checkApiTokenAccess(req, res, bearerWriteHandlers.has(handler));
         return await handler(req, res);
       } else {
         res.status(405).setHeader("Allow", allowHeaderText).end();
@@ -118,6 +131,43 @@ export function method(methodName: METHOD): MiddlewareFunction {
       next();
     }
   };
+}
+
+/**
+ * Marker middleware that lets requests authenticated with an API token use the route with a non-GET method, which they otherwise can't (API tokens are read-only). Only for routes whose non-GET methods write nothing, since its presence is detected by `handler` rather than by its position in the chain.
+ * @param req - Next API request.
+ * @param res - Next API response.
+ * @param next - Middleware next function.
+ */
+export const bearerAllowed: MiddlewareFunction = async (req, res, next) => {
+  next();
+};
+
+/**
+ * Throw an error if a request is authenticated with an API token that is invalid, or that is being used with a non-GET method on a route that doesn't allow it.
+ * The token is verified for every request that carries one, even on routes that need no authentication, so a bad token always gets a 401.
+ * @param req - Next API request.
+ * @param res - Next API response.
+ * @param allowsBearerWrites - Whether the route accepts non-GET requests authenticated with an API token.
+ */
+async function checkApiTokenAccess(
+  req: NextApiRequest,
+  res: NextApiResponse,
+  allowsBearerWrites: boolean,
+): Promise<void> {
+  if (!isApiTokenRequest(req)) return;
+  await getProvidedUserProfile(req, res);
+  if (req.method !== METHOD.GET && !allowsBearerWrites)
+    throw new ForbiddenError("API tokens are read-only");
+}
+
+/**
+ * Determine whether a request is authenticated with an API token, i.e. has an `Authorization` header (which takes precedence over any session cookie).
+ * @param req - Next API request.
+ * @returns true if the request has an `Authorization` header.
+ */
+export function isApiTokenRequest(req: NextApiRequest): boolean {
+  return req.headers.authorization !== undefined;
 }
 
 /**
@@ -386,14 +436,23 @@ async function loadActiveUser(
 ): Promise<HCAAtlasTrackerDBUser | null> {
   const userProfile = await getProvidedUserProfile(req, res);
   const email = userProfile?.email;
-  if (email) {
-    const { rows } = await query<HCAAtlasTrackerDBUser>(
-      "SELECT * FROM hat.users WHERE email=$1",
-      [email],
-    );
-    if (rows.length > 0) return rows[0];
-  }
+  if (email) return await queryUserByEmail(email);
   return null;
+}
+
+/**
+ * Query the database for a user's account details.
+ * @param email - Email of the user.
+ * @returns user row, or null if the user isn't registered.
+ */
+async function queryUserByEmail(
+  email: string,
+): Promise<HCAAtlasTrackerDBUser | null> {
+  const { rows } = await query<HCAAtlasTrackerDBUser>(
+    "SELECT * FROM hat.users WHERE email=$1",
+    [email],
+  );
+  return rows[0] ?? null;
 }
 
 export async function getRegisteredActiveUser(
@@ -463,7 +522,8 @@ export async function getProvidedUserProfile(
 }
 
 /**
- * Read the profile of the user making the request from the authentication session.
+ * Read the profile of the user making the request from its API token, if it has an `Authorization` header, or otherwise from the authentication session.
+ * A request with an `Authorization` header is never authenticated by its session cookie, even if the header is invalid.
  * @param req - Next API request.
  * @param res - Next API response.
  * @returns user profile, or null if the request was made without authentication.
@@ -472,6 +532,7 @@ async function loadProvidedUserProfile(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<UserProfile | null> {
+  if (isApiTokenRequest(req)) return await loadApiTokenUserProfile(req);
   const session = await getServerSession(req, res, nextAuthOptions);
   if (!session) return null;
   // TODO: Should `expires` be checked?
@@ -483,4 +544,27 @@ async function loadProvidedUserProfile(
     name: session.user.name ?? "",
     picture: session.user.image ?? "",
   };
+}
+
+/**
+ * Read the profile of the user making the request from the API token in its `Authorization` header, and cache the user's row for the request.
+ * Unlike a session, a token for a user who isn't registered and enabled is rejected outright, rather than being allowed through to role checks.
+ * @param req - Next API request.
+ * @returns user profile.
+ * @throws UnauthenticatedError - If the header isn't a bearer token, the token is invalid, or its user isn't registered and enabled.
+ */
+async function loadApiTokenUserProfile(
+  req: NextApiRequest,
+): Promise<UserProfile> {
+  const token = /^Bearer (\S+)$/.exec(req.headers.authorization ?? "")?.[1];
+  if (!token)
+    throw new UnauthenticatedError(
+      "Authorization header must be of the form `Bearer <token>`",
+    );
+  const email = await verifyApiToken(token);
+  const user = await queryUserByEmail(email);
+  if (!user || user.disabled)
+    throw new UnauthenticatedError("API token user is not an active user");
+  setRequestActiveUser(req, user);
+  return { email: user.email, name: user.full_name, picture: "" };
 }

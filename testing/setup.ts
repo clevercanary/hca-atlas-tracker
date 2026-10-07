@@ -36,6 +36,8 @@ process.env.GOOGLE_SERVICE_ACCOUNT =
 process.env.GOOGLE_AUTH =
   '{"type": "service_account", "client_email": "test@example.com"}';
 
+process.env.NEXTAUTH_SECRET = "test-nextauth-secret";
+
 process.env.AWS_DATA_BUCKET = TEST_S3_BUCKET;
 process.env.AWS_VALIDATION_RESULTS_BUCKET = TEST_VALIDATION_RESULTS_BUCKET;
 process.env.AWS_RESOURCE_CONFIG = JSON.stringify({
