@@ -461,6 +461,21 @@ async function queryUserByEmail(
   return rows[0] ?? null;
 }
 
+/**
+ * Query the database for a user's account details by ID.
+ * @param id - ID of the user.
+ * @returns user row, or null if there's no such user.
+ */
+async function queryUserById(
+  id: number,
+): Promise<HCAAtlasTrackerDBUser | null> {
+  const { rows } = await query<HCAAtlasTrackerDBUser>(
+    "SELECT * FROM hat.users WHERE id=$1",
+    [id],
+  );
+  return rows[0] ?? null;
+}
+
 export async function getRegisteredActiveUser(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -554,10 +569,10 @@ async function loadProvidedUserProfile(
 
 /**
  * Read the profile of the user making the request from the API token in its `Authorization` header, and cache the user's row for the request.
- * Unlike a session, a token for a user who isn't registered and enabled is rejected outright, rather than being allowed through to role checks.
+ * Unlike a session, a token for a user who isn't registered and enabled, or whose email has changed since the token was issued, is rejected outright, rather than being allowed through to role checks.
  * @param req - Next API request.
  * @returns user profile.
- * @throws UnauthenticatedError - If the header isn't a bearer token, the token is invalid, or its user isn't registered and enabled.
+ * @throws UnauthenticatedError - If the header isn't a bearer token, the token is invalid, or its user isn't registered and enabled or has a different email.
  */
 async function loadApiTokenUserProfile(
   req: NextApiRequest,
@@ -568,9 +583,10 @@ async function loadApiTokenUserProfile(
     throw new UnauthenticatedError(
       "Authorization header must be of the form `Bearer <token>`",
     );
-  const email = await verifyApiToken(token);
-  const user = await queryUserByEmail(email);
-  if (!user || user.disabled)
+  const { email, userId } = await verifyApiToken(token);
+  const user = await queryUserById(userId);
+  // A changed email revokes the user's tokens.
+  if (!user || user.disabled || user.email !== email)
     throw new UnauthenticatedError("API token user is not an active user");
   setRequestActiveUser(req, user);
   return { email: user.email, name: user.full_name, picture: "" };

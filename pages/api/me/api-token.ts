@@ -27,6 +27,8 @@ export default handler(
     const user = await getRegisteredActiveUser(req, res);
     if (!user.can_issue_api_tokens)
       throw new ForbiddenError("API tokens are not enabled for your account");
-    res.status(201).json(await issueApiToken(user.email));
+    res
+      .status(201)
+      .json(await issueApiToken({ email: user.email, userId: user.id }));
   },
 );

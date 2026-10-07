@@ -1,12 +1,12 @@
 import { type HCAAtlasTrackerIssuedApiToken } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
-import {
-  API_TOKEN_MAX_AGE,
-  issueApiToken,
-  verifyApiToken,
-} from "@/app/services/api-tokens";
+import { API_TOKEN_MAX_AGE, verifyApiToken } from "@/app/services/api-tokens";
 import { endPgPool } from "@/app/services/database";
 import apiTokenHandler from "@/pages/api/me/api-token";
+import {
+  getTestApiTokenSubject,
+  issueTestApiToken,
+} from "@/testing/api-tokens";
 import {
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
@@ -116,9 +116,7 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 403 when requested with an API token", async () => {
-    const { token } = await issueApiToken(
-      USER_CONTENT_ADMIN_API_TOKEN_ISSUER.email,
-    );
+    const token = await issueTestApiToken(USER_CONTENT_ADMIN_API_TOKEN_ISSUER);
     expect(
       (
         await doApiTokenRequest(undefined, {
@@ -130,9 +128,7 @@ describe(TEST_ROUTE, () => {
   });
 
   it("returns error 403 when requested with an API token alongside a valid session", async () => {
-    const { token } = await issueApiToken(
-      USER_CONTENT_ADMIN_API_TOKEN_ISSUER.email,
-    );
+    const token = await issueTestApiToken(USER_CONTENT_ADMIN_API_TOKEN_ISSUER);
     expect(
       (
         await doApiTokenRequest(USER_CONTENT_ADMIN_API_TOKEN_ISSUER, {
@@ -150,7 +146,7 @@ describe(TEST_ROUTE, () => {
     const { expires, token }: HCAAtlasTrackerIssuedApiToken =
       res._getJSONData();
     expect(await verifyApiToken(token)).toEqual(
-      USER_CONTENT_ADMIN_API_TOKEN_ISSUER.email,
+      await getTestApiTokenSubject(USER_CONTENT_ADMIN_API_TOKEN_ISSUER),
     );
     expect(
       Math.abs(
@@ -166,7 +162,7 @@ describe(TEST_ROUTE, () => {
     expect(res._getStatusCode()).toEqual(201);
     const { token }: HCAAtlasTrackerIssuedApiToken = res._getJSONData();
     expect(await verifyApiToken(token)).toEqual(
-      USER_CONTENT_ADMIN_API_TOKEN_ISSUER.email,
+      await getTestApiTokenSubject(USER_CONTENT_ADMIN_API_TOKEN_ISSUER),
     );
   });
 });

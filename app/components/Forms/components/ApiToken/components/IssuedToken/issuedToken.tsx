@@ -54,10 +54,11 @@ export const IssuedToken = ({
       </Stack>
       <div>Expires {expiresDateTime?.join(" ") ?? expires}</div>
       <Alert {...ALERT_PROPS.STANDARD_WARNING}>
-        Copy this token now: it won&apos;t be shown again. It can&apos;t be
-        revoked on its own; revoking it means rotating{" "}
-        <code>NEXTAUTH_SECRET</code>, which revokes every token and signs
-        everyone out.
+        Copy this token now: it won&apos;t be shown again. To revoke it before
+        it expires, an admin can disable your account or change your email,
+        either of which revokes all of your tokens. Rotating{" "}
+        <code>NEXTAUTH_SECRET</code> also revokes it, but revokes
+        everyone&apos;s tokens and signs everyone out.
       </Alert>
       <p>
         Paste it into your tool&apos;s configuration, e.g. as{" "}

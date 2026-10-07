@@ -27,19 +27,33 @@ const API_TOKEN_SCOPE = "api-read";
 export const API_TOKEN_MAX_AGE = 30 * 24 * 60 * 60;
 
 /**
+ * The user an API token acts as. The token is bound to the user's ID, which
+ * never changes, and also carries their email so that changing it revokes the
+ * token: emails can move between accounts (an admin can edit them, and an
+ * unknown email registers a new account on sign-in).
+ */
+export interface ApiTokenSubject {
+  email: string;
+  userId: number;
+}
+
+/**
  * Issue a read-only API token acting as the given user.
- * @param email - Email of the user the token acts as.
+ * @param subject - The user the token acts as.
+ * @param subject.email - The user's email.
+ * @param subject.userId - The user's ID.
  * @returns the token and its expiry, as an ISO date string.
  */
-export async function issueApiToken(
-  email: string,
-): Promise<HCAAtlasTrackerIssuedApiToken> {
+export async function issueApiToken({
+  email,
+  userId,
+}: ApiTokenSubject): Promise<HCAAtlasTrackerIssuedApiToken> {
   const secret = getSecret();
   const token = await encode({
     maxAge: API_TOKEN_MAX_AGE,
     salt: API_TOKEN_SALT,
     secret,
-    token: { email, scope: API_TOKEN_SCOPE },
+    token: { email, scope: API_TOKEN_SCOPE, userId },
   });
   // Read the expiry back from the token rather than recomputing it, so the
   // reported date is exactly the one that's enforced.
@@ -50,12 +64,12 @@ export async function issueApiToken(
 }
 
 /**
- * Verify an API token and get the email of the user it acts as.
+ * Verify an API token and get the user it acts as.
  * @param token - API token, as provided in a bearer `Authorization` header.
- * @returns email of the user the token acts as.
- * @throws UnauthenticatedError - If the token is malformed, expired, encrypted with a different key (e.g. it's a session cookie), or lacks the API token scope or an email.
+ * @returns the user the token acts as.
+ * @throws UnauthenticatedError - If the token is malformed, expired, encrypted with a different key (e.g. it's a session cookie), or lacks the API token scope, an email or a user ID.
  */
-export async function verifyApiToken(token: string): Promise<string> {
+export async function verifyApiToken(token: string): Promise<ApiTokenSubject> {
   // The underlying decode error is deliberately dropped: it's never needed to
   // explain a rejection, and leaving it out keeps it out of the logs.
   const payload = await decode({
@@ -66,10 +80,11 @@ export async function verifyApiToken(token: string): Promise<string> {
   if (
     payload?.scope !== API_TOKEN_SCOPE ||
     typeof payload.email !== "string" ||
-    !payload.email
+    !payload.email ||
+    !Number.isInteger(payload.userId)
   )
     throw new UnauthenticatedError("Invalid or expired API token");
-  return payload.email;
+  return { email: payload.email, userId: Number(payload.userId) };
 }
 
 /**

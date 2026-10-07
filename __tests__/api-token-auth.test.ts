@@ -1,6 +1,5 @@
 import { METHOD } from "@/app/common/entities";
-import { issueApiToken } from "@/app/services/api-tokens";
-import { endPgPool } from "@/app/services/database";
+import { endPgPool, query } from "@/app/services/database";
 import { type Handler } from "@/app/utils/api-handler";
 import atlasesHandler from "@/pages/api/atlases";
 import componentAtlasHandler from "@/pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]";
@@ -8,7 +7,11 @@ import presignedUrlHandler from "@/pages/api/atlases/[atlasId]/files/[fileId]/pr
 import meHandler from "@/pages/api/me";
 import publishedAtlasesHandler from "@/pages/api/published-atlases";
 import snsHandler from "@/pages/api/sns";
-import { encodeTestJwt } from "@/testing/api-tokens";
+import {
+  encodeTestJwt,
+  getTestApiTokenSubject,
+  issueTestApiToken,
+} from "@/testing/api-tokens";
 import {
   ATLAS_DRAFT,
   ATLAS_WITH_MISC_SOURCE_STUDIES,
@@ -20,6 +23,7 @@ import {
   USER_INTEGRATION_LEAD_WITH_MISC_SOURCE_STUDIES,
   USER_NONEXISTENT,
   USER_STAKEHOLDER,
+  USER_STAKEHOLDER2,
 } from "@/testing/constants";
 import { resetDatabase } from "@/testing/db-utils";
 import { type TestUser } from "@/testing/entities";
@@ -95,7 +99,7 @@ describe("API token authentication", () => {
   });
 
   it("accepts the bearer scheme in any case", async () => {
-    const { token } = await issueApiToken(USER_STAKEHOLDER.email);
+    const token = await issueTestApiToken(USER_STAKEHOLDER);
     const res = await doRequest(atlasesHandler, {
       ...ATLASES_REQUEST,
       authorization: `bearer ${token}`,
@@ -223,14 +227,20 @@ describe("API token authentication", () => {
         getAuthorization: async () =>
           `Bearer ${await encodeTestJwt({
             maxAge: -60,
-            token: { email: USER_CONTENT_ADMIN.email, scope: "api-read" },
+            token: {
+              ...(await getTestApiTokenSubject(USER_CONTENT_ADMIN)),
+              scope: "api-read",
+            },
           })}`,
       },
       {
         description: "a token with the wrong scope",
         getAuthorization: async () =>
           `Bearer ${await encodeTestJwt({
-            token: { email: USER_CONTENT_ADMIN.email, scope: "api-write" },
+            token: {
+              ...(await getTestApiTokenSubject(USER_CONTENT_ADMIN)),
+              scope: "api-write",
+            },
           })}`,
       },
       {
@@ -238,7 +248,25 @@ describe("API token authentication", () => {
         getAuthorization: async () =>
           `Bearer ${await encodeTestJwt({
             salt: "",
-            token: { email: USER_CONTENT_ADMIN.email },
+            token: { ...(await getTestApiTokenSubject(USER_CONTENT_ADMIN)) },
+          })}`,
+      },
+      {
+        description: "a token without a user ID",
+        getAuthorization: async () =>
+          `Bearer ${await encodeTestJwt({
+            token: { email: USER_CONTENT_ADMIN.email, scope: "api-read" },
+          })}`,
+      },
+      {
+        description: "a token whose user ID belongs to another user",
+        getAuthorization: async () =>
+          `Bearer ${await encodeTestJwt({
+            token: {
+              email: USER_CONTENT_ADMIN.email,
+              scope: "api-read",
+              userId: (await getTestApiTokenSubject(USER_STAKEHOLDER)).userId,
+            },
           })}`,
       },
       {
@@ -291,6 +319,67 @@ describe("API token authentication", () => {
     }
   });
 
+  describe("binding to the user", () => {
+    const CHANGED_EMAIL = "test-stakeholder2-changed@example.com";
+
+    it("returns 401 after the user's email changes", async () => {
+      const authorization = await bearerFor(USER_STAKEHOLDER2);
+      const { userId } = await getTestApiTokenSubject(USER_STAKEHOLDER2);
+      await withChangedEmail(userId, async () => {
+        const res = await doRequest(atlasesHandler, {
+          ...ATLASES_REQUEST,
+          authorization,
+          hideConsoleError: true,
+        });
+        expect(res._getStatusCode()).toEqual(401);
+      });
+    });
+
+    it("returns 401 after the user's email changes and a new user registers with the old one", async () => {
+      const authorization = await bearerFor(USER_STAKEHOLDER2);
+      const { userId } = await getTestApiTokenSubject(USER_STAKEHOLDER2);
+      await withChangedEmail(userId, async () => {
+        await query(
+          "INSERT INTO hat.users (disabled, email, full_name, role, role_associated_resource_ids) VALUES (false, $1, 'New User', $2, '{}')",
+          [USER_STAKEHOLDER2.email, USER_STAKEHOLDER2.role],
+        );
+        const res = await doRequest(atlasesHandler, {
+          ...ATLASES_REQUEST,
+          authorization,
+          hideConsoleError: true,
+        });
+        expect(res._getStatusCode()).toEqual(401);
+      });
+    });
+
+    /**
+     * Change a user's email for the duration of a callback, then restore it.
+     * @param userId - ID of the user.
+     * @param callback - Function to call while the email is changed.
+     */
+    async function withChangedEmail(
+      userId: number,
+      callback: () => Promise<void>,
+    ): Promise<void> {
+      await query("UPDATE hat.users SET email=$1 WHERE id=$2", [
+        CHANGED_EMAIL,
+        userId,
+      ]);
+      try {
+        await callback();
+      } finally {
+        await query("DELETE FROM hat.users WHERE email=$1 AND id<>$2", [
+          USER_STAKEHOLDER2.email,
+          userId,
+        ]);
+        await query("UPDATE hat.users SET email=$1 WHERE id=$2", [
+          USER_STAKEHOLDER2.email,
+          userId,
+        ]);
+      }
+    }
+  });
+
   it("does not leak the token into the error response", async () => {
     const authorization = "Bearer some-secret-looking-token";
     const res = await doRequest(atlasesHandler, {
@@ -304,7 +393,7 @@ describe("API token authentication", () => {
 });
 
 async function bearerFor(user: TestUser): Promise<string> {
-  return `Bearer ${(await issueApiToken(user.email)).token}`;
+  return `Bearer ${await issueTestApiToken(user)}`;
 }
 
 async function doPresignedUrlRequest(
