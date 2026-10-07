@@ -1376,7 +1376,7 @@ async function doStudyRequest(
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: updatedData,
-    headers: { authorization: user?.authorization },
+    headers: { cookie: user?.cookie },
     method,
     query: getQueryValues(atlasId, sourceStudyId),
   });

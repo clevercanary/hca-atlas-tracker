@@ -31,6 +31,7 @@ export default handler(method(METHOD.PUT), async (req, res) => {
   }
   await updateLastLogin(user.id);
   const activeUserInfo: HCAAtlasTrackerActiveUser = {
+    canIssueApiTokens: user.can_issue_api_tokens,
     disabled: user.disabled,
     email: user.email,
     fullName: user.full_name,

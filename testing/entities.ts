@@ -23,13 +23,14 @@ import {
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 
 export interface TestUser {
-  authorization: string;
+  canIssueApiTokens: boolean;
+  cookie: string;
   disabled: boolean;
   email: string;
   name: string;
   role: ROLE;
   roleAssociatedResourceIds: string[];
-  token: string;
+  sessionId: string;
 }
 
 export interface TestAtlas {

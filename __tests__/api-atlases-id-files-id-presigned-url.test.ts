@@ -269,7 +269,7 @@ async function doPresignedUrlRequest(
   hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
-    headers: { authorization: user?.authorization },
+    headers: { cookie: user?.cookie },
     method,
     query: getQueryValues(atlasId, fileId),
   });

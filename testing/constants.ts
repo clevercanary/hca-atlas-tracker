@@ -3203,6 +3203,21 @@ export const USER_INTEGRATION_LEAD_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS =
     [ATLAS_ID_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS],
   );
 
+export const USER_CONTENT_ADMIN_API_TOKEN_ISSUER = makeTestUser(
+  "test-content-admin-api-token-issuer",
+  ROLE.CONTENT_ADMIN,
+  false,
+  [],
+  true,
+);
+export const USER_STAKEHOLDER_API_TOKEN_ISSUER = makeTestUser(
+  "test-stakeholder-api-token-issuer",
+  ROLE.STAKEHOLDER,
+  false,
+  [],
+  true,
+);
+
 // Users initialized in the database before tests
 export const INITIAL_TEST_USERS = [
   USER_DISABLED,
@@ -3221,6 +3236,8 @@ export const INITIAL_TEST_USERS = [
   USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_WITH_ENTRY_SHEET_VALIDATIONS_A,
   USER_INTEGRATION_LEAD_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
+  USER_CONTENT_ADMIN_API_TOKEN_ISSUER,
+  USER_STAKEHOLDER_API_TOKEN_ISSUER,
 ];
 
 export const TEST_USERS = [

@@ -92,20 +92,29 @@ export type ConsoleMessageOutputArrays = Partial<
   Record<ConsoleMessageFunctionName, unknown[][]>
 >;
 
+/**
+ * Name of the cookie the `next-auth` mock reads to fake a session: its value is
+ * the test user's `sessionId`. A cookie rather than an `Authorization` header,
+ * since real sessions are cookies and a bearer header is an API token.
+ */
+export const TEST_SESSION_COOKIE_NAME = "test-session";
+
 export function makeTestUser(
   nameId: string,
   role = ROLE.UNREGISTERED,
   disabled = false,
   roleAssociatedResourceIds: string[] = [],
+  canIssueApiTokens = false,
 ): TestUser {
   return {
-    authorization: `Bearer ${nameId}`,
+    canIssueApiTokens,
+    cookie: `${TEST_SESSION_COOKIE_NAME}=${nameId}`,
     disabled,
     email: `${nameId}@example.com`,
     name: nameId,
     role,
     roleAssociatedResourceIds,
-    token: nameId,
+    sessionId: nameId,
   };
 }
 
@@ -419,6 +428,15 @@ export function createMockResponse(status: number, body?: unknown): Response {
   } as Response;
 }
 
+/**
+ * Builds a mock Response whose body is the given raw text.
+ * @param text - Raw body text.
+ * @returns mock response.
+ */
+export function responseWithText(text: string): Response {
+  return { text: async (): Promise<string> => text } as Response;
+}
+
 export function withConsoleErrorHiding<T>(
   fn: () => Promise<T>,
   hideConsoleError = true,
@@ -531,7 +549,7 @@ export function testApiRole(
     const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>(
       {
         body,
-        headers: { authorization: user.authorization },
+        headers: { cookie: user.cookie },
         method,
         query: typeof query === "function" ? query() : query,
       },

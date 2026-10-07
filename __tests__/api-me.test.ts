@@ -9,6 +9,7 @@ import meHandler from "@/pages/api/me";
 import {
   STAKEHOLDER_ANALOGOUS_ROLES,
   USER_CONTENT_ADMIN,
+  USER_CONTENT_ADMIN_API_TOKEN_ISSUER,
   USER_STAKEHOLDER,
   USER_UNREGISTERED,
 } from "@/testing/constants";
@@ -66,6 +67,7 @@ describe(TEST_ROUTE, () => {
     const res = await doMeRequest(USER_UNREGISTERED);
     expect(res.statusCode).toEqual(200);
     const user: HCAAtlasTrackerActiveUser = res._getJSONData();
+    expect(user.canIssueApiTokens).toEqual(false);
     expect(user.disabled).toEqual(false);
     expect(user.email).toEqual(USER_UNREGISTERED.email);
     expect(user.fullName).toEqual(USER_UNREGISTERED.name);
@@ -95,6 +97,14 @@ describe(TEST_ROUTE, () => {
       USER_STAKEHOLDER.email,
     );
     expect(userStakeholderFromDb?.last_login.getFullYear()).toEqual(1970);
+  });
+
+  it("returns API token permission for user who can issue API tokens", async () => {
+    const res = await doMeRequest(USER_CONTENT_ADMIN_API_TOKEN_ISSUER);
+    expect(res.statusCode).toEqual(200);
+    const user: HCAAtlasTrackerActiveUser = res._getJSONData();
+    expect(user.canIssueApiTokens).toEqual(true);
+    expectActiveUserToMatchTest(user, USER_CONTENT_ADMIN_API_TOKEN_ISSUER);
   });
 
   for (const role of STAKEHOLDER_ANALOGOUS_ROLES) {
@@ -127,6 +137,7 @@ function expectActiveUserToMatchTest(
   activeUser: HCAAtlasTrackerActiveUser,
   testUser: TestUser,
 ): void {
+  expect(activeUser.canIssueApiTokens).toEqual(testUser.canIssueApiTokens);
   expect(activeUser.disabled).toEqual(testUser.disabled);
   expect(activeUser.email).toEqual(testUser.email);
   expect(activeUser.fullName).toEqual(testUser.name);
@@ -142,7 +153,7 @@ async function doMeRequest(
   hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
-    headers: { authorization: user?.authorization },
+    headers: { cookie: user?.cookie },
     method,
   });
   await withConsoleErrorHiding(() => meHandler(req, res), hideConsoleError);

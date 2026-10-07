@@ -474,7 +474,7 @@ async function doArchiveRequest(
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body,
-    headers: { authorization: user?.authorization },
+    headers: { cookie: user?.cookie },
     method,
     query: getQueryValues(atlasId),
   });

@@ -1,5 +1,6 @@
 export const ROUTE = {
   ACCOUNT_DISABLED: "/account-disabled",
+  API_TOKEN: "/api-token",
   ATLAS: "/atlases/[atlasId]",
   ATLASES: "/atlases",
   ATLAS_SOURCE_DATASET: "/atlases/[atlasId]/source-datasets/[sourceDatasetId]",

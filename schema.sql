@@ -300,7 +300,8 @@ CREATE TABLE hat.users (
     id integer NOT NULL,
     last_login timestamp without time zone DEFAULT '1970-01-01 00:00:00'::timestamp without time zone NOT NULL,
     role character varying(50) NOT NULL,
-    role_associated_resource_ids uuid[] DEFAULT '{}'::uuid[] NOT NULL
+    role_associated_resource_ids uuid[] DEFAULT '{}'::uuid[] NOT NULL,
+    can_issue_api_tokens boolean DEFAULT false NOT NULL
 );
 
 

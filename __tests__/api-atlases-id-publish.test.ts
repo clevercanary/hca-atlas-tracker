@@ -262,7 +262,7 @@ async function doPublishRequest(
   method = METHOD.POST,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
-    headers: { authorization: user?.authorization },
+    headers: { cookie: user?.cookie },
     method,
     query: getQueryValues(atlasId),
   });

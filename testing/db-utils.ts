@@ -117,8 +117,9 @@ export async function initUsers(
 ): Promise<void> {
   for (const user of testUsers) {
     await client.query(
-      "INSERT INTO hat.users (disabled, email, full_name, role, role_associated_resource_ids) VALUES ($1, $2, $3, $4, $5)",
+      "INSERT INTO hat.users (can_issue_api_tokens, disabled, email, full_name, role, role_associated_resource_ids) VALUES ($1, $2, $3, $4, $5, $6)",
       [
+        user.canIssueApiTokens,
         user.disabled.toString(),
         user.email,
         user.name,

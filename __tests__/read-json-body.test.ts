@@ -1,13 +1,5 @@
 import { readJsonBody } from "@/app/common/utils";
-
-/**
- * Builds a mock Response whose body is the given raw text.
- * @param text - Raw body text.
- * @returns mock response.
- */
-function responseWithText(text: string): Response {
-  return { text: async (): Promise<string> => text } as Response;
-}
+import { responseWithText } from "@/testing/utils";
 
 describe("readJsonBody", () => {
   it("parses a JSON body", async () => {

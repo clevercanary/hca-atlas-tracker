@@ -248,7 +248,7 @@ async function doCellxGeneInProgressRequest(
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body,
-    headers: { authorization: user?.authorization },
+    headers: { cookie: user?.cookie },
     method,
   });
   await withConsoleErrorHiding(
