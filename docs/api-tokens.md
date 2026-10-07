@@ -7,8 +7,8 @@ token lets them call the tracker's API as you instead.
 ## What a token can do
 
 - **Acts as you.** Only your email is taken from the token. Your role and
-  atlas access are looked up on every request, so a role change or disabling
-  your account takes effect immediately.
+  atlas access are looked up on every request, so a role change applies to the
+  token immediately, and disabling your account stops it working.
 - **Read-only.** A token can call any `GET` route, plus
   `POST /api/atlases/{atlasId}/files/{fileId}/presigned-url`, which only signs
   a download URL. Every other method returns `403`.
@@ -47,9 +47,17 @@ Tokens aren't stored, so a single token can't be revoked. To revoke tokens
 before they expire, rotate `NEXTAUTH_SECRET`. That revokes **every** API token
 and also signs everyone out of the tracker.
 
-To cut off one person's access without that, disable their account or change
-their role. Their tokens then stop working, because the user is looked up on
-every request.
+To cut off one person's access without that, disable their account. Their
+tokens then stop working at once, because the user is looked up on every
+request.
+
+Other changes don't revoke tokens:
+
+- **Changing their role** only narrows what their tokens can read to what the
+  new role allows. A user demoted to stakeholder can still read every route a
+  stakeholder can, such as `/api/atlases`.
+- **Turning off `can_issue_api_tokens`** stops them creating new tokens, but
+  tokens they already have keep working until they expire.
 
 ## Granting the permission
 
