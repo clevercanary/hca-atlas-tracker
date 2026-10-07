@@ -64,6 +64,7 @@ python3 catalog/build/get_cellxgene_files_info.py  # Update CELLxGENE metadata (
 - **`docs/entity-relationship-model.md`** - Database schema and entity relationships (may be outdated)
 - **`docs/s3-notification-design-decisions.md`** - S3 event processing architecture (may be outdated)
 - **`docs/aws-resource-configuration.md`** - AWS resource setup and configuration
+- **`docs/api-tokens.md`** - Read-only API tokens for scripts and agents: getting, using and revoking them
 - **`docs/adr/`** - Architecture Decision Records
 
 Always consult these documents when working on related features.
@@ -138,6 +139,10 @@ handler(
   is only a minute wide, any interruption to the poll (laptop sleep, offline, a
   throttled background tab) expires the session with the tab still open —
   `app/hooks/UseSessionEndRedirect` navigates out of that state.
+- Scripts and agents use read-only API tokens instead: an `Authorization:
+Bearer` header, which always takes precedence over the session cookie and
+  only allows `GET` (plus routes using the `bearerAllowed` middleware). See
+  `docs/api-tokens.md`.
 
 **Authorization Roles:**
 
