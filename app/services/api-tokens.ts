@@ -1,3 +1,4 @@
+import { type HCAAtlasTrackerIssuedApiToken } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { UnauthenticatedError } from "@/app/utils/api-errors";
 import { decode, encode } from "next-auth/jwt";
 
@@ -25,17 +26,14 @@ const API_TOKEN_SCOPE = "api-read";
  */
 export const API_TOKEN_MAX_AGE = 30 * 24 * 60 * 60;
 
-export interface IssuedApiToken {
-  expires: string;
-  token: string;
-}
-
 /**
  * Issue a read-only API token acting as the given user.
  * @param email - Email of the user the token acts as.
  * @returns the token and its expiry, as an ISO date string.
  */
-export async function issueApiToken(email: string): Promise<IssuedApiToken> {
+export async function issueApiToken(
+  email: string,
+): Promise<HCAAtlasTrackerIssuedApiToken> {
   const secret = getSecret();
   const token = await encode({
     maxAge: API_TOKEN_MAX_AGE,

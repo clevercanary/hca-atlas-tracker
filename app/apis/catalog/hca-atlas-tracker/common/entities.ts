@@ -286,6 +286,15 @@ export interface HCAAtlasTrackerComment {
   updatedBy: number;
 }
 
+/**
+ * A newly-issued API token and its expiry (an ISO date string), as returned by
+ * `POST /api/me/api-token`.
+ */
+export interface HCAAtlasTrackerIssuedApiToken {
+  expires: string;
+  token: string;
+}
+
 export interface HCAAtlasTrackerActiveUser {
   canIssueApiTokens: boolean;
   disabled: boolean;

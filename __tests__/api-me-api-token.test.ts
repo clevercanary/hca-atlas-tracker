@@ -1,7 +1,7 @@
+import { type HCAAtlasTrackerIssuedApiToken } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import {
   API_TOKEN_MAX_AGE,
-  type IssuedApiToken,
   issueApiToken,
   verifyApiToken,
 } from "@/app/services/api-tokens";
@@ -147,7 +147,8 @@ describe(TEST_ROUTE, () => {
     const requestTime = Date.now();
     const res = await doApiTokenRequest(USER_CONTENT_ADMIN_API_TOKEN_ISSUER);
     expect(res._getStatusCode()).toEqual(201);
-    const { expires, token }: IssuedApiToken = res._getJSONData();
+    const { expires, token }: HCAAtlasTrackerIssuedApiToken =
+      res._getJSONData();
     expect(await verifyApiToken(token)).toEqual(
       USER_CONTENT_ADMIN_API_TOKEN_ISSUER.email,
     );
@@ -163,7 +164,7 @@ describe(TEST_ROUTE, () => {
       body: { email: USER_STAKEHOLDER.email, userId: 1 },
     });
     expect(res._getStatusCode()).toEqual(201);
-    const { token }: IssuedApiToken = res._getJSONData();
+    const { token }: HCAAtlasTrackerIssuedApiToken = res._getJSONData();
     expect(await verifyApiToken(token)).toEqual(
       USER_CONTENT_ADMIN_API_TOKEN_ISSUER.email,
     );

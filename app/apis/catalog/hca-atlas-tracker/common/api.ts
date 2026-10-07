@@ -1,5 +1,6 @@
 export enum API {
   ACTIVE_USER = "/api/me",
+  ACTIVE_USER_API_TOKEN = "/api/me/api-token",
   ATLAS = "/api/atlases/[atlasId]",
   ATLAS_COMPONENT_ATLAS = "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]",
   ATLAS_COMPONENT_ATLAS_SOURCE_DATASETS = "/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets",
