@@ -23,6 +23,7 @@ import {
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 
 export interface TestUser {
+  canIssueApiTokens: boolean;
   cookie: string;
   disabled: boolean;
   email: string;

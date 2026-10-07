@@ -104,8 +104,10 @@ export function makeTestUser(
   role = ROLE.UNREGISTERED,
   disabled = false,
   roleAssociatedResourceIds: string[] = [],
+  canIssueApiTokens = false,
 ): TestUser {
   return {
+    canIssueApiTokens,
     cookie: `${TEST_SESSION_COOKIE_NAME}=${nameId}`,
     disabled,
     email: `${nameId}@example.com`,
