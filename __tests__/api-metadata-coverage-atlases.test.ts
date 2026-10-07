@@ -525,7 +525,7 @@ async function doRequest(
   hideConsoleError = false,
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
-    headers: { authorization: user?.authorization },
+    headers: { cookie: user?.cookie },
     method,
     query,
   });

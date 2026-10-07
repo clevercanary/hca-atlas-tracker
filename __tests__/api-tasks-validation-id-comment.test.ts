@@ -474,7 +474,7 @@ async function doCommentRequest(
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: data,
-    headers: { authorization: user?.authorization },
+    headers: { cookie: user?.cookie },
     method,
     query: {
       validationId,

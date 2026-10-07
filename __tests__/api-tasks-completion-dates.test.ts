@@ -268,7 +268,7 @@ async function doCompletionDatesRequest(
 ): Promise<httpMocks.MockResponse<NextApiResponse>> {
   const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
     body: getBody(targetCompletion, taskIds),
-    headers: { authorization: user?.authorization },
+    headers: { cookie: user?.cookie },
     method,
   });
   await withConsoleErrorHiding(
