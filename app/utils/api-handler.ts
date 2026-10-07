@@ -81,7 +81,7 @@ export function handler(...funcs: MiddlewareFunction[]): Handler {
 
 /**
  * Creates an API handler function that calls different handlers depending on request method, responding with an error if none match.
- * The handlers should be built with `handler`, which is what applies the API token checks (see `checkApiTokenAccess`).
+ * The handlers should be built with `handler`, which is what applies the API token read-only rule (see `checkApiTokenAccess`).
  * @param handlers - Object mapping request method to handler function.
  * @returns API handler function.
  */
@@ -91,6 +91,10 @@ export function handleByMethod(
   const allowHeaderText = Object.keys(handlers).join(", ");
   return async (req, res) => {
     try {
+      // Verified before dispatch so a bad token gets a 401 even for a method
+      // this route doesn't handle; the dispatched handler (built with
+      // `handler`) applies the read-only rule.
+      await verifyRequestApiToken(req, res);
       const method = req.method;
       const handler = hasHandlerForMethod(method) && handlers[method];
       if (handler) {
@@ -147,9 +151,21 @@ async function checkApiTokenAccess(
   allowsBearerWrites: boolean,
 ): Promise<void> {
   if (!isApiTokenRequest(req)) return;
-  await getProvidedUserProfile(req, res);
+  await verifyRequestApiToken(req, res);
   if (req.method !== METHOD.GET && !allowsBearerWrites)
     throw new ForbiddenError("API tokens are read-only");
+}
+
+/**
+ * Throw an error if a request carries an API token that is invalid. Cached per request, so repeating it is free.
+ * @param req - Next API request.
+ * @param res - Next API response.
+ */
+async function verifyRequestApiToken(
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> {
+  if (isApiTokenRequest(req)) await getProvidedUserProfile(req, res);
 }
 
 /**
@@ -546,7 +562,8 @@ async function loadProvidedUserProfile(
 async function loadApiTokenUserProfile(
   req: NextApiRequest,
 ): Promise<UserProfile> {
-  const token = /^Bearer (\S+)$/.exec(req.headers.authorization ?? "")?.[1];
+  // The auth scheme name is case-insensitive (RFC 9110).
+  const token = /^Bearer (\S+)$/i.exec(req.headers.authorization ?? "")?.[1];
   if (!token)
     throw new UnauthenticatedError(
       "Authorization header must be of the form `Bearer <token>`",

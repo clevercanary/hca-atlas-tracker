@@ -94,6 +94,40 @@ describe("API token authentication", () => {
     expect(res._getStatusCode()).toEqual(200);
   });
 
+  it("accepts the bearer scheme in any case", async () => {
+    const { token } = await issueApiToken(USER_STAKEHOLDER.email);
+    const res = await doRequest(atlasesHandler, {
+      ...ATLASES_REQUEST,
+      authorization: `bearer ${token}`,
+    });
+    expect(res._getStatusCode()).toEqual(200);
+  });
+
+  it("returns 405 for a valid token with a method a route dispatched by method doesn't handle", async () => {
+    const res = await doRequest(componentAtlasHandler, {
+      authorization: await bearerFor(USER_CONTENT_ADMIN),
+      method: METHOD.DELETE,
+      query: {
+        atlasId: ATLAS_DRAFT.id,
+        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+      },
+    });
+    expect(res._getStatusCode()).toEqual(405);
+  });
+
+  it("returns 401 rather than 405 for a bad token with a method a route dispatched by method doesn't handle", async () => {
+    const res = await doRequest(componentAtlasHandler, {
+      authorization: "Bearer not-a-token",
+      hideConsoleError: true,
+      method: METHOD.DELETE,
+      query: {
+        atlasId: ATLAS_DRAFT.id,
+        componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+      },
+    });
+    expect(res._getStatusCode()).toEqual(401);
+  });
+
   it("returns 200 for presigned URL POST by content admin", async () => {
     const res = await doPresignedUrlRequest(
       await bearerFor(USER_CONTENT_ADMIN),
