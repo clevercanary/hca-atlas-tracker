@@ -16,6 +16,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import { type JSX, useState } from "react";
 
@@ -116,18 +117,19 @@ function renderOpen(): jest.Mock {
 }
 
 /**
- * The dialog title's close button. Queried structurally because findable-ui's
- * `DialogTitle` renders it as an icon button with no accessible name, so it
- * can't be reached by role and name.
- * @returns the title's close button.
+ * The dialog title's close button, or null when it isn't rendered — which is
+ * how the mid-request guard withholds it. Queried by role and name so the test
+ * also pins that it has a name: "Close" is findable-ui's `DialogTitle` default,
+ * so a later upgrade that dropped it fails here rather than silently leaving
+ * the button unidentifiable to a screen reader. Scoped to the dialog so it
+ * can't match a close control outside it. One query serves both the present
+ * and absent checks, so they can't drift apart.
+ * @returns the title's close button, if rendered.
  */
-function titleCloseButton(): HTMLElement {
-  const button = document.querySelector(
-    ".MuiDialogTitle-root .MuiIconButton-root",
-  );
-  if (!(button instanceof HTMLElement))
-    throw new Error("dialog title close button not found");
-  return button;
+function queryTitleCloseButton(): HTMLElement | null {
+  return within(screen.getByRole("dialog")).queryByRole("button", {
+    name: "Close",
+  });
 }
 
 /**
@@ -259,13 +261,11 @@ describe.each(GUARDED_DIALOGS)(
       // Escape, the backdrop, Cancel and the title's "x" together. Each is a
       // separate line in the component, so each copy has to be checked.
       const onCancel = renderGuarded();
-      expect(titleCloseButton()).toBeInTheDocument();
+      expect(queryTitleCloseButton()).toBeInTheDocument();
 
       const respond = confirmPending();
 
-      expect(
-        document.querySelector(".MuiDialogTitle-root .MuiIconButton-root"),
-      ).toBeNull();
+      expect(queryTitleCloseButton()).toBeNull();
       expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
       expect(screen.getByRole("button", { name: confirmName })).toBeDisabled();
 
@@ -281,7 +281,7 @@ describe.each(GUARDED_DIALOGS)(
       });
 
       // And every exit is live again once it settles.
-      expect(titleCloseButton()).toBeInTheDocument();
+      expect(queryTitleCloseButton()).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled();
       fireEvent.keyDown(screen.getByRole("dialog"), {
         code: "Escape",
@@ -440,13 +440,11 @@ describe("confirmation dialog inline errors", () => {
     // guard looks like here: the button is absent rather than greyed out.
     render(<Harness />);
     openDialog();
-    expect(titleCloseButton()).toBeInTheDocument();
+    expect(queryTitleCloseButton()).toBeInTheDocument();
 
     const respond = publishPending();
 
-    expect(
-      document.querySelector(".MuiDialogTitle-root .MuiIconButton-root"),
-    ).toBeNull();
+    expect(queryTitleCloseButton()).toBeNull();
 
     // And back once the request settles, so the dialog is never left unclosable
     // after the fact.
@@ -454,7 +452,7 @@ describe("confirmation dialog inline errors", () => {
       respond(createMockResponse(403, { message: "Forbidden for this atlas" }));
     });
 
-    expect(titleCloseButton()).toBeInTheDocument();
+    expect(queryTitleCloseButton()).toBeInTheDocument();
   });
 
   it("ignores escape while the request is in flight, and honours it after", async () => {
