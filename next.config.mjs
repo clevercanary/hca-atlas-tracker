@@ -41,6 +41,9 @@ const withMDX = nextMDX({
 });
 
 export default withMDX({
+  // Next 16.4's `next dev` writes an AGENTS.md to the repo root when it detects
+  // an AI agent; turn that off so it never lands in the working tree.
+  agentRules: false,
   basePath: "",
   images: {
     // Serve WebP from the built-in optimizer. The tracker runs as a Node server
