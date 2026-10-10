@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.83.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.82.0...v1.83.0) (2026-10-09)
+
+
+### Features
+
+* read-only API tokens for scripts and agents ([#1583](https://github.com/clevercanary/hca-atlas-tracker/issues/1583)) ([#1584](https://github.com/clevercanary/hca-atlas-tracker/issues/1584)) ([5b129e5](https://github.com/clevercanary/hca-atlas-tracker/commit/5b129e59353dbac05efe4b8ec9b278885b5394ef))
+
+
+### Chores
+
+* upgrade findable-ui to v57 ([#1587](https://github.com/clevercanary/hca-atlas-tracker/issues/1587)) ([#1589](https://github.com/clevercanary/hca-atlas-tracker/issues/1589)) ([92a29a5](https://github.com/clevercanary/hca-atlas-tracker/commit/92a29a5159e67b587f77b4ea28562af5c7894039))
+
 ## [1.82.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.81.0...v1.82.0) (2026-09-24)
 
 
