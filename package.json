@@ -95,7 +95,7 @@
     "eslint-plugin-perfectionist": "^4",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react-hooks": "^7",
-    "eslint-plugin-sonarjs": "^3.0.7",
+    "eslint-plugin-sonarjs": "^4.2.2",
     "eslint-plugin-sort-destructure-keys": "^3",
     "husky": "^8.0.3",
     "jest": "^30.4.2",
