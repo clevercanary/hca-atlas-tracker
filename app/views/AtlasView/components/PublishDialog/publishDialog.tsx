@@ -49,9 +49,7 @@ export const PublishDialog = ({
       // The cost is deliberate: `fetch` has no timeout here, so a hung request
       // leaves the dialog with no way out until it settles. Accepted because
       // the alternative — a live exit on an irreversible action — is the worse
-      // of the two, and because the exit that was left open was an icon button
-      // with no accessible name (#1578), so it was never an exit for everyone
-      // anyway.
+      // of the two.
       onClose={isRequesting ? undefined : onCancel}
       open={open}
       // Cleared on enter and on exited. Both are now defence in depth rather
