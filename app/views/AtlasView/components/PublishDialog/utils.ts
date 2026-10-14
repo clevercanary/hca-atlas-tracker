@@ -17,6 +17,10 @@ import { INTEGRATED_OBJECTS } from "@/app/views/ComponentAtlasesView/hooks/UseFe
  * computed from that atlas, so the dialog can't close onto a Publish action
  * still offered by the stale cache (#1551).
  *
+ * The same key is where the published atlas from the response is merged, which
+ * keeps the view showing it as published even if that refetch fails (see
+ * `usePublishAtlas`).
+ *
  * Publishing also stamps the atlas's unpublished source datasets and integrated
  * objects with the release date, so their lists are refreshed too — dispatched,
  * not awaited, as no control here depends on them.
@@ -31,6 +35,7 @@ export function getPublishOptions(
   // resolves immediately and silently reopens the window.
   const atlasQueryKey: AtlasQueryKey = [ATLAS, pathParameter.atlasId];
   return {
+    atlasQueryKey,
     invalidateQueryKeys: {
       awaited: [atlasQueryKey],
       dispatched: [

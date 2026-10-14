@@ -1,12 +1,14 @@
 import { METHOD } from "@/app/common/entities";
 import { useInlineRequest } from "@/app/hooks/UseInlineRequest/hook";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { type OnSubmitOptions, type UsePublishAtlas } from "./entities";
-import { latchOnSuccess } from "./utils";
+import { getOnPublishSuccess, parsePublishedAtlas } from "./utils";
 
 /**
  * Returns a request function for publishing an atlas. `onSubmit` never rejects:
- * a failure is returned as `error` and resolves `false`; success calls
+ * a failure is returned as `error` and resolves `false`; success merges the
+ * published atlas from the response into `options.atlasQueryKey`, calls
  * `options.onSuccess`, invalidates `options.invalidateQueryKeys` and resolves
  * `true` once the awaited invalidations have settled.
  *
@@ -19,6 +21,7 @@ import { latchOnSuccess } from "./utils";
  */
 export const usePublishAtlas = (): UsePublishAtlas => {
   const [succeeded, setSucceeded] = useState(false);
+  const queryClient = useQueryClient();
   const {
     actions: { onDismissError, onRequest },
     status: { error, isRequesting },
@@ -28,10 +31,11 @@ export const usePublishAtlas = (): UsePublishAtlas => {
     async (requestURL: string, options?: OnSubmitOptions): Promise<boolean> => {
       return onRequest(requestURL, METHOD.POST, undefined, {
         invalidateQueryKeys: options?.invalidateQueryKeys,
-        onSuccess: latchOnSuccess(setSucceeded, options?.onSuccess),
+        onSuccess: getOnPublishSuccess(queryClient, setSucceeded, options),
+        parseBody: parsePublishedAtlas,
       });
     },
-    [onRequest],
+    [onRequest, queryClient],
   );
 
   return {

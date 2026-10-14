@@ -6,6 +6,8 @@ jest.mock("@/app/common/utils", () => ({
 
 import { METHOD } from "@/app/common/entities";
 import { fetchResource } from "@/app/common/utils";
+import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
+import { type QueryKey as AtlasQueryKey } from "@/app/hooks/UseFetchAtlas/query/types";
 import { type OnSubmitOptions } from "@/app/hooks/UsePublishAtlas/entities";
 import { usePublishAtlas } from "@/app/hooks/UsePublishAtlas/hook";
 import {
@@ -14,7 +16,8 @@ import {
   type SnackbarHookResult,
   snackbarMessages,
 } from "@/testing/snackbar";
-import { createMockResponse } from "@/testing/utils";
+import { createMockResponse, responseWithText } from "@/testing/utils";
+import { QueryClient } from "@tanstack/react-query";
 
 // Type mocks
 const mockFetchResource = fetchResource as jest.MockedFunction<
@@ -23,6 +26,16 @@ const mockFetchResource = fetchResource as jest.MockedFunction<
 
 // Test data
 const TEST_REQUEST_URL = "/api/test-publish";
+const TEST_ATLAS_QUERY_KEY: AtlasQueryKey = [ATLAS, "test-atlas-slug"];
+const TEST_CACHED_ATLAS = {
+  id: "test-atlas-uuid",
+  publishedAt: null,
+  shortName: "test-atlas",
+};
+const TEST_PUBLISHED_ATLAS = {
+  id: "test-atlas-uuid",
+  publishedAt: "2026-10-14T00:00:00.000Z",
+};
 
 type Result = SnackbarHookResult<typeof usePublishAtlas>;
 
@@ -105,4 +118,65 @@ describe("usePublishAtlas", () => {
     expect(result.current.hook.status.error).toBeUndefined();
     expect(onSuccess).toHaveBeenCalledTimes(1);
   });
+
+  it("merges the published atlas from the response into the given atlas query", async () => {
+    mockFetchResource.mockResolvedValue(
+      createMockResponse(200, TEST_PUBLISHED_ATLAS),
+    );
+    const queryClient = new QueryClient();
+    queryClient.setQueryData(TEST_ATLAS_QUERY_KEY, TEST_CACHED_ATLAS);
+
+    const { result } = renderHookWithSnackbar(usePublishAtlas, queryClient);
+    await expect(
+      submit(result, { atlasQueryKey: TEST_ATLAS_QUERY_KEY, onSuccess }),
+    ).resolves.toBe(true);
+    // The latch is component state and is lost on a remount; the cache is not,
+    // so a view remounted after a failed refetch still renders the atlas as
+    // published. Merged, so cached fields the body lacks survive; and written
+    // to the caller's key, not one built from the response's `id`.
+    expect(queryClient.getQueryData(TEST_ATLAS_QUERY_KEY)).toEqual({
+      ...TEST_CACHED_ATLAS,
+      ...TEST_PUBLISHED_ATLAS,
+    });
+    expect(
+      queryClient.getQueryData([ATLAS, TEST_PUBLISHED_ATLAS.id]),
+    ).toBeUndefined();
+  });
+
+  it("doesn't create a cache entry when none is cached", async () => {
+    mockFetchResource.mockResolvedValue(
+      createMockResponse(200, TEST_PUBLISHED_ATLAS),
+    );
+    const queryClient = new QueryClient();
+
+    const { result } = renderHookWithSnackbar(usePublishAtlas, queryClient);
+    await submit(result, { atlasQueryKey: TEST_ATLAS_QUERY_KEY });
+    expect(queryClient.getQueryData(TEST_ATLAS_QUERY_KEY)).toBeUndefined();
+  });
+
+  it.each([
+    ["an empty body", createMockResponse(200)],
+    ["a non-JSON body", { ...responseWithText("<html>"), status: 200 }],
+    ["a body that isn't a published atlas", createMockResponse(200, {})],
+  ])(
+    "still succeeds, leaving the cache alone, on %s",
+    async (_label, response) => {
+      mockFetchResource.mockResolvedValue(response);
+      const queryClient = new QueryClient();
+      queryClient.setQueryData(TEST_ATLAS_QUERY_KEY, TEST_CACHED_ATLAS);
+
+      const { result } = renderHookWithSnackbar(usePublishAtlas, queryClient);
+      // The atlas is published by then, so an unreadable body mustn't be
+      // reported as a failure.
+      await expect(
+        submit(result, { atlasQueryKey: TEST_ATLAS_QUERY_KEY, onSuccess }),
+      ).resolves.toBe(true);
+      expect(onSuccess).toHaveBeenCalledTimes(1);
+      expect(result.current.hook.status.error).toBeUndefined();
+      expect(result.current.hook.status.succeeded).toBe(true);
+      expect(queryClient.getQueryData(TEST_ATLAS_QUERY_KEY)).toEqual(
+        TEST_CACHED_ATLAS,
+      );
+    },
+  );
 });
