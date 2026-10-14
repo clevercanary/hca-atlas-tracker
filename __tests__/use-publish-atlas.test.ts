@@ -58,6 +58,9 @@ describe("usePublishAtlas", () => {
     );
     expect(onSuccess).toHaveBeenCalledTimes(1);
     expect(result.current.hook.status.isRequesting).toBe(false);
+    // Latched, so the publish control stays disabled after the request
+    // settles: publishing is irreversible.
+    expect(result.current.hook.status.succeeded).toBe(true);
   });
 
   it("returns the error inline and resets isRequesting on a non-OK response", async () => {
@@ -75,6 +78,7 @@ describe("usePublishAtlas", () => {
     // The dialog buttons are disabled on isRequesting, so a failure must
     // reset it or the dialog is permanently dead.
     expect(result.current.hook.status.isRequesting).toBe(false);
+    expect(result.current.hook.status.succeeded).toBe(false);
   });
 
   it("returns the error inline and resets isRequesting on a network-level error", async () => {

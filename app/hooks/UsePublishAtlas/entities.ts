@@ -1,4 +1,9 @@
-export interface OnSubmitOptions {
+import { type RequestOptions } from "@/app/common/entities";
+
+export interface OnSubmitOptions extends Pick<
+  RequestOptions,
+  "invalidateQueryKeys"
+> {
   onSuccess?: () => void;
 }
 
@@ -15,6 +20,7 @@ export interface PublishAtlasActions {
 export interface PublishAtlasStatus {
   error: string | undefined;
   isRequesting: boolean;
+  succeeded: boolean;
 }
 
 export interface UsePublishAtlas {
