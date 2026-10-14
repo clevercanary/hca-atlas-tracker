@@ -7,9 +7,9 @@ jest.mock("@/app/common/utils", () => ({
 import { fetchResource } from "@/app/common/utils";
 import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { makeQueryClient } from "@/app/query/queryClient";
-import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/UseFetchAtlasSourceDatasets/query/constants";
+import { SOURCE_DATASET } from "@/app/views/AtlasSourceDatasetView/hooks/UseFetchAtlasSourceDataset/query/constants";
 import { PublishDialog } from "@/app/views/AtlasView/components/PublishDialog/publishDialog";
-import { INTEGRATED_OBJECTS } from "@/app/views/ComponentAtlasesView/hooks/UseFetchComponentAtlases/query/constants";
+import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/constants";
 import { mockQueryClient } from "@/testing/query";
 import { createQuerySnackbarWrapper } from "@/testing/snackbar";
 import {
@@ -58,8 +58,9 @@ class ErrorBoundary extends Component<
 }
 
 /**
- * Stands in for `AtlasView`: the atlas query, with the app's defaults, and the
- * Publish action computed from it the way the view computes `canPublish`.
+ * Stands in for `AtlasView`: the atlas query, with the app's defaults, the
+ * Publish action computed from it the way the view computes `canPublish`, and
+ * the dialog given the same atlas.
  * @returns the view.
  */
 function AtlasViewStandIn(): JSX.Element {
@@ -71,7 +72,7 @@ function AtlasViewStandIn(): JSX.Element {
     <>
       {data?.publishedAt === null && <span>Publish action</span>}
       <PublishDialog
-        atlas={undefined}
+        atlas={data}
         onCancel={(): void => undefined}
         onPublished={(): void => undefined}
         open
@@ -164,14 +165,14 @@ describe("PublishDialog after a successful publish (#1551)", () => {
     mockFetchResource.mockResolvedValue(createMockResponse(200, {}));
   });
 
-  it("invalidates the atlas and the lists publishing stamps", async () => {
+  it("invalidates the atlas and the detail queries publishing stamps", async () => {
     const { invalidatedKeys } = renderDialog();
     await publish();
     // Dispatched keys first, then the awaited atlas (see
     // `invalidateQueryCaches`).
     expect(invalidatedKeys()).toEqual([
-      [INTEGRATED_OBJECTS, TEST_PATH_PARAMETER.atlasId],
-      [SOURCE_DATASETS, TEST_PATH_PARAMETER.atlasId],
+      [INTEGRATED_OBJECT, TEST_PATH_PARAMETER.atlasId],
+      [SOURCE_DATASET, TEST_PATH_PARAMETER.atlasId],
       ATLAS_QUERY_KEY,
     ]);
   });
@@ -191,16 +192,26 @@ describe("PublishDialog after a successful publish (#1551)", () => {
   });
 
   it("keeps Publish disabled once the request has settled", async () => {
-    const { resolve } = renderDialog();
-    await publish();
-    await landRefetch(resolve);
+    mockFetchResource.mockResolvedValue(
+      createMockResponse(200, TEST_PUBLISHED_ATLAS),
+    );
+    mockAtlasQueryFn
+      .mockResolvedValueOnce(TEST_DRAFT_ATLAS)
+      .mockResolvedValueOnce(TEST_PUBLISHED_ATLAS);
+    renderAtlasView(makeQueryClient());
+    await flush();
+    expect(screen.getByRole("button", { name: "Publish" })).toBeEnabled();
 
+    await publish();
+    await flush();
+    // Disabled from the cached atlas, which now shows the publish, rather than
+    // from anything the dialog holds — so a remount can't re-enable it.
     expect(screen.getByRole("button", { name: "Publish" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled();
     expect(mockFetchResource).toHaveBeenCalledTimes(1);
   });
 
-  it("doesn't close or latch on a failed publish", async () => {
+  it("doesn't close on a failed publish", async () => {
     mockFetchResource.mockResolvedValue(
       createMockResponse(403, { message: "Forbidden for this atlas" }),
     );
@@ -245,13 +256,14 @@ describe("PublishDialog when the atlas refetch fails after a publish", () => {
       await flush();
       expect(screen.getByText("error page")).toBeInTheDocument();
 
-      // "To Homepage", then back: a fresh view and dialog, so the dialog's
-      // `succeeded` latch is gone. Only the cache carries the publish over.
+      // "To Homepage", then back: a fresh view and dialog, with only the cache
+      // to carry the publish over.
       unmount();
       renderAtlasView(queryClient);
       await flush();
       expect(mockAtlasQueryFn).toHaveBeenCalledTimes(3);
       expect(screen.queryByText("Publish action")).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Publish" })).toBeDisabled();
     });
   });
 

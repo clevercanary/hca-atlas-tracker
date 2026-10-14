@@ -1,4 +1,6 @@
 import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
+import { type HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { apiEntityIsPublished } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { type PathParameter } from "@/app/common/entities";
 import { getRequestURL } from "@/app/common/utils";
 import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
@@ -7,8 +9,8 @@ import {
   type OnSubmitFn,
   type OnSubmitOptions,
 } from "@/app/hooks/UsePublishAtlas/entities";
-import { SOURCE_DATASETS } from "@/app/views/AtlasSourceDatasetsView/hooks/UseFetchAtlasSourceDatasets/query/constants";
-import { INTEGRATED_OBJECTS } from "@/app/views/ComponentAtlasesView/hooks/UseFetchComponentAtlases/query/constants";
+import { SOURCE_DATASET } from "@/app/views/AtlasSourceDatasetView/hooks/UseFetchAtlasSourceDataset/query/constants";
+import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/UseFetchComponentAtlas/query/constants";
 
 /**
  * Returns the publish request options. The atlas is awaited, so the request
@@ -17,13 +19,14 @@ import { INTEGRATED_OBJECTS } from "@/app/views/ComponentAtlasesView/hooks/UseFe
  * computed from that atlas, so the dialog can't close onto a Publish action
  * still offered by the stale cache (#1551).
  *
- * The same key is where the published atlas from the response is merged, which
- * keeps the view showing it as published even if that refetch fails (see
- * `usePublishAtlas`).
+ * The same key is where the published atlas's `publishedAt` from the response
+ * is merged, which keeps the view showing it as published even if that refetch
+ * fails (see `usePublishAtlas`).
  *
  * Publishing also stamps the atlas's unpublished source datasets and integrated
- * objects with the release date, so their lists are refreshed too — dispatched,
- * not awaited, as no control here depends on them.
+ * objects with the release date, so their detail queries are refreshed too —
+ * dispatched, not awaited, as no control here depends on them. Their lists need
+ * nothing: they refetch on every mount (`staleTime: 0`).
  * @param pathParameter - Path parameter.
  * @returns publish request options.
  */
@@ -39,11 +42,24 @@ export function getPublishOptions(
     invalidateQueryKeys: {
       awaited: [atlasQueryKey],
       dispatched: [
-        [INTEGRATED_OBJECTS, pathParameter.atlasId],
-        [SOURCE_DATASETS, pathParameter.atlasId],
+        [INTEGRATED_OBJECT, pathParameter.atlasId],
+        [SOURCE_DATASET, pathParameter.atlasId],
       ],
     },
   };
+}
+
+/**
+ * Returns true if the atlas is published. The dialog's Publish button is
+ * disabled on it, so it can't be clicked again once the cached atlas shows the
+ * publish — which the request writes there on success (see `usePublishAtlas`).
+ * @param atlas - Atlas, if loaded.
+ * @returns true if the atlas is loaded and published.
+ */
+export function isAtlasPublished(
+  atlas: HCAAtlasTrackerAtlas | undefined,
+): boolean {
+  return atlas !== undefined && apiEntityIsPublished(atlas);
 }
 
 /**

@@ -7,8 +7,8 @@ export interface OnSubmitOptions extends Pick<
   "invalidateQueryKeys"
 > {
   /**
-   * The atlas query the published atlas from the response is merged into on
-   * success. Supplied by the caller rather than built from the response's `id`:
+   * The atlas query the published atlas's `publishedAt` from the response is
+   * merged into on success. Supplied by the caller rather than built from the response's `id`:
    * the view may have loaded the atlas by another identifier, and its query is
    * keyed on that.
    */
@@ -35,7 +35,6 @@ export interface PublishAtlasActions {
 export interface PublishAtlasStatus {
   error: string | undefined;
   isRequesting: boolean;
-  succeeded: boolean;
 }
 
 export interface UsePublishAtlas {

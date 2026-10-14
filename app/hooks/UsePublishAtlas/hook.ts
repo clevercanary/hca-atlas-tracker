@@ -1,26 +1,25 @@
 import { METHOD } from "@/app/common/entities";
 import { useInlineRequest } from "@/app/hooks/UseInlineRequest/hook";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { type OnSubmitOptions, type UsePublishAtlas } from "./entities";
 import { getOnPublishSuccess, parsePublishedAtlas } from "./utils";
 
 /**
  * Returns a request function for publishing an atlas. `onSubmit` never rejects:
- * a failure is returned as `error` and resolves `false`; success merges the
- * published atlas from the response into `options.atlasQueryKey`, calls
- * `options.onSuccess`, invalidates `options.invalidateQueryKeys` and resolves
- * `true` once the awaited invalidations have settled.
+ * a failure is returned as `error` and resolves `false`. Once the server
+ * accepts the request, `options.invalidateQueryKeys` are invalidated (before the
+ * body is read); success then merges the published atlas's `publishedAt` from
+ * the response into `options.atlasQueryKey` and calls `options.onSuccess`, and
+ * resolves `true` once the awaited invalidations have settled.
  *
  * `error` is cleared at the start of every attempt. `isRequesting` is true while
  * the request is in flight and while the awaited invalidations refetch, and is
- * reset on every outcome; `succeeded` is latched on success and never reset, so
- * the publish control stays disabled afterwards — publishing is irreversible,
- * and the endpoint rejects a second attempt.
+ * reset on every outcome. Nothing here records that the publish succeeded: the
+ * cached atlas does, and the publish control is disabled from it.
  * @returns the publish actions and their status.
  */
 export const usePublishAtlas = (): UsePublishAtlas => {
-  const [succeeded, setSucceeded] = useState(false);
   const queryClient = useQueryClient();
   const {
     actions: { onDismissError, onRequest },
@@ -31,7 +30,7 @@ export const usePublishAtlas = (): UsePublishAtlas => {
     async (requestURL: string, options?: OnSubmitOptions): Promise<boolean> => {
       return onRequest(requestURL, METHOD.POST, undefined, {
         invalidateQueryKeys: options?.invalidateQueryKeys,
-        onSuccess: getOnPublishSuccess(queryClient, setSucceeded, options),
+        onSuccess: getOnPublishSuccess(queryClient, options),
         parseBody: parsePublishedAtlas,
       });
     },
@@ -40,6 +39,6 @@ export const usePublishAtlas = (): UsePublishAtlas => {
 
   return {
     actions: { onDismissError, onSubmit },
-    status: { error, isRequesting, succeeded },
+    status: { error, isRequesting },
   };
 };

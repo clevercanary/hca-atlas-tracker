@@ -71,9 +71,6 @@ describe("usePublishAtlas", () => {
     );
     expect(onSuccess).toHaveBeenCalledTimes(1);
     expect(result.current.hook.status.isRequesting).toBe(false);
-    // Latched, so the publish control stays disabled after the request
-    // settles: publishing is irreversible.
-    expect(result.current.hook.status.succeeded).toBe(true);
   });
 
   it("returns the error inline and resets isRequesting on a non-OK response", async () => {
@@ -91,7 +88,6 @@ describe("usePublishAtlas", () => {
     // The dialog buttons are disabled on isRequesting, so a failure must
     // reset it or the dialog is permanently dead.
     expect(result.current.hook.status.isRequesting).toBe(false);
-    expect(result.current.hook.status.succeeded).toBe(false);
   });
 
   it("returns the error inline and resets isRequesting on a network-level error", async () => {
@@ -119,7 +115,7 @@ describe("usePublishAtlas", () => {
     expect(onSuccess).toHaveBeenCalledTimes(1);
   });
 
-  it("merges the published atlas from the response into the given atlas query", async () => {
+  it("merges the published atlas's publishedAt into the given atlas query", async () => {
     mockFetchResource.mockResolvedValue(
       createMockResponse(200, TEST_PUBLISHED_ATLAS),
     );
@@ -130,13 +126,14 @@ describe("usePublishAtlas", () => {
     await expect(
       submit(result, { atlasQueryKey: TEST_ATLAS_QUERY_KEY, onSuccess }),
     ).resolves.toBe(true);
-    // The latch is component state and is lost on a remount; the cache is not,
-    // so a view remounted after a failed refetch still renders the atlas as
-    // published. Merged, so cached fields the body lacks survive; and written
-    // to the caller's key, not one built from the response's `id`.
+    // The cache survives a remount, so a view remounted after a failed
+    // refetch still renders the atlas as published. Only `publishedAt` is
+    // taken from the body — its other fields (here an `id` from another
+    // identifier) are left to the refetch — and it's written to the caller's
+    // key, not one built from the response's `id`.
     expect(queryClient.getQueryData(TEST_ATLAS_QUERY_KEY)).toEqual({
       ...TEST_CACHED_ATLAS,
-      ...TEST_PUBLISHED_ATLAS,
+      publishedAt: TEST_PUBLISHED_ATLAS.publishedAt,
     });
     expect(
       queryClient.getQueryData([ATLAS, TEST_PUBLISHED_ATLAS.id]),
@@ -173,7 +170,6 @@ describe("usePublishAtlas", () => {
       ).resolves.toBe(true);
       expect(onSuccess).toHaveBeenCalledTimes(1);
       expect(result.current.hook.status.error).toBeUndefined();
-      expect(result.current.hook.status.succeeded).toBe(true);
       expect(queryClient.getQueryData(TEST_ATLAS_QUERY_KEY)).toEqual(
         TEST_CACHED_ATLAS,
       );

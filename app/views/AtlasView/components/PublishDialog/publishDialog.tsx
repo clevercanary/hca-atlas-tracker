@@ -12,7 +12,7 @@ import { usePublishAtlas } from "@/app/hooks/UsePublishAtlas/hook";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button, Typography } from "@mui/material";
 import { type JSX } from "react";
-import { submitPublish } from "./utils";
+import { isAtlasPublished, submitPublish } from "./utils";
 
 interface Props {
   atlas: HCAAtlasTrackerAtlas | undefined;
@@ -31,7 +31,7 @@ export const PublishDialog = ({
 }: Props): JSX.Element => {
   const {
     actions: { onDismissError, onSubmit },
-    status: { error, isRequesting, succeeded },
+    status: { error, isRequesting },
   } = usePublishAtlas();
 
   return (
@@ -89,9 +89,9 @@ export const PublishDialog = ({
         </Button>
         <Button
           color={BUTTON_PROPS.COLOR.PRIMARY}
-          // `succeeded` stays set after the request settles: publishing is
-          // irreversible, so this must not be clickable again.
-          disabled={isRequesting || succeeded}
+          // Publishing is irreversible, so this mustn't be clickable once the
+          // cached atlas shows the publish.
+          disabled={isRequesting || isAtlasPublished(atlas)}
           onClick={() => {
             submitPublish(onSubmit, pathParameter, onPublished);
           }}
