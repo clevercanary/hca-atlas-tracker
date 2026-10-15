@@ -1,26 +1,22 @@
 import { METHOD } from "@/app/common/entities";
 import { useInlineRequest } from "@/app/hooks/UseInlineRequest/hook";
-import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { type OnSubmitOptions, type UsePublishAtlas } from "./entities";
-import { getOnPublishSuccess, parsePublishedAtlas } from "./utils";
 
 /**
  * Returns a request function for publishing an atlas. `onSubmit` never rejects:
  * a failure is returned as `error` and resolves `false`. Once the server
- * accepts the request, `options.invalidateQueryKeys` are invalidated (before the
- * body is read); success then merges the published atlas's `publishedAt` from
- * the response into `options.atlasQueryKey` and calls `options.onSuccess`, and
- * resolves `true` once the awaited invalidations have settled.
+ * accepts the request, `options.invalidateQueryKeys` are invalidated; success
+ * then calls `options.onSuccess`, and resolves `true` once the awaited
+ * invalidations have settled.
  *
  * `error` is cleared at the start of every attempt. `isRequesting` is true while
  * the request is in flight and while the awaited invalidations refetch, and is
  * reset on every outcome. Nothing here records that the publish succeeded: the
- * cached atlas does, and the publish control is disabled from it.
+ * refetched atlas does, and the publish control is disabled from it.
  * @returns the publish actions and their status.
  */
 export const usePublishAtlas = (): UsePublishAtlas => {
-  const queryClient = useQueryClient();
   const {
     actions: { onDismissError, onRequest },
     status: { error, isRequesting },
@@ -30,11 +26,10 @@ export const usePublishAtlas = (): UsePublishAtlas => {
     async (requestURL: string, options?: OnSubmitOptions): Promise<boolean> => {
       return onRequest(requestURL, METHOD.POST, undefined, {
         invalidateQueryKeys: options?.invalidateQueryKeys,
-        onSuccess: getOnPublishSuccess(queryClient, options),
-        parseBody: parsePublishedAtlas,
+        onSuccess: options?.onSuccess,
       });
     },
-    [onRequest, queryClient],
+    [onRequest],
   );
 
   return {

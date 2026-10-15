@@ -19,10 +19,6 @@ import { INTEGRATED_OBJECT } from "@/app/views/ComponentAtlasView/hooks/UseFetch
  * computed from that atlas, so the dialog can't close onto a Publish action
  * still offered by the stale cache (#1551).
  *
- * The same key is where the published atlas's `publishedAt` from the response
- * is merged, which keeps the view showing it as published even if that refetch
- * fails (see `usePublishAtlas`).
- *
  * Publishing also stamps the atlas's unpublished source datasets and integrated
  * objects with the release date, so their detail queries are refreshed too —
  * dispatched, not awaited, as no control here depends on them. Their lists need
@@ -38,7 +34,6 @@ export function getPublishOptions(
   // resolves immediately and silently reopens the window.
   const atlasQueryKey: AtlasQueryKey = [ATLAS, pathParameter.atlasId];
   return {
-    atlasQueryKey,
     invalidateQueryKeys: {
       awaited: [atlasQueryKey],
       dispatched: [
@@ -52,7 +47,7 @@ export function getPublishOptions(
 /**
  * Returns true if the atlas is published. The dialog's Publish button is
  * disabled on it, so it can't be clicked again once the cached atlas shows the
- * publish — which the request writes there on success (see `usePublishAtlas`).
+ * publish — which the awaited refetch puts there (see `getPublishOptions`).
  * @param atlas - Atlas, if loaded.
  * @returns true if the atlas is loaded and published.
  */
@@ -67,8 +62,6 @@ export function isAtlasPublished(
  * — after the refetched atlas has landed — rather than from `onSuccess`, which
  * runs alongside that refetch: closing there would leave the view's Publish
  * action enabled against the stale atlas until the refetch lands (#1551).
- * `onPublished` is guarded, as `onSuccess` would have been, so a throwing
- * handler is logged rather than left as an unhandled rejection.
  * @param onSubmit - Publish request function.
  * @param pathParameter - Path parameter.
  * @param onPublished - Called once the publish has succeeded and the atlas has
@@ -84,10 +77,5 @@ export async function submitPublish(
     getRequestURL(API.ATLAS_PUBLISH, pathParameter),
     getPublishOptions(pathParameter),
   );
-  if (!published) return;
-  try {
-    onPublished();
-  } catch (e) {
-    console.error(e);
-  }
+  if (published) onPublished();
 }
