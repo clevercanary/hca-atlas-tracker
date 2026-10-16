@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.83.1](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.83.0...v1.83.1) (2026-10-16)
+
+
+### Bug Fixes
+
+* publish can be re-sent against stale cache after succeeding ([#1551](https://github.com/clevercanary/hca-atlas-tracker/issues/1551)) ([#1594](https://github.com/clevercanary/hca-atlas-tracker/issues/1594)) ([7b54849](https://github.com/clevercanary/hca-atlas-tracker/commit/7b54849ad0b338bcc592c44574ac5e9029148c97))
+
+
+### Tests
+
+* findable-ui's dialogtitle close button has no accessible name ([#1578](https://github.com/clevercanary/hca-atlas-tracker/issues/1578)) ([#1591](https://github.com/clevercanary/hca-atlas-tracker/issues/1591)) ([6810347](https://github.com/clevercanary/hca-atlas-tracker/commit/6810347513d5302e4f249e31466b561aaeb3b79e))
+
 ## [1.83.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.82.0...v1.83.0) (2026-10-09)
 
 
