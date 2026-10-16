@@ -1,4 +1,9 @@
-export interface OnSubmitOptions {
+import { type RequestOptions } from "@/app/common/entities";
+
+export interface OnSubmitOptions extends Pick<
+  RequestOptions,
+  "invalidateQueryKeys"
+> {
   onSuccess?: () => void;
 }
 

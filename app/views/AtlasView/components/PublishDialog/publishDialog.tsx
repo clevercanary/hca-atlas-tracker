@@ -1,8 +1,6 @@
-import { API } from "@/app/apis/catalog/hca-atlas-tracker/common/api";
 import { type HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { getAtlasName } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { type PathParameter } from "@/app/common/entities";
-import { getRequestURL } from "@/app/common/utils";
 import {
   Dialog,
   DialogActions,
@@ -14,6 +12,7 @@ import { usePublishAtlas } from "@/app/hooks/UsePublishAtlas/hook";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { Button, Typography } from "@mui/material";
 import { type JSX } from "react";
+import { isAtlasPublished, submitPublish } from "./utils";
 
 interface Props {
   atlas: HCAAtlasTrackerAtlas | undefined;
@@ -47,9 +46,10 @@ export const PublishDialog = ({
       // moved on.
       //
       // The cost is deliberate: `fetch` has no timeout here, so a hung request
-      // leaves the dialog with no way out until it settles. Accepted because
-      // the alternative — a live exit on an irreversible action — is the worse
-      // of the two.
+      // — or, after a successful publish, a hung refetch of the atlas, which
+      // the request awaits (see `getPublishOptions`) — leaves the dialog with
+      // no way out until it settles. Accepted because the alternative — a live
+      // exit on an irreversible action — is the worse of the two.
       onClose={isRequesting ? undefined : onCancel}
       open={open}
       // Cleared on enter and on exited. Both are now defence in depth rather
@@ -89,11 +89,11 @@ export const PublishDialog = ({
         </Button>
         <Button
           color={BUTTON_PROPS.COLOR.PRIMARY}
-          disabled={isRequesting}
+          // Publishing is irreversible, so this mustn't be clickable once the
+          // cached atlas shows the publish.
+          disabled={isRequesting || isAtlasPublished(atlas)}
           onClick={() => {
-            onSubmit(getRequestURL(API.ATLAS_PUBLISH, pathParameter), {
-              onSuccess: onPublished,
-            });
+            submitPublish(onSubmit, pathParameter, onPublished);
           }}
           size={BUTTON_PROPS.SIZE.SMALL}
           variant={BUTTON_PROPS.VARIANT.CONTAINED}

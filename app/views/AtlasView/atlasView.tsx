@@ -10,10 +10,8 @@ import { VIEW_ATLAS_SECTION_CONFIGS } from "@/app/components/Forms/components/At
 import { AtlasStatuses } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
 import { DetailView } from "@/app/components/Layout/components/Detail/detailView";
 import { useAtlasTabBackPath } from "@/app/hooks/useAtlasTabBackPath";
-import { ATLAS } from "@/app/hooks/UseFetchAtlas/query/constants";
 import { useDialog } from "@databiosphere/findable-ui/lib/components/common/Dialog/hooks/useDialog";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
-import { useQueryClient } from "@tanstack/react-query";
 import { Fragment, type JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
 import { AtlasActionButton } from "./components/AtlasActionButton/atlasActionButton";
@@ -49,12 +47,10 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
     open: revisionDialogOpen,
   } = useDialog();
   const backPath = useAtlasTabBackPath(pathParameter);
-  const queryClient = useQueryClient();
   const isPublished = atlas ? apiEntityIsPublished(atlas) : null;
   const canPublish = canEdit && isPublished === false;
   const canCreateRevision =
     canEdit && isPublished === true && atlas?.isLatest === true;
-  const { atlasId } = pathParameter;
 
   if (isLoading) return <Fragment />;
 
@@ -69,12 +65,7 @@ export const AtlasView = ({ pathParameter }: AtlasViewProps): JSX.Element => {
         <PublishDialog
           atlas={atlas}
           onCancel={closePublishDialog}
-          onPublished={() => {
-            closePublishDialog();
-            queryClient.invalidateQueries({
-              queryKey: [ATLAS, atlasId],
-            });
-          }}
+          onPublished={closePublishDialog}
           open={publishDialogOpen}
           pathParameter={pathParameter}
         />
