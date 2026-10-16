@@ -15,7 +15,7 @@ import { createQuerySnackbarWrapper } from "@/testing/snackbar";
 import { createMockResponse } from "@/testing/utils";
 import { type QueryClient, useQuery } from "@tanstack/react-query";
 import "@testing-library/jest-dom";
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { type JSX } from "react";
 
 const mockFetchResource = fetchResource as jest.MockedFunction<
@@ -55,16 +55,6 @@ function AtlasViewStandIn(): JSX.Element {
       />
     </>
   );
-}
-
-/**
- * Lets pending promises and timers settle.
- * @returns promise resolving after a macrotask.
- */
-function flush(): Promise<void> {
-  return act(async () => {
-    await new Promise((resolve) => setTimeout(resolve, 0));
-  });
 }
 
 /**
@@ -172,17 +162,19 @@ describe("PublishDialog after a successful publish (#1551)", () => {
       .mockResolvedValueOnce(TEST_DRAFT_ATLAS)
       .mockResolvedValueOnce(TEST_PUBLISHED_ATLAS);
     renderAtlasView(makeQueryClient());
-    await flush();
+    // Waits for the draft atlas: Publish is enabled before it loads, too.
+    await screen.findByText("Publish action");
     expect(screen.getByRole("button", { name: "Publish" })).toBeEnabled();
-    expect(screen.getByText("Publish action")).toBeInTheDocument();
 
     await publish();
-    await flush();
+    // Cancel is re-enabled once the request settles, after the awaited refetch.
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled(),
+    );
     expect(screen.queryByText("Publish action")).not.toBeInTheDocument();
     // Disabled from the refetched atlas, which now shows the publish, rather
     // than from anything the dialog holds.
     expect(screen.getByRole("button", { name: "Publish" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Cancel" })).toBeEnabled();
     expect(mockFetchResource).toHaveBeenCalledTimes(1);
   });
 
