@@ -35,16 +35,25 @@ describe("file download Dialog presigned-URL gating", () => {
       hookResultOf({ filename: "old.h5ad", url: STALE_URL }, true),
     );
 
-    // The disabled Download button renders href="" (a MUI-typing workaround so
-    // the `download` prop stays valid on the Button), which React warns about;
-    // expected while the URL is gated.
-    await withConsoleErrorHiding(async () => {
-      renderDialog();
-    });
+    const errors: unknown[][] = [];
+    await withConsoleErrorHiding(
+      async () => {
+        renderDialog();
+      },
+      true,
+      errors,
+    );
+
+    // The disabled Download button must not render an empty href (#1588).
+    expect(errors).not.toContainEqual(
+      expect.arrayContaining([
+        expect.stringContaining('An empty string ("") was passed to the %s'),
+      ]),
+    );
 
     const control = getDownloadControl();
     expect(control).toBeDisabled();
-    expect(control).not.toHaveAttribute("href", STALE_URL);
+    expect(control).not.toHaveAttribute("href");
     // CodeSection shows the loading state, not the (stale) URL.
     expect(screen.queryByText("Presigned URL")).not.toBeInTheDocument();
     expect(screen.queryByText(STALE_URL)).not.toBeInTheDocument();

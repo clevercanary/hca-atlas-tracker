@@ -39,14 +39,17 @@ export const Dialog = ({
         <CodeSection url={url} />
       </DialogContent>
       <DialogActions>
-        <Button
-          {...BUTTON_PROPS.PRIMARY_CONTAINED}
-          disabled={!url}
-          download
-          href={url ?? ""}
-        >
-          Download
-        </Button>
+        {/* MUI only accepts `download` with a string `href`, so render a plain
+            disabled button until there is a URL rather than an empty `href`. */}
+        {url ? (
+          <Button {...BUTTON_PROPS.PRIMARY_CONTAINED} download href={url}>
+            Download
+          </Button>
+        ) : (
+          <Button {...BUTTON_PROPS.PRIMARY_CONTAINED} disabled>
+            Download
+          </Button>
+        )}
         <Button {...BUTTON_PROPS.SECONDARY_CONTAINED} onClick={onClose}>
           Cancel
         </Button>
