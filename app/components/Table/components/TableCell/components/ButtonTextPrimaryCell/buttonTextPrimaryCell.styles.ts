@@ -1,7 +1,7 @@
-import { ButtonTextPrimary as DXButtonTextPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonTextPrimary/buttonTextPrimary";
 import styled from "@emotion/styled";
+import { Button } from "@mui/material";
 
-export const ButtonTextPrimaryCell = styled(DXButtonTextPrimary)`
+export const ButtonTextPrimaryCell = styled(Button)`
   flex: unset;
   font-weight: 400;
   text-align: left;
