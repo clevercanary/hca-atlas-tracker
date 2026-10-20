@@ -1,5 +1,4 @@
 import { ROUTE } from "@/app/routes/constants";
-import { ButtonPrimary } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonPrimary/buttonPrimary";
 import { AlertIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AlertIcon/alertIcon";
 import { SectionActions } from "@databiosphere/findable-ui/lib/components/common/Section/section.styles";
 import {
@@ -12,8 +11,9 @@ import {
   ErrorSection,
   SectionContent,
 } from "@databiosphere/findable-ui/lib/components/Error/error.styles";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
-import { Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import Link from "next/link";
 import { type JSX } from "react";
 
@@ -35,9 +35,14 @@ export const NotFoundView = (): JSX.Element => {
             </Typography>
           </SectionContent>
           <SectionActions>
-            <ButtonPrimary component={Link} href={ROUTE.ATLASES}>
+            <Button
+              color={BUTTON_PROPS.COLOR.PRIMARY}
+              component={Link}
+              href={ROUTE.ATLASES}
+              variant={BUTTON_PROPS.VARIANT.CONTAINED}
+            >
               Go to Atlases
-            </ButtonPrimary>
+            </Button>
           </SectionActions>
         </ErrorSection>
       </ErrorContent>
