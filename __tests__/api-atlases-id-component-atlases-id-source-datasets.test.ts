@@ -10,7 +10,7 @@ import {
   type ComponentAtlasSetSourceDatasetsData,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "@/app/common/entities";
-import { endPgPool, query } from "@/app/services/database";
+import { endPgPool, getPoolClient, query } from "@/app/services/database";
 import sourceDatasetsHandler from "@/pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets";
 import {
   ATLAS_DRAFT,
@@ -1265,6 +1265,45 @@ describe(TEST_ROUTE, () => {
       },
     );
   });
+
+  for (const method of [METHOD.POST, METHOD.PUT]) {
+    it(`waits for a concurrent change to the atlas before resolving source dataset versions when ${method} requested`, async () => {
+      await withRestoredComponentAtlasSourceDatasets(
+        COMPONENT_ATLAS_DRAFT_FOO,
+        async () => {
+          // Stand in for an S3 upload replacing a source dataset version on the atlas.
+          const client = await getPoolClient();
+          let settled = false;
+          let resPromise:
+            | Promise<httpMocks.MockResponse<NextApiResponse>>
+            | undefined;
+          try {
+            await client.query("BEGIN");
+            await client.query(
+              "SELECT id FROM hat.atlases WHERE id=$1 FOR UPDATE",
+              [ATLAS_DRAFT.id],
+            );
+            resPromise = doSourceDatasetsRequest(
+              ATLAS_DRAFT.id,
+              COMPONENT_ATLAS_DRAFT_FOO.id,
+              USER_CONTENT_ADMIN,
+              method,
+              { sourceDatasetIds: [SOURCE_DATASET_FOO.id] },
+            ).finally(() => (settled = true));
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            expect(settled).toBe(false);
+          } finally {
+            await client.query("ROLLBACK");
+            client.release();
+          }
+          const res = await resPromise;
+          expect(res?._getStatusCode()).toEqual(
+            method === METHOD.POST ? 201 : 200,
+          );
+        },
+      );
+    });
+  }
 
   it("adds the atlas's version alongside a different linked version of the same source dataset when PUT requested", async () => {
     await withRestoredComponentAtlasSourceDatasets(
