@@ -4,7 +4,7 @@ import {
   type HCAAtlasTrackerDBSourceDataset,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
-import { endPgPool } from "@/app/services/database";
+import { endPgPool, getPoolClient } from "@/app/services/database";
 import publishHandler from "@/pages/api/atlases/[atlasId]/publish";
 import {
   ATLAS_PUBLISHED,
@@ -143,11 +143,33 @@ describe(TEST_ROUTE, () => {
     ).toEqual(400);
   });
 
-  it("publishes unpublished atlas and linked unpublished metadata entities when requested by content admin", async () => {
-    const res = await doPublishRequest(
-      ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
-      USER_CONTENT_ADMIN,
-    );
+  it("publishes unpublished atlas and linked unpublished metadata entities when requested by content admin, locking the atlas before its component atlases", async () => {
+    // Stand in for a request linking source datasets, which locks the atlas and then a component atlas.
+    const client = await getPoolClient();
+    let resPromise:
+      | Promise<httpMocks.MockResponse<NextApiResponse>>
+      | undefined;
+    try {
+      await client.query("BEGIN");
+      await client.query("SELECT 1 FROM hat.atlases WHERE id=$1 FOR SHARE", [
+        ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
+      ]);
+      resPromise = doPublishRequest(
+        ATLAS_WITH_LINKED_PUBLISH_STATUSES.id,
+        USER_CONTENT_ADMIN,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Publishing must be waiting on the atlas without having locked the component atlas.
+      await client.query(
+        "SELECT 1 FROM hat.component_atlases WHERE version_id=$1 FOR UPDATE NOWAIT",
+        [COMPONENT_ATLAS_PUBLISH_STATUSES_UNPUBLISHED_FOO.versionId],
+      );
+    } finally {
+      await client.query("ROLLBACK");
+      client.release();
+    }
+    const res = await resPromise;
+    if (!res) throw new Error("Publish request wasn't made");
     expect(res._getStatusCode()).toEqual(200);
 
     // Check that the published atlas was returned

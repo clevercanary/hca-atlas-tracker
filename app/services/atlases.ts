@@ -31,6 +31,7 @@ import {
   getAtlasNotFoundError,
   getAtlasPublishedAt,
   getAtlasSourceStudyIds,
+  lockAtlasForUpdate,
 } from "@/app/data/atlases";
 import { publishUnpublishedComponentAtlasesOfAtlas } from "@/app/data/component-atlases";
 import { publishUnpublishedSourceDatasetsOfAtlas } from "@/app/data/source-datasets";
@@ -435,6 +436,8 @@ export async function publishAtlas(
   atlasId: string,
 ): Promise<HCAAtlasTrackerDBAtlasForAPI> {
   return doTransaction(async (client) => {
+    // Lock the atlas before its component atlases, as linking source datasets to component atlases does, to avoid deadlocks.
+    await lockAtlasForUpdate(atlasId, client);
     if (await atlasIsPublished(atlasId, client)) {
       throw new InvalidOperationError(
         `Atlas with ID ${atlasId} is already published`,
