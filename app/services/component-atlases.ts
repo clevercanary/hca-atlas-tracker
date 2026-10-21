@@ -1,4 +1,5 @@
 import {
+  type HCAAtlasTrackerComponentAtlasSourceDatasetsChanges,
   type HCAAtlasTrackerDBAtlas,
   type HCAAtlasTrackerDBComponentAtlas,
   type HCAAtlasTrackerDBComponentAtlasForAPI,
@@ -7,7 +8,11 @@ import {
   type HCAAtlasTrackerDBFile,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { type ComponentAtlasEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
-import { getSourceDatasetVersionsForAtlas } from "@/app/data/source-datasets";
+import {
+  getAtlasSourceDatasetsAmongVersions,
+  getSourceDatasetIdsAndVersionsForAtlas,
+  getSourceDatasetVersionsForAtlas,
+} from "@/app/data/source-datasets";
 import { InvalidOperationError, NotFoundError } from "@/app/utils/api-errors";
 import type pg from "pg";
 import { updateDownloadNameIfChanged } from "./concepts";
@@ -269,6 +274,87 @@ export async function deleteSourceDatasetsFromComponentAtlas(
 }
 
 /**
+ * Replace the source datasets linked to the specified component atlas with the given ones, considering only source dataset versions that are linked to the atlas; linked versions that aren't on the atlas are left as-is.
+ * @param atlasId - Atlas that the component atlas is accessed through.
+ * @param componentAtlasId - Component atlas ID.
+ * @param sourceDatasetIds - IDs of the source datasets that the component atlas should be linked to.
+ * @returns IDs of the source datasets that were added and removed.
+ * @throws NotFoundError if the component atlas or any of the source datasets doesn't exist on the atlas.
+ * @throws InvalidOperationError if the component atlas is archived or non-latest.
+ */
+export async function setComponentAtlasSourceDatasets(
+  atlasId: string,
+  componentAtlasId: string,
+  sourceDatasetIds: string[],
+): Promise<HCAAtlasTrackerComponentAtlasSourceDatasetsChanges> {
+  return await doTransaction(async (client) => {
+    const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
+      componentAtlasId,
+      atlasId,
+      client,
+    );
+
+    const lockResult = await query<
+      Pick<HCAAtlasTrackerDBComponentAtlas, "source_datasets">
+    >(
+      "SELECT source_datasets FROM hat.component_atlases WHERE version_id=$1 FOR UPDATE",
+      [componentAtlasVersion],
+      client,
+    );
+
+    if (lockResult.rows.length === 0)
+      throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
+
+    const linkedVersions = lockResult.rows[0].source_datasets;
+
+    await confirmComponentAtlasIsEditable(componentAtlasVersion, client);
+
+    const requestedDatasets = await getSourceDatasetIdsAndVersionsForAtlas(
+      sourceDatasetIds,
+      atlasId,
+      client,
+    );
+
+    const linkedAtlasDatasets = await getAtlasSourceDatasetsAmongVersions(
+      linkedVersions,
+      atlasId,
+      client,
+    );
+
+    const linkedVersionSet = new Set(linkedVersions);
+    const requestedVersionSet = new Set(
+      requestedDatasets.map(({ version_id }) => version_id),
+    );
+
+    const addedDatasets = requestedDatasets.filter(
+      ({ version_id }) => !linkedVersionSet.has(version_id),
+    );
+    const removedDatasets = linkedAtlasDatasets.filter(
+      ({ version_id }) => !requestedVersionSet.has(version_id),
+    );
+
+    if (addedDatasets.length > 0 || removedDatasets.length > 0) {
+      const removedVersionSet = new Set(
+        removedDatasets.map(({ version_id }) => version_id),
+      );
+      const newVersions = linkedVersions
+        .filter((version) => !removedVersionSet.has(version))
+        .concat(addedDatasets.map(({ version_id }) => version_id));
+      await query(
+        "UPDATE hat.component_atlases SET source_datasets=$1 WHERE version_id=$2",
+        [newVersions, componentAtlasVersion],
+        client,
+      );
+    }
+
+    return {
+      added: addedDatasets.map(({ id }) => id),
+      removed: removedDatasets.map(({ id }) => id),
+    };
+  });
+}
+
+/**
  * Create a new component atlas.
  * @param atlasId - ID of the parent atlas.
  * @param fileId - Associated file ID for the new component atlas to reference.
@@ -347,9 +433,11 @@ export async function getComponentAtlasVersionForAtlas(
 /**
  * Throw an error if the specified component atlas is not editable by users (e.g., is archived or non-latest).
  * @param componentAtlasVersion - The version ID of the component atlas to check.
+ * @param client - Postgres client to use.
  */
 async function confirmComponentAtlasIsEditable(
   componentAtlasVersion: string,
+  client?: pg.PoolClient,
 ): Promise<void> {
   const queryResult = await query<
     Pick<HCAAtlasTrackerDBComponentAtlas, "is_latest"> &
@@ -362,6 +450,7 @@ async function confirmComponentAtlasIsEditable(
         WHERE c.version_id = $1
       `,
     [componentAtlasVersion],
+    client,
   );
   if (queryResult.rows.length === 0)
     throw new NotFoundError(

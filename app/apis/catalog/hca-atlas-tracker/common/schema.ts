@@ -146,6 +146,16 @@ export type ComponentAtlasDeleteSourceDatasetsData = InferType<
 >;
 
 /**
+ * Schema for data used to replace the source datasets of a component atlas.
+ */
+export const componentAtlasSetSourceDatasetsSchema =
+  componentAtlasAddSourceDatasetsSchema;
+
+export type ComponentAtlasSetSourceDatasetsData = InferType<
+  typeof componentAtlasSetSourceDatasetsSchema
+>;
+
+/**
  * Create schema that combines an unpublished source study schema and a published source study schema.
  * @param publishedSchema - Published source study schema.
  * @param unpublishedSchema - Unpublished source study schema.

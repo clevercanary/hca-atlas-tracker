@@ -1,4 +1,5 @@
 import {
+  type HCAAtlasTrackerComponentAtlasSourceDatasetsChanges,
   type HCAAtlasTrackerDBComponentAtlas,
   type HCAAtlasTrackerLocalListSourceDataset,
   type HCAAtlasTrackerSourceDataset,
@@ -6,6 +7,7 @@ import {
 import {
   type ComponentAtlasAddSourceDatasetsData,
   type ComponentAtlasDeleteSourceDatasetsData,
+  type ComponentAtlasSetSourceDatasetsData,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool, query } from "@/app/services/database";
@@ -44,6 +46,7 @@ import {
   SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAZ,
   SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_FOO,
   SOURCE_DATASET_ID_WITH_MULTIPLE_FILES,
+  SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W1,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
   SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
@@ -61,8 +64,13 @@ import {
   getComponentAtlasSourceDatasets,
   resetDatabase,
   setComponentAtlasDatasets,
+  withRestoredComponentAtlasSourceDatasets,
 } from "@/testing/db-utils";
-import { type TestComponentAtlas, type TestUser } from "@/testing/entities";
+import {
+  type TestComponentAtlas,
+  type TestSourceDataset,
+  type TestUser,
+} from "@/testing/entities";
 import {
   assertExpectDefined,
   expectApiSourceDatasetsToHaveComponentAtlases,
@@ -128,6 +136,10 @@ const DELETE_DRAFT_BAR_DATASETS_DATA: ComponentAtlasDeleteSourceDatasetsData = {
   sourceDatasetIds: [SOURCE_DATASET_CELLXGENE_WITH_UPDATE.id],
 };
 
+const SET_DATASETS_DATA: ComponentAtlasSetSourceDatasetsData = {
+  sourceDatasetIds: [SOURCE_DATASET_FOOFOO.id, SOURCE_DATASET_BAR.id],
+};
+
 beforeAll(async () => {
   await resetDatabase();
 });
@@ -137,14 +149,14 @@ afterAll(async () => {
 });
 
 describe(TEST_ROUTE, () => {
-  it("returns error 405 for PUT request", async () => {
+  it("returns error 405 for PATCH request", async () => {
     expect(
       (
         await doSourceDatasetsRequest(
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.file.id,
           undefined,
-          METHOD.PUT,
+          METHOD.PATCH,
         )
       )._getStatusCode(),
     ).toEqual(405);
@@ -911,7 +923,405 @@ describe(TEST_ROUTE, () => {
       sourceDatasetsBefore,
     );
   });
+
+  it("returns error 401 when PUT requested from draft atlas by logged out user", async () => {
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          undefined,
+          METHOD.PUT,
+          SET_DATASETS_DATA,
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(401);
+    await expectDraftFooSourceDatasetsToBeUnchanged();
+  });
+
+  it("returns error 403 when PUT requested from draft atlas by unregistered user", async () => {
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_UNREGISTERED,
+          METHOD.PUT,
+          SET_DATASETS_DATA,
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(403);
+    await expectDraftFooSourceDatasetsToBeUnchanged();
+  });
+
+  it("returns error 403 when PUT requested from draft atlas by disabled user", async () => {
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_DISABLED_CONTENT_ADMIN,
+          METHOD.PUT,
+          SET_DATASETS_DATA,
+        )
+      )._getStatusCode(),
+    ).toEqual(403);
+    await expectDraftFooSourceDatasetsToBeUnchanged();
+  });
+
+  for (const role of STAKEHOLDER_ANALOGOUS_ROLES_WITHOUT_INTEGRATION_LEAD) {
+    testApiRole(
+      "returns error 403",
+      TEST_ROUTE,
+      sourceDatasetsHandler,
+      METHOD.PUT,
+      role,
+      getQueryValues(ATLAS_DRAFT.id, COMPONENT_ATLAS_DRAFT_FOO.id),
+      SET_DATASETS_DATA,
+      false,
+      async (res) => {
+        expect(res._getStatusCode()).toEqual(403);
+        await expectDraftFooSourceDatasetsToBeUnchanged();
+      },
+    );
+  }
+
+  it("returns error 403 when PUT requested from draft atlas by user with INTEGRATION_LEAD role for another atlas", async () => {
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_INTEGRATION_LEAD_PUBLIC,
+          METHOD.PUT,
+          SET_DATASETS_DATA,
+        )
+      )._getStatusCode(),
+    ).toEqual(403);
+    await expectDraftFooSourceDatasetsToBeUnchanged();
+  });
+
+  it("returns error 404 when PUT requested from atlas the component atlas doesn't exist on", async () => {
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_PUBLIC.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          SET_DATASETS_DATA,
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(404);
+    await expectDraftFooSourceDatasetsToBeUnchanged();
+  });
+
+  it("returns error 404 when PUT requested with a source dataset from another atlas", async () => {
+    const setDatasetsData: ComponentAtlasSetSourceDatasetsData = {
+      sourceDatasetIds: [SOURCE_DATASET_FOO.id, SOURCE_DATASET_FOOBAZ.id],
+    };
+    const res = await doSourceDatasetsRequest(
+      ATLAS_DRAFT.id,
+      COMPONENT_ATLAS_DRAFT_FOO.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PUT,
+      setDatasetsData,
+      true,
+    );
+    expect(res._getStatusCode()).toEqual(404);
+    expect(res._getData()).toContain(SOURCE_DATASET_FOOBAZ.id);
+    await expectDraftFooSourceDatasetsToBeUnchanged();
+  });
+
+  it("returns error 404 when PUT requested with a source dataset that doesn't exist", async () => {
+    const setDatasetsData: ComponentAtlasSetSourceDatasetsData = {
+      sourceDatasetIds: [SOURCE_DATASET_FOO.id, SOURCE_DATASET_ID_NONEXISTENT],
+    };
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          setDatasetsData,
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(404);
+    await expectDraftFooSourceDatasetsToBeUnchanged();
+  });
+
+  it("returns error 400 when PUT requested without source dataset IDs", async () => {
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          {},
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+    await expectDraftFooSourceDatasetsToBeUnchanged();
+  });
+
+  it("returns error 400 when PUT requested from archived component atlas", async () => {
+    const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_ARCHIVED_FOO,
+    );
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+          COMPONENT_ATLAS_ARCHIVED_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          { sourceDatasetIds: [] },
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+    expect(
+      await getComponentAtlasSourceDatasets(COMPONENT_ATLAS_ARCHIVED_FOO),
+    ).toEqual(sourceDatasetsBefore);
+  });
+
+  it("returns error 400 when PUT requested from component atlas with non-latest version linked to the atlas", async () => {
+    const sourceDatasetsBefore = await getComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+    );
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_FOO,
+      USER_CONTENT_ADMIN,
+      METHOD.PUT,
+      { sourceDatasetIds: [] },
+      true,
+    );
+    expect(res._getStatusCode()).toEqual(400);
+    expect(res._getData()).toContain("latest version");
+    expect(
+      await getComponentAtlasSourceDatasets(
+        COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+      ),
+    ).toEqual(sourceDatasetsBefore);
+  });
+
+  it("only adds source datasets when PUT requested with a superset of the linked source datasets", async () => {
+    await withRestoredComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_DRAFT_FOO,
+      async () => {
+        const res = await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          {
+            sourceDatasetIds: [
+              SOURCE_DATASET_FOOFOO.id,
+              SOURCE_DATASET_FOOBAR.id,
+              SOURCE_DATASET_FOO.id,
+            ],
+          },
+        );
+        expectSetResponse(res, [SOURCE_DATASET_FOO], []);
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          [
+            SOURCE_DATASET_FOOFOO,
+            SOURCE_DATASET_FOOBAR,
+            SOURCE_DATASET_FOOBAZ,
+            SOURCE_DATASET_FOO,
+          ],
+        );
+      },
+    );
+  });
+
+  it("only removes source datasets when PUT requested with a subset of the linked source datasets", async () => {
+    await withRestoredComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_DRAFT_FOO,
+      async () => {
+        const res = await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          { sourceDatasetIds: [SOURCE_DATASET_FOOFOO.id] },
+        );
+        expectSetResponse(res, [], [SOURCE_DATASET_FOOBAR]);
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          [SOURCE_DATASET_FOOFOO, SOURCE_DATASET_FOOBAZ],
+        );
+      },
+    );
+  });
+
+  it("adds and removes source datasets when PUT requested by user with INTEGRATION_LEAD role for the atlas, and changes nothing when repeated", async () => {
+    await withRestoredComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_DRAFT_FOO,
+      async () => {
+        const res = await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_INTEGRATION_LEAD_DRAFT,
+          METHOD.PUT,
+          SET_DATASETS_DATA,
+        );
+        expectSetResponse(res, [SOURCE_DATASET_BAR], [SOURCE_DATASET_FOOBAR]);
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          [SOURCE_DATASET_FOOFOO, SOURCE_DATASET_FOOBAZ, SOURCE_DATASET_BAR],
+        );
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_BAR,
+          COMPONENT_ATLAS_DRAFT_BAR.sourceDatasets,
+        );
+
+        const repeatRes = await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_INTEGRATION_LEAD_DRAFT,
+          METHOD.PUT,
+          SET_DATASETS_DATA,
+        );
+        expectSetResponse(repeatRes, [], []);
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          [SOURCE_DATASET_FOOFOO, SOURCE_DATASET_FOOBAZ, SOURCE_DATASET_BAR],
+        );
+      },
+    );
+  });
+
+  it("changes nothing when PUT requested with the linked source datasets", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_DRAFT.id,
+      COMPONENT_ATLAS_DRAFT_FOO.id,
+      USER_CONTENT_ADMIN,
+      METHOD.PUT,
+      {
+        sourceDatasetIds: [SOURCE_DATASET_FOOFOO.id, SOURCE_DATASET_FOOBAR.id],
+      },
+    );
+    expectSetResponse(res, [], []);
+    await expectDraftFooSourceDatasetsToBeUnchanged();
+  });
+
+  it("removes all source datasets linked to the atlas, and keeps others, when PUT requested with an empty list", async () => {
+    await withRestoredComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_DRAFT_FOO,
+      async () => {
+        const res = await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          { sourceDatasetIds: [] },
+        );
+        expectSetResponse(
+          res,
+          [],
+          [SOURCE_DATASET_FOOFOO, SOURCE_DATASET_FOOBAR],
+        );
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          [SOURCE_DATASET_FOOBAZ],
+        );
+      },
+    );
+  });
+
+  it("ignores duplicate IDs when PUT requested", async () => {
+    await withRestoredComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_DRAFT_FOO,
+      async () => {
+        const res = await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          {
+            sourceDatasetIds: [
+              SOURCE_DATASET_FOO.id,
+              SOURCE_DATASET_FOOFOO.id,
+              SOURCE_DATASET_FOO.id,
+              SOURCE_DATASET_FOOFOO.id,
+            ],
+          },
+        );
+        expectSetResponse(res, [SOURCE_DATASET_FOO], [SOURCE_DATASET_FOOBAR]);
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          [SOURCE_DATASET_FOOFOO, SOURCE_DATASET_FOOBAZ, SOURCE_DATASET_FOO],
+        );
+      },
+    );
+  });
+
+  it("adds the atlas's version alongside a different linked version of the same source dataset when PUT requested", async () => {
+    await withRestoredComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+      async () => {
+        await setComponentAtlasDatasets(
+          COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+          [SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W1.versionId],
+        );
+        const res = await doSourceDatasetsRequest(
+          ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+          COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          {
+            sourceDatasetIds: [
+              SOURCE_DATASET_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+            ],
+          },
+        );
+        expectSetResponse(
+          res,
+          [SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2],
+          [],
+        );
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+          [
+            SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W1,
+            SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+          ],
+        );
+      },
+    );
+  });
 });
+
+async function expectDraftFooSourceDatasetsToBeUnchanged(): Promise<void> {
+  await expectComponentAtlasToHaveSourceDatasets(
+    COMPONENT_ATLAS_DRAFT_FOO,
+    COMPONENT_ATLAS_DRAFT_FOO.sourceDatasets,
+  );
+}
+
+function expectSetResponse(
+  res: httpMocks.MockResponse<NextApiResponse>,
+  expectedAdded: TestSourceDataset[],
+  expectedRemoved: TestSourceDataset[],
+): void {
+  expect(res._getStatusCode()).toEqual(200);
+  const { added, removed } =
+    res._getJSONData() as HCAAtlasTrackerComponentAtlasSourceDatasetsChanges;
+  expect([...added].sort()).toEqual(expectedAdded.map(({ id }) => id).sort());
+  expect([...removed].sort()).toEqual(
+    expectedRemoved.map(({ id }) => id).sort(),
+  );
+}
 
 async function doSourceDatasetsRequest(
   atlasId: string,

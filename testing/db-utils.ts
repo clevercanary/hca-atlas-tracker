@@ -676,6 +676,24 @@ export async function getComponentAtlasSourceDatasets(
   ).rows[0].source_datasets;
 }
 
+/**
+ * Run a callback that may change the source datasets of the given component atlas, then restore them.
+ * @param componentAtlas - Component atlas whose source datasets to restore.
+ * @param callback - Function to call.
+ */
+export async function withRestoredComponentAtlasSourceDatasets(
+  componentAtlas: TestComponentAtlas,
+  callback: () => Promise<void>,
+): Promise<void> {
+  const sourceDatasetsBefore =
+    await getComponentAtlasSourceDatasets(componentAtlas);
+  try {
+    await callback();
+  } finally {
+    await setComponentAtlasDatasets(componentAtlas, sourceDatasetsBefore);
+  }
+}
+
 export async function getComponentAtlasAtlas(
   componentAtlasVersion: string,
 ): Promise<HCAAtlasTrackerDBAtlas> {
