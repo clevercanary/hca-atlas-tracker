@@ -46,7 +46,7 @@ import {
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { resetConfigCache } from "@/app/config/aws-resources";
-import { endPgPool, query } from "@/app/services/database";
+import { endPgPool, getPoolClient, query } from "@/app/services/database";
 import { parseNormalizedInfoFromS3Key } from "@/app/utils/files";
 import {
   expectSourceDatasetFileToBeConsistentWith,
@@ -482,6 +482,72 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
       )
     ).rows[0];
     expect(secondFile.concept_id).toEqual(firstFile.concept_id);
+  });
+
+  it("locks the atlas before the component atlas on integrated_object update", async () => {
+    const firstMessage = createSNSMessage({
+      messageId: "io-lock-order-test-v1",
+      s3Event: createS3Event({
+        etag: "io-lock-v1-etag-1111111111111111111111111111",
+        eventTime: TEST_TIMESTAMP,
+        key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+        size: 12345,
+        versionId: "io-lock-version-1",
+      }),
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP,
+    });
+    expect((await doSnsRequest(firstMessage)).statusCode).toBe(200);
+
+    const firstFile = (
+      await query<HCAAtlasTrackerDBFile>(
+        SQL_QUERIES.SELECT_LATEST_FILE_BY_BUCKET_AND_KEY,
+        [TEST_S3_BUCKET, TEST_FILE_PATHS.INTEGRATED_OBJECT],
+      )
+    ).rows[0];
+    const firstComponentAtlas = await getFileComponentAtlas(firstFile.id);
+    const atlas = await getComponentAtlasAtlas(firstComponentAtlas.version_id);
+
+    const secondMessage = createSNSMessage({
+      messageId: "io-lock-order-test-v2",
+      s3Event: createS3Event({
+        etag: "io-lock-v2-etag-2222222222222222222222222222",
+        eventTime: TEST_TIMESTAMP_PLUS_1H,
+        key: TEST_FILE_PATHS.INTEGRATED_OBJECT,
+        size: 23456,
+        versionId: "io-lock-version-2",
+      }),
+      signature: TEST_SIGNATURE_VALID,
+      timestamp: TEST_TIMESTAMP_PLUS_1H,
+    });
+
+    // Stand in for a request linking source datasets, which locks the atlas and then the component atlas.
+    const client = await getPoolClient();
+    let resPromise:
+      | Promise<httpMocks.MockResponse<NextApiResponse>>
+      | undefined;
+    try {
+      await client.query("BEGIN");
+      await client.query("SELECT 1 FROM hat.atlases WHERE id=$1 FOR SHARE", [
+        atlas.id,
+      ]);
+      resPromise = doSnsRequest(secondMessage);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      // The update must be waiting on the atlas without having locked the component atlas.
+      await client.query(
+        "SELECT 1 FROM hat.component_atlases WHERE version_id=$1 FOR UPDATE NOWAIT",
+        [firstComponentAtlas.version_id],
+      );
+    } finally {
+      await client.query("ROLLBACK");
+      client.release();
+    }
+    expect((await resPromise)?.statusCode).toBe(200);
+
+    const firstComponentAtlasAfter = await getComponentAtlasFromDatabase(
+      firstComponentAtlas.version_id,
+    );
+    expect(firstComponentAtlasAfter?.is_latest).toEqual(false);
   });
 
   // Happy Path Processing Tests
@@ -3179,3 +3245,16 @@ describe(`${TEST_ROUTE} (S3 event)`, () => {
     expect(concept).toBeDefined();
   });
 });
+
+async function doSnsRequest(
+  body: Record<string, unknown>,
+): Promise<httpMocks.MockResponse<NextApiResponse>> {
+  const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
+    body,
+    method: METHOD.POST,
+  });
+  await withConsoleMessageHiding(async () => {
+    await snsHandler(req, res);
+  });
+  return res;
+}

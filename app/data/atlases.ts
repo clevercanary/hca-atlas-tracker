@@ -292,6 +292,23 @@ export async function lockAtlasForShare(
 }
 
 /**
+ * Take the row lock that updating the given atlas would take, for the rest of the transaction. Used to lock the atlas before its component atlases, in the same order as `lockAtlasForShare` callers, to avoid deadlocks.
+ * @param atlasId - Atlas ID.
+ * @param client - Postgres client to use.
+ * @throws NotFoundError if the atlas doesn't exist.
+ */
+export async function lockAtlasForUpdate(
+  atlasId: string,
+  client: pg.PoolClient,
+): Promise<void> {
+  const queryResult = await client.query(
+    "SELECT 1 FROM hat.atlases WHERE id = $1 FOR NO KEY UPDATE",
+    [atlasId],
+  );
+  if (queryResult.rowCount === 0) throw getAtlasNotFoundError(atlasId);
+}
+
+/**
  * Get an atlas row that was queried by ID from a query result, throwing a NotFoundError if it doesn't exist.
  * @param queryResult - Query result that should contain a single row corresponding to an atlas if successful.
  * @param atlasId - Atlas ID that was queried, to use in the potential error message.
