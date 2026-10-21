@@ -478,14 +478,9 @@ export async function getSourceDatasetVersionForAtlas(
 export async function getSourceDatasetVersionsForAtlas(
   sourceDatasetIds: string[],
   atlasId: string,
-  client?: pg.PoolClient,
 ): Promise<string[]> {
   return (
-    await getSourceDatasetIdsAndVersionsForAtlas(
-      sourceDatasetIds,
-      atlasId,
-      client,
-    )
+    await getSourceDatasetIdsAndVersionsForAtlas(sourceDatasetIds, atlasId)
   ).map(({ version_id }) => version_id);
 }
 

@@ -8,7 +8,6 @@ import {
   type HCAAtlasTrackerDBFile,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { type ComponentAtlasEditData } from "@/app/apis/catalog/hca-atlas-tracker/common/schema";
-import { lockAtlasForShare } from "@/app/data/atlases";
 import {
   getAtlasSourceDatasetsAmongVersions,
   getSourceDatasetIdsAndVersionsForAtlas,
@@ -181,52 +180,43 @@ export async function addSourceDatasetsToComponentAtlas(
   componentAtlasId: string,
   sourceDatasetIds: string[],
 ): Promise<void> {
-  await doTransaction(async (client) => {
-    // Lock the atlas before resolving its source dataset versions, so an S3 upload can't replace one of them before the resolved versions are linked.
-    await lockAtlasForShare(atlasId, client);
+  const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
+    componentAtlasId,
+    atlasId,
+  );
 
-    const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
-      componentAtlasId,
-      atlasId,
-      client,
+  await confirmComponentAtlasIsEditable(componentAtlasVersion);
+
+  const sourceDatasetVersions = await getSourceDatasetVersionsForAtlas(
+    sourceDatasetIds,
+    atlasId,
+  );
+
+  const existingDatasetsResult = await query<{ array: string[] }>(
+    `
+      SELECT ARRAY(
+        SELECT sd_version FROM unnest(source_datasets) AS sd_version WHERE sd_version=ANY($1)
+      ) FROM hat.component_atlases WHERE version_id=$2
+    `,
+    [sourceDatasetVersions, componentAtlasVersion],
+  );
+
+  if (existingDatasetsResult.rows.length === 0)
+    throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
+
+  const existingSpecifiedDatasets = existingDatasetsResult.rows[0].array;
+
+  if (existingSpecifiedDatasets.length !== 0)
+    throw new InvalidOperationError(
+      `Component atlas with ID ${componentAtlasId} already has source datasets with version IDs: ${existingSpecifiedDatasets.join(
+        ", ",
+      )}`,
     );
 
-    await confirmComponentAtlasIsEditable(componentAtlasVersion, client);
-
-    const sourceDatasetVersions = await getSourceDatasetVersionsForAtlas(
-      sourceDatasetIds,
-      atlasId,
-      client,
-    );
-
-    const existingDatasetsResult = await query<{ array: string[] }>(
-      `
-        SELECT ARRAY(
-          SELECT sd_version FROM unnest(source_datasets) AS sd_version WHERE sd_version=ANY($1)
-        ) FROM hat.component_atlases WHERE version_id=$2
-      `,
-      [sourceDatasetVersions, componentAtlasVersion],
-      client,
-    );
-
-    if (existingDatasetsResult.rows.length === 0)
-      throw getComponentAtlasNotFoundError(atlasId, componentAtlasId);
-
-    const existingSpecifiedDatasets = existingDatasetsResult.rows[0].array;
-
-    if (existingSpecifiedDatasets.length !== 0)
-      throw new InvalidOperationError(
-        `Component atlas with ID ${componentAtlasId} already has source datasets with version IDs: ${existingSpecifiedDatasets.join(
-          ", ",
-        )}`,
-      );
-
-    await query(
-      "UPDATE hat.component_atlases SET source_datasets=source_datasets||$1 WHERE version_id=$2",
-      [sourceDatasetVersions, componentAtlasVersion],
-      client,
-    );
-  });
+  await query(
+    "UPDATE hat.component_atlases SET source_datasets=source_datasets||$1 WHERE version_id=$2",
+    [sourceDatasetVersions, componentAtlasVersion],
+  );
 }
 
 /**
@@ -298,9 +288,6 @@ export async function setComponentAtlasSourceDatasets(
   sourceDatasetIds: string[],
 ): Promise<HCAAtlasTrackerComponentAtlasSourceDatasetsChanges> {
   return await doTransaction(async (client) => {
-    // Lock the atlas before resolving its source dataset versions, so an S3 upload can't replace one of them before the resolved versions are linked. The atlas is locked before the component atlas, matching the order of the S3 version update, to avoid deadlocks.
-    await lockAtlasForShare(atlasId, client);
-
     const componentAtlasVersion = await getComponentAtlasVersionForAtlas(
       componentAtlasId,
       atlasId,

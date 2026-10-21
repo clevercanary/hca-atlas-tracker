@@ -18,7 +18,6 @@ import {
   validateSNSTopicAuthorization,
 } from "@/app/config/aws-resources";
 import {
-  lockAtlasForUpdate,
   updateComponentAtlasVersionInAtlas,
   updateSourceDatasetVersionInAtlas,
 } from "@/app/data/atlases";
@@ -137,8 +136,6 @@ async function updateIntegratedObjectFromS3(
   atlasId: string,
   transaction: PoolClient,
 ): Promise<void> {
-  // Lock the atlas before the component atlas, as linking source datasets to component atlases does, to avoid deadlocks.
-  await lockAtlasForUpdate(atlasId, transaction);
   const prevLatestVersion = await markComponentAtlasAsNotLatest(
     conceptId,
     transaction,
