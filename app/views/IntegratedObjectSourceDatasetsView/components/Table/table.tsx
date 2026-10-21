@@ -1,5 +1,4 @@
 import { Table as CommonTable } from "@/app/components/Entity/components/common/Table/table";
-import { StyledFluidPaper } from "@/app/components/Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
 import { StyledToolbar } from "@/app/components/Table/components/TableToolbar/tableToolbar.styles";
 import { useEntity } from "@/app/providers/entity/hook";
@@ -8,9 +7,11 @@ import { type Entity } from "@/app/views/IntegratedObjectSourceDatasetsView/enti
 import { Divider } from "@mui/material";
 import { Fragment, type JSX } from "react";
 import { useIntegratedObjectSourceDatasetsTable } from "./hooks/UseIntegratedObjectSourceDatasetsTable/hook";
+import { StyledFluidPaper } from "./table.styles";
 
 export const Table = (): JSX.Element => {
-  const { access, table } = useIntegratedObjectSourceDatasetsTable();
+  const { access, isRowActionable, table } =
+    useIntegratedObjectSourceDatasetsTable();
   const { data, pathParameter } = useEntity() as Entity;
   const {
     atlasSourceDatasets = [],
@@ -18,7 +19,7 @@ export const Table = (): JSX.Element => {
     integratedObjectSourceDatasets = [],
   } = data;
   return (
-    <StyledFluidPaper elevation={0}>
+    <StyledFluidPaper elevation={0} isRowActionable={isRowActionable}>
       {access?.canEdit && (
         <Fragment>
           <StyledToolbar>
