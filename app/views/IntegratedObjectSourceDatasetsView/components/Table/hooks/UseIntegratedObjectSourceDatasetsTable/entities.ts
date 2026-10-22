@@ -4,6 +4,5 @@ import { type Table } from "@tanstack/react-table";
 
 export interface UseIntegratedObjectSourceDatasetsTable {
   access?: FormManager["access"];
-  isRowActionable: boolean;
   table: Table<IntegratedObjectSourceDataset>;
 }

@@ -10,8 +10,7 @@ import { useIntegratedObjectSourceDatasetsTable } from "./hooks/UseIntegratedObj
 import { StyledFluidPaper } from "./table.styles";
 
 export const Table = (): JSX.Element => {
-  const { access, isRowActionable, table } =
-    useIntegratedObjectSourceDatasetsTable();
+  const { access, table } = useIntegratedObjectSourceDatasetsTable();
   const { data, pathParameter } = useEntity() as Entity;
   const {
     atlasSourceDatasets = [],
@@ -19,7 +18,7 @@ export const Table = (): JSX.Element => {
     integratedObjectSourceDatasets = [],
   } = data;
   return (
-    <StyledFluidPaper elevation={0} isRowActionable={isRowActionable}>
+    <StyledFluidPaper elevation={0}>
       {access?.canEdit && (
         <Fragment>
           <StyledToolbar>
