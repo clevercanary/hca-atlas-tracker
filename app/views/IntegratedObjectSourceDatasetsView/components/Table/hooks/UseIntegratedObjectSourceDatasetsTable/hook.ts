@@ -42,5 +42,7 @@ export const useIntegratedObjectSourceDatasetsTable =
       state: { columnVisibility: { action: canEdit } },
     });
 
-    return { access, table };
+    // Rows carry an action (the unlink button) only when the action column is
+    // shown, i.e. when the user can edit.
+    return { access, isRowActionable: canEdit, table };
   };
