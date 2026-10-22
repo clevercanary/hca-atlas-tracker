@@ -153,7 +153,7 @@ function stackList(): HTMLElement {
  */
 function stackMessages(): string[] {
   return Array.from(
-    document.querySelectorAll(".MuiSnackbarContent-message"),
+    document.querySelectorAll('[role="alert"] .MuiSnackbarContent-message'),
   ).map((message) => (message.textContent ?? "").trim());
 }
 
@@ -266,24 +266,27 @@ function SuccessHarness(): JSX.Element {
 
 /**
  * The confirmations currently showing, in DOM order, read from the visible
- * `Alert`s rather than the status region.
+ * toasts rather than the status region. A confirmation is the same
+ * `SnackbarContent` as an error, told apart by having no live role.
  * @returns confirmation messages.
  */
 function successMessages(): string[] {
-  return Array.from(document.querySelectorAll(".MuiAlert-message")).map(
-    (message) => (message.textContent ?? "").trim(),
-  );
+  return Array.from(
+    document.querySelectorAll(
+      '.MuiSnackbarContent-root[role="none"] .MuiSnackbarContent-message',
+    ),
+  ).map((message) => (message.textContent ?? "").trim());
 }
 
 /**
  * The one visible confirmation, found by class rather than text: its message
  * also sits in the status region.
- * @returns the confirmation's alert element.
+ * @returns the confirmation's toast element.
  */
-function successAlert(): HTMLElement {
-  const alert = document.querySelector(".MuiAlert-root");
-  if (!(alert instanceof HTMLElement)) throw new Error("alert not found");
-  return alert;
+function successToast(): HTMLElement {
+  const toast = document.querySelector('.MuiSnackbarContent-root[role="none"]');
+  if (!(toast instanceof HTMLElement)) throw new Error("toast not found");
+  return toast;
 }
 
 /**
@@ -658,14 +661,14 @@ describe("success snackbar entries", () => {
     expect(statusRegion()).toHaveAttribute("aria-atomic", "false");
   });
 
-  it("shows a confirmation and announces it through the region, not the alert", () => {
+  it("shows a confirmation and announces it through the region, not the toast", () => {
     render(<SuccessHarness />);
     click("open-success");
 
     expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
     expect(statusRegion()).toHaveTextContent(TEST_SUCCESS_MESSAGE);
-    // The visible alert carries no live role, so it isn't announced twice.
-    expect(successAlert()).toHaveAttribute("role", "none");
+    // The visible toast carries no live role, so it isn't announced twice.
+    expect(successToast()).toHaveAttribute("role", "none");
     expect(within(stackContainer()).queryByRole("alert")).toBeNull();
   });
 
@@ -702,13 +705,13 @@ describe("success snackbar entries", () => {
   it("holds while hovered, then resumes with half the duration once left", () => {
     render(<SuccessHarness />);
     click("open-success");
-    const alert = successAlert();
+    const toast = successToast();
 
-    fireEvent.mouseEnter(alert);
+    fireEvent.mouseEnter(toast);
     advance(60000);
     expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
 
-    fireEvent.mouseLeave(alert);
+    fireEvent.mouseLeave(toast);
     advance(2900);
     expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
 
@@ -722,12 +725,12 @@ describe("success snackbar entries", () => {
     // restart the countdown out from under a keyboard user.
     render(<SuccessHarness />);
     click("open-success");
-    const alert = successAlert();
+    const toast = successToast();
     const close = screen.getByRole("button", { name: "Close notification" });
 
-    fireEvent.mouseEnter(alert);
+    fireEvent.mouseEnter(toast);
     act(() => close.focus());
-    fireEvent.mouseLeave(alert);
+    fireEvent.mouseLeave(toast);
     advance(60000);
     expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
 

@@ -4,7 +4,7 @@ import styled from "@emotion/styled";
  * Visually hidden but kept in the accessibility tree — not `display: none` or
  * `visibility: hidden`, either of which would take the region out of it and
  * defeat the point (see `SuccessAnnouncer`). The visible confirmation is the
- * `Alert` in the stack.
+ * toast in the stack.
  */
 export const StyledRegion = styled.div`
   border: 0;

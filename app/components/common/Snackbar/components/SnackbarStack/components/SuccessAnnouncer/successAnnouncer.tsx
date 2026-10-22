@@ -10,7 +10,7 @@ import { type SuccessAnnouncerProps } from "./types";
  * its text is announced unreliably — screen readers commonly miss an element
  * that appears already populated — whereas text added to a region already in
  * the accessibility tree is announced consistently. A success entry mounts
- * already holding its message, so the `Alert` that shows it carries no live
+ * already holding its message, so the toast that shows it carries no live
  * role of its own; this region speaks for it.
  *
  * It mirrors the success entries on the stack, one node per entry. A new

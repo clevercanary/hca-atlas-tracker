@@ -2,7 +2,7 @@ import { CloseButton } from "@/app/components/common/Snackbar/components/Snackba
 import { EntryGrow } from "@/app/components/common/Snackbar/components/SnackbarStack/components/EntryGrow/entryGrow";
 import { getMessageId } from "@/app/components/common/Snackbar/components/SnackbarStack/utils";
 import { type JSX } from "react";
-import { StyledSnackbarContent } from "./errorContent.styles";
+import { StyledErrorContent } from "./errorContent.styles";
 import { type ErrorContentProps } from "./types";
 
 /**
@@ -15,7 +15,7 @@ import { type ErrorContentProps } from "./types";
 export const ErrorContent = ({ entry }: ErrorContentProps): JSX.Element => {
   return (
     <EntryGrow entry={entry}>
-      <StyledSnackbarContent
+      <StyledErrorContent
         action={<CloseButton entryId={entry.id} label="Close error" />}
         message={<span id={getMessageId(entry.id)}>{entry.message}</span>}
       />
