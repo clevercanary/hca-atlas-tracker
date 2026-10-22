@@ -5,7 +5,7 @@ import { StyledTypography } from "./typographyError.styles";
 
 /**
  * An error rendered beside the control that raised it, for the dialogs where
- * the app-level stack can't be read (see `ErrorSnackbar`). `useInlineRequest`
+ * the app-level stack can't be read (see `SnackbarStack`). `useInlineRequest`
  * supplies the message.
  *
  * The region is mounted whether or not there is a message. A `role="alert"`

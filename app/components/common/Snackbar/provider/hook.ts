@@ -6,9 +6,9 @@ import {
 } from "./types";
 
 /**
- * Returns the snackbar actions: open an entry, close one by id, dismiss the
- * entry an operation raised, and drop one that has finished its exit. The value
- * is identity-stable.
+ * Returns the snackbar actions: open an error or a confirmation, close an entry
+ * by id, dismiss the error an operation raised, and drop an entry that has
+ * finished its exit. The value is identity-stable.
  * @returns snackbar actions context.
  * @throws Error - When used outside a `SnackbarProvider`.
  */

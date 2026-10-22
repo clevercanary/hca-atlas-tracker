@@ -1,15 +1,25 @@
-import { STACK_CONTAINER_ID } from "@/app/components/common/Snackbar/components/ErrorSnackbar/utils";
+import { STACK_CONTAINER_ID } from "@/app/components/common/Snackbar/components/SnackbarStack/utils";
 import { useSnackbar } from "@/app/components/common/Snackbar/provider/hook";
 import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/provider";
 import { actAsync } from "@/testing/snackbar";
 import { createTheme, Dialog } from "@mui/material";
 import "@testing-library/jest-dom";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { Fragment, type JSX, useEffect, useState } from "react";
 
 const TEST_MESSAGE = "Failed to delete source study";
 const TEST_SECOND_MESSAGE = "Failed to delete another source study";
 const TEST_FOREIGN_MESSAGE = "Failed to archive file";
+const TEST_SUCCESS_MESSAGE = "Unlinked dataset A from integrated object B";
+const TEST_SECOND_SUCCESS_MESSAGE =
+  "Unlinked dataset C from integrated object B";
 
 // Stand-ins for what `getOperationKey` derives from a request. Two operations
 // of the *same* feature (two atlases, two rows) is the case the key exists for,
@@ -216,6 +226,97 @@ function OpenOnMount(): JSX.Element {
   return <Dialog open>dialog body</Dialog>;
 }
 
+/**
+ * Raises confirmations on the app-level stack when clicked, alongside the error
+ * harness so the two kinds of entry can be mixed.
+ * @returns buttons that open confirmations.
+ */
+function SuccessOpener(): JSX.Element {
+  const { onOpenSuccess } = useSnackbar();
+  return (
+    <Fragment>
+      <button
+        data-testid="open-success"
+        onClick={(): void => onOpenSuccess(TEST_SUCCESS_MESSAGE)}
+      >
+        confirm
+      </button>
+      <button
+        data-testid="open-second-success"
+        onClick={(): void => onOpenSuccess(TEST_SECOND_SUCCESS_MESSAGE)}
+      >
+        confirm something else
+      </button>
+    </Fragment>
+  );
+}
+
+/**
+ * Mounts the provider with both the error and the success openers.
+ * @returns harness component.
+ */
+function SuccessHarness(): JSX.Element {
+  return (
+    <SnackbarProvider>
+      <Opener />
+      <SuccessOpener />
+    </SnackbarProvider>
+  );
+}
+
+/**
+ * The confirmations currently showing, in DOM order, read from the visible
+ * `Alert`s rather than the status region.
+ * @returns confirmation messages.
+ */
+function successMessages(): string[] {
+  return Array.from(document.querySelectorAll(".MuiAlert-message")).map(
+    (message) => (message.textContent ?? "").trim(),
+  );
+}
+
+/**
+ * The one visible confirmation, found by class rather than text: its message
+ * also sits in the status region.
+ * @returns the confirmation's alert element.
+ */
+function successAlert(): HTMLElement {
+  const alert = document.querySelector(".MuiAlert-root");
+  if (!(alert instanceof HTMLElement)) throw new Error("alert not found");
+  return alert;
+}
+
+/**
+ * The confirmation live region, which is what assistive tech announces.
+ * @returns status region element.
+ */
+function statusRegion(): HTMLElement {
+  return within(stackContainer()).getByRole("status");
+}
+
+/**
+ * Advances the fake clock inside `act`, then flushes what that scheduled — a
+ * close only schedules its exit transition once React has committed it, so the
+ * exit needs a second pass to run.
+ * @param ms - Milliseconds to advance.
+ */
+function advance(ms: number): void {
+  act(() => {
+    jest.advanceTimersByTime(ms);
+  });
+  act(() => {
+    jest.advanceTimersByTime(0);
+  });
+}
+
+/**
+ * Lets any exit transition already under way finish, without letting a pending
+ * auto-hide run out: the exit is ~195ms, well under the 3s resume.
+ */
+function finishExit(): void {
+  advance(1000);
+}
+
 describe("error snackbar stack", () => {
   it("keeps an unread error when a second one arrives", () => {
     // The defect the stack exists to remove. With one slot the second message
@@ -392,7 +493,7 @@ describe("error snackbar stack", () => {
     // The container is created during render rather than by `Portal`'s effect,
     // and this is the ordering that distinguishes the two. Effects run
     // children-first and the provider renders `{children}` before
-    // `ErrorSnackbar`, so with a modal open from the very first commit its
+    // `SnackbarStack`, so with a modal open from the very first commit its
     // `ariaHiddenSiblings` snapshot runs before any effect of ours. A container
     // appended by `Portal`'s effect isn't in `document.body` yet at that point
     // and is never marked — leaving the error live in the accessibility tree
@@ -514,7 +615,7 @@ describe("error snackbar stack", () => {
     // later modal would paint over it — and an entry parented to a dialog's
     // Paper is destroyed when the dialog unmounts. The cost is that `FocusTrap`
     // enforces by DOM containment, so the close button is not reachable by Tab
-    // while the dialog is open; see `ErrorSnackbar`.
+    // while the dialog is open; see `SnackbarStack`.
     render(<DialogHarness />);
     click("open-error");
     click("open-dialog");
@@ -524,5 +625,228 @@ describe("error snackbar stack", () => {
     expect(dialogContainer).not.toBeNull();
     expect(dialogContainer?.contains(stackContainer())).toBe(false);
     expect(stackContainer().parentElement).toBe(document.body);
+  });
+});
+
+describe("success snackbar entries", () => {
+  // Fake timers for the auto-hide countdown and the transitions alike.
+  // `document.hasFocus()` is false in jsdom until something is focused, which
+  // would hold every countdown as if the window were in the background.
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.spyOn(document, "hasFocus").mockReturnValue(true);
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it("keeps the status region mounted and empty before anything is confirmed", () => {
+    // A region that appears already holding its text is announced unreliably,
+    // so it has to be in the tree before the first confirmation arrives.
+    render(<SuccessHarness />);
+
+    expect(statusRegion()).toBeEmptyDOMElement();
+  });
+
+  it("shows a confirmation and announces it through the region, not the alert", () => {
+    render(<SuccessHarness />);
+    click("open-success");
+
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+    expect(statusRegion()).toHaveTextContent(TEST_SUCCESS_MESSAGE);
+    // The visible alert carries no live role, so it isn't announced twice.
+    expect(successAlert()).toHaveAttribute("role", "none");
+    expect(within(stackContainer()).queryByRole("alert")).toBeNull();
+  });
+
+  it("closes itself after six seconds, and not before", () => {
+    render(<SuccessHarness />);
+    click("open-success");
+
+    advance(5900);
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+
+    advance(100);
+    finishExit();
+    expect(successMessages()).toEqual([]);
+    expect(statusRegion()).toBeEmptyDOMElement();
+  });
+
+  it("closes on its close button", () => {
+    render(<SuccessHarness />);
+    click("open-success");
+
+    act(() => {
+      screen
+        .getByRole("button", {
+          description: TEST_SUCCESS_MESSAGE,
+          name: "Close notification",
+        })
+        .click();
+    });
+    finishExit();
+
+    expect(successMessages()).toEqual([]);
+  });
+
+  it("holds while hovered, then resumes with half the duration once left", () => {
+    render(<SuccessHarness />);
+    click("open-success");
+    const alert = successAlert();
+
+    fireEvent.mouseEnter(alert);
+    advance(60000);
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+
+    fireEvent.mouseLeave(alert);
+    advance(2900);
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+
+    advance(100);
+    finishExit();
+    expect(successMessages()).toEqual([]);
+  });
+
+  it("holds while focus is inside, even after the pointer has left", () => {
+    // Tracked separately from the pointer, so the pointer leaving doesn't
+    // restart the countdown out from under a keyboard user.
+    render(<SuccessHarness />);
+    click("open-success");
+    const alert = successAlert();
+    const close = screen.getByRole("button", { name: "Close notification" });
+
+    fireEvent.mouseEnter(alert);
+    act(() => close.focus());
+    fireEvent.mouseLeave(alert);
+    advance(60000);
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+
+    act(() => close.blur());
+    advance(2900);
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+
+    advance(100);
+    finishExit();
+    expect(successMessages()).toEqual([]);
+  });
+
+  it("holds while the window is in the background", () => {
+    render(<SuccessHarness />);
+    click("open-success");
+
+    advance(4000);
+    act(() => {
+      window.dispatchEvent(new Event("blur"));
+    });
+    advance(60000);
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+
+    act(() => {
+      window.dispatchEvent(new Event("focus"));
+    });
+    advance(2900);
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+
+    advance(100);
+    finishExit();
+    expect(successMessages()).toEqual([]);
+  });
+
+  it("holds from the start when it opens into a window in the background", () => {
+    // The user switched away while a slow request ran; the confirmation should
+    // still be there when they come back.
+    jest.spyOn(document, "hasFocus").mockReturnValue(false);
+    render(<SuccessHarness />);
+    click("open-success");
+
+    advance(60000);
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+
+    act(() => {
+      window.dispatchEvent(new Event("focus"));
+    });
+    advance(3000);
+    finishExit();
+    expect(successMessages()).toEqual([]);
+  });
+
+  it("stacks a second confirmation rather than replacing the first", () => {
+    render(<SuccessHarness />);
+    click("open-success");
+    click("open-second-success");
+
+    expect(successMessages()).toEqual([
+      TEST_SUCCESS_MESSAGE,
+      TEST_SECOND_SUCCESS_MESSAGE,
+    ]);
+    expect(statusRegion()).toHaveTextContent(
+      `${TEST_SUCCESS_MESSAGE}${TEST_SECOND_SUCCESS_MESSAGE}`,
+    );
+  });
+
+  it("stacks a repeat of the same confirmation as an addition, so it is announced", () => {
+    render(<SuccessHarness />);
+    click("open-success");
+    click("open-success");
+
+    expect(successMessages()).toEqual([
+      TEST_SUCCESS_MESSAGE,
+      TEST_SUCCESS_MESSAGE,
+    ]);
+    expect(statusRegion().children).toHaveLength(2);
+  });
+
+  it("drops a closed confirmation from the region without touching the others", () => {
+    // A removal isn't announced by a status region, so closing one never
+    // re-reads the rest — unlike swapping the region's text back to an older
+    // message would.
+    render(<SuccessHarness />);
+    click("open-success");
+    click("open-second-success");
+    const remaining = statusRegion().children[1];
+
+    act(() => {
+      screen
+        .getByRole("button", {
+          description: TEST_SUCCESS_MESSAGE,
+          name: "Close notification",
+        })
+        .click();
+    });
+    finishExit();
+
+    expect(statusRegion().children).toHaveLength(1);
+    expect(statusRegion().children[0]).toBe(remaining);
+    expect(statusRegion()).toHaveTextContent(TEST_SECOND_SUCCESS_MESSAGE);
+  });
+
+  it("is neither replaced by an error nor dismissed by an operation succeeding", () => {
+    // A confirmation belongs to no operation, so the error stack's per-operation
+    // folding and dismissal pass it by.
+    render(<SuccessHarness />);
+    click("open-success");
+    click("open-error");
+    click("open-second-error");
+    // Closes the sibling operation's error, and only that.
+    click("dismiss-operation");
+    finishExit();
+
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+    expect(stackMessages()).toEqual([TEST_MESSAGE]);
+  });
+
+  it("leaves errors in place when it closes itself", () => {
+    // Errors never auto-hide; the confirmation's countdown is its own.
+    render(<SuccessHarness />);
+    click("open-error");
+    click("open-success");
+
+    advance(6000);
+    finishExit();
+
+    expect(successMessages()).toEqual([]);
+    expect(stackMessages()).toEqual([TEST_MESSAGE]);
   });
 });
