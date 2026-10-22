@@ -650,6 +650,14 @@ describe("success snackbar entries", () => {
     expect(statusRegion()).toBeEmptyDOMElement();
   });
 
+  it("announces only what was added, not the whole region", () => {
+    // `role="status"` implies `aria-atomic="true"`, which would have a second
+    // confirmation re-read the first along with it.
+    render(<SuccessHarness />);
+
+    expect(statusRegion()).toHaveAttribute("aria-atomic", "false");
+  });
+
   it("shows a confirmation and announces it through the region, not the alert", () => {
     render(<SuccessHarness />);
     click("open-success");
