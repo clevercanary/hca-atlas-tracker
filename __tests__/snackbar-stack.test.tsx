@@ -4,14 +4,7 @@ import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/prov
 import { actAsync } from "@/testing/snackbar";
 import { createTheme, Dialog } from "@mui/material";
 import "@testing-library/jest-dom";
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { Fragment, type JSX, useEffect, useState } from "react";
 
 const TEST_MESSAGE = "Failed to delete source study";
@@ -265,36 +258,14 @@ function SuccessHarness(): JSX.Element {
 }
 
 /**
- * The confirmations currently showing, in DOM order, read from the visible
- * toasts rather than the status region. A confirmation is the same
- * `SnackbarContent` as an error, told apart by having no live role.
+ * The confirmations currently showing, in DOM order. A confirmation is the same
+ * `SnackbarContent` as an error, told apart by its `status` role.
  * @returns confirmation messages.
  */
 function successMessages(): string[] {
   return Array.from(
-    document.querySelectorAll(
-      '.MuiSnackbarContent-root[role="none"] .MuiSnackbarContent-message',
-    ),
+    document.querySelectorAll('[role="status"] .MuiSnackbarContent-message'),
   ).map((message) => (message.textContent ?? "").trim());
-}
-
-/**
- * The one visible confirmation, found by class rather than text: its message
- * also sits in the status region.
- * @returns the confirmation's toast element.
- */
-function successToast(): HTMLElement {
-  const toast = document.querySelector('.MuiSnackbarContent-root[role="none"]');
-  if (!(toast instanceof HTMLElement)) throw new Error("toast not found");
-  return toast;
-}
-
-/**
- * The confirmation live region, which is what assistive tech announces.
- * @returns status region element.
- */
-function statusRegion(): HTMLElement {
-  return within(stackContainer()).getByRole("status");
 }
 
 /**
@@ -308,16 +279,8 @@ function advance(ms: number): void {
     jest.advanceTimersByTime(ms);
   });
   act(() => {
-    jest.advanceTimersByTime(0);
+    jest.advanceTimersByTime(1000);
   });
-}
-
-/**
- * Lets any exit transition already under way finish, without letting a pending
- * auto-hide run out: the exit is ~195ms, well under the 3s resume.
- */
-function finishExit(): void {
-  advance(1000);
 }
 
 describe("error snackbar stack", () => {
@@ -632,44 +595,21 @@ describe("error snackbar stack", () => {
 });
 
 describe("success snackbar entries", () => {
-  // Fake timers for the auto-hide countdown and the transitions alike.
-  // `document.hasFocus()` is false in jsdom until something is focused, which
-  // would hold every countdown as if the window were in the background.
   beforeEach(() => {
     jest.useFakeTimers();
-    jest.spyOn(document, "hasFocus").mockReturnValue(true);
   });
 
   afterEach(() => {
     jest.useRealTimers();
-    jest.restoreAllMocks();
   });
 
-  it("keeps the status region mounted and empty before anything is confirmed", () => {
-    // A region that appears already holding its text is announced unreliably,
-    // so it has to be in the tree before the first confirmation arrives.
-    render(<SuccessHarness />);
-
-    expect(statusRegion()).toBeEmptyDOMElement();
-  });
-
-  it("announces only what was added, not the whole region", () => {
-    // `role="status"` implies `aria-atomic="true"`, which would have a second
-    // confirmation re-read the first along with it.
-    render(<SuccessHarness />);
-
-    expect(statusRegion()).toHaveAttribute("aria-atomic", "false");
-  });
-
-  it("shows a confirmation and announces it through the region, not the toast", () => {
+  it("shows a confirmation as a status, not an alert", () => {
     render(<SuccessHarness />);
     click("open-success");
 
     expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
-    expect(statusRegion()).toHaveTextContent(TEST_SUCCESS_MESSAGE);
-    // The visible toast carries no live role, so it isn't announced twice.
-    expect(successToast()).toHaveAttribute("role", "none");
-    expect(within(stackContainer()).queryByRole("alert")).toBeNull();
+    expect(screen.getByRole("status")).toHaveTextContent(TEST_SUCCESS_MESSAGE);
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 
   it("closes itself after six seconds, and not before", () => {
@@ -680,184 +620,34 @@ describe("success snackbar entries", () => {
     expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
 
     advance(100);
-    finishExit();
-    expect(successMessages()).toEqual([]);
-    expect(statusRegion()).toBeEmptyDOMElement();
-  });
-
-  it("closes on its close button", () => {
-    render(<SuccessHarness />);
-    click("open-success");
-
-    act(() => {
-      screen
-        .getByRole("button", {
-          description: TEST_SUCCESS_MESSAGE,
-          name: "Close notification",
-        })
-        .click();
-    });
-    finishExit();
-
     expect(successMessages()).toEqual([]);
   });
 
-  it("holds while hovered, then resumes with half the duration once left", () => {
-    render(<SuccessHarness />);
-    click("open-success");
-    const toast = successToast();
-
-    fireEvent.mouseEnter(toast);
-    advance(60000);
-    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
-
-    fireEvent.mouseLeave(toast);
-    advance(2900);
-    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
-
-    advance(100);
-    finishExit();
-    expect(successMessages()).toEqual([]);
-  });
-
-  it("holds while focus is inside, even after the pointer has left", () => {
-    // Tracked separately from the pointer, so the pointer leaving doesn't
-    // restart the countdown out from under a keyboard user.
-    render(<SuccessHarness />);
-    click("open-success");
-    const toast = successToast();
-    const close = screen.getByRole("button", { name: "Close notification" });
-
-    fireEvent.mouseEnter(toast);
-    act(() => close.focus());
-    fireEvent.mouseLeave(toast);
-    advance(60000);
-    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
-
-    act(() => close.blur());
-    advance(2900);
-    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
-
-    advance(100);
-    finishExit();
-    expect(successMessages()).toEqual([]);
-  });
-
-  it("holds while the window is in the background", () => {
-    render(<SuccessHarness />);
-    click("open-success");
-
-    advance(4000);
-    act(() => {
-      window.dispatchEvent(new Event("blur"));
-    });
-    advance(60000);
-    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
-
-    act(() => {
-      window.dispatchEvent(new Event("focus"));
-    });
-    advance(2900);
-    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
-
-    advance(100);
-    finishExit();
-    expect(successMessages()).toEqual([]);
-  });
-
-  it("holds from the start when it opens into a window in the background", () => {
-    // The user switched away while a slow request ran; the confirmation should
-    // still be there when they come back.
-    jest.spyOn(document, "hasFocus").mockReturnValue(false);
-    render(<SuccessHarness />);
-    click("open-success");
-
-    advance(60000);
-    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
-
-    act(() => {
-      window.dispatchEvent(new Event("focus"));
-    });
-    advance(3000);
-    finishExit();
-    expect(successMessages()).toEqual([]);
-  });
-
-  it("stacks a second confirmation rather than replacing the first", () => {
-    render(<SuccessHarness />);
-    click("open-success");
-    click("open-second-success");
-
-    expect(successMessages()).toEqual([
-      TEST_SUCCESS_MESSAGE,
-      TEST_SECOND_SUCCESS_MESSAGE,
-    ]);
-    expect(statusRegion()).toHaveTextContent(
-      `${TEST_SUCCESS_MESSAGE}${TEST_SECOND_SUCCESS_MESSAGE}`,
-    );
-  });
-
-  it("stacks a repeat of the same confirmation as an addition, so it is announced", () => {
-    render(<SuccessHarness />);
-    click("open-success");
-    click("open-success");
-
-    expect(successMessages()).toEqual([
-      TEST_SUCCESS_MESSAGE,
-      TEST_SUCCESS_MESSAGE,
-    ]);
-    expect(statusRegion().children).toHaveLength(2);
-  });
-
-  it("drops a closed confirmation from the region without touching the others", () => {
-    // A removal isn't announced by a status region, so closing one never
-    // re-reads the rest — unlike swapping the region's text back to an older
-    // message would.
-    render(<SuccessHarness />);
-    click("open-success");
-    click("open-second-success");
-    const remaining = statusRegion().children[1];
-
-    act(() => {
-      screen
-        .getByRole("button", {
-          description: TEST_SUCCESS_MESSAGE,
-          name: "Close notification",
-        })
-        .click();
-    });
-    finishExit();
-
-    expect(statusRegion().children).toHaveLength(1);
-    expect(statusRegion().children[0]).toBe(remaining);
-    expect(statusRegion()).toHaveTextContent(TEST_SECOND_SUCCESS_MESSAGE);
-  });
-
-  it("is neither replaced by an error nor dismissed by an operation succeeding", () => {
-    // A confirmation belongs to no operation, so the error stack's per-operation
-    // folding and dismissal pass it by.
-    render(<SuccessHarness />);
-    click("open-success");
-    click("open-error");
-    click("open-second-error");
-    // Closes the sibling operation's error, and only that.
-    click("dismiss-operation");
-    finishExit();
-
-    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
-    expect(stackMessages()).toEqual([TEST_MESSAGE]);
-  });
-
-  it("leaves errors in place when it closes itself", () => {
+  it("leaves an error in place when it closes itself", () => {
     // Errors never auto-hide; the confirmation's countdown is its own.
     render(<SuccessHarness />);
     click("open-error");
     click("open-success");
 
     advance(6000);
-    finishExit();
 
     expect(successMessages()).toEqual([]);
     expect(stackMessages()).toEqual([TEST_MESSAGE]);
+  });
+
+  it("is neither replaced by an error nor dismissed by an operation succeeding", () => {
+    // A confirmation belongs to no operation, so the error stack's
+    // per-operation folding and dismissal pass it by.
+    render(<SuccessHarness />);
+    click("open-success");
+    click("open-error");
+    click("open-other-message");
+    click("open-second-error");
+    // Closes the sibling operation's error, and only that.
+    click("dismiss-operation");
+    advance(0);
+
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+    expect(stackMessages()).toEqual([TEST_SECOND_MESSAGE]);
   });
 });

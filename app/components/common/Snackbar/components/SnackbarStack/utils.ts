@@ -1,9 +1,3 @@
-import { SNACKBAR_SEVERITY } from "@/app/components/common/Snackbar/provider/constants";
-import {
-  type SnackbarEntry,
-  type SuccessSnackbarEntry,
-} from "@/app/components/common/Snackbar/provider/types";
-
 /** Id of the body-level element the stack is portalled into. */
 export const STACK_CONTAINER_ID = "snackbar-stack";
 
@@ -33,28 +27,4 @@ export function getStackContainer(): HTMLElement | undefined {
   container.id = STACK_CONTAINER_ID;
   document.body.appendChild(container);
   return container;
-}
-
-/**
- * Returns the id of the element holding an entry's message, which its close
- * button is described by.
- * @param entryId - Entry id.
- * @returns message element id.
- */
-export function getMessageId(entryId: SnackbarEntry["id"]): string {
-  return `${entryId}-message`;
-}
-
-/**
- * Returns the success entries on the stack, in stack order.
- * @param entries - Entries on the stack.
- * @returns the success entries.
- */
-export function getSuccessEntries(
-  entries: SnackbarEntry[],
-): SuccessSnackbarEntry[] {
-  return entries.filter(
-    (entry): entry is SuccessSnackbarEntry =>
-      entry.severity === SNACKBAR_SEVERITY.SUCCESS,
-  );
 }

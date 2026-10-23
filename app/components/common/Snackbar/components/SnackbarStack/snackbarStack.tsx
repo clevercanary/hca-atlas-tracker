@@ -1,12 +1,9 @@
-import { SNACKBAR_SEVERITY } from "@/app/components/common/Snackbar/provider/constants";
 import { useSnackbarState } from "@/app/components/common/Snackbar/provider/hook";
 import { Portal } from "@mui/material";
 import { type JSX, useState } from "react";
-import { ErrorContent } from "./components/ErrorContent/errorContent";
-import { SuccessAnnouncer } from "./components/SuccessAnnouncer/successAnnouncer";
-import { SuccessContent } from "./components/SuccessContent/successContent";
+import { SnackbarContent } from "./components/SnackbarContent/snackbarContent";
 import { StyledStack } from "./snackbarStack.styles";
-import { getStackContainer, getSuccessEntries } from "./utils";
+import { getStackContainer } from "./utils";
 
 /**
  * App-level snackbar stack: one entry per error or confirmation, each
@@ -14,9 +11,7 @@ import { getStackContainer, getSuccessEntries } from "./utils";
  *
  * No `autoHideDuration` for an error: it stays until the user closes it, or
  * until the operation it reports on succeeds (see `useScopedRequest`). A
- * confirmation closes itself (see `SuccessContent`), and is announced by
- * `SuccessAnnouncer`, a status region that sits in the same container so the
- * `aria-hidden` rule below covers it too.
+ * confirmation closes itself (see `SnackbarContent`).
  *
  * Portalled to `document.body` and never re-parented. It sits below every Modal
  * the app opens and outside every dialog's focus trap, so an open modal covers
@@ -51,15 +46,10 @@ export const SnackbarStack = (): JSX.Element => {
 
   return (
     <Portal container={container}>
-      <SuccessAnnouncer entries={getSuccessEntries(entries)} />
       <StyledStack>
-        {entries.map((entry) =>
-          entry.severity === SNACKBAR_SEVERITY.SUCCESS ? (
-            <SuccessContent entry={entry} key={entry.id} />
-          ) : (
-            <ErrorContent entry={entry} key={entry.id} />
-          ),
-        )}
+        {entries.map((entry) => (
+          <SnackbarContent entry={entry} key={entry.id} />
+        ))}
       </StyledStack>
     </Portal>
   );

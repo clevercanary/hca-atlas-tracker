@@ -2,7 +2,7 @@ import { type HCAAtlasTrackerDetailComponentAtlas } from "@/app/apis/catalog/hca
 import { type IntegratedObjectSourceDataset } from "@/app/views/IntegratedObjectSourceDatasetsView/entities";
 
 export interface EditIntegratedObjectSourceDatasetsContextProps {
-  integratedObjectTitle?: HCAAtlasTrackerDetailComponentAtlas["title"];
+  integratedObjectTitle: HCAAtlasTrackerDetailComponentAtlas["title"];
   onDelete: (payload?: {
     sourceDatasetIds: IntegratedObjectSourceDataset["id"][];
   }) => Promise<boolean>;
