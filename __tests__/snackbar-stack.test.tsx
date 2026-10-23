@@ -10,6 +10,9 @@ import { Fragment, type JSX, useEffect, useState } from "react";
 const TEST_MESSAGE = "Failed to delete source study";
 const TEST_SECOND_MESSAGE = "Failed to delete another source study";
 const TEST_FOREIGN_MESSAGE = "Failed to archive file";
+// Longer than MUI's `leavingScreen` (195ms), so a step always lets an exit that
+// started in an earlier step finish.
+const EXIT_STEP = 250;
 const TEST_SUCCESS_MESSAGE = "Unlinked dataset A from integrated object B";
 const TEST_SECOND_SUCCESS_MESSAGE =
   "Unlinked dataset C from integrated object B";
@@ -269,18 +272,34 @@ function successMessages(): string[] {
 }
 
 /**
- * Advances the fake clock inside `act`, then flushes what that scheduled — a
- * close only schedules its exit transition once React has committed it, so the
- * exit needs a second pass to run.
+ * Advances the fake clock by exactly `ms`, inside `act`.
  * @param ms - Milliseconds to advance.
  */
-function advance(ms: number): void {
+function tick(ms: number): void {
   act(() => {
     jest.advanceTimersByTime(ms);
   });
-  act(() => {
-    jest.advanceTimersByTime(1000);
-  });
+}
+
+/**
+ * Advances the fake clock by `ms` in steps longer than the exit transition, each
+ * in its own `act`, so an entry that closes partway through has left the stack
+ * by the end rather than still being mid-exit.
+ * @param ms - Milliseconds to advance.
+ */
+function tickInSteps(ms: number): void {
+  for (let elapsed = 0; elapsed < ms; elapsed += EXIT_STEP) {
+    tick(Math.min(EXIT_STEP, ms - elapsed));
+  }
+}
+
+/**
+ * Runs the exit transition of an entry that has just closed. The exit timer is
+ * only scheduled once React has committed the close, so it needs its own
+ * `act` after the one that closed the entry.
+ */
+function finishExit(): void {
+  tick(EXIT_STEP);
 }
 
 describe("error snackbar stack", () => {
@@ -616,10 +635,13 @@ describe("success snackbar entries", () => {
     render(<SuccessHarness />);
     click("open-success");
 
-    advance(5900);
+    // Pinned from both sides: a close before ~5.75s would have finished its exit
+    // by 5999ms, and one after 6000ms wouldn't have started when the exit runs.
+    tickInSteps(5999);
     expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
 
-    advance(100);
+    tick(1);
+    finishExit();
     expect(successMessages()).toEqual([]);
   });
 
@@ -629,7 +651,8 @@ describe("success snackbar entries", () => {
     click("open-error");
     click("open-success");
 
-    advance(6000);
+    tick(6000);
+    finishExit();
 
     expect(successMessages()).toEqual([]);
     expect(stackMessages()).toEqual([TEST_MESSAGE]);
@@ -645,7 +668,7 @@ describe("success snackbar entries", () => {
     click("open-second-error");
     // Closes the sibling operation's error, and only that.
     click("dismiss-operation");
-    advance(0);
+    finishExit();
 
     expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
     expect(stackMessages()).toEqual([TEST_SECOND_MESSAGE]);
