@@ -1,4 +1,9 @@
-import { type SnackbarEntry } from "./types";
+import { SNACKBAR_SEVERITY } from "./constants";
+import {
+  type ErrorSnackbarEntry,
+  type SnackbarEntry,
+  type SuccessSnackbarEntry,
+} from "./types";
 
 /** Source of entry ids, unique for the lifetime of the page. */
 let entryCount = 0;
@@ -19,8 +24,9 @@ export function closeEntry(
 
 /**
  * Marks the entries a predicate selects as closed, returning `entries`
- * unchanged when none match so React can bail out of the update. A success
- * dismisses its operation on every request, and the stack is usually empty.
+ * unchanged when none match so React can bail out of the update. Every
+ * request the server accepts dismisses its operation, and the stack is usually
+ * empty.
  * @param entries - Current entries.
  * @param isMatch - Selects the entries to close.
  * @returns entries with the matching ones marked closed.
@@ -36,7 +42,7 @@ function closeMatching(
 }
 
 /**
- * Starts the exit transition for the entry one operation raised, leaving every
+ * Starts the exit transition for the error one operation raised, leaving every
  * other entry alone.
  * @param entries - Current entries.
  * @param operationKey - Operation whose entry to close.
@@ -44,13 +50,15 @@ function closeMatching(
  */
 export function closeOperation(
   entries: SnackbarEntry[],
-  operationKey: SnackbarEntry["operationKey"],
+  operationKey: ErrorSnackbarEntry["operationKey"],
 ): SnackbarEntry[] {
-  return closeMatching(entries, (entry) => entry.operationKey === operationKey);
+  return closeMatching(entries, (entry) =>
+    isOperationEntry(entry, operationKey),
+  );
 }
 
 /**
- * Builds a new open entry with an id nothing else holds.
+ * Builds a new open error entry with an id nothing else holds.
  *
  * Advances a module-level counter, so call it from an event handler rather than
  * from inside a `setState` updater — see `onOpen` in `provider.tsx`.
@@ -58,16 +66,56 @@ export function closeOperation(
  * @param operationKey - Operation the entry reports on.
  * @returns the new entry.
  */
-export function createEntry(
+export function createErrorEntry(
   message: string,
-  operationKey: SnackbarEntry["operationKey"],
-): SnackbarEntry {
+  operationKey: ErrorSnackbarEntry["operationKey"],
+): ErrorSnackbarEntry {
   return {
-    id: `snackbar-entry-${++entryCount}`,
+    id: getEntryId(),
     message,
     open: true,
     operationKey,
+    severity: SNACKBAR_SEVERITY.ERROR,
   };
+}
+
+/**
+ * Builds a new open success entry with an id nothing else holds. Advances the
+ * same counter as `createErrorEntry`, so the same caveat applies.
+ * @param message - Confirmation to show.
+ * @returns the new entry.
+ */
+export function createSuccessEntry(message: string): SuccessSnackbarEntry {
+  return {
+    id: getEntryId(),
+    message,
+    open: true,
+    severity: SNACKBAR_SEVERITY.SUCCESS,
+  };
+}
+
+/**
+ * Mints the next entry id.
+ * @returns an id nothing else on the page holds.
+ */
+function getEntryId(): SnackbarEntry["id"] {
+  return `snackbar-entry-${++entryCount}`;
+}
+
+/**
+ * Whether an entry is the error a given operation raised.
+ * @param entry - Entry to test.
+ * @param operationKey - Operation to match.
+ * @returns true when the entry is that operation's error.
+ */
+function isOperationEntry(
+  entry: SnackbarEntry,
+  operationKey: ErrorSnackbarEntry["operationKey"],
+): boolean {
+  return (
+    entry.severity === SNACKBAR_SEVERITY.ERROR &&
+    entry.operationKey === operationKey
+  );
 }
 
 /**
@@ -79,15 +127,15 @@ export function createEntry(
  * so re-announces the message, and keeps its position in the list. Only open
  * entries are matched; one already animating out has been dismissed.
  * @param entries - Current entries.
- * @param entry - Entry to add, built by `createEntry`.
+ * @param entry - Entry to add, built by `createErrorEntry`.
  * @returns entries with the error added, or that operation's entry replaced.
  */
 export function openEntry(
   entries: SnackbarEntry[],
-  entry: SnackbarEntry,
+  entry: ErrorSnackbarEntry,
 ): SnackbarEntry[] {
   const showing = entries.findIndex(
-    (current) => current.open && current.operationKey === entry.operationKey,
+    (current) => current.open && isOperationEntry(current, entry.operationKey),
   );
   if (showing === -1) return [...entries, entry];
   return entries.map((current, index) => (index === showing ? entry : current));

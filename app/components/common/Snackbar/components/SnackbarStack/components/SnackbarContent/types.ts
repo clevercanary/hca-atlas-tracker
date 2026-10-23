@@ -3,3 +3,7 @@ import { type SnackbarEntry } from "@/app/components/common/Snackbar/provider/ty
 export interface SnackbarContentProps {
   entry: SnackbarEntry;
 }
+
+export interface StyledSnackbarContentProps {
+  severity: SnackbarEntry["severity"];
+}

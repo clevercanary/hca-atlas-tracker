@@ -1,4 +1,4 @@
-import { STACK_CONTAINER_ID } from "@/app/components/common/Snackbar/components/ErrorSnackbar/utils";
+import { STACK_CONTAINER_ID } from "@/app/components/common/Snackbar/components/SnackbarStack/utils";
 import { useSnackbar } from "@/app/components/common/Snackbar/provider/hook";
 import { SnackbarProvider } from "@/app/components/common/Snackbar/provider/provider";
 import { actAsync } from "@/testing/snackbar";
@@ -10,6 +10,12 @@ import { Fragment, type JSX, useEffect, useState } from "react";
 const TEST_MESSAGE = "Failed to delete source study";
 const TEST_SECOND_MESSAGE = "Failed to delete another source study";
 const TEST_FOREIGN_MESSAGE = "Failed to archive file";
+// Longer than MUI's `leavingScreen` (195ms), so a step always lets an exit that
+// started in an earlier step finish.
+const EXIT_STEP = 250;
+const TEST_SUCCESS_MESSAGE = "Unlinked dataset A from integrated object B";
+const TEST_SECOND_SUCCESS_MESSAGE =
+  "Unlinked dataset C from integrated object B";
 
 // Stand-ins for what `getOperationKey` derives from a request. Two operations
 // of the *same* feature (two atlases, two rows) is the case the key exists for,
@@ -143,7 +149,7 @@ function stackList(): HTMLElement {
  */
 function stackMessages(): string[] {
   return Array.from(
-    document.querySelectorAll(".MuiSnackbarContent-message"),
+    document.querySelectorAll('[role="alert"] .MuiSnackbarContent-message'),
   ).map((message) => (message.textContent ?? "").trim());
 }
 
@@ -214,6 +220,86 @@ function OpenOnMount(): JSX.Element {
     onOpen("first commit failure", "first-commit-op");
   }, [onOpen]);
   return <Dialog open>dialog body</Dialog>;
+}
+
+/**
+ * Raises confirmations on the app-level stack when clicked, alongside the error
+ * harness so the two kinds of entry can be mixed.
+ * @returns buttons that open confirmations.
+ */
+function SuccessOpener(): JSX.Element {
+  const { onOpenSuccess } = useSnackbar();
+  return (
+    <Fragment>
+      <button
+        data-testid="open-success"
+        onClick={(): void => onOpenSuccess(TEST_SUCCESS_MESSAGE)}
+      >
+        confirm
+      </button>
+      <button
+        data-testid="open-second-success"
+        onClick={(): void => onOpenSuccess(TEST_SECOND_SUCCESS_MESSAGE)}
+      >
+        confirm something else
+      </button>
+    </Fragment>
+  );
+}
+
+/**
+ * Mounts the provider with both the error and the success openers.
+ * @returns harness component.
+ */
+function SuccessHarness(): JSX.Element {
+  return (
+    <SnackbarProvider>
+      <Opener />
+      <SuccessOpener />
+    </SnackbarProvider>
+  );
+}
+
+/**
+ * The confirmations currently showing, in DOM order. A confirmation is the same
+ * `SnackbarContent` as an error, told apart by its `status` role.
+ * @returns confirmation messages.
+ */
+function successMessages(): string[] {
+  return Array.from(
+    document.querySelectorAll('[role="status"] .MuiSnackbarContent-message'),
+  ).map((message) => (message.textContent ?? "").trim());
+}
+
+/**
+ * Advances the fake clock by exactly `ms`, inside `act`.
+ * @param ms - Milliseconds to advance.
+ */
+function tick(ms: number): void {
+  act(() => {
+    jest.advanceTimersByTime(ms);
+  });
+}
+
+/**
+ * Advances the fake clock by `ms` in steps longer than the exit transition, each
+ * in its own `act`, so an entry that closes partway through has left the stack
+ * by the end rather than still being mid-exit.
+ * @param ms - Milliseconds to advance.
+ */
+function tickInSteps(ms: number): void {
+  for (let elapsed = 0; elapsed < ms; elapsed += EXIT_STEP) {
+    tick(Math.min(EXIT_STEP, ms - elapsed));
+  }
+}
+
+/**
+ * Runs the exit transition of an entry that has just closed. The exit timer is
+ * only scheduled once React has committed the close, so it needs its own
+ * `act` after the one that closed the entry.
+ */
+function finishExit(): void {
+  tick(EXIT_STEP);
 }
 
 describe("error snackbar stack", () => {
@@ -392,7 +478,7 @@ describe("error snackbar stack", () => {
     // The container is created during render rather than by `Portal`'s effect,
     // and this is the ordering that distinguishes the two. Effects run
     // children-first and the provider renders `{children}` before
-    // `ErrorSnackbar`, so with a modal open from the very first commit its
+    // `SnackbarStack`, so with a modal open from the very first commit its
     // `ariaHiddenSiblings` snapshot runs before any effect of ours. A container
     // appended by `Portal`'s effect isn't in `document.body` yet at that point
     // and is never marked — leaving the error live in the accessibility tree
@@ -514,7 +600,7 @@ describe("error snackbar stack", () => {
     // later modal would paint over it — and an entry parented to a dialog's
     // Paper is destroyed when the dialog unmounts. The cost is that `FocusTrap`
     // enforces by DOM containment, so the close button is not reachable by Tab
-    // while the dialog is open; see `ErrorSnackbar`.
+    // while the dialog is open; see `SnackbarStack`.
     render(<DialogHarness />);
     click("open-error");
     click("open-dialog");
@@ -524,5 +610,67 @@ describe("error snackbar stack", () => {
     expect(dialogContainer).not.toBeNull();
     expect(dialogContainer?.contains(stackContainer())).toBe(false);
     expect(stackContainer().parentElement).toBe(document.body);
+  });
+});
+
+describe("success snackbar entries", () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it("shows a confirmation as a status, not an alert", () => {
+    render(<SuccessHarness />);
+    click("open-success");
+
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+    expect(screen.getByRole("status")).toHaveTextContent(TEST_SUCCESS_MESSAGE);
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("closes itself after six seconds, and not before", () => {
+    render(<SuccessHarness />);
+    click("open-success");
+
+    // Pinned from both sides: a close before ~5.75s would have finished its exit
+    // by 5999ms, and one after 6000ms wouldn't have started when the exit runs.
+    tickInSteps(5999);
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+
+    tick(1);
+    finishExit();
+    expect(successMessages()).toEqual([]);
+  });
+
+  it("leaves an error in place when it closes itself", () => {
+    // Errors never auto-hide; the confirmation's countdown is its own.
+    render(<SuccessHarness />);
+    click("open-error");
+    click("open-success");
+
+    tick(6000);
+    finishExit();
+
+    expect(successMessages()).toEqual([]);
+    expect(stackMessages()).toEqual([TEST_MESSAGE]);
+  });
+
+  it("is neither replaced by an error nor dismissed by an operation succeeding", () => {
+    // A confirmation belongs to no operation, so the error stack's
+    // per-operation folding and dismissal pass it by.
+    render(<SuccessHarness />);
+    click("open-success");
+    click("open-error");
+    click("open-other-message");
+    click("open-second-error");
+    // Closes the sibling operation's error, and only that.
+    click("dismiss-operation");
+    finishExit();
+
+    expect(successMessages()).toEqual([TEST_SUCCESS_MESSAGE]);
+    expect(stackMessages()).toEqual([TEST_SECOND_MESSAGE]);
   });
 });

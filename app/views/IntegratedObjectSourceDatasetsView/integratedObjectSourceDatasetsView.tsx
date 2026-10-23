@@ -33,9 +33,16 @@ export const IntegratedObjectSourceDatasetsView = ({
     useFetchIntegratedObjectSourceDatasets(pathParameter);
   const formManager = useFormManager();
   const { isLoading } = formManager;
-  // Memoized so the context value's identity tracks onDelete's; an inline
-  // object literal would re-notify all context consumers on every render.
-  const editContextValue = useMemo(() => ({ onDelete }), [onDelete]);
+  // Memoized so the context value's identity tracks its fields'; an inline
+  // object literal would re-notify all context consumers on every render. The
+  // title is here for the unlink confirmation, so each row's unlink button
+  // reads it without subscribing to the whole entity. The table only renders
+  // once the integrated object has loaded, so the empty default is never shown.
+  const integratedObjectTitle = componentAtlas?.title ?? "";
+  const editContextValue = useMemo(
+    () => ({ integratedObjectTitle, onDelete }),
+    [integratedObjectTitle, onDelete],
+  );
 
   if (isLoading) return <Fragment />;
 

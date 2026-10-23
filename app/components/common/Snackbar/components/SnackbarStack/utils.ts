@@ -1,5 +1,5 @@
 /** Id of the body-level element the stack is portalled into. */
-export const STACK_CONTAINER_ID = "error-snackbar-stack";
+export const STACK_CONTAINER_ID = "snackbar-stack";
 
 /**
  * Returns the body-level element the stack is portalled into, creating it on
