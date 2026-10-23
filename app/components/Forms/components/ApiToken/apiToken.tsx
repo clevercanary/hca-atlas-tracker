@@ -21,9 +21,10 @@ export const ApiTokenForm = (): JSX.Element | null => {
   return (
     <>
       <p>
-        An API token lets a script or agent read from the tracker&apos;s API as
-        you. It is read-only, expires 30 days after it is created, and is shown
-        only once.
+        An API token lets a script or agent use the tracker&apos;s API as you.
+        It can read anything you can, and is able to set an integrated
+        object&apos;s source datasets. It expires 30 days after it is created,
+        and is shown only once.
       </p>
       <div style={{ marginBottom: "1em" }}>
         <Button

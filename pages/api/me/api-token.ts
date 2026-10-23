@@ -11,7 +11,7 @@ import {
 } from "@/app/utils/api-handler";
 
 /**
- * API route for issuing a read-only API token acting as the signed-in user.
+ * API route for issuing an API token acting as the signed-in user.
  * Always issues the token for the session user, taking no user ID, and refuses
  * requests authenticated with an API token, so a token can't be used to mint
  * its own successors and extend itself indefinitely.
@@ -20,8 +20,8 @@ export default handler(
   method(METHOD.POST),
   role(ROLE.CONTENT_ADMIN),
   async (req, res) => {
-    // Bearer POSTs are already refused as API tokens are read-only; this keeps
-    // the refusal from depending on this route never opting in to them.
+    // Bearer POSTs are already refused as this route doesn't use
+    // `bearerAllowed`; this keeps the refusal from depending on that.
     if (isApiTokenRequest(req))
       throw new ForbiddenError("API tokens can't be used to issue API tokens");
     const user = await getRegisteredActiveUser(req, res);

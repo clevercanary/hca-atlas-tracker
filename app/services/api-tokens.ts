@@ -38,7 +38,7 @@ export interface ApiTokenSubject {
 }
 
 /**
- * Issue a read-only API token acting as the given user.
+ * Issue an API token acting as the given user.
  * @param subject - The user the token acts as.
  * @param subject.email - The user's email.
  * @param subject.userId - The user's ID.

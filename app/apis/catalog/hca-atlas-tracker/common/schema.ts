@@ -128,7 +128,7 @@ export type AtlasEditData = InferType<typeof atlasEditSchema>;
  * Schema for data used to add source datasets to a component atlas.
  */
 export const componentAtlasAddSourceDatasetsSchema = object({
-  sourceDatasetIds: array(string().required()).required(),
+  sourceDatasetIds: array(string().uuid().required()).required(),
 }).strict();
 
 export type ComponentAtlasAddSourceDatasetsData = InferType<
@@ -143,6 +143,16 @@ export const componentAtlasDeleteSourceDatasetsSchema =
 
 export type ComponentAtlasDeleteSourceDatasetsData = InferType<
   typeof componentAtlasDeleteSourceDatasetsSchema
+>;
+
+/**
+ * Schema for data used to replace the source datasets of a component atlas.
+ */
+export const componentAtlasSetSourceDatasetsSchema =
+  componentAtlasAddSourceDatasetsSchema;
+
+export type ComponentAtlasSetSourceDatasetsData = InferType<
+  typeof componentAtlasSetSourceDatasetsSchema
 >;
 
 /**

@@ -479,9 +479,28 @@ export async function getSourceDatasetVersionsForAtlas(
   sourceDatasetIds: string[],
   atlasId: string,
 ): Promise<string[]> {
+  return (
+    await getSourceDatasetIdsAndVersionsForAtlas(sourceDatasetIds, atlasId)
+  ).map(({ version_id }) => version_id);
+}
+
+/**
+ * Get the IDs and version IDs of the versions of the given source datasets that are linked to the given atlas.
+ * @param sourceDatasetIds - IDs of the source datasets.
+ * @param atlasId - ID of the atlas.
+ * @param client - Postgres client to use.
+ * @returns ID and version ID of each source dataset's version on the atlas.
+ * @throws NotFoundError if any of the source datasets doesn't have a version on the atlas.
+ */
+export async function getSourceDatasetIdsAndVersionsForAtlas(
+  sourceDatasetIds: string[],
+  atlasId: string,
+  client?: pg.PoolClient,
+): Promise<Pick<HCAAtlasTrackerDBSourceDataset, "id" | "version_id">[]> {
   const presentVersions = await getSourceDatasetVersionsPresentOnAtlas(
     sourceDatasetIds,
     atlasId,
+    client,
   );
 
   const presentSourceDatasetIds = new Set(presentVersions.map(({ id }) => id));
@@ -497,7 +516,33 @@ export async function getSourceDatasetVersionsForAtlas(
       )}`,
     );
 
-  return presentVersions.map(({ version_id }) => version_id);
+  return presentVersions;
+}
+
+/**
+ * Get the IDs and version IDs of those of the given source dataset versions that are linked to the given atlas.
+ * @param sourceDatasetVersions - Version IDs of the source datasets.
+ * @param atlasId - ID of the atlas.
+ * @param client - Postgres client to use.
+ * @returns ID and version ID of each of the given versions that is on the atlas.
+ */
+export async function getAtlasSourceDatasetsAmongVersions(
+  sourceDatasetVersions: string[],
+  atlasId: string,
+  client?: pg.PoolClient,
+): Promise<Pick<HCAAtlasTrackerDBSourceDataset, "id" | "version_id">[]> {
+  return (
+    await query<Pick<HCAAtlasTrackerDBSourceDataset, "id" | "version_id">>(
+      `
+        SELECT d.id, d.version_id
+        FROM hat.source_datasets d
+        JOIN hat.atlases a ON d.version_id = ANY(a.source_datasets)
+        WHERE a.id = $1 AND d.version_id = ANY($2)
+      `,
+      [atlasId, sourceDatasetVersions],
+      client,
+    )
+  ).rows;
 }
 
 async function getSourceDatasetVersionsPresentOnAtlas(

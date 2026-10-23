@@ -99,6 +99,14 @@ export interface HCAAtlasTrackerComponentAtlas {
   wipNumber: number;
 }
 
+/**
+ * IDs of the source datasets added to and removed from a component atlas by replacing its source datasets.
+ */
+export interface HCAAtlasTrackerComponentAtlasSourceDatasetsChanges {
+  added: string[];
+  removed: string[];
+}
+
 export interface HCAAtlasTrackerGlobalComponentAtlas
   extends HCAAtlasTrackerComponentAtlas, LinkedAtlasFields {
   atlasId: string;

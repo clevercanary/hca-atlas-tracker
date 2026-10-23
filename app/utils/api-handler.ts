@@ -81,7 +81,7 @@ export function handler(...funcs: MiddlewareFunction[]): Handler {
 
 /**
  * Creates an API handler function that calls different handlers depending on request method, responding with an error if none match.
- * The handlers should be built with `handler`, which is what applies the API token read-only rule (see `checkApiTokenAccess`).
+ * The handlers should be built with `handler`, which is what applies the rule limiting API tokens to GET unless the route allows otherwise (see `checkApiTokenAccess`).
  * @param handlers - Object mapping request method to handler function.
  * @returns API handler function.
  */
@@ -93,7 +93,7 @@ export function handleByMethod(
     try {
       // Verified before dispatch so a bad token gets a 401 even for a method
       // this route doesn't handle; the dispatched handler (built with
-      // `handler`) applies the read-only rule.
+      // `handler`) applies the GET-only rule.
       await verifyRequestApiToken(req, res);
       const method = req.method;
       const handler = hasHandlerForMethod(method) && handlers[method];
@@ -129,7 +129,7 @@ export function method(methodName: METHOD): MiddlewareFunction {
 }
 
 /**
- * Marker middleware that lets requests authenticated with an API token use the route with a non-GET method, which they otherwise can't (API tokens are read-only). Only for routes whose non-GET methods write nothing, since its presence is detected by `handler` rather than by its position in the chain.
+ * Marker middleware that lets requests authenticated with an API token use the route with a non-GET method, which they otherwise can't (API tokens are limited to GET by default). Only for routes whose non-GET methods are safe for scripts and agents to call, and listed in `docs/api-tokens.md`; it applies to the whole handler chain, since its presence is detected by `handler` rather than by its position in the chain.
  * @param req - Next API request.
  * @param res - Next API response.
  * @param next - Middleware next function.
@@ -153,7 +153,9 @@ async function checkApiTokenAccess(
   if (!isApiTokenRequest(req)) return;
   await verifyRequestApiToken(req, res);
   if (req.method !== METHOD.GET && !allowsBearerWrites)
-    throw new ForbiddenError("API tokens are read-only");
+    throw new ForbiddenError(
+      `API tokens can't be used with ${req.method} on this route`,
+    );
 }
 
 /**

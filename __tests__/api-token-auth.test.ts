@@ -1,8 +1,10 @@
+import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool, query } from "@/app/services/database";
 import { type Handler } from "@/app/utils/api-handler";
 import atlasesHandler from "@/pages/api/atlases";
 import componentAtlasHandler from "@/pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]";
+import componentAtlasSourceDatasetsHandler from "@/pages/api/atlases/[atlasId]/component-atlases/[componentAtlasId]/source-datasets";
 import presignedUrlHandler from "@/pages/api/atlases/[atlasId]/files/[fileId]/presigned-url";
 import meHandler from "@/pages/api/me";
 import publishedAtlasesHandler from "@/pages/api/published-atlases";
@@ -17,6 +19,9 @@ import {
   ATLAS_WITH_MISC_SOURCE_STUDIES,
   COMPONENT_ATLAS_DRAFT_FOO,
   COMPONENT_ATLAS_MISC_FOO,
+  SOURCE_DATASET_BAR,
+  SOURCE_DATASET_FOOBAR,
+  SOURCE_DATASET_FOOFOO,
   USER_CONTENT_ADMIN,
   USER_DISABLED_CONTENT_ADMIN,
   USER_INTEGRATION_LEAD_PUBLIC,
@@ -25,7 +30,11 @@ import {
   USER_STAKEHOLDER,
   USER_STAKEHOLDER2,
 } from "@/testing/constants";
-import { resetDatabase } from "@/testing/db-utils";
+import {
+  expectComponentAtlasToHaveSourceDatasets,
+  resetDatabase,
+  withRestoredComponentAtlasSourceDatasets,
+} from "@/testing/db-utils";
 import { type TestUser } from "@/testing/entities";
 import { withConsoleErrorHiding } from "@/testing/utils";
 import { type NextApiRequest, type NextApiResponse } from "next";
@@ -163,7 +172,95 @@ describe("API token authentication", () => {
     expect(res._getStatusCode()).toEqual(403);
   });
 
-  describe("read-only scope", () => {
+  describe("component atlas source datasets PUT", () => {
+    const SET_DATASETS_BODY = {
+      sourceDatasetIds: [SOURCE_DATASET_FOOFOO.id, SOURCE_DATASET_BAR.id],
+    };
+
+    it("sets source datasets for a content admin's token", async () => {
+      await withRestoredComponentAtlasSourceDatasets(
+        COMPONENT_ATLAS_DRAFT_FOO,
+        async () => {
+          const res = await doSourceDatasetsRequest(
+            await bearerFor(USER_CONTENT_ADMIN),
+            METHOD.PUT,
+          );
+          expect(res._getStatusCode()).toEqual(200);
+          expect(res._getJSONData()).toEqual({
+            added: [SOURCE_DATASET_BAR.id],
+            removed: [SOURCE_DATASET_FOOBAR.id],
+          });
+        },
+      );
+    });
+
+    it("returns 403 for a token whose user has been demoted to stakeholder", async () => {
+      const authorization = await bearerFor(USER_CONTENT_ADMIN);
+      const { userId } = await getTestApiTokenSubject(USER_CONTENT_ADMIN);
+      await query("UPDATE hat.users SET role=$1 WHERE id=$2", [
+        ROLE.STAKEHOLDER,
+        userId,
+      ]);
+      try {
+        const res = await doSourceDatasetsRequest(
+          authorization,
+          METHOD.PUT,
+          true,
+        );
+        expect(res._getStatusCode()).toEqual(403);
+      } finally {
+        await query("UPDATE hat.users SET role=$1 WHERE id=$2", [
+          ROLE.CONTENT_ADMIN,
+          userId,
+        ]);
+      }
+      await expectComponentAtlasToHaveSourceDatasets(
+        COMPONENT_ATLAS_DRAFT_FOO,
+        COMPONENT_ATLAS_DRAFT_FOO.sourceDatasets,
+      );
+    });
+
+    for (const method of [METHOD.POST, METHOD.DELETE]) {
+      it(`returns 403 for ${method} on the same route`, async () => {
+        const res = await doSourceDatasetsRequest(
+          await bearerFor(USER_CONTENT_ADMIN),
+          method,
+          true,
+        );
+        expect(res._getStatusCode()).toEqual(403);
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          COMPONENT_ATLAS_DRAFT_FOO.sourceDatasets,
+        );
+      });
+    }
+
+    /**
+     * Make a request to the component atlas source datasets route for the draft foo component atlas.
+     * @param authorization - Authorization header value.
+     * @param method - Request method.
+     * @param hideConsoleError - Whether to hide console errors.
+     * @returns response.
+     */
+    async function doSourceDatasetsRequest(
+      authorization: string,
+      method: METHOD,
+      hideConsoleError = false,
+    ): Promise<httpMocks.MockResponse<NextApiResponse>> {
+      return await doRequest(componentAtlasSourceDatasetsHandler, {
+        authorization,
+        body: SET_DATASETS_BODY,
+        hideConsoleError,
+        method,
+        query: {
+          atlasId: ATLAS_DRAFT.id,
+          componentAtlasId: COMPONENT_ATLAS_DRAFT_FOO.id,
+        },
+      });
+    }
+  });
+
+  describe("write restrictions", () => {
     it("returns 403 for PUT /api/me", async () => {
       const res = await doRequest(meHandler, {
         authorization: await bearerFor(USER_CONTENT_ADMIN),
