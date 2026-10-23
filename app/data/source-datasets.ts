@@ -531,38 +531,22 @@ export async function getAtlasSourceDatasetsAmongVersions(
   atlasId: string,
   client?: pg.PoolClient,
 ): Promise<Pick<HCAAtlasTrackerDBSourceDataset, "id" | "version_id">[]> {
-  return await getAtlasSourceDatasetsMatching(
-    "version_id",
-    sourceDatasetVersions,
-    atlasId,
-    client,
-  );
+  return (
+    await query<Pick<HCAAtlasTrackerDBSourceDataset, "id" | "version_id">>(
+      `
+        SELECT d.id, d.version_id
+        FROM hat.source_datasets d
+        JOIN hat.atlases a ON d.version_id = ANY(a.source_datasets)
+        WHERE a.id = $1 AND d.version_id = ANY($2)
+      `,
+      [atlasId, sourceDatasetVersions],
+      client,
+    )
+  ).rows;
 }
 
 async function getSourceDatasetVersionsPresentOnAtlas(
   sourceDatasetIds: string[],
-  atlasId: string,
-  client?: pg.PoolClient,
-): Promise<Pick<HCAAtlasTrackerDBSourceDataset, "id" | "version_id">[]> {
-  return await getAtlasSourceDatasetsMatching(
-    "id",
-    sourceDatasetIds,
-    atlasId,
-    client,
-  );
-}
-
-/**
- * Get the IDs and version IDs of the source dataset versions linked to the given atlas whose value of the given column is among the given values.
- * @param column - Column to match the values against.
- * @param values - Source dataset IDs or version IDs, depending on the column.
- * @param atlasId - ID of the atlas.
- * @param client - Postgres client to use.
- * @returns ID and version ID of each matching source dataset version on the atlas.
- */
-async function getAtlasSourceDatasetsMatching(
-  column: "id" | "version_id",
-  values: string[],
   atlasId: string,
   client?: pg.PoolClient,
 ): Promise<Pick<HCAAtlasTrackerDBSourceDataset, "id" | "version_id">[]> {
@@ -572,9 +556,9 @@ async function getAtlasSourceDatasetsMatching(
         SELECT d.id, d.version_id
         FROM hat.source_datasets d
         JOIN hat.atlases a ON d.version_id = ANY(a.source_datasets)
-        WHERE a.id = $1 AND d.${column} = ANY($2)
+        WHERE a.id = $1 AND d.id = ANY($2)
       `,
-      [atlasId, values],
+      [atlasId, sourceDatasetIds],
       client,
     )
   ).rows;
