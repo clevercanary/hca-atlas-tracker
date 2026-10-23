@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.84.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.83.0...v1.84.0) (2026-10-23)
+
+
+### Features
+
+* highlight linked source dataset rows on hover ([#1601](https://github.com/clevercanary/hca-atlas-tracker/issues/1601)) ([#1606](https://github.com/clevercanary/hca-atlas-tracker/issues/1606)) ([9039541](https://github.com/clevercanary/hca-atlas-tracker/commit/90395417e36383d51f1bdbc70c939db5dd8741c4))
+* let api tokens set an integrated object's source datasets with a full-set put ([#1599](https://github.com/clevercanary/hca-atlas-tracker/issues/1599)) ([#1605](https://github.com/clevercanary/hca-atlas-tracker/issues/1605)) ([efdca89](https://github.com/clevercanary/hca-atlas-tracker/commit/efdca89b8b7eabb34253c895426afb5e2bc857fb))
+* linked source datasets: show the row hover for all users, not only editors ([#1608](https://github.com/clevercanary/hca-atlas-tracker/issues/1608)) ([#1609](https://github.com/clevercanary/hca-atlas-tracker/issues/1609)) ([539799f](https://github.com/clevercanary/hca-atlas-tracker/commit/539799f2cec7be92458b6fc06776c22bc8fc188e))
+* unlinking a source dataset gives no feedback: show a toast when the unlink completes ([#1602](https://github.com/clevercanary/hca-atlas-tracker/issues/1602)) ([#1610](https://github.com/clevercanary/hca-atlas-tracker/issues/1610)) ([7f76131](https://github.com/clevercanary/hca-atlas-tracker/commit/7f76131d8b435aa8f7062c5c714f1bba97ec11c5))
+
+
+### Bug Fixes
+
+* download dialog passes an empty href while the presigned url loads ([#1588](https://github.com/clevercanary/hca-atlas-tracker/issues/1588)) ([#1597](https://github.com/clevercanary/hca-atlas-tracker/issues/1597)) ([a40aa48](https://github.com/clevercanary/hca-atlas-tracker/commit/a40aa4871769fdebb6a478d42f42eb5d72ec3da1))
+* publish can be re-sent against stale cache after succeeding ([#1551](https://github.com/clevercanary/hca-atlas-tracker/issues/1551)) ([#1594](https://github.com/clevercanary/hca-atlas-tracker/issues/1594)) ([7b54849](https://github.com/clevercanary/hca-atlas-tracker/commit/7b54849ad0b338bcc592c44574ac5e9029148c97))
+
+
+### Code Refactoring
+
+* replace findable button wrappers with mui button ([#1595](https://github.com/clevercanary/hca-atlas-tracker/issues/1595)) ([#1600](https://github.com/clevercanary/hca-atlas-tracker/issues/1600)) ([cb8ab1f](https://github.com/clevercanary/hca-atlas-tracker/commit/cb8ab1fbb6f63bcad4ebf784c2fe447aa0a240fa))
+
+
+### Tests
+
+* findable-ui's dialogtitle close button has no accessible name ([#1578](https://github.com/clevercanary/hca-atlas-tracker/issues/1578)) ([#1591](https://github.com/clevercanary/hca-atlas-tracker/issues/1591)) ([6810347](https://github.com/clevercanary/hca-atlas-tracker/commit/6810347513d5302e4f249e31466b561aaeb3b79e))
+
 ## [1.83.0](https://github.com/clevercanary/hca-atlas-tracker/compare/v1.82.0...v1.83.0) (2026-10-09)
 
 
