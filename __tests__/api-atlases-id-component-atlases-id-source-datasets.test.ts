@@ -460,6 +460,25 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
+  it("returns error 400 when POST requested with non-UUID", async () => {
+    const sourceDatasetsData: ComponentAtlasAddSourceDatasetsData = {
+      sourceDatasetIds: [...NEW_DATASETS_DATA.sourceDatasetIds, "not-a-uuid"],
+    };
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_BAR.id,
+          USER_CONTENT_ADMIN,
+          METHOD.POST,
+          sourceDatasetsData,
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_BAR);
+  });
+
   it("returns error 400 when POST requested from component atlas that already has one of the source datasets", async () => {
     expect(
       (
@@ -738,6 +757,28 @@ describe(TEST_ROUTE, () => {
         )
       )._getStatusCode(),
     ).toEqual(404);
+    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+  });
+
+  it("returns error 400 when DELETE requested with non-UUID", async () => {
+    const sourceDatasetsData: ComponentAtlasDeleteSourceDatasetsData = {
+      sourceDatasetIds: [
+        ...DELETE_DATASETS_DATA.sourceDatasetIds,
+        "not-a-uuid",
+      ],
+    };
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE,
+          sourceDatasetsData,
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
@@ -1052,6 +1093,25 @@ describe(TEST_ROUTE, () => {
         )
       )._getStatusCode(),
     ).toEqual(404);
+    await expectDraftFooSourceDatasetsToBeUnchanged();
+  });
+
+  it("returns error 400 when PUT requested with non-UUID", async () => {
+    const sourceDatasetsData: ComponentAtlasSetSourceDatasetsData = {
+      sourceDatasetIds: [...SET_DATASETS_DATA.sourceDatasetIds, "not-a-uuid"],
+    };
+    expect(
+      (
+        await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.PUT,
+          sourceDatasetsData,
+          true,
+        )
+      )._getStatusCode(),
+    ).toEqual(400);
     await expectDraftFooSourceDatasetsToBeUnchanged();
   });
 
