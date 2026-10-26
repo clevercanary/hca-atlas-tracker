@@ -24,11 +24,6 @@ export type FileUpsertResult = Pick<HCAAtlasTrackerDBFile, "etag" | "id"> & {
   operation: "inserted" | "updated";
 };
 
-export type FileArchiveStatusInfo = Pick<
-  HCAAtlasTrackerDBFile,
-  "id" | "is_archived"
->;
-
 /**
  * Marks all previous versions of a file as no longer latest
  * @param conceptId - Concept ID of the file
@@ -374,21 +369,20 @@ export async function getAllFilesValidationParams(): Promise<
 }
 
 /**
- * Set the `is_archived` field of each given file to a specified value.
+ * Set the `is_archived` field of each given file to a specified value, leaving files that already have that value as-is.
  * @param fileIds - IDs of the files to update.
  * @param isArchived - Value to set for `is_archived`.
- * @returns object with `updated` property indicating whether the value that was set is different from the old value.
+ * @returns IDs of the files whose value was changed.
  */
 export async function setFilesArchiveStatus(
   fileIds: string[],
   isArchived: boolean,
-): Promise<void> {
+): Promise<string[]> {
   const queryResult = await query<Pick<HCAAtlasTrackerDBFile, "id">>(
-    "UPDATE hat.files SET is_archived = $1 WHERE id=ANY($2) RETURNING id",
+    "UPDATE hat.files SET is_archived = $1 WHERE id=ANY($2) AND is_archived <> $1 RETURNING id",
     [isArchived, fileIds],
   );
-
-  confirmQueryRowsContainIds(queryResult.rows, fileIds, "files");
+  return queryResult.rows.map(({ id }) => id);
 }
 
 export async function setFileValidationStatus(
@@ -413,22 +407,6 @@ export async function setFileIntegrityStatus(
     [integrityStatus, fileId],
     client,
   );
-}
-
-/**
- * Get an object containing ID and archive status for each of the given files.
- * @param fileIds - IDs of files to get archive status for.
- * @returns archive status per file.
- */
-export async function getFilesArchiveStatus(
-  fileIds: string[],
-): Promise<FileArchiveStatusInfo[]> {
-  const queryResult = await query<FileArchiveStatusInfo>(
-    "SELECT id, is_archived FROM hat.files WHERE id=ANY($1)",
-    [fileIds],
-  );
-  confirmQueryRowsContainIds(queryResult.rows, fileIds, "files");
-  return queryResult.rows;
 }
 
 /**

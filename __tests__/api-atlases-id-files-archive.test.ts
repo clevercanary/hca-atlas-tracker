@@ -41,7 +41,11 @@ import {
   resetDatabase,
 } from "@/testing/db-utils";
 import { type TestUser } from "@/testing/entities";
-import { testApiRole, withConsoleErrorHiding } from "@/testing/utils";
+import {
+  expectFilesArchiveStatusResponse,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "@/testing/utils";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
@@ -236,21 +240,19 @@ describe(`${TEST_ROUTE}`, () => {
     ).toEqual(400);
   });
 
-  it("returns error 400 when PATCH requested with already-archived file", async () => {
+  it("changes nothing when PATCH requested with already-archived file", async () => {
     const INPUT_DATA: FilesSetIsArchivedData = {
       fileIds: [FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST.id],
     };
-    expect(
-      (
-        await doArchiveRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-          INPUT_DATA,
-          USER_CONTENT_ADMIN,
-          METHOD.PATCH,
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(400);
+    const res = await doArchiveRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      INPUT_DATA,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      false,
+    );
+    expectFilesArchiveStatusResponse(res, []);
+    await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, true);
   });
 
   it("returns error 404 when PATCH requested with manifest file", async () => {
@@ -396,7 +398,7 @@ describe(`${TEST_ROUTE}`, () => {
       METHOD.PATCH,
       false,
     );
-    expect(res._getStatusCode()).toEqual(200);
+    expectFilesArchiveStatusResponse(res, INPUT_DATA.fileIds);
     await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, true);
     await expectFilesToHaveArchiveStatus(
       [SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id],
@@ -415,7 +417,7 @@ describe(`${TEST_ROUTE}`, () => {
       METHOD.PATCH,
       false,
     );
-    expect(res._getStatusCode()).toEqual(200);
+    expectFilesArchiveStatusResponse(res, INPUT_DATA.fileIds);
     await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, true);
     await expectFilesToHaveArchiveStatus(
       [SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id],
@@ -432,7 +434,7 @@ describe(`${TEST_ROUTE}`, () => {
       METHOD.PATCH,
       false,
     );
-    expect(res._getStatusCode()).toEqual(200);
+    expectFilesArchiveStatusResponse(res, INPUT_DATA.fileIds);
     await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, true);
     await expectFilesToHaveArchiveStatus(
       [COMPONENT_ATLAS_WITH_CELLXGENE_DATASETS.file.id],
@@ -456,12 +458,39 @@ describe(`${TEST_ROUTE}`, () => {
       METHOD.PATCH,
       false,
     );
-    expect(res._getStatusCode()).toEqual(200);
+    expectFilesArchiveStatusResponse(res, INPUT_DATA.fileIds);
     await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, true);
     await expectFilesToHaveArchiveStatus(
       [SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id],
       false,
     );
+  });
+
+  it("archives only the non-archived files when PATCH requested with a mix of archived and non-archived files, and changes nothing when repeated", async () => {
+    // Archived by an earlier test.
+    const archivedFileId = SOURCE_DATASET_ATLAS_LINKED_A_BAR.file.id;
+    const nonArchivedFileId = SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id;
+    await expectFilesToHaveArchiveStatus([archivedFileId], true);
+    await expectFilesToHaveArchiveStatus([nonArchivedFileId], false);
+    const INPUT_DATA: FilesSetIsArchivedData = {
+      fileIds: [archivedFileId, nonArchivedFileId],
+    };
+
+    const res = await doArchiveRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      INPUT_DATA,
+      USER_CONTENT_ADMIN,
+    );
+    expectFilesArchiveStatusResponse(res, [nonArchivedFileId]);
+    await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, true);
+
+    const repeatRes = await doArchiveRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      INPUT_DATA,
+      USER_CONTENT_ADMIN,
+    );
+    expectFilesArchiveStatusResponse(repeatRes, []);
+    await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, true);
   });
 });
 

@@ -20,11 +20,11 @@ export const FileArchivedStatus = ({
     <Button
       {...BUTTON_PROPS.SECONDARY_CONTAINED}
       className={className}
-      // Disabled until onSubmit settles: the endpoint rejects a repeated
-      // archive/unarchive, so a repeat click would surface an error for an
-      // action that succeeded. onSubmit awaits the invalidations a caller
-      // declares in options.invalidateQueryKeys.awaited, so those widen this
-      // window.
+      // Disabled until onSubmit settles, so a repeat click doesn't send a
+      // redundant request (the endpoint skips files already in the requested
+      // state, so it would succeed but change nothing). onSubmit awaits the
+      // invalidations a caller declares in options.invalidateQueryKeys.awaited,
+      // so those widen this window.
       //
       // What a caller should await depends on whether this button survives the
       // success. The detail views await their detail invalidation, so the

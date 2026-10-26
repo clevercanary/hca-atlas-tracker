@@ -5,6 +5,7 @@ import {
   FILE_VALIDATION_STATUS,
   type HCAAtlasTrackerDBComponentAtlas,
   type HCAAtlasTrackerDBSourceDataset,
+  type HCAAtlasTrackerFilesArchiveStatusChanges,
   INTEGRITY_STATUS,
   type PresignedUrlInfo,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
@@ -14,7 +15,6 @@ import {
   confirmLatestFilesExistOnAtlas,
   getAllFilesValidationParams,
   getFileKey,
-  getFilesArchiveStatus,
   getFilesPublishStatus,
   getFileType,
   setFileIntegrityStatus,
@@ -91,16 +91,19 @@ async function getFileMetadataEntityForAtlas(
 }
 
 /**
- * Set archive status of the given files.
+ * Set archive status of the given files, leaving files that already have the given status as-is.
  * @param atlasId - ID of the atlas that the files are accessed via.
  * @param fileIds - IDs of the files to set archive status of.
  * @param isArchived - New value for whether the files are archived.
+ * @returns IDs of the files whose archive status was changed.
+ * @throws NotFoundError if any of the files doesn't exist on the atlas.
+ * @throws InvalidOperationError if any of the files is non-latest, or, when archiving, is published.
  */
 export async function updateAtlasFilesArchiveStatus(
   atlasId: string,
   fileIds: string[],
   isArchived: boolean,
-): Promise<void> {
+): Promise<HCAAtlasTrackerFilesArchiveStatusChanges> {
   await confirmLatestFilesExistOnAtlas(fileIds, atlasId);
 
   if (isArchived) {
@@ -113,18 +116,7 @@ export async function updateAtlasFilesArchiveStatus(
       );
   }
 
-  const alreadySetFileIds = (await getFilesArchiveStatus(fileIds))
-    .filter((f) => f.is_archived === isArchived)
-    .map(({ id }) => id);
-
-  if (alreadySetFileIds.length)
-    throw new InvalidOperationError(
-      `Archived is already set to ${isArchived} for files with ID(s): ${alreadySetFileIds.join(
-        ", ",
-      )}`,
-    );
-
-  await setFilesArchiveStatus(fileIds, isArchived);
+  return { updated: await setFilesArchiveStatus(fileIds, isArchived) };
 }
 
 /**

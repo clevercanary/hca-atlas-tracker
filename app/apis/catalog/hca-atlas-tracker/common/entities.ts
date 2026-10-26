@@ -107,6 +107,29 @@ export interface HCAAtlasTrackerComponentAtlasSourceDatasetsChanges {
   removed: string[];
 }
 
+/**
+ * IDs of the source datasets newly linked to a component atlas by adding source datasets; requested source datasets that were already linked are omitted.
+ */
+export type HCAAtlasTrackerComponentAtlasSourceDatasetsAdded = Pick<
+  HCAAtlasTrackerComponentAtlasSourceDatasetsChanges,
+  "added"
+>;
+
+/**
+ * IDs of the source datasets unlinked from a component atlas by removing source datasets; requested source datasets that weren't linked are omitted.
+ */
+export type HCAAtlasTrackerComponentAtlasSourceDatasetsRemoved = Pick<
+  HCAAtlasTrackerComponentAtlasSourceDatasetsChanges,
+  "removed"
+>;
+
+/**
+ * IDs of the files whose archive status was changed by setting it; requested files that already had the requested status are omitted.
+ */
+export interface HCAAtlasTrackerFilesArchiveStatusChanges {
+  updated: string[];
+}
+
 export interface HCAAtlasTrackerGlobalComponentAtlas
   extends HCAAtlasTrackerComponentAtlas, LinkedAtlasFields {
   atlasId: string;

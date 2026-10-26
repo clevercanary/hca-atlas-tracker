@@ -16,7 +16,8 @@ export default handler(
   async (req, res) => {
     const atlasId = req.query.atlasId as string;
     const { fileIds } = await filesSetIsArchivedSchema.validate(req.body);
-    await updateAtlasFilesArchiveStatus(atlasId, fileIds, true);
-    res.status(200).end();
+    res
+      .status(200)
+      .json(await updateAtlasFilesArchiveStatus(atlasId, fileIds, true));
   },
 );
