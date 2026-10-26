@@ -40,12 +40,15 @@ const postHandler = handler(
     const componentAtlasId = req.query.componentAtlasId as string;
     const { sourceDatasetIds } =
       await componentAtlasAddSourceDatasetsSchema.validate(req.body);
-    await addSourceDatasetsToComponentAtlas(
-      atlasId,
-      componentAtlasId,
-      sourceDatasetIds,
-    );
-    res.status(201).end();
+    res
+      .status(201)
+      .json(
+        await addSourceDatasetsToComponentAtlas(
+          atlasId,
+          componentAtlasId,
+          sourceDatasetIds,
+        ),
+      );
   },
 );
 
@@ -57,12 +60,15 @@ const deleteHandler = handler(
     const componentAtlasId = req.query.componentAtlasId as string;
     const { sourceDatasetIds } =
       await componentAtlasAddSourceDatasetsSchema.validate(req.body);
-    await deleteSourceDatasetsFromComponentAtlas(
-      atlasId,
-      componentAtlasId,
-      sourceDatasetIds,
-    );
-    res.status(200).end();
+    res
+      .status(200)
+      .json(
+        await deleteSourceDatasetsFromComponentAtlas(
+          atlasId,
+          componentAtlasId,
+          sourceDatasetIds,
+        ),
+      );
   },
 );
 

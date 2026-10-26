@@ -19,6 +19,7 @@ import {
   type HCAAtlasTrackerDBValidation,
   type HCAAtlasTrackerDetailComponentAtlas,
   type HCAAtlasTrackerDetailSourceDataset,
+  type HCAAtlasTrackerFilesArchiveStatusChanges,
   type HCAAtlasTrackerLocalListSourceDataset,
   type HCAAtlasTrackerSourceDataset,
   type HCAAtlasTrackerSourceStudy,
@@ -557,6 +558,21 @@ export function testApiRole(
     await withConsoleErrorHiding(() => handler(req, res), hideConsoleError);
     await callback(res, user);
   });
+}
+
+/**
+ * Expect a response from the file archive or unarchive endpoint to be successful and to list exactly the given files as updated.
+ * @param res - Response to check.
+ * @param expectedUpdatedFileIds - IDs of the files expected to be listed as updated, in any order.
+ */
+export function expectFilesArchiveStatusResponse(
+  res: httpMocks.MockResponse<NextApiResponse>,
+  expectedUpdatedFileIds: string[],
+): void {
+  expect(res._getStatusCode()).toEqual(200);
+  const { updated } =
+    res._getJSONData() as HCAAtlasTrackerFilesArchiveStatusChanges;
+  expect([...updated].sort()).toEqual([...expectedUpdatedFileIds].sort());
 }
 
 export function expectAtlasSummaryToMatchTestAtlas(

@@ -30,7 +30,11 @@ import {
   resetDatabase,
 } from "@/testing/db-utils";
 import { type TestUser } from "@/testing/entities";
-import { testApiRole, withConsoleErrorHiding } from "@/testing/utils";
+import {
+  expectFilesArchiveStatusResponse,
+  testApiRole,
+  withConsoleErrorHiding,
+} from "@/testing/utils";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
@@ -225,21 +229,19 @@ describe(`${TEST_ROUTE}`, () => {
     ).toEqual(400);
   });
 
-  it("returns error 400 when PATCH requested with already non-archived file", async () => {
+  it("changes nothing when PATCH requested with already non-archived file", async () => {
     const INPUT_DATA: FilesSetIsArchivedData = {
       fileIds: [SOURCE_DATASET_ATLAS_LINKED_A_FOO.file.id],
     };
-    expect(
-      (
-        await doUnarchiveRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES.id,
-          INPUT_DATA,
-          USER_CONTENT_ADMIN,
-          METHOD.PATCH,
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(400);
+    const res = await doUnarchiveRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES.id,
+      INPUT_DATA,
+      USER_CONTENT_ADMIN,
+      METHOD.PATCH,
+      false,
+    );
+    expectFilesArchiveStatusResponse(res, []);
+    await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, false);
   });
 
   it("returns error 404 when PATCH requested with manifest file", async () => {
@@ -285,7 +287,7 @@ describe(`${TEST_ROUTE}`, () => {
       METHOD.PATCH,
       false,
     );
-    expect(res._getStatusCode()).toEqual(200);
+    expectFilesArchiveStatusResponse(res, INPUT_DATA.fileIds);
     await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, false);
     await expectFilesToHaveArchiveStatus(
       [SOURCE_DATASET_ARCHIVED_FOOFOO.file.id],
@@ -304,7 +306,7 @@ describe(`${TEST_ROUTE}`, () => {
       METHOD.PATCH,
       false,
     );
-    expect(res._getStatusCode()).toEqual(200);
+    expectFilesArchiveStatusResponse(res, INPUT_DATA.fileIds);
     await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, false);
     await expectFilesToHaveArchiveStatus(
       [SOURCE_DATASET_ARCHIVED_FOOFOO.file.id],
@@ -321,7 +323,7 @@ describe(`${TEST_ROUTE}`, () => {
       METHOD.PATCH,
       false,
     );
-    expect(res._getStatusCode()).toEqual(200);
+    expectFilesArchiveStatusResponse(res, INPUT_DATA.fileIds);
     await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, false);
     await expectFilesToHaveArchiveStatus(
       [COMPONENT_ATLAS_ARCHIVED_FOOFOO.file.id],
@@ -345,12 +347,39 @@ describe(`${TEST_ROUTE}`, () => {
       METHOD.PATCH,
       false,
     );
-    expect(res._getStatusCode()).toEqual(200);
+    expectFilesArchiveStatusResponse(res, INPUT_DATA.fileIds);
     await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, false);
     await expectFilesToHaveArchiveStatus(
       [SOURCE_DATASET_ARCHIVED_FOOFOO.file.id],
       true,
     );
+  });
+
+  it("unarchives only the archived files when PATCH requested with a mix of archived and non-archived files, and changes nothing when repeated", async () => {
+    // Unarchived by an earlier test.
+    const nonArchivedFileId = SOURCE_DATASET_ARCHIVED_FOO.file.id;
+    const archivedFileId = SOURCE_DATASET_ARCHIVED_FOOFOO.file.id;
+    await expectFilesToHaveArchiveStatus([nonArchivedFileId], false);
+    await expectFilesToHaveArchiveStatus([archivedFileId], true);
+    const INPUT_DATA: FilesSetIsArchivedData = {
+      fileIds: [nonArchivedFileId, archivedFileId],
+    };
+
+    const res = await doUnarchiveRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      INPUT_DATA,
+      USER_CONTENT_ADMIN,
+    );
+    expectFilesArchiveStatusResponse(res, [archivedFileId]);
+    await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, false);
+
+    const repeatRes = await doUnarchiveRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      INPUT_DATA,
+      USER_CONTENT_ADMIN,
+    );
+    expectFilesArchiveStatusResponse(repeatRes, []);
+    await expectFilesToHaveArchiveStatus(INPUT_DATA.fileIds, false);
   });
 });
 

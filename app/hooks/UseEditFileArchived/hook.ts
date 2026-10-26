@@ -22,8 +22,8 @@ import {
  *
  * `isRequesting` is true while the request is in flight and while the awaited
  * invalidations refetch, and is reset on every outcome. Consumers should
- * disable on it rather than tracking the request themselves: the endpoint
- * rejects a repeated archive/unarchive.
+ * disable on it rather than tracking the request themselves, so that a repeat
+ * click doesn't send a redundant request.
  * @returns submit request function and requesting status.
  */
 export const useEditFileArchived = (): UseEditFileArchived => {

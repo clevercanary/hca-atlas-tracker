@@ -1,5 +1,7 @@
 import {
+  type HCAAtlasTrackerComponentAtlasSourceDatasetsAdded,
   type HCAAtlasTrackerComponentAtlasSourceDatasetsChanges,
+  type HCAAtlasTrackerComponentAtlasSourceDatasetsRemoved,
   type HCAAtlasTrackerDBComponentAtlas,
   type HCAAtlasTrackerLocalListSourceDataset,
   type HCAAtlasTrackerSourceDataset,
@@ -479,20 +481,111 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_BAR);
   });
 
-  it("returns error 400 when POST requested from component atlas that already has one of the source datasets", async () => {
-    expect(
-      (
-        await doSourceDatasetsRequest(
+  it("adds only the unlinked source datasets when POST requested from component atlas that already has one of the source datasets", async () => {
+    await withRestoredComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_DRAFT_FOO,
+      async () => {
+        const res = await doSourceDatasetsRequest(
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_CONTENT_ADMIN,
           METHOD.POST,
           NEW_DATASETS_WITH_EXISTING_DATA,
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(400);
-    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+        );
+        expectAddResponse(res, [SOURCE_DATASET_BAR]);
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          [
+            SOURCE_DATASET_FOOFOO,
+            SOURCE_DATASET_FOOBAR,
+            SOURCE_DATASET_FOOBAZ,
+            SOURCE_DATASET_BAR,
+          ],
+        );
+      },
+    );
+  });
+
+  it("changes nothing when POST requested with only source datasets the component atlas already has", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_DRAFT.id,
+      COMPONENT_ATLAS_DRAFT_FOO.id,
+      USER_CONTENT_ADMIN,
+      METHOD.POST,
+      {
+        sourceDatasetIds: [SOURCE_DATASET_FOOFOO.id, SOURCE_DATASET_FOOBAR.id],
+      },
+    );
+    expectAddResponse(res, []);
+    await expectDraftFooSourceDatasetsToBeUnchanged();
+  });
+
+  it("adds source datasets when POST requested, and changes nothing when repeated", async () => {
+    await withRestoredComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_DRAFT_FOO,
+      async () => {
+        const expectedSourceDatasets = [
+          SOURCE_DATASET_FOOFOO,
+          SOURCE_DATASET_FOOBAR,
+          SOURCE_DATASET_FOOBAZ,
+          SOURCE_DATASET_FOO,
+          SOURCE_DATASET_BAR,
+        ];
+
+        const res = await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.POST,
+          NEW_DATASETS_DATA,
+        );
+        expectAddResponse(res, [SOURCE_DATASET_FOO, SOURCE_DATASET_BAR]);
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          expectedSourceDatasets,
+        );
+
+        const repeatRes = await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.POST,
+          NEW_DATASETS_DATA,
+        );
+        expectAddResponse(repeatRes, []);
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          expectedSourceDatasets,
+        );
+      },
+    );
+  });
+
+  it("adds each source dataset once when POST requested with duplicate IDs", async () => {
+    await withRestoredComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_DRAFT_FOO,
+      async () => {
+        const res = await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.POST,
+          {
+            sourceDatasetIds: [SOURCE_DATASET_FOO.id, SOURCE_DATASET_FOO.id],
+          },
+        );
+        expectAddResponse(res, [SOURCE_DATASET_FOO]);
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          [
+            SOURCE_DATASET_FOOFOO,
+            SOURCE_DATASET_FOOBAR,
+            SOURCE_DATASET_FOOBAZ,
+            SOURCE_DATASET_FOO,
+          ],
+        );
+      },
+    );
   });
 
   it("returns error 404 for POST requested where one of the source datasets doesn't exist", async () => {
@@ -555,7 +648,7 @@ describe(TEST_ROUTE, () => {
       METHOD.POST,
       NEW_DATASETS_DATA,
     );
-    expect(res._getStatusCode()).toEqual(201);
+    expectAddResponse(res, [SOURCE_DATASET_FOO, SOURCE_DATASET_BAR]);
     await expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_BAR, [
       SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
       SOURCE_DATASET_CELLXGENE_WITH_UPDATE,
@@ -582,7 +675,7 @@ describe(TEST_ROUTE, () => {
       METHOD.POST,
       NEW_DATASETS_DATA,
     );
-    expect(res._getStatusCode()).toEqual(201);
+    expectAddResponse(res, [SOURCE_DATASET_FOO, SOURCE_DATASET_BAR]);
     await expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_FOO, [
       SOURCE_DATASET_FOOFOO,
       SOURCE_DATASET_FOOBAR,
@@ -610,7 +703,7 @@ describe(TEST_ROUTE, () => {
       METHOD.POST,
       NEW_DATASETS_DATA_WITH_ARCHIVED,
     );
-    expect(res._getStatusCode()).toEqual(201);
+    expectAddResponse(res, [SOURCE_DATASET_ARCHIVED_BAR]);
     await expectComponentAtlasToHaveSourceDatasets(
       COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
       [
@@ -646,7 +739,10 @@ describe(TEST_ROUTE, () => {
       METHOD.POST,
       newDatasetsData,
     );
-    expect(res._getStatusCode()).toEqual(201);
+    expectAddResponse(res, [
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAZ_W1,
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_FOO_W2,
+    ]);
     await expectComponentAtlasToHaveSourceDatasets(
       COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
       [
@@ -782,20 +878,72 @@ describe(TEST_ROUTE, () => {
     await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
   });
 
-  it("returns error 400 when DELETE requested from component atlas that one of the source datasets doesn't exist on", async () => {
-    expect(
-      (
-        await doSourceDatasetsRequest(
+  it("removes only the linked source datasets when DELETE requested from component atlas that one of the source datasets doesn't exist on", async () => {
+    await withRestoredComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_DRAFT_FOO,
+      async () => {
+        const res = await doSourceDatasetsRequest(
           ATLAS_DRAFT.id,
           COMPONENT_ATLAS_DRAFT_FOO.id,
           USER_CONTENT_ADMIN,
           METHOD.DELETE,
           DELETE_DATASETS_WITH_MISSING_DATA,
-          true,
-        )
-      )._getStatusCode(),
-    ).toEqual(400);
-    await expectComponentAtlasToBeUnchanged(COMPONENT_ATLAS_DRAFT_FOO);
+        );
+        expectRemoveResponse(res, [SOURCE_DATASET_FOOBAR]);
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          [SOURCE_DATASET_FOOFOO, SOURCE_DATASET_FOOBAZ],
+        );
+      },
+    );
+  });
+
+  it("changes nothing when DELETE requested with only source datasets the component atlas doesn't have", async () => {
+    const res = await doSourceDatasetsRequest(
+      ATLAS_DRAFT.id,
+      COMPONENT_ATLAS_DRAFT_FOO.id,
+      USER_CONTENT_ADMIN,
+      METHOD.DELETE,
+      NEW_DATASETS_DATA,
+    );
+    expectRemoveResponse(res, []);
+    await expectDraftFooSourceDatasetsToBeUnchanged();
+  });
+
+  it("deletes source datasets when DELETE requested, and changes nothing when repeated", async () => {
+    await withRestoredComponentAtlasSourceDatasets(
+      COMPONENT_ATLAS_DRAFT_FOO,
+      async () => {
+        const res = await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE,
+          DELETE_DATASETS_DATA,
+        );
+        expectRemoveResponse(res, [
+          SOURCE_DATASET_FOOFOO,
+          SOURCE_DATASET_FOOBAR,
+        ]);
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          [SOURCE_DATASET_FOOBAZ],
+        );
+
+        const repeatRes = await doSourceDatasetsRequest(
+          ATLAS_DRAFT.id,
+          COMPONENT_ATLAS_DRAFT_FOO.id,
+          USER_CONTENT_ADMIN,
+          METHOD.DELETE,
+          DELETE_DATASETS_DATA,
+        );
+        expectRemoveResponse(repeatRes, []);
+        await expectComponentAtlasToHaveSourceDatasets(
+          COMPONENT_ATLAS_DRAFT_FOO,
+          [SOURCE_DATASET_FOOBAZ],
+        );
+      },
+    );
   });
 
   it("returns error 404 for DELETE request where one of the source datasets doesn't exist", async () => {
@@ -854,17 +1002,14 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_DRAFT_BAR,
     );
 
-    expect(
-      (
-        await doSourceDatasetsRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_BAR.id,
-          USER_INTEGRATION_LEAD_DRAFT,
-          METHOD.DELETE,
-          DELETE_DRAFT_BAR_DATASETS_DATA,
-        )
-      )._getStatusCode(),
-    ).toEqual(200);
+    const res = await doSourceDatasetsRequest(
+      ATLAS_DRAFT.id,
+      COMPONENT_ATLAS_DRAFT_BAR.id,
+      USER_INTEGRATION_LEAD_DRAFT,
+      METHOD.DELETE,
+      DELETE_DRAFT_BAR_DATASETS_DATA,
+    );
+    expectRemoveResponse(res, [SOURCE_DATASET_CELLXGENE_WITH_UPDATE]);
     await expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_BAR, [
       SOURCE_DATASET_CELLXGENE_WITHOUT_UPDATE,
     ]);
@@ -881,17 +1026,14 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_DRAFT_FOO,
     );
 
-    expect(
-      (
-        await doSourceDatasetsRequest(
-          ATLAS_DRAFT.id,
-          COMPONENT_ATLAS_DRAFT_FOO.id,
-          USER_CONTENT_ADMIN,
-          METHOD.DELETE,
-          DELETE_DATASETS_DATA,
-        )
-      )._getStatusCode(),
-    ).toEqual(200);
+    const res = await doSourceDatasetsRequest(
+      ATLAS_DRAFT.id,
+      COMPONENT_ATLAS_DRAFT_FOO.id,
+      USER_CONTENT_ADMIN,
+      METHOD.DELETE,
+      DELETE_DATASETS_DATA,
+    );
+    expectRemoveResponse(res, [SOURCE_DATASET_FOOFOO, SOURCE_DATASET_FOOBAR]);
     await expectComponentAtlasToHaveSourceDatasets(COMPONENT_ATLAS_DRAFT_FOO, [
       SOURCE_DATASET_FOOBAZ,
     ]);
@@ -908,17 +1050,14 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
     );
 
-    expect(
-      (
-        await doSourceDatasetsRequest(
-          ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
-          COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
-          USER_CONTENT_ADMIN,
-          METHOD.DELETE,
-          DELETE_DATASETS_DATA_WITH_ARCHIVED,
-        )
-      )._getStatusCode(),
-    ).toEqual(200);
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_MISC_SOURCE_STUDIES_B.id,
+      COMPONENT_ATLAS_ID_WITH_MULTIPLE_FILES,
+      USER_CONTENT_ADMIN,
+      METHOD.DELETE,
+      DELETE_DATASETS_DATA_WITH_ARCHIVED,
+    );
+    expectRemoveResponse(res, [SOURCE_DATASET_ARCHIVED_FOO]);
     await expectComponentAtlasToHaveSourceDatasets(
       COMPONENT_ATLAS_WITH_MULTIPLE_FILES_W3,
       [SOURCE_DATASET_WITH_MULTIPLE_FILES_W3],
@@ -940,17 +1079,16 @@ describe(TEST_ROUTE, () => {
       COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
     );
 
-    expect(
-      (
-        await doSourceDatasetsRequest(
-          ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
-          COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAR,
-          USER_CONTENT_ADMIN,
-          METHOD.DELETE,
-          deleteDatasetsData,
-        )
-      )._getStatusCode(),
-    ).toEqual(200);
+    const res = await doSourceDatasetsRequest(
+      ATLAS_WITH_NON_LATEST_METADATA_ENTITIES.id,
+      COMPONENT_ATLAS_ID_NON_LATEST_METADATA_ENTITIES_BAR,
+      USER_CONTENT_ADMIN,
+      METHOD.DELETE,
+      deleteDatasetsData,
+    );
+    expectRemoveResponse(res, [
+      SOURCE_DATASET_NON_LATEST_METADATA_ENTITIES_BAR_W2,
+    ]);
     await expectComponentAtlasToHaveSourceDatasets(
       COMPONENT_ATLAS_NON_LATEST_METADATA_ENTITIES_BAR_W2,
       [],
@@ -1369,6 +1507,26 @@ async function expectDraftFooSourceDatasetsToBeUnchanged(): Promise<void> {
   );
 }
 
+function expectAddResponse(
+  res: httpMocks.MockResponse<NextApiResponse>,
+  expectedAdded: TestSourceDataset[],
+): void {
+  expect(res._getStatusCode()).toEqual(201);
+  const { added } =
+    res._getJSONData() as HCAAtlasTrackerComponentAtlasSourceDatasetsAdded;
+  expectIdsToMatchSourceDatasets(added, expectedAdded);
+}
+
+function expectRemoveResponse(
+  res: httpMocks.MockResponse<NextApiResponse>,
+  expectedRemoved: TestSourceDataset[],
+): void {
+  expect(res._getStatusCode()).toEqual(200);
+  const { removed } =
+    res._getJSONData() as HCAAtlasTrackerComponentAtlasSourceDatasetsRemoved;
+  expectIdsToMatchSourceDatasets(removed, expectedRemoved);
+}
+
 function expectSetResponse(
   res: httpMocks.MockResponse<NextApiResponse>,
   expectedAdded: TestSourceDataset[],
@@ -1377,9 +1535,16 @@ function expectSetResponse(
   expect(res._getStatusCode()).toEqual(200);
   const { added, removed } =
     res._getJSONData() as HCAAtlasTrackerComponentAtlasSourceDatasetsChanges;
-  expect([...added].sort()).toEqual(expectedAdded.map(({ id }) => id).sort());
-  expect([...removed].sort()).toEqual(
-    expectedRemoved.map(({ id }) => id).sort(),
+  expectIdsToMatchSourceDatasets(added, expectedAdded);
+  expectIdsToMatchSourceDatasets(removed, expectedRemoved);
+}
+
+function expectIdsToMatchSourceDatasets(
+  ids: string[],
+  expectedSourceDatasets: TestSourceDataset[],
+): void {
+  expect([...ids].sort()).toEqual(
+    expectedSourceDatasets.map(({ id }) => id).sort(),
   );
 }
 
