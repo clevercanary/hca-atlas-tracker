@@ -133,12 +133,13 @@ handler(
 
 - NextAuth with Google OAuth
 - Configuration in `site-config/hca-atlas-tracker/{local|dev|prod}/authentication/next-auth-config.ts`
-- Session stored as JWT with a 5-minute max age (`SESSION_MAX_AGE`), renewed by
-  a 4-minute client refetch (`SESSION_REFETCH_INTERVAL`); a 1-hour idle timer
-  (`SESSION_TIMEOUT`) signs the user out separately. Because the refresh window
-  is only a minute wide, any interruption to the poll (laptop sleep, offline, a
-  throttled background tab) expires the session with the tab still open —
-  `app/hooks/UseSessionEndRedirect` navigates out of that state.
+- Session stored as JWT with a 15-minute max age (`SESSION_MAX_AGE`), renewed
+  by a 5-minute client refetch (`SESSION_REFETCH_INTERVAL`); a 1-hour idle timer
+  (`SESSION_TIMEOUT`) signs the user out separately. The short lifetime is a
+  requirement: once every tab is closed or the device sleeps, the session ends
+  within `SESSION_MAX_AGE`. A sleep longer than that expires the session with
+  the tab still open — `app/hooks/UseSessionEndRedirect` navigates out of that
+  state, and stores nothing in browser storage to do it.
 - Scripts and agents use API tokens instead: an `Authorization:
 Bearer` header, which always takes precedence over the session cookie and
   only allows `GET` (plus routes using the `bearerAllowed` middleware). See

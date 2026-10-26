@@ -41,3 +41,18 @@ export const ROUTE = {
   USERS: "/team",
   VALIDATING_ATLAS_SOURCE_STUDY_LIST: "/validating-atlas-source-study-list",
 } as const;
+
+/**
+ * Query param marking a landing-page load as a session-end recovery, for a tab
+ * that has not held a session in this document and so gets no inactivity
+ * banner.
+ *
+ * It exists to break a loop at the destination. If the session endpoint
+ * answers "no session" while page requests still carry a valid cookie (a CDN
+ * forwarding the cookie to pages but not to `/api`), the landing page would see
+ * the cookie and redirect back to `/atlases`, which strands the tab again. The
+ * landing page skips that redirect when this param or the inactivity param is
+ * present, so the recovery lands exactly once. Set by
+ * `app/hooks/UseSessionEndRedirect`; read by `pages/index.tsx`.
+ */
+export const SESSION_END_PARAM = "sessionEnded";
