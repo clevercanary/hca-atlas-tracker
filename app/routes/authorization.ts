@@ -15,10 +15,12 @@ import { PUBLIC_PATHS } from "./publicPaths";
 // Matched as path prefixes (exact, or followed by `/`) rather than regexes so
 // dynamic ROUTE templates (e.g. `[atlasId]`) can't be silently misinterpreted
 // as regex syntax. These three are static; add new entries from ROUTE.
+// `ROUTE.USERS` covers the whole Team section (`/team`, `/team/create`,
+// `/team/[userId]`).
 export const ADMIN_PATHS: readonly string[] = [
   ROUTE.CREATE_ATLAS,
-  ROUTE.CREATE_USER,
   ROUTE.FILES_ADMIN,
+  ROUTE.USERS,
 ];
 
 /**

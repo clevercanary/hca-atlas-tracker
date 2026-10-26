@@ -1,4 +1,5 @@
 import { type PathParameter } from "@/app/common/entities";
+import { getAdminPageRedirect } from "@/app/routes/adminPageGuard";
 import { UserView } from "@/app/views/UserView/userView";
 import { type GetServerSideProps, type GetServerSidePropsContext } from "next";
 import { type ParsedUrlQuery } from "querystring";
@@ -15,6 +16,8 @@ interface UserPageUrlParams extends ParsedUrlQuery {
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext,
 ) => {
+  const redirect = await getAdminPageRedirect(context);
+  if (redirect) return redirect;
   const { userId } = context.params as UserPageUrlParams;
   return {
     props: {
