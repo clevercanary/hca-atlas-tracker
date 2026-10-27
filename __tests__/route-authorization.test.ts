@@ -7,11 +7,14 @@ describe("isAdminPath", () => {
     expect(isAdminPath(ROUTE.CREATE_ATLAS)).toBe(true); // /atlases/create
     expect(isAdminPath(ROUTE.CREATE_USER)).toBe(true); // /team/create
     expect(isAdminPath(ROUTE.FILES_ADMIN)).toBe(true); // /files-admin
+    expect(isAdminPath(ROUTE.USERS)).toBe(true); // /team
+    expect(isAdminPath("/team/123")).toBe(true);
   });
 
   it("does not flag non-admin paths", () => {
     expect(isAdminPath(ROUTE.ATLASES)).toBe(false); // /atlases
-    expect(isAdminPath("/team")).toBe(false);
+    // Prefix match must not over-match a sibling of /team.
+    expect(isAdminPath("/teams")).toBe(false);
     // Source-study creation is resource-scoped (integration lead), not admin.
     expect(isAdminPath("/atlases/atlas-1/source-studies/create")).toBe(false);
     // Prefix must be a full segment — must not over-match.
@@ -44,6 +47,12 @@ describe("isRequestAuthorized", () => {
     expect(
       isRequestAuthorized(ROUTE.FILES_ADMIN, ROLE.CONTENT_ADMIN, true),
     ).toBe(true);
+    expect(isRequestAuthorized(ROUTE.USERS, ROLE.CONTENT_ADMIN, true)).toBe(
+      true,
+    );
+    expect(isRequestAuthorized("/team/123", ROLE.CONTENT_ADMIN, true)).toBe(
+      true,
+    );
   });
 
   it("denies a non-admin (including integration lead) on admin paths", () => {
@@ -51,6 +60,12 @@ describe("isRequestAuthorized", () => {
       isRequestAuthorized(ROUTE.CREATE_ATLAS, ROLE.INTEGRATION_LEAD, true),
     ).toBe(false);
     expect(isRequestAuthorized(ROUTE.CREATE_USER, ROLE.STAKEHOLDER, true)).toBe(
+      false,
+    );
+    expect(isRequestAuthorized(ROUTE.USERS, ROLE.STAKEHOLDER, true)).toBe(
+      false,
+    );
+    expect(isRequestAuthorized("/team/123", ROLE.INTEGRATION_LEAD, true)).toBe(
       false,
     );
     // Authenticated but no role on the token.

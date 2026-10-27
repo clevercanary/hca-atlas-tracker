@@ -1,8 +1,11 @@
+import { type ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import { isRequestAuthorized } from "@/app/routes/authorization";
 import { ROUTE } from "@/app/routes/constants";
 import { PUBLIC_PATHS } from "@/app/routes/publicPaths";
 import { AUTH_STATUS } from "@databiosphere/findable-ui/lib/auth/types/auth";
 import { type Navigation } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/common/entities";
 import { type LogoProps } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/components/Content/components/Logo/logo";
+import { type NavLinkItem } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/components/Content/components/Navigation/navigation";
 import { type HeaderProps } from "@databiosphere/findable-ui/lib/components/Layout/components/Header/header";
 import { cloneElement, isValidElement, type ReactNode } from "react";
 
@@ -94,6 +97,56 @@ export function getLandingHeaderProps(
 function getLandingLogo(logo: ReactNode): ReactNode {
   if (!isValidElement<LogoProps>(logo)) return logo;
   return cloneElement(logo, { link: ROUTE.LANDING });
+}
+
+/**
+ * Returns the full app header props for the given role, without the navigation
+ * links the role can't open (for anyone who isn't a content admin, the Team
+ * link), both at the top level and inside menus such as "More".
+ *
+ * Links are checked by route through `isRequestAuthorized`, the same decision
+ * the auth middleware makes, so the header can't offer a link the middleware
+ * would refuse — and a renamed label can't slip past it.
+ * @param header - The full app header config.
+ * @param role - Role from the NextAuth session, undefined until it resolves
+ * (admin links stay hidden until then).
+ * @returns Header props to spread onto the `DXHeader`.
+ */
+export function getRoleHeaderProps(
+  header: HeaderProps,
+  role: ROLE | undefined,
+): HeaderProps {
+  if (!header.navigation) return header;
+  const [left, center, right] = header.navigation;
+  return {
+    ...header,
+    navigation: [
+      removeUnauthorizedLinks(left, role),
+      removeUnauthorizedLinks(center, role),
+      removeUnauthorizedLinks(right, role),
+    ],
+  };
+}
+
+/**
+ * Removes the links the role can't open from a list of navigation links,
+ * including from each link's menu items. Only rendered for authenticated users,
+ * so links are checked as authenticated.
+ * @param links - Navigation links.
+ * @param role - Role from the NextAuth session.
+ * @returns The links the role can open.
+ */
+function removeUnauthorizedLinks<T extends NavLinkItem>(
+  links: T[] | undefined,
+  role: ROLE | undefined,
+): T[] | undefined {
+  return links
+    ?.filter((link) => isRequestAuthorized(link.url, role, true))
+    .map((link) =>
+      link.menuItems
+        ? { ...link, menuItems: removeUnauthorizedLinks(link.menuItems, role) }
+        : link,
+    );
 }
 
 /**
