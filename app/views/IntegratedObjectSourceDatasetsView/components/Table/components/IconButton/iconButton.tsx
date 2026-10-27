@@ -20,20 +20,20 @@ export const IconButton = ({
     <MIconButton
       aria-label="Unlink source dataset"
       color={ICON_BUTTON_PROPS.COLOR.SECONDARY}
+      aria-busy={isPending || undefined}
       disabled={isPending}
       onClick={async (): Promise<void> => {
         // onDelete never rejects — a failed unlink is surfaced via the
-        // app-level error snackbar and re-enables the button so it can be
-        // retried; on success it resolves once the refetch has removed the
-        // row, and the confirmation is raised then.
+        // app-level error snackbar; on success it resolves once the refetch
+        // has removed the row, and the confirmation is raised then. Pending
+        // is cleared either way, so a failure can be retried and a row that
+        // outlives the request isn't left disabled.
         setIsPending(true);
         const isDeleted = await onDelete({
           sourceDatasetIds: [row.original.id],
         });
-        if (!isDeleted) {
-          setIsPending(false);
-          return;
-        }
+        setIsPending(false);
+        if (!isDeleted) return;
         onOpenSuccess(
           getUnlinkSuccessMessage(row.original.title, integratedObjectTitle),
         );
