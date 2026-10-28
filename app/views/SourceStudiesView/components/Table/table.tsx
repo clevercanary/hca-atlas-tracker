@@ -8,7 +8,9 @@ export const Table = (): JSX.Element => {
 
   return (
     <Fragment>
-      {table.getRowCount() > 0 && <CommonTable stickyHeader table={table} />}
+      {table.getRowCount() > 0 && (
+        <CommonTable pageScroll stickyHeader table={table} />
+      )}
       <TablePlaceholder
         message="No source studies"
         rowCount={table.getRowCount()}

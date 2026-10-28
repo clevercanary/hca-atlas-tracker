@@ -2,11 +2,12 @@ import { type HCAAtlasTrackerSourceStudy } from "@/app/apis/catalog/hca-atlas-tr
 import { getRouteURL } from "@/app/common/utils";
 import { type LinksCell } from "@/app/components/Index/components/LinksCell/linksCell";
 import { withBackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
+import { getPartialCellContext } from "@/app/components/Table/components/utils";
 import { ROUTE } from "@/app/routes/constants";
 import { buildSheetsUrl } from "@/app/utils/google-sheets";
 import { ANCHOR_TARGET } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
 import { type Link } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { type LinkCell } from "@databiosphere/findable-ui/lib/components/Table/components/TableCell/components/LinkCell/linkCell";
+import { type LinkProps } from "@mui/material";
 import { type CellContext } from "@tanstack/react-table";
 import { type ComponentProps } from "react";
 import { type TableMeta } from "./entities";
@@ -41,26 +42,25 @@ export function buildMetadataSpreadsheets({
  * @param ctx - Cell context.
  * @param ctx.row - Row data.
  * @param ctx.table - Table instance.
- * @returns Props for the LinkCell component.
+ * @returns Model to be used as cellContext for the LinkCell component.
  */
 export function buildSourceStudyDatasetCount({
   row,
   table,
-}: CellContext<HCAAtlasTrackerSourceStudy, unknown>): ComponentProps<
-  typeof LinkCell
+}: CellContext<HCAAtlasTrackerSourceStudy, unknown>): CellContext<
+  HCAAtlasTrackerSourceStudy,
+  LinkProps
 > {
   const { original } = row;
   const { pathParameter } = (table.options.meta || {}) as TableMeta;
   const { sourceDatasetCount } = original;
-  return {
-    getValue: () => ({
-      children: sourceDatasetCount,
-      href: getRouteURL(ROUTE.ATLAS_SOURCE_STUDY_SOURCE_DATASETS, {
-        ...pathParameter,
-        sourceStudyId: row.original.id,
-      }),
+  return getPartialCellContext({
+    children: sourceDatasetCount,
+    href: getRouteURL(ROUTE.ATLAS_SOURCE_STUDY_SOURCE_DATASETS, {
+      ...pathParameter,
+      sourceStudyId: row.original.id,
     }),
-  };
+  });
 }
 
 /**

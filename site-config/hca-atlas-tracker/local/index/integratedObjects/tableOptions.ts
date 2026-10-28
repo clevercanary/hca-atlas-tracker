@@ -13,5 +13,6 @@ export const TABLE_OPTIONS: ListConfig<HCAAtlasTrackerListComponentAtlas>["table
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.TIER1_VALIDATION_STATUS]: false,
         [HCA_ATLAS_TRACKER_CATEGORY_KEY.TISSUE]: false,
       },
+      expanded: true,
     },
   };

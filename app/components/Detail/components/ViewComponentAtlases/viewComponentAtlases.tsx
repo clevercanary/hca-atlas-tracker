@@ -24,7 +24,9 @@ export const ViewComponentAtlases = (): JSX.Element => {
           <Divider />
         </Fragment>
       )}
-      {table.getRowCount() > 0 && <CommonTable stickyHeader table={table} />}
+      {table.getRowCount() > 0 && (
+        <CommonTable pageScroll stickyHeader table={table} />
+      )}
       <TablePlaceholder
         message="No integrated objects"
         rowCount={table.getRowCount()}

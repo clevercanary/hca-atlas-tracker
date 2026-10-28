@@ -12,6 +12,7 @@ export const DetailView = ({
   breadcrumbs,
   className,
   mainColumn,
+  pinnedHero,
   status,
   subTitle,
   tabs,
@@ -23,6 +24,7 @@ export const DetailView = ({
         actions={actions}
         backPath={backPath}
         breadcrumbs={breadcrumbs}
+        pinned={pinnedHero}
         status={status}
         subTitle={subTitle}
         tabs={tabs}

@@ -1,4 +1,3 @@
-import { useLayoutDimensions } from "@databiosphere/findable-ui/lib/providers/layoutDimensions/hook";
 import { type JSX, type ReactNode } from "react";
 import { Content as MDXContent } from "./content.styles";
 
@@ -7,8 +6,5 @@ export interface ContentProps {
 }
 
 export const Content = ({ children }: ContentProps): JSX.Element => {
-  const { dimensions } = useLayoutDimensions();
-  return (
-    <MDXContent headerHeight={dimensions.header.height}>{children}</MDXContent>
-  );
+  return <MDXContent>{children}</MDXContent>;
 };

@@ -2,7 +2,7 @@ import { type PathParameter } from "@/app/common/entities";
 import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Tabs } from "@/app/components/Entity/components/common/Tabs/tabs";
 import { EntityView } from "@/app/components/Entity/components/EntityView/entityView";
-import { StyledDetailView } from "@/app/components/Layout/components/Detail/sticky/detailView.styles";
+import { StickyDetailView } from "@/app/components/Layout/components/Detail/sticky/detailView";
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
@@ -61,7 +61,7 @@ export const IntegratedObjectSourceDatasetsView = ({
         value={editContextValue}
       >
         <ConditionalComponent isIn={Boolean(atlas && componentAtlas)}>
-          <StyledDetailView
+          <StickyDetailView
             breadcrumbs={
               <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
             }
