@@ -21,7 +21,7 @@ interface Props {
 // Sideways shadows in the background colour cover the view's side margins (up
 // to 24px), where the shadows of content scrolling underneath (e.g. an alert's)
 // would otherwise show; unlike a spread, they don't reach below the hero, over
-// the table's pinned column head.
+// the table's pinned toolbar or column head.
 export const DetailViewHero = styled.div<Props>`
   display: grid;
   gap: 16px;
@@ -37,7 +37,7 @@ export const DetailViewHero = styled.div<Props>`
           24px 0 0 ${theme.palette.background.default};
         margin: -24px 0;
         padding: 24px 0;
-        z-index: 4; /* above the table's pinned column head */
+        z-index: 4; /* above the table's pinned toolbar and column head */
         ${pinnedAt(HEADER_HEIGHT_VAR)};
         ${pinnedFocus};
       }
