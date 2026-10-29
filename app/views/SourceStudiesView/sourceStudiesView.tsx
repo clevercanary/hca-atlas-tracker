@@ -3,7 +3,7 @@ import { type PathParameter } from "@/app/common/entities";
 import { Tabs } from "@/app/components/Detail/components/ViewAtlas/components/Tabs/tabs";
 import { ViewSourceStudies } from "@/app/components/Detail/components/ViewSourceStudies/viewSourceStudies";
 import { AtlasStatuses } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/AtlasStatuses/atlasStatuses";
-import { StyledDetailView } from "@/app/components/Layout/components/Detail/sticky/detailView.styles";
+import { StickyDetailView } from "@/app/components/Layout/components/Detail/sticky/detailView";
 import { useAtlasTabBackPath } from "@/app/hooks/useAtlasTabBackPath";
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
@@ -32,7 +32,7 @@ export const SourceStudiesView = ({
       pathParameter={pathParameter}
     >
       <ConditionalComponent isIn={Boolean(atlas && sourceStudies)}>
-        <StyledDetailView
+        <StickyDetailView
           backPath={backPath}
           breadcrumbs={
             <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />

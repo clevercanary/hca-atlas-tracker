@@ -15,6 +15,28 @@ class SandboxTextEncoder extends TextEncoder {
 
 Object.assign(global, { TextDecoder, TextEncoder: SandboxTextEncoder }); // https://stackoverflow.com/questions/68468203/why-am-i-getting-textencoder-is-not-defined-in-jest
 
+/**
+ * jsdom has no `ResizeObserver`, and findable-ui's layout measuring (e.g.
+ * `useLayoutHeight`, used by the pinned detail hero and the page scroll table)
+ * constructs one without checking. This stand-in observes nothing, so
+ * components that measure themselves can render in tests.
+ */
+class NoopResizeObserver {
+  disconnect(): void {
+    return;
+  }
+  observe(): void {
+    return;
+  }
+  unobserve(): void {
+    return;
+  }
+}
+
+if (typeof globalThis.ResizeObserver === "undefined") {
+  Object.assign(globalThis, { ResizeObserver: NoopResizeObserver });
+}
+
 let testRandomUuids: string[] = [];
 export function setTestRandomUuids(uuids: string[]): void {
   testRandomUuids = uuids.slice();

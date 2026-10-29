@@ -7,6 +7,7 @@ export interface Props
   actions?: ReactNode;
   breadcrumbs?: ReactNode;
   mainColumn: ReactNode;
+  pinnedHero?: boolean;
   status?: ReactNode;
   subTitle?: ReactNode;
   tabs?: ReactNode;

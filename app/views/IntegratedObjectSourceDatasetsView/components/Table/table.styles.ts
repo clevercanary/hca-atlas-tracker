@@ -9,8 +9,8 @@ const ROW_HOVER_BACKGROUND_COLOR = "#f8fbfd";
 
 /**
  * Opacity of the cells of a row whose unlink is in flight. The cells are dimmed
- * rather than the row: the table draws its grid lines as gaps over a grey
- * container, which a translucent row would let show through.
+ * rather than the row: the table draws its grid lines as gaps over its grey
+ * background, which a translucent row would let show through.
  */
 const ROW_PENDING_OPACITY = 0.5;
 

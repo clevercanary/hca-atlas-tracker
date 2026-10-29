@@ -1,11 +1,7 @@
 import { FONT } from "@databiosphere/findable-ui/lib/styles/common/constants/font";
 import styled from "@emotion/styled";
 
-interface Props {
-  headerHeight: number;
-}
-
-export const Content = styled.div<Props>`
+export const Content = styled.div`
   a {
     color: inherit;
     text-decoration: underline;
@@ -31,7 +27,7 @@ export const Content = styled.div<Props>`
   h1 {
     font: ${FONT.HEADING_LARGE};
     margin: 0 0 16px;
-    scroll-margin-top: ${({ headerHeight }) => headerHeight + 24}px;
+    scroll-margin-top: 24px;
   }
 
   h2 {
@@ -45,7 +41,7 @@ export const Content = styled.div<Props>`
   h2,
   h3 {
     margin: 32px 0 16px;
-    scroll-margin-top: ${({ headerHeight }) => headerHeight + 32}px;
+    scroll-margin-top: 32px;
   }
 
   li {

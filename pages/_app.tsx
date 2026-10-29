@@ -3,7 +3,6 @@ import { AppHeader } from "@/app/components/Layout/components/Header/appHeader";
 import { config } from "@/app/config/config";
 import { useLogoutCallbackUrl } from "@/app/hooks/UseLogoutCallbackUrl/hook";
 import { AuthorizationProvider } from "@/app/providers/authorization";
-import { LayoutDimensionsProvider } from "@/app/providers/layoutDimensions/provider";
 import { makeQueryClient } from "@/app/query/queryClient";
 import { ROUTE } from "@/app/routes/constants";
 import { mergeAppTheme } from "@/app/theme/theme";
@@ -86,58 +85,50 @@ function MyApp(props: AppPropsWithComponent): JSX.Element {
                     timeout={SESSION_TIMEOUT}
                     refetchInterval={SESSION_REFETCH_INTERVAL}
                   >
-                    {/* Seeds the header height inside findable-ui's provider,
-                    so the offset ships with the server-rendered HTML (#1543).
-                    Both are composed in one component, so the nesting the fix
-                    depends on can't be transposed here. */}
-                    <LayoutDimensionsProvider>
-                      {/* SnackbarProvider wraps the whole layout (not just the
+                    {/* SnackbarProvider wraps the whole layout (not just the
                       page) so header/footer consumers are covered and an open
                       snackbar survives a page render error. */}
-                      <SnackbarProvider>
-                        <AppLayout>
-                          <ThemeProvider
-                            theme={(theme: Theme): Theme =>
-                              createTheme(
-                                deepmerge(theme, {
-                                  breakpoints: createBreakpoints(BREAKPOINTS),
-                                }),
-                              )
-                            }
-                          >
-                            <AppHeader header={header} />
-                          </ThemeProvider>
-                          <ExploreStateProvider entityListType={entityListType}>
-                            <AuthorizationProvider>
-                              <Main>
-                                <ErrorBoundary
-                                  fallbackRender={({
-                                    error,
-                                    reset,
-                                  }: {
-                                    error: DataExplorerError;
-                                    reset: () => void;
-                                  }): JSX.Element => (
-                                    <Error
-                                      errorMessage={error.message}
-                                      onReset={reset}
-                                      requestUrlMessage={
-                                        error.requestUrlMessage
-                                      }
-                                      rootPath={ROUTE.ATLASES}
-                                    />
-                                  )}
-                                >
-                                  <Component {...pageProps} />
-                                  <Floating {...floating} />
-                                </ErrorBoundary>
-                              </Main>
-                            </AuthorizationProvider>
-                          </ExploreStateProvider>
-                          <Footer {...footer} />
-                        </AppLayout>
-                      </SnackbarProvider>
-                    </LayoutDimensionsProvider>
+                    <SnackbarProvider>
+                      <AppLayout>
+                        <ThemeProvider
+                          theme={(theme: Theme): Theme =>
+                            createTheme(
+                              deepmerge(theme, {
+                                breakpoints: createBreakpoints(BREAKPOINTS),
+                              }),
+                            )
+                          }
+                        >
+                          <AppHeader header={header} />
+                        </ThemeProvider>
+                        <ExploreStateProvider entityListType={entityListType}>
+                          <AuthorizationProvider>
+                            <Main>
+                              <ErrorBoundary
+                                fallbackRender={({
+                                  error,
+                                  reset,
+                                }: {
+                                  error: DataExplorerError;
+                                  reset: () => void;
+                                }): JSX.Element => (
+                                  <Error
+                                    errorMessage={error.message}
+                                    onReset={reset}
+                                    requestUrlMessage={error.requestUrlMessage}
+                                    rootPath={ROUTE.ATLASES}
+                                  />
+                                )}
+                              >
+                                <Component {...pageProps} />
+                                <Floating {...floating} />
+                              </ErrorBoundary>
+                            </Main>
+                          </AuthorizationProvider>
+                        </ExploreStateProvider>
+                        <Footer {...footer} />
+                      </AppLayout>
+                    </SnackbarProvider>
                   </NextAuthAuthenticationProvider>
                 </SystemStatusProvider>
               </ServicesProvider>

@@ -33,7 +33,9 @@ export const Table = (props: Props): JSX.Element => {
 
   return (
     <StyledFluidPaper elevation={0}>
-      {table.getRowCount() > 0 && <CommonTable stickyHeader table={table} />}
+      {table.getRowCount() > 0 && (
+        <CommonTable pageScroll stickyHeader table={table} />
+      )}
       <TablePlaceholder
         message="No metadata entry sheets"
         rowCount={table.getRowCount()}

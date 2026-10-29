@@ -32,7 +32,9 @@ export const Table = (): JSX.Element => {
           <Divider />
         </Fragment>
       )}
-      {table.getRowCount() > 0 && <CommonTable stickyHeader table={table} />}
+      {table.getRowCount() > 0 && (
+        <CommonTable pageScroll stickyHeader table={table} />
+      )}
       <TablePlaceholder
         message="No linked source datasets"
         rowCount={table.getRowCount()}

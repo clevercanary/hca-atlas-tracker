@@ -19,7 +19,7 @@ import { type JSX } from "react";
 
 export const NotFoundView = (): JSX.Element => {
   return (
-    <ErrorLayout offset={0}>
+    <ErrorLayout>
       <ErrorContent>
         <ErrorSection>
           <StatusIcon priority={PRIORITY.HIGH} StatusIcon={AlertIcon} />

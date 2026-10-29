@@ -37,6 +37,7 @@ import * as C from "@/app/components";
 import { withBackOrigin } from "@/app/components/Layout/components/Detail/components/DetailViewHero/components/BackButton/utils";
 import { CAPIngestStatusCell } from "@/app/components/Table/components/TableCell/components/CAPIngestStatusCell/capIngestStatusCell";
 import { ICON_STATUS } from "@/app/components/Table/components/TableCell/components/IconStatusBadge/iconStatusBadge";
+import { getPartialCellContext } from "@/app/components/Table/components/utils";
 import { ROUTE } from "@/app/routes/constants";
 import {
   formatDateToQuarterYear,
@@ -54,6 +55,7 @@ import {
 } from "@databiosphere/findable-ui/lib/config/entities";
 import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
+import { type LinkProps as MLinkProps } from "@mui/material";
 import {
   type CellContext,
   type ColumnDef,
@@ -212,19 +214,17 @@ export const buildComponentAtlasFileName = ({
 }: CellContext<
   AtlasIntegratedObject,
   AtlasIntegratedObject["baseFileName"]
->): ComponentProps<typeof C.LinkCell> => {
+>): CellContext<AtlasIntegratedObject, MLinkProps> => {
   const fileName = getValue();
   const atlasId = row.getValue("atlasId") as string;
   const componentAtlasId = row.getValue("id") as string;
-  return {
-    getValue: () => ({
-      children: fileName,
-      href: withBackOrigin(
-        getRouteURL(ROUTE.COMPONENT_ATLAS, { atlasId, componentAtlasId }),
-        "COMPONENT_ATLASES",
-      ),
-    }),
-  };
+  return getPartialCellContext({
+    children: fileName,
+    href: withBackOrigin(
+      getRouteURL(ROUTE.COMPONENT_ATLAS, { atlasId, componentAtlasId }),
+      "COMPONENT_ATLASES",
+    ),
+  });
 };
 
 /**

@@ -9,7 +9,9 @@ export const ViewSourceDatasets = (): JSX.Element => {
 
   return (
     <StyledFluidPaper elevation={0}>
-      {table.getRowCount() > 0 && <CommonTable stickyHeader table={table} />}
+      {table.getRowCount() > 0 && (
+        <CommonTable pageScroll stickyHeader table={table} />
+      )}
       <TablePlaceholder
         message="No source datasets"
         rowCount={table.getRowCount()}

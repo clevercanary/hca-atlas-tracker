@@ -3,7 +3,7 @@ import { type PathParameter } from "@/app/common/entities";
 import { Breadcrumbs } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/breadcrumbs";
 import { Actions } from "@/app/components/Detail/components/ViewSourceStudy/components/Actions/actions";
 import { Tabs } from "@/app/components/Detail/components/ViewSourceStudy/components/Tabs/tabs";
-import { StyledDetailView } from "@/app/components/Layout/components/Detail/sticky/detailView.styles";
+import { StickyDetailView } from "@/app/components/Layout/components/Detail/sticky/detailView";
 import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
@@ -33,7 +33,7 @@ export const SourceDatasetsView = ({
       <ConditionalComponent
         isIn={Boolean(atlas && sourceStudy && sourceDatasets)}
       >
-        <StyledDetailView
+        <StickyDetailView
           actions={canEdit && <Actions pathParameter={pathParameter} />}
           breadcrumbs={
             <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
