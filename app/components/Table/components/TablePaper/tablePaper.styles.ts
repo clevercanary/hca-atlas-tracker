@@ -1,10 +1,10 @@
 import { FluidPaper } from "@databiosphere/findable-ui/lib/components/common/Paper/components/FluidPaper/fluidPaper";
-import { TABLE_HEAD_TOP } from "@databiosphere/findable-ui/lib/components/Table/common/constants";
 import { PALETTE } from "@databiosphere/findable-ui/lib/styles/common/constants/palette";
 import { SUPPORTS_SCROLL_DRIVEN_ANIMATIONS } from "@databiosphere/findable-ui/lib/styles/common/constants/supports";
 import { bpUpSm } from "@databiosphere/findable-ui/lib/styles/common/mixins/breakpoints";
 import { pinned } from "@databiosphere/findable-ui/lib/styles/common/mixins/pinned";
 import styled from "@emotion/styled";
+import { TABLE_PAPER_TOP } from "./constants";
 
 export const StyledFluidPaper = styled(FluidPaper)`
   display: grid;
@@ -16,8 +16,9 @@ export const StyledFluidPaper = styled(FluidPaper)`
   }
 
   /* Where the column head pins (a page scroll table, from sm up), a band pins
-     with it, as on findable-ui's index view: it draws the table's rounded top
-     edge over the pinned head and masks the rows scrolling past its corners.
+     above it, as on findable-ui's index view: it draws the table's rounded top
+     edge over the pinned toolbar, or else the pinned head, and masks the rows
+     scrolling past its corners.
      At rest it lies on the paper's own top edge. It is drawn inside the paper,
      so the paper's clip is widened by its 1px border for the band to cover it. */
   @supports ${SUPPORTS_SCROLL_DRIVEN_ANIMATIONS} {
@@ -34,8 +35,8 @@ export const StyledFluidPaper = styled(FluidPaper)`
           height: 8px;
           margin: -1px -1px -8px;
           pointer-events: none;
-          z-index: 4; /* above the column head, including its pinned copy */
-          ${pinned(`var(${TABLE_HEAD_TOP})`)};
+          z-index: 4; /* above the toolbar and the column head, including its pinned copy */
+          ${pinned(`var(${TABLE_PAPER_TOP})`)};
         }
       }
     }

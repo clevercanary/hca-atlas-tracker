@@ -1,13 +1,12 @@
-import { Divider } from "@/app/components/Detail/components/TrackerForm/components/Divider/divider.styles";
 import { RowSelection } from "@/app/components/Entity/components/common/Table/components/TableFeatures/RowSelection/rowSelection";
 import { ArchivedStatusToggle } from "@/app/components/Entity/components/common/Table/components/TableToolbar/components/ArchivedStatusToggle/archiveStatusToggle";
 import { Table as CommonTable } from "@/app/components/Entity/components/common/Table/table";
+import { PinnedTableToolbar } from "@/app/components/Table/components/PinnedTableToolbar/pinnedTableToolbar";
 import { StyledFluidPaper } from "@/app/components/Table/components/TablePaper/tablePaper.styles";
 import { TablePlaceholder } from "@/app/components/Table/components/TablePlaceholder/tablePlaceholder";
-import { Fragment, type JSX } from "react";
+import { type JSX } from "react";
 import { EditSelection } from "./components/EditSelection/editSelection";
 import { useIntegratedObjectsTable } from "./hooks/UseIntegratedObjectsTable/hook";
-import { StyledToolbar } from "./viewComponentAtlases.styles";
 
 export const ViewComponentAtlases = (): JSX.Element => {
   const { access, table } = useIntegratedObjectsTable();
@@ -16,13 +15,10 @@ export const ViewComponentAtlases = (): JSX.Element => {
   return (
     <StyledFluidPaper elevation={0}>
       {canEdit && (
-        <Fragment>
-          <StyledToolbar>
-            <RowSelection component={EditSelection} table={table} />
-            <ArchivedStatusToggle />
-          </StyledToolbar>
-          <Divider />
-        </Fragment>
+        <PinnedTableToolbar>
+          <RowSelection component={EditSelection} table={table} />
+          <ArchivedStatusToggle />
+        </PinnedTableToolbar>
       )}
       {table.getRowCount() > 0 && (
         <CommonTable pageScroll stickyHeader table={table} />

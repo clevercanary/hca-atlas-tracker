@@ -25,7 +25,7 @@ export const DetailViewHero = ({
   tabs,
   title,
 }: Props): JSX.Element => {
-  // Only a pinned hero is measured: its height sets where the table's column head pins.
+  // Only a pinned hero is measured: its height sets where the table pins below it.
   const { ref } = useLayoutHeight<HTMLDivElement>(DETAIL_HERO_HEIGHT);
   return (
     <DetailViewHeroLayout pinned={pinned} ref={pinned ? ref : undefined}>
