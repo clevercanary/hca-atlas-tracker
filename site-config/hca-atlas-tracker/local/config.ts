@@ -6,7 +6,6 @@ import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { announcementsConfig } from "./announcements/announcementsConfig";
 import { authenticationConfig } from "./authentication/authentication";
-import { floating } from "./floating/floating";
 import { atlasEntityConfig } from "./index/atlas/atlasEntityConfig";
 import { integratedObjectsEntityConfig } from "./index/integratedObjects/integratedObjectsEntityConfig";
 import { sourceDatasetsEntityConfig } from "./index/sourceDatasets/sourceDatasetsEntityConfig";
@@ -48,7 +47,6 @@ export function makeConfig(
     ],
     gitHubUrl,
     layout: {
-      floating,
       footer: {
         Branding: C.HCABranding({
           orgURL: ORG_URL,
@@ -138,12 +136,17 @@ export function makeConfig(
                   url: `${portalUrl}/privacy`,
                 },
                 {
+                  label: C.LabelIconMenuItem({ label: "Feedback" }),
+                  target: ANCHOR_TARGET.BLANK,
+                  url: `${gitHubUrl}/issues/new?template=feedback.md`,
+                },
+                {
                   icon: C.GitHubIcon({
                     fontSize: SVG_ICON_PROPS.FONT_SIZE.SMALL,
                   }),
                   label: "GitHub",
                   target: ANCHOR_TARGET.BLANK,
-                  url: "https://github.com/clevercanary/hca-atlas-tracker",
+                  url: gitHubUrl,
                 },
               ],
               url: "",
