@@ -17,7 +17,6 @@ import { Error } from "@databiosphere/findable-ui/lib/components/Error/error";
 import { ErrorBoundary } from "@databiosphere/findable-ui/lib/components/ErrorBoundary/errorBoundary";
 import { Head } from "@databiosphere/findable-ui/lib/components/Head/head";
 import { AppLayout } from "@databiosphere/findable-ui/lib/components/Layout/components/AppLayout/appLayout.styles";
-import { Floating } from "@databiosphere/findable-ui/lib/components/Layout/components/Floating/floating";
 import { Footer } from "@databiosphere/findable-ui/lib/components/Layout/components/Footer/footer";
 import { Main as DXMain } from "@databiosphere/findable-ui/lib/components/Layout/components/Main/main";
 import { NextAuthAuthenticationProvider } from "@databiosphere/findable-ui/lib/nextauth/provider";
@@ -61,7 +60,7 @@ function MyApp(props: AppPropsWithComponent): JSX.Element {
   // Set up the site configuration, layout and theme.
   const appConfig = config();
   const { layout, themeOptions } = appConfig;
-  const { floating, footer, header } = layout || {};
+  const { footer, header } = layout || {};
   const defaultTheme = createAppTheme(themeOptions);
   const appTheme = mergeAppTheme(defaultTheme);
   const { pageTitle, session } = pageProps as PageProps;
@@ -121,7 +120,6 @@ function MyApp(props: AppPropsWithComponent): JSX.Element {
                                 )}
                               >
                                 <Component {...pageProps} />
-                                <Floating {...floating} />
                               </ErrorBoundary>
                             </Main>
                           </AuthorizationProvider>
