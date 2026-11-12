@@ -10,14 +10,20 @@ jest.mock("next-auth", () => ({
 jest.mock("next-auth/react", () => ({
   getProviders: jest.fn(),
 }));
+jest.mock("next/router", () => ({
+  useRouter: jest.fn(),
+}));
 
 import { ROUTE, SESSION_END_PARAM } from "@/app/routes/constants";
-import { getServerSideProps } from "@/pages/index";
+import HomePage, { getServerSideProps } from "@/pages/index";
 import { INACTIVITY_PARAM } from "@databiosphere/findable-ui/lib/hooks/authentication/session/useSessionTimeout";
+import { render } from "@testing-library/react";
 import { type GetServerSidePropsContext } from "next";
 import { getServerSession } from "next-auth";
 import { getProviders } from "next-auth/react";
+import { type NextRouter, useRouter } from "next/router";
 import { type ParsedUrlQuery } from "querystring";
+import { createElement } from "react";
 
 const mockGetServerSession = getServerSession as jest.MockedFunction<
   typeof getServerSession
@@ -25,6 +31,12 @@ const mockGetServerSession = getServerSession as jest.MockedFunction<
 const mockGetProviders = getProviders as jest.MockedFunction<
   typeof getProviders
 >;
+
+const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
+const mockReplace = jest.fn<
+  ReturnType<NextRouter["replace"]>,
+  Parameters<NextRouter["replace"]>
+>();
 
 const SESSION = { expires: "2099-01-01T00:00:00.000Z", user: {} };
 
@@ -48,6 +60,8 @@ beforeEach(() => {
   mockGetServerSession.mockReset();
   mockGetProviders.mockReset();
   mockGetProviders.mockResolvedValue(null);
+  mockReplace.mockReset();
+  mockReplace.mockResolvedValue(true);
 });
 
 describe("landing page", () => {
@@ -77,4 +91,18 @@ describe("landing page", () => {
       expect(mockGetServerSession).not.toHaveBeenCalled();
     },
   );
+});
+
+describe("landing page render", () => {
+  it("removes the session-end param, so it does not survive sign-in", () => {
+    // The wiring, not the hook: `clear-session-end-param` covers how the param
+    // is removed, this covers that the landing page does it at all.
+    const router: Partial<NextRouter> = {
+      asPath: `/?${SESSION_END_PARAM}=true`,
+      replace: mockReplace,
+    };
+    mockUseRouter.mockReturnValue(router as NextRouter);
+    render(createElement(HomePage, { providers: [] }));
+    expect(mockReplace).toHaveBeenCalledWith("/", undefined, { shallow: true });
+  });
 });

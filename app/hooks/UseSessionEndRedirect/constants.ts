@@ -1,6 +1,19 @@
 /**
- * How long to wait before re-reading the session after a read that came up
- * inconclusive.
+ * Delays before the first re-reads of the session after a read that came up
+ * inconclusive; once they are spent, re-reads settle to
+ * `CONFIRM_RETRY_INTERVAL`.
+ *
+ * The common inconclusive read is a laptop wake, where the first fetch goes
+ * out before the network is back and the network follows within seconds.
+ * Waiting the full interval then leaves a blank page up for 30 seconds over a
+ * blip; a few quick re-reads recover it almost as soon as the network does,
+ * and a failure that outlasts them is no longer a blip.
+ */
+export const CONFIRM_RETRY_DELAYS = [1000, 2000, 5000] as const; // 1 s, 2 s, 5 s
+
+/**
+ * How long to wait between re-reads of the session once the quick
+ * `CONFIRM_RETRY_DELAYS` are spent and reads are still inconclusive.
  *
  * A stranded page is unusable, and next-auth will not recover it: once its
  * client session is `null` the poll is gated off and the focus refetch bails,

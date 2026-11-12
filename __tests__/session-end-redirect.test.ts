@@ -33,6 +33,7 @@ import { useSessionEndRedirect } from "@/app/hooks/UseSessionEndRedirect/hook";
 import { SESSION_CONFIRMATION } from "@/app/hooks/UseSessionEndRedirect/types";
 import {
   confirmSessionEnded,
+  getConfirmRetryDelay,
   getSessionEndUrl,
   getSessionRootUrl,
   isStrandedOnProtectedPath,
@@ -487,15 +488,42 @@ describe("confirm retry", () => {
   });
 
   /**
-   * Advances past one retry interval and lets the read it starts settle.
+   * Advances the clock and lets any read it starts settle.
+   * @param ms - Milliseconds to advance.
    * @returns void.
    */
-  async function nextRetry(): Promise<void> {
+  async function advance(ms: number): Promise<void> {
     await act(async () => {
-      jest.advanceTimersByTime(CONFIRM_RETRY_INTERVAL);
+      jest.advanceTimersByTime(ms);
     });
     await flushConfirm();
   }
+
+  it("re-reads after 1, 2 and 5 seconds, then every CONFIRM_RETRY_INTERVAL", async () => {
+    // A blip on laptop wake recovers within seconds of the network returning,
+    // rather than leaving a blank page up for the full interval.
+    mockFetch.mockRejectedValue(new TypeError("Failed to fetch"));
+    setPath(ROUTE.ATLASES);
+    mockUseAuth.mockReturnValue(authOf(AUTH_STATUS.SETTLED, false));
+    renderHook(() => useSessionEndRedirect());
+
+    await flushConfirm();
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+
+    const schedule = [
+      1000,
+      2000,
+      5000,
+      CONFIRM_RETRY_INTERVAL,
+      CONFIRM_RETRY_INTERVAL,
+    ];
+    for (const [i, delay] of schedule.entries()) {
+      await advance(delay - 1);
+      expect(mockFetch).toHaveBeenCalledTimes(i + 1);
+      await advance(1);
+      expect(mockFetch).toHaveBeenCalledTimes(i + 2);
+    }
+  });
 
   it("retries after an inconclusive read, and leaves once one resolves", async () => {
     // A failed fetch on laptop wake, before the network is back, must not be
@@ -510,7 +538,7 @@ describe("confirm retry", () => {
     await flushConfirm();
     expect(mockLeave).not.toHaveBeenCalled();
 
-    await nextRetry();
+    await advance(getConfirmRetryDelay(0));
     expect(mockLeave).toHaveBeenCalledTimes(1);
   });
 
@@ -526,10 +554,10 @@ describe("confirm retry", () => {
     renderHook(() => useSessionEndRedirect());
 
     await flushConfirm();
-    await nextRetry();
+    await advance(getConfirmRetryDelay(0));
     expect(mockReload).not.toHaveBeenCalled();
 
-    await nextRetry();
+    await advance(getConfirmRetryDelay(1));
     expect(mockReload).toHaveBeenCalledTimes(1);
     expect(mockLeave).not.toHaveBeenCalled();
   });
@@ -545,9 +573,10 @@ describe("confirm retry", () => {
     await flushConfirm();
     expect(mockFetch).toHaveBeenCalledTimes(1);
 
-    for (const expected of [2, 3, 4]) {
-      await nextRetry();
-      expect(mockFetch).toHaveBeenCalledTimes(expected);
+    // Past the quick re-reads and into the steady interval.
+    for (let i = 0; i < 6; i++) {
+      await advance(getConfirmRetryDelay(i));
+      expect(mockFetch).toHaveBeenCalledTimes(i + 2);
     }
     expect(mockLeave).not.toHaveBeenCalled();
     expect(mockReload).not.toHaveBeenCalled();

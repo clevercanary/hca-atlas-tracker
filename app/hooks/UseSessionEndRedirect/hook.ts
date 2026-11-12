@@ -1,10 +1,10 @@
 import { useCurrentPath } from "@/app/hooks/UseCurrentPath/hook";
 import { useAuth } from "@databiosphere/findable-ui/lib/auth/hooks/useAuth";
 import { useEffect, useRef } from "react";
-import { CONFIRM_RETRY_INTERVAL } from "./constants";
 import { SESSION_CONFIRMATION, type SessionConfirmation } from "./types";
 import {
   confirmSessionEnded,
+  getConfirmRetryDelay,
   getSessionEndUrl,
   isStrandedOnProtectedPath,
   leaveStrandedPage,
@@ -27,8 +27,9 @@ import {
  * re-reads the endpoint itself before acting (see `confirmSessionEnded`):
  * - `ENDED` leaves for the landing page, replacing the history entry;
  * - `LIVE` reloads in place, since the client's `null` was wrong;
- * - `INCONCLUSIVE` holds the page and reads again after
- *   `CONFIRM_RETRY_INTERVAL`, until one of the other two comes back.
+ * - `INCONCLUSIVE` holds the page and reads again — quickly at first, then
+ *   every `CONFIRM_RETRY_INTERVAL` (see `getConfirmRetryDelay`) — until one of
+ *   the other two comes back.
  *
  * The inactivity banner is shown only if this document has been authenticated,
  * which is tracked in memory: a visitor who never held a session, or who
@@ -60,6 +61,7 @@ export const useSessionEndRedirect = (): void => {
   useEffect(() => {
     if (!isStranded) return;
     let cancelled = false;
+    let retryCount = 0;
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
 
     const onConfirmation = (confirmation: SessionConfirmation): void => {
@@ -73,7 +75,8 @@ export const useSessionEndRedirect = (): void => {
           reloadStrandedPage();
           return;
         case SESSION_CONFIRMATION.INCONCLUSIVE:
-          retryTimer = setTimeout(attempt, CONFIRM_RETRY_INTERVAL);
+          retryTimer = setTimeout(attempt, getConfirmRetryDelay(retryCount));
+          retryCount += 1;
           return;
       }
     };

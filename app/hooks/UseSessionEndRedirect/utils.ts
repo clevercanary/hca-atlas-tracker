@@ -3,7 +3,11 @@ import { PUBLIC_PATHS } from "@/app/routes/publicPaths";
 import { AUTH_STATUS } from "@databiosphere/findable-ui/lib/auth/types/auth";
 import { INACTIVITY_PARAM } from "@databiosphere/findable-ui/lib/hooks/authentication/session/useSessionTimeout";
 import Router from "next/router";
-import { SESSION_URL } from "./constants";
+import {
+  CONFIRM_RETRY_DELAYS,
+  CONFIRM_RETRY_INTERVAL,
+  SESSION_URL,
+} from "./constants";
 import { SESSION_CONFIRMATION, type SessionConfirmation } from "./types";
 
 /**
@@ -39,6 +43,17 @@ export async function confirmSessionEnded(): Promise<SessionConfirmation> {
   return Object.keys(body).length > 0
     ? SESSION_CONFIRMATION.LIVE
     : SESSION_CONFIRMATION.ENDED;
+}
+
+/**
+ * Returns how long to wait before the next re-read of the session, given how
+ * many re-reads have already been scheduled for this strand: the quick
+ * `CONFIRM_RETRY_DELAYS` in turn, then `CONFIRM_RETRY_INTERVAL` for good.
+ * @param retryCount - Re-reads already scheduled since the page stranded.
+ * @returns Delay in milliseconds.
+ */
+export function getConfirmRetryDelay(retryCount: number): number {
+  return CONFIRM_RETRY_DELAYS[retryCount] ?? CONFIRM_RETRY_INTERVAL;
 }
 
 /**
