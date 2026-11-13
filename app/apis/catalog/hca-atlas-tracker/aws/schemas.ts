@@ -84,8 +84,8 @@ const datasetValidatorMetadataCoverageSchema = object({
 
 const datasetValidatorToolReportSchema = object({
   errors: array(string().required()).required(),
-  finished_at: string().required(),
-  started_at: string().required(),
+  finished_at: string().datetime({ allowOffset: true }).required(),
+  started_at: string().datetime({ allowOffset: true }).required(),
   valid: boolean().required(),
   warnings: array(string().required()).required(),
 });

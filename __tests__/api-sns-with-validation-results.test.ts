@@ -29,6 +29,7 @@ import {
   type DatasetValidatorToolReports,
   type SNSMessage,
 } from "@/app/apis/catalog/hca-atlas-tracker/aws/schemas";
+import { FILE_VALIDATOR_NAMES } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   FILE_VALIDATION_STATUS,
   type FileValidationSummary,
@@ -248,29 +249,29 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
     const firstToolReports: DatasetValidatorToolReports = {
       cap: {
         errors: [],
-        finished_at: "2025-09-14T10:00:02.342",
-        started_at: "2025-09-14T10:00:01.645",
+        finished_at: "2025-09-14T10:00:02.342Z",
+        started_at: "2025-09-14T10:00:01.645Z",
         valid: true,
         warnings: [],
       },
       cellxgene: {
         errors: ["Error OOO first CxG"],
-        finished_at: "2025-09-14T10:00:04.342",
-        started_at: "2025-09-14T10:00:03.645",
+        finished_at: "2025-09-14T10:00:04.342Z",
+        started_at: "2025-09-14T10:00:03.645Z",
         valid: false,
         warnings: [],
       },
       hcaCellAnnotation: {
         errors: [],
-        finished_at: "2025-09-14T10:00:02.342",
-        started_at: "2025-09-14T10:00:01.645",
+        finished_at: "2025-09-14T10:00:02.342Z",
+        started_at: "2025-09-14T10:00:01.645Z",
         valid: true,
         warnings: [],
       },
       hcaSchema: {
         errors: [],
-        finished_at: "2025-09-14T10:00:02.342",
-        started_at: "2025-09-14T10:00:01.645",
+        finished_at: "2025-09-14T10:00:02.342Z",
+        started_at: "2025-09-14T10:00:01.645Z",
         valid: true,
         warnings: [],
       },
@@ -1232,6 +1233,34 @@ describe(`${TEST_ROUTE} (validation results)`, () => {
         },
         testId: `claim-check-tool-reports-missing-${tool}`,
       })),
+      ...FILE_VALIDATOR_NAMES.flatMap((tool) =>
+        (["finished_at", "started_at"] as const).map((field) => ({
+          description: `${tool} report has malformed \`${field}\``,
+          expectGetObject: true,
+          expectedErrorContent: `tool_reports.${tool}.${field} must be a valid ISO date-time`,
+          setUp(metadataOptions: ValidationResultsMetadataOptions): void {
+            initValidationResults(
+              {
+                ...metadataOptions,
+                integrityStatus: INTEGRITY_STATUS.VALID,
+                metadata: null,
+              },
+              (claimCheckData) => ({
+                ...claimCheckData,
+                // Set one tool report timestamp to a malformed value
+                tool_reports: {
+                  ...SUCCESSFUL_TOOL_REPORTS,
+                  [tool]: {
+                    ...SUCCESSFUL_TOOL_REPORTS[tool],
+                    [field]: "2026-05",
+                  },
+                },
+              }),
+            );
+          },
+          testId: `claim-check-tool-reports-malformed-${tool}-${field}`,
+        })),
+      ),
       {
         description: "AWS_VALIDATION_RESULTS_BUCKET is unset",
         expectGetObject: false,
