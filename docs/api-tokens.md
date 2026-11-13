@@ -17,10 +17,14 @@ token lets them call the tracker's API as you instead.
   - `PUT /api/atlases/{atlasId}/component-atlases/{componentAtlasId}/source-datasets`,
     which sets an integrated object's source datasets (see
     [Syncing an integrated object's source datasets](#syncing-an-integrated-objects-source-datasets)).
+  - `POST /api/validate-files`, which starts validation of every file, like
+    **Validate all files** on `/files-admin` (see
+    [Revalidating all files](#revalidating-all-files)).
 
   Every other method returns `403`, except that a method the route doesn't
   handle at all can return `405` instead. Your role still applies, so these
-  need you to be a content admin, or the integration lead of the atlas.
+  need you to be a content admin, or, except for `/api/validate-files`, the
+  integration lead of the atlas.
 
 - **Expires after 30 days.** After that, create a new one.
 
@@ -77,6 +81,23 @@ curl -X PUT \
 - If any ID isn't a source dataset on the atlas, it returns `404` and changes
   nothing. An archived or non-latest integrated object returns `400`.
 - Sending the same request again returns empty `added` and `removed`.
+
+### Revalidating all files
+
+A `POST` starts validation of every latest-version source dataset and
+integrated object file, the same as clicking **Validate all files** on
+`/files-admin`. It needs a content admin's token:
+
+```bash
+curl -X POST \
+  -H "Authorization: Bearer $HCA_TRACKER_API_TOKEN" \
+  https://<tracker-host>/api/validate-files
+```
+
+- It returns `202` with no body straight away, before the jobs start. Check
+  progress on `/files-admin` as the jobs finish.
+- Each call starts one validation job per file, as each press of the button
+  does, so calling it again while jobs are running starts them all again.
 
 ## Revoking tokens
 
