@@ -8,7 +8,9 @@ Use Node.js version `22.12.0`.
 
 Run `npm install`.
 
-Set up Postgres database (see "Using Postgres" section below).
+Ensure that Gitleaks is installed. (Required for precommit checks; run `brew install gitleaks` to install via Homebrew.)
+
+Set up the Postgres database (see "Using Postgres" section below).
 
 ### Typechecking
 
