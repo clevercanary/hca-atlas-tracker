@@ -3,6 +3,13 @@
 
 echo '🏗️👷 Checking your project before committing'
 
+# Scan the staged changes for secrets. Needs gitleaks: brew install gitleaks
+gitleaks git --pre-commit --redact --staged --verbose ||
+(
+    echo '🔑 gitleaks found a secret in the staged changes, or is not installed (brew install gitleaks).';
+    false;
+)
+
 # Check Prettier
 npm run check-format ||
 (
