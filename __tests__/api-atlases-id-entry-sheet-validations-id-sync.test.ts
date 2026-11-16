@@ -22,6 +22,7 @@ import {
 } from "@/testing/db-utils";
 import { type TestUser } from "@/testing/entities";
 import {
+  expectDateToBeWithin,
   expectIsDefined,
   testApiRole,
   withConsoleErrorHiding,
@@ -221,6 +222,7 @@ async function doMainAtlasTest(): Promise<void> {
   );
 
   // Call API
+  const syncStart = new Date();
   expect(
     (
       await doSyncRequest(
@@ -233,6 +235,7 @@ async function doMainAtlasTest(): Promise<void> {
   ).toEqual(202);
 
   await resolveUpdate();
+  const syncEnd = new Date();
 
   // Get validation after API call
 
@@ -248,6 +251,11 @@ async function doMainAtlasTest(): Promise<void> {
         validationWithUpdateBefore.last_synced,
       );
     }
+    expectDateToBeWithin(
+      validationWithUpdateAfter.last_synced,
+      syncStart,
+      syncEnd,
+    );
     expect(validationWithUpdateAfter.validation_report).toEqual(
       ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.errors,
     );
