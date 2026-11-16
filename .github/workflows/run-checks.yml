@@ -28,6 +28,9 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: atlas-tracker-test
+          # Run Postgres and Node in different non-UTC time zones, so that tests catch code that depends on either
+          # being UTC or on the two agreeing (see #1464 and #1558). initdb sets the server's default time zone from TZ.
+          TZ: America/Los_Angeles
         ports:
           - 5432:5432
         options: >-
@@ -42,8 +45,13 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "npm"
       - run: npm ci
+      - name: Check Postgres time zone
+        run: test "$(psql -h localhost -d atlas-tracker-test -Atc 'SHOW timezone')" = "America/Los_Angeles"
+        env:
+          PGPASSWORD: postgres
+          PGUSER: postgres
       - run: npm test
         env:
           PGPASSWORD: postgres
           PGUSER: postgres
-          TZ: UTC
+          TZ: Australia/Sydney

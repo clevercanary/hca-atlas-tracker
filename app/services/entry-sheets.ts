@@ -269,7 +269,7 @@ async function createAndUpdateEntrySheetValidations(
         FROM jsonb_to_recordset($1) as u(
           entry_sheet_id text,
           entry_sheet_title text,
-          last_synced timestamp,
+          last_synced timestamptz,
           last_updated jsonb,
           source_study_id uuid,
           validation_report jsonb,
@@ -289,7 +289,7 @@ async function createAndUpdateEntrySheetValidations(
         SELECT * FROM jsonb_to_recordset($1) as u(
           entry_sheet_id text,
           entry_sheet_title text,
-          last_synced timestamp,
+          last_synced timestamptz,
           last_updated jsonb,
           source_study_id uuid,
           validation_report jsonb,

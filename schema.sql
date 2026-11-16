@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.14 (Homebrew)
--- Dumped by pg_dump version 14.14 (Homebrew)
+-- Dumped from database version 14.24 (Homebrew)
+-- Dumped by pg_dump version 14.24 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -46,18 +46,18 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE hat.atlases (
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     overview jsonb NOT NULL,
     source_studies jsonb NOT NULL,
     status character varying(50) NOT NULL,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    target_completion timestamp without time zone,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    target_completion timestamp with time zone,
     source_datasets uuid[] DEFAULT '{}'::uuid[] NOT NULL,
     component_atlases uuid[] DEFAULT '{}'::uuid[] NOT NULL,
     generation integer DEFAULT 1 NOT NULL,
     revision integer DEFAULT 0 NOT NULL,
-    published_at timestamp without time zone,
+    published_at timestamp with time zone,
     short_name_slug text NOT NULL
 );
 
@@ -67,12 +67,12 @@ CREATE TABLE hat.atlases (
 --
 
 CREATE TABLE hat.comments (
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by integer NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     text text NOT NULL,
     thread_id uuid DEFAULT gen_random_uuid() NOT NULL,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_by integer NOT NULL
 );
 
@@ -83,16 +83,16 @@ CREATE TABLE hat.comments (
 
 CREATE TABLE hat.component_atlases (
     component_info jsonb NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     version_id uuid DEFAULT gen_random_uuid() NOT NULL,
     source_datasets uuid[] DEFAULT '{}'::uuid[] NOT NULL,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     file_id uuid NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     is_latest boolean DEFAULT true NOT NULL,
     wip_number integer DEFAULT 1 NOT NULL,
     revision integer DEFAULT 1 NOT NULL,
-    published_at timestamp without time zone
+    published_at timestamp with time zone
 );
 
 
@@ -103,12 +103,12 @@ CREATE TABLE hat.component_atlases (
 CREATE TABLE hat.concepts (
     atlas_short_name text NOT NULL,
     base_filename text NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     file_type text NOT NULL,
     generation integer NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     network text NOT NULL,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -120,7 +120,7 @@ CREATE TABLE hat.entry_sheet_validations (
     entry_sheet_id text NOT NULL,
     entry_sheet_title text,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    last_synced timestamp without time zone NOT NULL,
+    last_synced timestamp with time zone NOT NULL,
     last_updated jsonb,
     source_study_id uuid NOT NULL,
     validation_report jsonb NOT NULL,
@@ -134,19 +134,19 @@ CREATE TABLE hat.entry_sheet_validations (
 
 CREATE TABLE hat.files (
     bucket character varying(255) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     etag character varying(255) NOT NULL,
     event_info jsonb NOT NULL,
     file_type character varying(50) NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    integrity_checked_at timestamp without time zone,
+    integrity_checked_at timestamp with time zone,
     integrity_status character varying(20) DEFAULT '''pending'''::character varying NOT NULL,
     key text NOT NULL,
     sha256_client character varying(64),
     sha256_server character varying(64),
     size_bytes bigint NOT NULL,
     validation_status character varying(50) DEFAULT '''pending'''::character varying NOT NULL,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     version_id character varying(255),
     sns_message_id character varying(255) NOT NULL,
     dataset_info jsonb,
@@ -261,18 +261,18 @@ ALTER SEQUENCE hat.pgmigrations_id_seq OWNED BY hat.pgmigrations.id;
 --
 
 CREATE TABLE hat.source_datasets (
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     version_id uuid DEFAULT gen_random_uuid() NOT NULL,
     sd_info jsonb NOT NULL,
     source_study_id uuid,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     reprocessed_status text DEFAULT 'Unspecified'::text NOT NULL,
     file_id uuid NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     is_latest boolean DEFAULT true NOT NULL,
     wip_number integer DEFAULT 1 NOT NULL,
     revision integer DEFAULT 1 NOT NULL,
-    published_at timestamp without time zone
+    published_at timestamp with time zone
 );
 
 
@@ -281,11 +281,11 @@ CREATE TABLE hat.source_datasets (
 --
 
 CREATE TABLE hat.source_studies (
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     doi text,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     study_info jsonb NOT NULL,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 
@@ -298,7 +298,7 @@ CREATE TABLE hat.users (
     email character varying(255) NOT NULL,
     full_name text NOT NULL,
     id integer NOT NULL,
-    last_login timestamp without time zone DEFAULT '1970-01-01 00:00:00'::timestamp without time zone NOT NULL,
+    last_login timestamp with time zone DEFAULT '1970-01-01 00:00:00+00'::timestamp with time zone NOT NULL,
     role character varying(50) NOT NULL,
     role_associated_resource_ids uuid[] DEFAULT '{}'::uuid[] NOT NULL,
     can_issue_api_tokens boolean DEFAULT false NOT NULL
@@ -331,12 +331,12 @@ ALTER SEQUENCE hat.users_id_seq OWNED BY hat.users.id;
 
 CREATE TABLE hat.validations (
     atlas_ids uuid[] DEFAULT '{}'::uuid[] NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     entity_id text NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    resolved_at timestamp without time zone,
-    target_completion timestamp without time zone,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    resolved_at timestamp with time zone,
+    target_completion timestamp with time zone,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     validation_id text NOT NULL,
     validation_info jsonb NOT NULL,
     comment_thread_id uuid

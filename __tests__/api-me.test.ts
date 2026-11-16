@@ -96,7 +96,7 @@ describe(TEST_ROUTE, () => {
     const userStakeholderFromDb = await getDbUserByEmail(
       USER_STAKEHOLDER.email,
     );
-    expect(userStakeholderFromDb?.last_login.getFullYear()).toEqual(1970);
+    expect(userStakeholderFromDb?.last_login.getTime()).toEqual(0);
   });
 
   it("returns API token permission for user who can issue API tokens", async () => {
