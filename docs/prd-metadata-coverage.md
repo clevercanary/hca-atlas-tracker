@@ -383,7 +383,7 @@ The same filter inputs need to behave as **row filters** when they match the req
 
 ### Schema-version reconciliation
 
-When aggregating, count files whose blob `schema_version` differs from the version of the tracker's installed `hca-metadata-schema` package. Surface as `schemaVersionWarnings` on the response so the frontend can render a small "N files were validated against an older schema" banner. Do not silently exclude.
+When aggregating, count files whose blob `schema_version` differs from the schema version of the tracker's data dictionary. The dictionary (`core_data_dictionary.json` in `hca-metadata-schema`) carries no schema version field yet, and the npm package version is a release number, not the schema version the validator reports, so this check needs a version source before it can be implemented. Surface as `schemaVersionWarnings` on the response so the frontend can render a small "N files were validated against an older schema" banner. Do not silently exclude.
 
 ### API endpoints
 
