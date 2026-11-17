@@ -1,5 +1,7 @@
+import { NETWORK_KEYS } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import { getAttributeBioNetworks } from "@/app/utils/data-dictionary";
 import { type Attribute } from "@databiosphere/findable-ui/lib/common/entities";
+import dataDictionary from "hca-metadata-schema/core_data_dictionary.json";
 
 const BASE_ATTRIBUTE: Attribute = {
   description: "Test attribute",
@@ -36,5 +38,14 @@ describe("getAttributeBioNetworks", () => {
         annotations: { bioNetworks: ["gut", "nervous_system"] },
       }),
     ).toThrow("nervous_system");
+  });
+
+  it("returns the bioNetworks of every attribute in the installed data dictionary, which together list exactly the tracker's network keys", () => {
+    const dictionaryNetworks = new Set(
+      dataDictionary.classes.flatMap((ddClass) =>
+        ddClass.attributes.flatMap(getAttributeBioNetworks),
+      ),
+    );
+    expect([...dictionaryNetworks].sort()).toEqual([...NETWORK_KEYS].sort());
   });
 });
