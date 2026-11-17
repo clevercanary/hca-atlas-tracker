@@ -52,9 +52,12 @@ npm run check-format         # Check Prettier formatting (does not modify files)
 ### Other Commands
 
 ```bash
-npm run download-data-dictionary  # Download data dictionary
 python3 catalog/build/get_cellxgene_files_info.py  # Update CELLxGENE metadata (requires venv)
 ```
+
+The data dictionary is `core_data_dictionary.json` from the `hca-metadata-schema`
+npm package. Update it by bumping that dependency; below 1.0, a minor version
+bump is a breaking change to the dictionary format.
 
 ## Architecture Documentation
 

@@ -182,7 +182,7 @@ Frontend Metadata Coverage tab renders pivots, filters, KPIs
 
 **Tracker owns the field catalog and presentation.**
 
-- Reads field name, title, description, required/recommended tier, entity class, AnnData location, and other per-slot metadata from `catalog/downloaded/data-dictionary.json` (generated from the LinkML schema in hca-validation-tools).
+- Reads field name, title, description, required/recommended tier, entity class, AnnData location, and other per-slot metadata from `core_data_dictionary.json` in the `hca-metadata-schema` npm package (generated from the LinkML schema in hca-validation-tools).
 - Aggregates `complete` and `record_count` across files, atlases, and networks.
 - Renders pivots, filters, and KPIs.
 
@@ -383,7 +383,7 @@ The same filter inputs need to behave as **row filters** when they match the req
 
 ### Schema-version reconciliation
 
-When aggregating, count files whose blob `schema_version` differs from the tracker's current `data-dictionary.json` version. Surface as `schemaVersionWarnings` on the response so the frontend can render a small "N files were validated against an older schema" banner. Do not silently exclude.
+When aggregating, count files whose blob `schema_version` differs from the version of the tracker's installed `hca-metadata-schema` package. The validator reports the LinkML schema's `version` (`core.yaml`), which release-please keeps equal to the package version. Surface as `schemaVersionWarnings` on the response so the frontend can render a small "N files were validated against an older schema" banner. Do not silently exclude.
 
 ### API endpoints
 
@@ -427,7 +427,7 @@ When Integrated Object is selected and the corpus is mostly empty (which it will
 
 Resolved: **tracker owns the catalog, validator owns counts.**
 
-The tracker's `data-dictionary.json` is generated from the LinkML schema in hca-validation-tools (`shared/src/hca_validation/schema/`) and already carries every per-slot attribute the UI needs (title, description, required flag, entity class, AnnData location). The validator does not echo any of this — it just emits `record_count` and `field_coverage` counts. Schema drift is visible by design.
+The tracker's data dictionary is generated from the LinkML schema in hca-validation-tools (`shared/src/hca_validation/schema/`) and already carries every per-slot attribute the UI needs (title, description, required flag, entity class, AnnData location). The validator does not echo any of this — it just emits `record_count` and `field_coverage` counts. Schema drift is visible by design.
 
 ### 6. Bucketing in the wire format
 
