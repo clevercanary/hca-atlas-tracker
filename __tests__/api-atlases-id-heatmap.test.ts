@@ -5,7 +5,6 @@ import {
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
 import { endPgPool } from "@/app/services/database";
-import dataDictionary from "@/catalog/downloaded/data-dictionary.json";
 import heatmapHandler from "@/pages/api/atlases/[atlasId]/heatmap";
 import {
   ATLAS_HEATMAP_TEST,
@@ -26,6 +25,7 @@ import {
   testApiRole,
   withConsoleErrorHiding,
 } from "@/testing/utils";
+import dataDictionary from "hca-metadata-schema/core_data_dictionary.json";
 import { type NextApiRequest, type NextApiResponse } from "next";
 import httpMocks from "node-mocks-http";
 
