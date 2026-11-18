@@ -1,8 +1,15 @@
-import { FILE_TYPE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
+import {
+  FILE_TYPE,
+  ROLE,
+} from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { METHOD } from "@/app/common/entities";
-import { endPgPool } from "@/app/services/database";
+import { endPgPool, query } from "@/app/services/database";
 import { validateAllFiles } from "@/app/services/files";
 import validateFilesHandler from "@/pages/api/validate-files";
+import {
+  getTestApiTokenSubject,
+  issueTestApiToken,
+} from "@/testing/api-tokens";
 import {
   FILE_A_SOURCE_DATASET_WITH_MULTIPLE_FILES,
   FILE_B_COMPONENT_ATLAS_WITH_ARCHIVED_LATEST,
@@ -146,21 +153,46 @@ describe(TEST_ROUTE, () => {
       await resolveValidate();
     }, true);
 
-    expect(mockSubmitJob).toHaveBeenCalledTimes(
-      expectedValidatedTestFiles.length,
-    );
+    expectAllFilesValidated();
+  });
 
-    for (const testFile of expectedValidatedTestFiles) {
-      expect(mockSubmitJob).toHaveBeenCalledWith(
-        expect.objectContaining({ fileId: testFile.id }),
-      );
-    }
+  it("starts validation for all latest-version source dataset and integrated object files when requested with a content admin's API token", async () => {
+    mockSubmitJob.mockClear();
 
-    for (const testFile of expectedUnvalidatedTestFiles) {
-      expect(mockSubmitJob).not.toHaveBeenCalledWith(
-        expect.objectContaining({ fileId: testFile.id }),
-      );
+    await withConsoleMessageHiding(async () => {
+      expect(
+        (
+          await doValidateFilesRequestWithToken(
+            await issueTestApiToken(USER_CONTENT_ADMIN),
+          )
+        )._getStatusCode(),
+      ).toEqual(202);
+
+      await resolveValidate();
+    }, true);
+
+    expectAllFilesValidated();
+  });
+
+  it("returns error 403 when POST requested with the API token of a user who is no longer a content admin", async () => {
+    const token = await issueTestApiToken(USER_CONTENT_ADMIN);
+    const { userId } = await getTestApiTokenSubject(USER_CONTENT_ADMIN);
+    validateMock.mockClear();
+    await query("UPDATE hat.users SET role=$1 WHERE id=$2", [
+      ROLE.STAKEHOLDER,
+      userId,
+    ]);
+    try {
+      expect(
+        (await doValidateFilesRequestWithToken(token, true))._getStatusCode(),
+      ).toEqual(403);
+    } finally {
+      await query("UPDATE hat.users SET role=$1 WHERE id=$2", [
+        ROLE.CONTENT_ADMIN,
+        userId,
+      ]);
     }
+    expect(validateMock).not.toHaveBeenCalled();
   });
 
   it("continues processing files when an error occurs while starting a batch job", async () => {
@@ -200,6 +232,42 @@ async function doValidateFilesRequest(
     hideConsoleError,
   );
   return res;
+}
+
+async function doValidateFilesRequestWithToken(
+  token: string,
+  hideConsoleError = false,
+): Promise<httpMocks.MockResponse<NextApiResponse>> {
+  const { req, res } = httpMocks.createMocks<NextApiRequest, NextApiResponse>({
+    headers: { authorization: `Bearer ${token}` },
+    method: METHOD.POST,
+  });
+  await withConsoleErrorHiding(
+    () => validateFilesHandler(req, res),
+    hideConsoleError,
+  );
+  return res;
+}
+
+/**
+ * Expects validation jobs to have been submitted for exactly the expected files.
+ */
+function expectAllFilesValidated(): void {
+  expect(mockSubmitJob).toHaveBeenCalledTimes(
+    expectedValidatedTestFiles.length,
+  );
+
+  for (const testFile of expectedValidatedTestFiles) {
+    expect(mockSubmitJob).toHaveBeenCalledWith(
+      expect.objectContaining({ fileId: testFile.id }),
+    );
+  }
+
+  for (const testFile of expectedUnvalidatedTestFiles) {
+    expect(mockSubmitJob).not.toHaveBeenCalledWith(
+      expect.objectContaining({ fileId: testFile.id }),
+    );
+  }
 }
 
 async function resolveValidate(): Promise<void> {
