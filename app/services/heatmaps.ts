@@ -1,11 +1,13 @@
 import { NETWORK_KEYS } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
+  type DataDictionaryAttribute,
   type HCAAtlasTrackerDBEntrySheetValidation,
   type Heatmap,
   type NetworkKey,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import {
   getAttributeBioNetworks,
+  getAttributeEntrySheetRequired,
   getDataDictionaryClass,
 } from "@/app/utils/data-dictionary";
 import { type EntrySheetValidationErrorInfo } from "@/app/utils/hca-validation-tools/hca-validation-tools";
@@ -41,7 +43,10 @@ export async function getAtlasHeatmap(atlasId: string): Promise<Heatmap> {
  * @param network - Bionetwork of the atlas.
  * @returns class with attributes outside the network removed.
  */
-function getNetworkClass(ddClass: Class, network: NetworkKey): Class {
+function getNetworkClass(
+  ddClass: Class<DataDictionaryAttribute>,
+  network: NetworkKey,
+): Class<DataDictionaryAttribute> {
   return {
     ...ddClass,
     attributes: ddClass.attributes.filter((attribute) =>
@@ -52,7 +57,7 @@ function getNetworkClass(ddClass: Class, network: NetworkKey): Class {
 
 function getClassHeatmap(
   entityType: EntityType,
-  ddClass: Class,
+  ddClass: Class<DataDictionaryAttribute>,
   entrySheetValidations: HCAAtlasTrackerDBEntrySheetValidation[],
 ): Heatmap["classes"][number] {
   const sheetsInfo: Heatmap["classes"][number]["sheets"] = [];
@@ -86,7 +91,7 @@ function getClassHeatmap(
         organSpecific: !NETWORK_KEYS.every((network) =>
           bioNetworks.includes(network),
         ),
-        required: Boolean(ddAttribute.required),
+        required: getAttributeEntrySheetRequired(ddAttribute),
         title: ddAttribute.title,
       };
     }),
@@ -97,7 +102,7 @@ function getClassHeatmap(
 
 function getSheetHeatmap(
   entityType: EntityType,
-  ddClass: Class,
+  ddClass: Class<DataDictionaryAttribute>,
   sheetTitle: string,
   rowCount: number,
   errors: EntrySheetValidationErrorInfo[],

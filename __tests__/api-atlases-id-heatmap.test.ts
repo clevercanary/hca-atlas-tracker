@@ -293,6 +293,36 @@ describe(TEST_ROUTE, () => {
     expectHeatmapToMatch(heatmap, getExpectedHeatmapClasses("gut"));
     expectOrganSpecificFields(heatmap, GUT_SPECIFIC_FIELDS);
   });
+
+  it("shows dataset title as not required, and keeps the dictionary's required level for other fields", async () => {
+    const datasetTitleAttribute = getDataDictionaryClass(
+      "dataset",
+    ).attributes.find((a) => a.name === "title");
+    if (!expectIsDefined(datasetTitleAttribute)) return;
+    expect(datasetTitleAttribute.required).toEqual(true);
+    const res = await doHeatmapRequest(
+      ATLAS_HEATMAP_TEST.id,
+      USER_CONTENT_ADMIN,
+      METHOD.GET,
+    );
+    expect(res._getStatusCode()).toEqual(200);
+    const heatmap = res._getJSONData() as Heatmap;
+    expect(
+      getHeatmapClass(heatmap, "Dataset").fields.find((f) => f.name === "title")
+        ?.required,
+    ).toEqual(false);
+    for (const title of HEATMAP_CLASS_TITLES) {
+      const ddClass = getDataDictionaryClass(title.toLowerCase());
+      for (const field of getHeatmapClass(heatmap, title).fields) {
+        if (title === "Dataset" && field.name === "title") continue;
+        const ddAttribute = ddClass.attributes.find(
+          (a) => a.name === field.name,
+        );
+        if (!expectIsDefined(ddAttribute)) continue;
+        expect(field.required).toEqual(Boolean(ddAttribute.required));
+      }
+    }
+  });
 });
 
 function getHeatmapClass(

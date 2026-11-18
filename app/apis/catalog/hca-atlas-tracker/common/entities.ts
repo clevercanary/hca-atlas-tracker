@@ -3,6 +3,7 @@ import {
   type EntrySheetValidationSummary,
   type GoogleLastUpdateInfo,
 } from "@/app/utils/hca-validation-tools/hca-validation-tools";
+import { type Attribute } from "@databiosphere/findable-ui/lib/common/entities";
 import { type API } from "./api";
 import {
   type FILE_METADATA_COVERAGE_ENTITY_TYPES,
@@ -811,6 +812,13 @@ export interface DBLinkedComponentAtlasSummary {
   baseFilename: string;
   id: string;
 }
+
+/**
+ * Attribute of the `hca-metadata-schema` core data dictionary, whose annotations can also be booleans (e.g. `entrySheetRequired`).
+ */
+export type DataDictionaryAttribute = Omit<Attribute, "annotations"> & {
+  annotations?: Record<string, boolean | string | string[] | undefined>;
+};
 
 export interface Heatmap {
   classes: HeatmapClass[];
