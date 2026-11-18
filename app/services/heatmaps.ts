@@ -1,24 +1,52 @@
+import { NETWORK_KEYS } from "@/app/apis/catalog/hca-atlas-tracker/common/constants";
 import {
   type HCAAtlasTrackerDBEntrySheetValidation,
   type Heatmap,
+  type NetworkKey,
 } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getDataDictionaryClass } from "@/app/utils/data-dictionary";
+import {
+  getAttributeBioNetworks,
+  getDataDictionaryClass,
+} from "@/app/utils/data-dictionary";
 import { type EntrySheetValidationErrorInfo } from "@/app/utils/hca-validation-tools/hca-validation-tools";
 import { type Class } from "@databiosphere/findable-ui/lib/common/entities";
-import { getBaseModelAtlasEntrySheetValidations } from "./entry-sheets";
+import { getBaseModelAtlas } from "./atlases";
+import { getSourceStudiesEntrySheetValidations } from "./entry-sheets";
 
 const ENTITY_TYPES = ["dataset", "donor", "sample"] as const;
 
 type EntityType = (typeof ENTITY_TYPES)[number];
 
 export async function getAtlasHeatmap(atlasId: string): Promise<Heatmap> {
+  const {
+    overview: { network },
+    source_studies: sourceStudyIds,
+  } = await getBaseModelAtlas(atlasId);
   const entrySheetValidations =
-    await getBaseModelAtlasEntrySheetValidations(atlasId);
+    await getSourceStudiesEntrySheetValidations(sourceStudyIds);
   return {
     classes: ENTITY_TYPES.map((entityType) => {
-      const ddClass = getDataDictionaryClass(entityType);
+      const ddClass = getNetworkClass(
+        getDataDictionaryClass(entityType),
+        network,
+      );
       return getClassHeatmap(entityType, ddClass, entrySheetValidations);
     }),
+  };
+}
+
+/**
+ * Get a data dictionary class with only the attributes that apply to the given bionetwork.
+ * @param ddClass - Data dictionary class.
+ * @param network - Bionetwork of the atlas.
+ * @returns class with attributes outside the network removed.
+ */
+function getNetworkClass(ddClass: Class, network: NetworkKey): Class {
+  return {
+    ...ddClass,
+    attributes: ddClass.attributes.filter((attribute) =>
+      getAttributeBioNetworks(attribute).includes(network),
+    ),
   };
 }
 
@@ -52,9 +80,12 @@ function getClassHeatmap(
   }
   return {
     fields: ddClass.attributes.map((ddAttribute) => {
+      const bioNetworks = getAttributeBioNetworks(ddAttribute);
       return {
         name: ddAttribute.name,
-        organSpecific: false,
+        organSpecific: !NETWORK_KEYS.every((network) =>
+          bioNetworks.includes(network),
+        ),
         required: Boolean(ddAttribute.required),
         title: ddAttribute.title,
       };
