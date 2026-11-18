@@ -4683,6 +4683,27 @@ export const ATLAS_HEATMAP_TEST: TestAtlas = {
   wave: "1",
 };
 
+export const ATLAS_HEATMAP_GUT_TEST: TestAtlas = {
+  cellxgeneAtlasCollection: null,
+  codeLinks: [],
+  componentAtlases: [],
+  description: "Test atlas for heatmap testing of gut-specific fields",
+  generation: 1,
+  highlights: "",
+  id: "875bc7b4-e52d-4fdc-9b5e-cccdbc3a7c2d",
+  integrationLead: [],
+  network: "gut",
+  publications: [],
+  revision: 0,
+  shortName: "Heatmap Gut Test Atlas",
+  sourceStudies: [
+    SOURCE_STUDY_HEATMAP_TEST_FOO.id,
+    SOURCE_STUDY_HEATMAP_TEST_BAR.id,
+  ],
+  status: ATLAS_STATUS.IN_PROGRESS,
+  wave: "1",
+};
+
 export const ATLAS_WITH_NON_LATEST_METADATA_ENTITIES: TestAtlas = {
   cellxgeneAtlasCollection: null,
   codeLinks: [],
@@ -4838,6 +4859,7 @@ export const INITIAL_TEST_ATLASES = [
   ATLAS_WITH_ENTRY_SHEET_VALIDATIONS_B,
   ATLAS_WITH_NON_SHARED_ENTRY_SHEET_VALIDATIONS,
   ATLAS_HEATMAP_TEST,
+  ATLAS_HEATMAP_GUT_TEST,
   ATLAS_WITH_NON_LATEST_METADATA_ENTITIES,
   ATLAS_PUBLISHED_R6,
   ATLAS_PUBLISHED,
