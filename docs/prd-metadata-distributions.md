@@ -132,7 +132,7 @@ Validator owns counts. For each emitted field, the validator:
 - Emits `{value → count}` maps.
 - Reports the schema name and version, same as `metadata_coverage`.
 
-Tracker owns field metadata and presentation. The tracker's `data-dictionary.json` carries the title, description, and ontology hint for each field. The wire format does not echo any of this — values are raw ontology term IDs or enum members; the tracker resolves them to human labels at render time using `cellxgene-ontology-guide` or the dictionary.
+Tracker owns field metadata and presentation. The tracker's data dictionary carries the title, description, and ontology hint for each field. The wire format does not echo any of this — values are raw ontology term IDs or enum members; the tracker resolves them to human labels at render time using `cellxgene-ontology-guide` or the dictionary.
 
 ---
 

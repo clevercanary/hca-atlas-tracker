@@ -21,7 +21,7 @@ import { isFileMetadataCoverageEntityType } from "@/app/apis/catalog/hca-atlas-t
 import { addValidationResultsToFile } from "@/app/data/files";
 import { doTransaction, endPgPool } from "@/app/services/database";
 import { toolReportsToValidationReportsAndSummary } from "@/app/services/validation-results-notification";
-import dataDictionary from "@/catalog/downloaded/data-dictionary.json";
+import dataDictionary from "hca-metadata-schema/core_data_dictionary.json";
 import type pg from "pg";
 import { randomTestProbabilityPasses, randomTestValueInRange } from "./utils";
 

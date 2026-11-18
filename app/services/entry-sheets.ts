@@ -88,10 +88,10 @@ export async function getAtlasEntrySheetValidations(
   return validationsResult.rows;
 }
 
-export async function getBaseModelAtlasEntrySheetValidations(
-  atlasId: string,
+export async function getSourceStudiesEntrySheetValidations(
+  sourceStudyIds: string[],
 ): Promise<HCAAtlasTrackerDBEntrySheetValidation[]> {
-  const sourceStudies = await getBaseModelAtlasSourceStudies(atlasId);
+  const sourceStudies = await getBaseModelSourceStudies(sourceStudyIds);
   const validationsResult = await query<HCAAtlasTrackerDBEntrySheetValidation>(
     "SELECT * FROM hat.entry_sheet_validations WHERE source_study_id=ANY($1)",
     [sourceStudies.map((study) => study.id)],
