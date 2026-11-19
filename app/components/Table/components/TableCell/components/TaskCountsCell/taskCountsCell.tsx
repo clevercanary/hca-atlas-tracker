@@ -6,8 +6,13 @@ import {
   Link,
   type LinkProps,
 } from "@databiosphere/findable-ui/lib/components/Links/components/Link/link";
-import { type JSX } from "react";
+import { type JSX, type ReactNode } from "react";
 import { Cell } from "./taskCountsCell.styles";
+
+export interface ProgressLabelProps {
+  children: ReactNode;
+  value: CircularProgressProps["value"];
+}
 
 export interface TaskCountsCellProps {
   label: LinkProps["label"];
@@ -15,11 +20,17 @@ export interface TaskCountsCellProps {
   value: CircularProgressProps["value"];
 }
 
-export const TaskCountsCell = ({
-  label,
-  url,
+/**
+ * Renders a progress ring followed by its label.
+ * @param props - Component props.
+ * @param props.children - Label.
+ * @param props.value - Circular progress value.
+ * @returns The ring and label.
+ */
+export const ProgressLabel = ({
+  children,
   value,
-}: TaskCountsCellProps): JSX.Element => {
+}: ProgressLabelProps): JSX.Element => {
   return (
     <Cell>
       <CircularProgress
@@ -29,8 +40,20 @@ export const TaskCountsCell = ({
         value={value}
         variant="determinate"
       />
-      <Link {...{ label, url }} />
+      {children}
     </Cell>
+  );
+};
+
+export const TaskCountsCell = ({
+  label,
+  url,
+  value,
+}: TaskCountsCellProps): JSX.Element => {
+  return (
+    <ProgressLabel value={value}>
+      <Link {...{ label, url }} />
+    </ProgressLabel>
   );
 };
 
