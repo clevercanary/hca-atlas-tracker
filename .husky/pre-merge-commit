@@ -1,0 +1,5 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Scan the staged changes for secrets. Needs gitleaks: brew install gitleaks
+./scripts/do-gitleaks-checks.sh
