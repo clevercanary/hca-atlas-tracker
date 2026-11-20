@@ -141,12 +141,27 @@ export function makeConfig(
                   url: `${gitHubUrl}/issues/new?template=feedback.md`,
                 },
                 {
+                  divider: true,
                   icon: C.GitHubIcon({
                     fontSize: SVG_ICON_PROPS.FONT_SIZE.SMALL,
                   }),
                   label: "GitHub",
                   target: ANCHOR_TARGET.BLANK,
                   url: gitHubUrl,
+                },
+                {
+                  label: C.LabelIconMenuItem({
+                    label: "HCA Schema Validator (PyPI)",
+                  }),
+                  target: ANCHOR_TARGET.BLANK,
+                  url: "https://pypi.org/project/hca-schema-validator/",
+                },
+                {
+                  label: C.LabelIconMenuItem({
+                    label: "HCA Schema Validator Checks (GitHub)",
+                  }),
+                  target: ANCHOR_TARGET.BLANK,
+                  url: "https://github.com/clevercanary/hca-validation-tools/blob/main/packages/hca-schema-validator/CHECKS.md",
                 },
               ],
               url: "",
