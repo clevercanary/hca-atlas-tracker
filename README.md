@@ -6,7 +6,7 @@
 
 Use Node.js version `22.12.0`.
 
-Install gitleaks 8.19.0 or newer, which the pre-commit hook requires: `brew install gitleaks` (other platforms: see the [gitleaks install instructions](https://github.com/gitleaks/gitleaks#installing)).
+Install gitleaks 8.20.0 or newer, which the pre-commit hook requires: `brew install gitleaks` (other platforms: see the [gitleaks install instructions](https://github.com/gitleaks/gitleaks#installing)).
 
 Run `npm install`.
 
