@@ -23,16 +23,7 @@ const TIMESTAMP_COLUMNS: [string, string[]][] = [
 ];
 
 /**
- * Columns whose naive values hold UTC wall-clock time, rather than wall-clock time in the database session's or Node
- * process's time zone, and so are converted explicitly from UTC.
- *
- * `entry_sheet_validations.last_synced` is written via `jsonb_to_recordset` from a `JSON.stringify`-ed `Date`, and so
- * has received an ISO string whose `Z` offset was discarded by the cast to `timestamp`.
- */
-const UTC_COLUMNS = new Set(["last_synced"]);
-
-/**
- * Builds one ALTER TABLE statement per table, so that each table is rewritten only once.
+ * Builds one ALTER TABLE statement per table, covering all of the table's timestamp columns.
  * @param type - Type to convert the columns to.
  * @param lastLoginDefault - New default for `users.last_login`.
  * @returns SQL statements.
@@ -40,9 +31,7 @@ const UTC_COLUMNS = new Set(["last_synced"]);
 function buildStatements(type: string, lastLoginDefault: string): string[] {
   return TIMESTAMP_COLUMNS.map(([table, columns]) => {
     const clauses = columns.map(
-      (column) =>
-        `ALTER COLUMN ${column} TYPE ${type}` +
-        (UTC_COLUMNS.has(column) ? ` USING ${column} AT TIME ZONE 'UTC'` : ""),
+      (column) => `ALTER COLUMN ${column} TYPE ${type}`,
     );
     if (table === "users") {
       clauses.push(`ALTER COLUMN last_login SET DEFAULT ${lastLoginDefault}`);
@@ -51,11 +40,24 @@ function buildStatements(type: string, lastLoginDefault: string): string[] {
   });
 }
 
-// Except for `UTC_COLUMNS`, existing values are interpreted using the migrating session's time zone (no explicit
-// `USING ... AT TIME ZONE`). This matches how the values were written, provided the migration runs with the same time
-// zone as the app's database sessions and Node process -- see https://github.com/clevercanary/hca-atlas-tracker/issues/1558.
+// Existing naive values are interpreted as UTC, in both directions, by pinning the session time zone for the
+// migration's transaction (node-pg-migrate runs each migration in its own transaction, so `SET LOCAL` doesn't outlast
+// it). UTC is the zone the deployed databases and Node processes run in, so it's the zone the values were written in --
+// see https://github.com/clevercanary/hca-atlas-tracker/issues/1558. With the session in UTC, Postgres converts between
+// `timestamp` and `timestamptz` without rewriting the tables.
+//
+// `entry_sheet_validations.last_synced` is always UTC, regardless of the database or Node time zone: it's written via
+// `jsonb_to_recordset` from a `JSON.stringify`-ed `Date`, and the cast to `timestamp` discarded the ISO string's `Z`
+// offset. The other columns were written in the database session's time zone (`CURRENT_TIMESTAMP` defaults) or the
+// Node process's time zone (`Date` parameters). To migrate a database where those zones aren't UTC (e.g. a local
+// development database), pin that zone instead, and convert `last_synced` explicitly from UTC with
+// `ALTER COLUMN last_synced TYPE timestamptz USING last_synced AT TIME ZONE 'UTC'` (and the same `USING` clause with
+// `TYPE timestamp` in `down`).
+
+const PIN_UTC = "SET LOCAL TimeZone = 'UTC'";
 
 export function up(pgm: MigrationBuilder): void {
+  pgm.sql(PIN_UTC);
   for (const statement of buildStatements(
     "timestamptz",
     "'1970-01-01 00:00:00+00'::timestamptz",
@@ -65,6 +67,7 @@ export function up(pgm: MigrationBuilder): void {
 }
 
 export function down(pgm: MigrationBuilder): void {
+  pgm.sql(PIN_UTC);
   for (const statement of buildStatements(
     "timestamp",
     "'1970-01-01 00:00:00'::timestamp",
