@@ -1,6 +1,9 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+# Scan staged changes for secrets
+gitleaks git --pre-commit --redact --staged --verbose
+
 echo '🏗️👷 Checking your project before committing'
 
 # Check Prettier
