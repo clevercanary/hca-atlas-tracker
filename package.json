@@ -13,6 +13,8 @@
     "check-format": "prettier --check .",
     "prepare": "husky install .husky",
     "test": "jest --runInBand",
+    "test:coverage": "./scripts/test-coverage.sh",
+    "test:diff-coverage": "./scripts/diff-coverage.sh",
     "migrate": "ts-node -r tsconfig-paths/register -O '{\"module\": \"commonjs\"}' ./scripts/migration-runner.ts -j ts",
     "migrate:down": "ts-node -r tsconfig-paths/register -O '{\"module\": \"commonjs\"}' ./scripts/migration-down.ts -j ts",
     "dump-schema": "pg_dump --schema-only --schema=hat --no-owner --no-privileges atlas-tracker > schema.sql"

@@ -38,9 +38,18 @@ npm run dump-schema          # Export schema to schema.sql
 ```bash
 createdb atlas-tracker-test  # Create test database (one-time setup)
 npm run test                 # Run all Jest tests (requires test database)
+npm run test:coverage        # Run all tests with coverage; fails below the floors
+npm run test:diff-coverage   # After test:coverage: fails below 80% on changed lines (requires uv)
 ```
 
 The test suite uses `--runInBand` to run tests sequentially, which is necessary for database state management.
+
+CI's `test` job runs the same two coverage scripts. The floors are
+`coverageThreshold.global` in `jest.config.js`, each set to the measured
+coverage rounded down, minus 1; to raise them, re-measure and apply the same
+rule. diff-cover compares against
+`origin/$BASE` (`main` when `BASE` is unset), and its version is the
+`DIFF_COVER_VERSION` pin in `.github/workflows/run-checks.yml`.
 
 ### Linting and Formatting
 
