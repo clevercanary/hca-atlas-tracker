@@ -57,6 +57,7 @@ _templates
 
 #python
 venv/
+.venv/
 __pycache__
 
 # claude

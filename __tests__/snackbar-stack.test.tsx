@@ -174,8 +174,8 @@ function closeButton(message: string): HTMLElement {
  *
  * The timeout is explicit and generous rather than `waitFor`'s 1s default:
  * removal is queued behind a ~195ms real timer, and running this suite
- * alongside the others under `--runInBand` starves that timer often enough
- * (about one run in eight, measured) to fail on a default deadline while the
+ * alongside the others starves that timer often enough (about one run in
+ * eight, measured under `--runInBand`) to fail on a default deadline while the
  * transition is still pending.
  * @param messages - Expected messages once the removals have run.
  * @returns promise resolving once the stack matches.

@@ -57,6 +57,15 @@ In order to run tests, a test database must be created:
 
 Once this has been done, tests may be run with `npm run test`.
 
+To check coverage the way CI does:
+
+- `npm run test:coverage` runs all tests with coverage and fails below the floors in `jest.config.js` (`coverageThreshold.global`).
+- `npm run test:diff-coverage`, run after it, fails when the lines changed against `origin/main` are less than 80% covered. It needs [uv](https://docs.astral.sh/uv/), and runs diff-cover as pinned in `pyproject.toml` and `uv.lock`. Set `BASE` to compare against another branch, e.g. `BASE=my-branch npm run test:diff-coverage`. Run `git fetch origin main` first so the comparison is current.
+
+Coverage measures the production TypeScript named by `COVERAGE_DIRS` and `COVERAGE_FILES` in `jest.config.js`. It leaves out Jest manual mocks (`__mocks__/`) and types-only files (files that compile to no JavaScript), which `jest.config.js` finds itself on each run. Test code, `db_scripts/`, the `.d.ts` folders and tool config files are not measured.
+
+Each floor is the measured coverage, rounded down, minus 1. To raise the floors, run `npm run test:coverage` and apply the same rule to its "All files" lines and branches.
+
 ### Updating saved CELLxGENE file info
 
 To get Tier 1 metadata status, dataset files from CELLxGENE must be downloaded and read. This is done using a Python script, which exports a JSON file that's saved in the repository. To run the script:

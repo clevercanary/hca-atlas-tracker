@@ -38,9 +38,26 @@ npm run dump-schema          # Export schema to schema.sql
 ```bash
 createdb atlas-tracker-test  # Create test database (one-time setup)
 npm run test                 # Run all Jest tests (requires test database)
+npm run test:coverage        # Run all tests with coverage; fails below the floors
+npm run test:diff-coverage   # After test:coverage: fails below 80% on changed lines (requires uv)
 ```
 
-The test suite uses `--runInBand` to run tests sequentially, which is necessary for database state management.
+The test suite uses `--maxWorkers=1` to run test files one at a time, which is necessary for database state management. `--runInBand` would disable `workerIdleMemoryLimit` in `jest.config.js`, which keeps coverage runs fast.
+
+CI's `test` job runs the same two coverage scripts.
+
+- Coverage measures the production TypeScript named by `COVERAGE_DIRS` and
+  `COVERAGE_FILES` in `jest.config.js`. Test code (`__tests__/`, `testing/`,
+  `e2e/`), `db_scripts/`, the `.d.ts` folders (`@types/`, `types/`) and tool
+  config files are not measured.
+- Within those, it leaves out Jest manual mocks (`__mocks__/`) and types-only
+  files (files that compile to no JavaScript); `jest.config.js` finds the
+  types-only files itself on each run.
+- The floors are `coverageThreshold.global` in `jest.config.js`, each set to the
+  measured coverage rounded down, minus 1. To raise them, run
+  `npm run test:coverage` and apply the same rule.
+- diff-cover compares against `origin/$BASE` (`main` when `BASE` is unset). It
+  is pinned, with its dependencies, in `pyproject.toml` and `uv.lock`.
 
 ### Linting and Formatting
 
@@ -293,7 +310,7 @@ The database uses schema `hat` (Human Atlas Tracker). See `docs/entity-relations
 
 - Test environment: `jsdom` (for React component testing)
 - Setup file: `testing/setup.ts`
-- Tests run sequentially (`--runInBand`) for database consistency
+- Test files run one at a time (`--maxWorkers=1`) for database consistency
 - Test database: `atlas-tracker-test`
 
 **Test Structure:**

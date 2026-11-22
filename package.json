@@ -12,7 +12,9 @@
     "typecheck": "next typegen && tsc --noEmit",
     "check-format": "prettier --check .",
     "prepare": "husky install .husky",
-    "test": "jest --runInBand",
+    "test": "jest --maxWorkers=1",
+    "test:coverage": "npm test -- --coverage",
+    "test:diff-coverage": "uv run --locked --isolated diff-cover coverage/cobertura-coverage.xml --compare-branch origin/${BASE:-main} --fail-under 80",
     "migrate": "ts-node -r tsconfig-paths/register -O '{\"module\": \"commonjs\"}' ./scripts/migration-runner.ts -j ts",
     "migrate:down": "ts-node -r tsconfig-paths/register -O '{\"module\": \"commonjs\"}' ./scripts/migration-down.ts -j ts",
     "dump-schema": "pg_dump --schema-only --schema=hat --no-owner --no-privileges atlas-tracker > schema.sql"
