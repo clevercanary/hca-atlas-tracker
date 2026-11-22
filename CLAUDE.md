@@ -50,9 +50,11 @@ CI's `test` job runs the same two coverage scripts.
   `COVERAGE_FILES` in `jest.config.js`. Test code (`__tests__/`, `testing/`,
   `e2e/`), `db_scripts/`, the `.d.ts` folders (`@types/`, `types/`) and tool
   config files are not measured.
-- Within those, it leaves out Jest manual mocks (`__mocks__/`) and types-only
-  files (files that compile to no JavaScript); `jest.config.js` finds the
-  types-only files itself on each run.
+- Within those, it leaves out Jest manual mocks (`__mocks__/`), styles files
+  (`*.styles.ts`), `constants.ts` files and types-only files (files that
+  compile to no JavaScript); `jest.config.js` finds the types-only files itself
+  on each run. Because `constants.ts` and `*.styles.ts` files are left out of
+  coverage, logic does not belong in them.
 - The floors are `coverageThreshold.global` in `jest.config.js`, each set to the
   measured coverage rounded down, minus 1. To raise them, run
   `npm run test:coverage` and apply the same rule.

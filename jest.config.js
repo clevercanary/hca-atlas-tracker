@@ -75,6 +75,10 @@ const customJestConfig = {
   coveragePathIgnorePatterns: [
     "/node_modules/",
     "/__mocks__/",
+    // Style declarations only, no logic to test.
+    "\\.styles\\.ts$",
+    // Settings only, no logic to test.
+    "/constants\\.ts$",
     ...typesOnlyFilePatterns(),
   ],
   coverageProvider: "v8",
@@ -88,8 +92,8 @@ const customJestConfig = {
   // Each floor is the measured coverage, rounded down, minus 1.
   coverageThreshold: {
     global: {
-      branches: 78,
-      lines: 59,
+      branches: 81,
+      lines: 60,
     },
   },
   // Add more setup options before each test is run
