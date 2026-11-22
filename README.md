@@ -60,7 +60,10 @@ Once this has been done, tests may be run with `npm run test`.
 To check coverage the way CI does:
 
 - `npm run test:coverage` runs all tests with coverage and fails below the floors in `jest.config.js` (`coverageThreshold.global`).
-- `npm run test:diff-coverage`, run after it, fails when lines changed against `origin/main` are less than 80% covered. It needs [uv](https://docs.astral.sh/uv/), and it runs the diff-cover version pinned in `.github/workflows/run-checks.yml`. Set `BASE` to compare against another branch.
+  - Coverage leaves out Jest manual mocks (`__mocks__/`) and files that compile to no JavaScript, such as files of only types. `jest.config.js` finds those files itself on each run.
+- `npm run test:diff-coverage`, run after it, fails when lines changed against `origin/main` are less than 80% covered. It needs [uv](https://docs.astral.sh/uv/), and it runs diff-cover as pinned in `pyproject.toml` and `uv.lock`. Set `BASE` to compare against another branch.
+  - It reads whatever the last `test:coverage` run wrote, so after a run of only some tests (`npm run test:coverage -- <file>`) its data is partial.
+  - Locally it counts staged, unstaged and untracked changes as well as commits.
 
 ### Updating saved CELLxGENE file info
 

@@ -42,14 +42,16 @@ npm run test:coverage        # Run all tests with coverage; fails below the floo
 npm run test:diff-coverage   # After test:coverage: fails below 80% on changed lines (requires uv)
 ```
 
-The test suite uses `--runInBand` to run tests sequentially, which is necessary for database state management.
+The test suite uses `--maxWorkers=1` to run test files one at a time, which is necessary for database state management. `workerIdleMemoryLimit` in `jest.config.js` restarts that worker once it passes 256 MB, which keeps coverage runs from slowing down as modules pile up in one process.
 
 CI's `test` job runs the same two coverage scripts. The floors are
 `coverageThreshold.global` in `jest.config.js`, each set to the measured
 coverage rounded down, minus 1; to raise them, re-measure and apply the same
-rule. diff-cover compares against
-`origin/$BASE` (`main` when `BASE` is unset), and its version is the
-`DIFF_COVER_VERSION` pin in `.github/workflows/run-checks.yml`.
+rule. Coverage leaves out Jest manual mocks (`__mocks__/`) and files that
+compile to no JavaScript, such as files of only types; `jest.config.js` finds
+those files itself on each run. diff-cover compares against `origin/$BASE`
+(`main` when `BASE` is unset); it and its dependencies are pinned in
+`pyproject.toml` and `uv.lock`.
 
 ### Linting and Formatting
 
@@ -302,7 +304,7 @@ The database uses schema `hat` (Human Atlas Tracker). See `docs/entity-relations
 
 - Test environment: `jsdom` (for React component testing)
 - Setup file: `testing/setup.ts`
-- Tests run sequentially (`--runInBand`) for database consistency
+- Test files run one at a time (`--maxWorkers=1`) for database consistency
 - Test database: `atlas-tracker-test`
 
 **Test Structure:**

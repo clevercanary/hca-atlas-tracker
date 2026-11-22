@@ -4,11 +4,6 @@ on: [pull_request]
 permissions:
   contents: read
 
-env:
-  # The one pin for diff-cover, which has no requirements or lock file.
-  # scripts/diff-coverage.sh reads this line, locally and in CI.
-  DIFF_COVER_VERSION: "11.0.1"
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -51,7 +46,8 @@ jobs:
           cache: "npm"
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
         with:
-          # No uv.lock to key a cache on; uvx fetches the pinned diff-cover.
+          # Off: uv fetches the locked diff-cover each run, which takes about a
+          # second, and nothing is restored from a shared cache.
           enable-cache: false
           version: "0.13.7"
       - run: npm ci
@@ -62,8 +58,9 @@ jobs:
           PGUSER: postgres
           TZ: UTC
       - name: Changed-line coverage
-        # Also runs when a coverage floor failed. test-coverage.sh removes the
-        # XML when a test failed, so this step is skipped then.
+        # Runs whenever test-coverage.sh kept the XML, which it does only when
+        # no test suite failed, even if the previous step failed for another
+        # reason.
         if: ${{ !cancelled() && hashFiles('coverage/cobertura-coverage.xml') != '' }}
         run: npm run test:diff-coverage
         env:

@@ -12,7 +12,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "check-format": "prettier --check .",
     "prepare": "husky install .husky",
-    "test": "jest --runInBand",
+    "test": "jest --maxWorkers=1",
     "test:coverage": "./scripts/test-coverage.sh",
     "test:diff-coverage": "./scripts/diff-coverage.sh",
     "migrate": "ts-node -r tsconfig-paths/register -O '{\"module\": \"commonjs\"}' ./scripts/migration-runner.ts -j ts",
