@@ -11,6 +11,7 @@ HCA Atlas Tracker is a Next.js application for tracking Human Cell Atlas (HCA) a
 - **Node.js**: `20.10.0` (specified in package.json engines)
 - **Database**: PostgreSQL with schema `hat`
 - **Python**: `3.12.4` (for CELLxGENE metadata scripts in `catalog/build/`)
+- **uv**: for `npm run test:diff-coverage`, which runs diff-cover as pinned in `pyproject.toml` and `uv.lock`
 
 ## Common Development Commands
 

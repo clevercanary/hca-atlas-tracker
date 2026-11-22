@@ -60,7 +60,7 @@ Once this has been done, tests may be run with `npm run test`.
 To check coverage the way CI does:
 
 - `npm run test:coverage` runs all tests with coverage and fails below the floors in `jest.config.js` (`coverageThreshold.global`).
-- `npm run test:diff-coverage`, run after it, fails when the lines changed against `origin/main` are less than 80% covered. It needs [uv](https://docs.astral.sh/uv/), and runs diff-cover as pinned in `pyproject.toml` and `uv.lock`. Set `BASE` to compare against another branch, e.g. `BASE=my-branch npm run test:diff-coverage`. Run `git fetch origin main` first so the comparison is current.
+- `npm run test:diff-coverage`, run after it, fails when the lines changed against `origin/main` are less than 80% covered. It needs [uv](https://docs.astral.sh/uv/), and runs diff-cover as pinned in `pyproject.toml` and `uv.lock`. Set `BASE` to compare against another branch: `BASE=my-branch npm run test:diff-coverage` compares against `origin/my-branch`. Run `git fetch origin` first so the comparison is current.
 
 Coverage measures the production TypeScript named by `COVERAGE_DIRS` and `COVERAGE_FILES` in `jest.config.js`. It leaves out Jest manual mocks (`__mocks__/`), styles files (`*.styles.ts`, which hold only style declarations), `constants.ts` files (which hold settings) and types-only files (files that compile to no JavaScript; `jest.config.js` finds these itself on each run). Test code, `db_scripts/`, the `.d.ts` folders and tool config files are not measured.
 
