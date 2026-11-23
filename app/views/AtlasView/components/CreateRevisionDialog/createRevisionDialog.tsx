@@ -12,7 +12,8 @@ import {
 import { TypographyError } from "@/app/components/common/Typography/components/TypographyError/typographyError";
 import { useCreateAtlasRevision } from "@/app/hooks/UseCreateAtlasRevision/hook";
 import { ROUTE } from "@/app/routes/constants";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/constants";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { Button, Typography } from "@mui/material";
 import { type JSX } from "react";
 
@@ -78,16 +79,15 @@ export const CreateRevisionDialog = ({
       </DialogContent>
       <DialogActions>
         <Button
-          color={BUTTON_PROPS.COLOR.SECONDARY}
+          {...BUTTON_PRESETS.SECONDARY_OUTLINED}
           disabled={isRequesting || succeeded}
           onClick={onCancel}
           size={BUTTON_PROPS.SIZE.SMALL}
-          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Cancel
         </Button>
         <Button
-          color={BUTTON_PROPS.COLOR.PRIMARY}
+          {...BUTTON_PRESETS.PRIMARY_CONTAINED}
           disabled={isRequesting || succeeded}
           onClick={() => {
             onSubmit(getRequestURL(API.ATLAS_VERSIONS, pathParameter), {
@@ -99,7 +99,6 @@ export const CreateRevisionDialog = ({
             });
           }}
           size={BUTTON_PROPS.SIZE.SMALL}
-          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Create Version
         </Button>

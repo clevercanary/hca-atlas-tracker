@@ -1,8 +1,6 @@
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
-import {
-  type ExploreViewProps as DXExploreViewProps,
-  ExploreView,
-} from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
+import { ExploreView } from "@databiosphere/findable-ui/lib/views/ExploreView/exploreView";
+import { type ExploreViewProps as DXExploreViewProps } from "@databiosphere/findable-ui/lib/views/ExploreView/types";
 import { type JSX } from "react";
 import { useUpdateExploreState } from "./hooks/useUpdateExploreState";
 

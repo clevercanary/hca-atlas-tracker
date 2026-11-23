@@ -2,7 +2,8 @@ import { ROLE } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { NoAccess } from "@/app/components/Detail/components/AddSourceStudy/components/NoAccess/noAccess";
 import { useAuthorization } from "@/app/hooks/useAuthorization";
 import { useCreateApiToken } from "@/app/hooks/UseCreateApiToken/hook";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/constants";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { Button } from "@mui/material";
 import { type JSX } from "react";
 import { IssuedToken } from "./components/IssuedToken/issuedToken";
@@ -28,11 +29,10 @@ export const ApiTokenForm = (): JSX.Element | null => {
       </p>
       <div style={{ marginBottom: "1em" }}>
         <Button
-          color={BUTTON_PROPS.COLOR.PRIMARY}
+          {...BUTTON_PRESETS.PRIMARY_CONTAINED}
           disabled={isRequesting}
           onClick={onCreate}
           size={BUTTON_PROPS.SIZE.SMALL}
-          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Create token
         </Button>

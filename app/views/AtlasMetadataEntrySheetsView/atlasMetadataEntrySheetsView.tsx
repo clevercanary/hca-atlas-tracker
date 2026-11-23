@@ -9,8 +9,8 @@ import { useFetchAtlas } from "@/app/hooks/UseFetchAtlas/hook";
 import { useFormManager } from "@/app/hooks/useFormManager/useFormManager";
 import { EntityProvider } from "@/app/providers/entity/provider";
 import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Breadcrumbs/breadcrumbs";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { Button } from "@mui/material";
 import { type JSX } from "react";
 import { VIEW_METADATA_ENTRY_SHEETS_SECTION_CONFIGS } from "./common/config";
@@ -42,7 +42,7 @@ export const AtlasMetadataEntrySheetsView = ({
           actions={
             <div>
               <Button
-                {...BUTTON_PROPS.SECONDARY_CONTAINED}
+                {...BUTTON_PRESETS.SECONDARY_OUTLINED}
                 disabled={entrySheetSyncState.started}
                 onClick={onSyncEntrySheets}
               >

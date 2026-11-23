@@ -11,7 +11,7 @@ import {
   ErrorSection,
   SectionContent,
 } from "@databiosphere/findable-ui/lib/components/Error/error.styles";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Button, Typography } from "@mui/material";
 import Link from "next/link";
@@ -36,10 +36,9 @@ export const NotFoundView = (): JSX.Element => {
           </SectionContent>
           <SectionActions>
             <Button
-              color={BUTTON_PROPS.COLOR.PRIMARY}
+              {...BUTTON_PRESETS.PRIMARY_CONTAINED}
               component={Link}
               href={ROUTE.ATLASES}
-              variant={BUTTON_PROPS.VARIANT.CONTAINED}
             >
               Go to Atlases
             </Button>

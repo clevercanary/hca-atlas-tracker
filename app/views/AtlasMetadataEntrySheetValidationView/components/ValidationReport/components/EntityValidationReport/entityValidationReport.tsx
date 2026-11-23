@@ -10,8 +10,9 @@ import {
   ANCHOR_TARGET,
   REL_ATTRIBUTE,
 } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/constants";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { useConfig } from "@databiosphere/findable-ui/lib/hooks/useConfig";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
 import { TYPOGRAPHY_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/typography";
 import { Button, Divider, Typography } from "@mui/material";
 import { Fragment, type JSX, useMemo, useState } from "react";
@@ -97,11 +98,10 @@ export const EntityValidationReport = ({
                 {column !== COLUMN_KEY.OTHER &&
                   reportCount > MAX_REPORTS_TO_DISPLAY && (
                     <Button
-                      color={BUTTON_PROPS.COLOR.PRIMARY}
+                      {...BUTTON_PRESETS.PRIMARY_TEXT}
                       onClick={() =>
                         setExpanded((e) => ({ ...e, [column]: !isExpanded }))
                       }
-                      variant={BUTTON_PROPS.VARIANT.TEXT}
                     >
                       Show {isExpanded ? "less" : "more"}
                     </Button>

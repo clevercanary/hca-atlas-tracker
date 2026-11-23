@@ -1,4 +1,4 @@
-import { BUTTON_PROPS as MUI_BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { ICON_BUTTON_PROPS as MUI_ICON_BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/iconButton";
 import { SVG_ICON_PROPS as MUI_SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import {
@@ -7,10 +7,8 @@ import {
   type SvgIconProps,
 } from "@mui/material";
 
-export const BUTTON_PROPS: Partial<ButtonProps> = {
-  color: MUI_BUTTON_PROPS.COLOR.SECONDARY,
-  variant: MUI_BUTTON_PROPS.VARIANT.CONTAINED,
-};
+export const BUTTON_PROPS: Partial<ButtonProps> =
+  BUTTON_PRESETS.SECONDARY_OUTLINED;
 
 export const ICON_BUTTON_PROPS: Partial<IconButtonProps> = {
   color: MUI_ICON_BUTTON_PROPS.COLOR.SECONDARY,

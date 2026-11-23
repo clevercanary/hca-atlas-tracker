@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { FORM_ACTION_CLASS_NAME } from "./constants";
 
 export const Actions = styled.div`
   align-items: center;
@@ -8,15 +9,15 @@ export const Actions = styled.div`
   grid-template-areas: "delete . discard save";
   grid-template-columns: auto 1fr auto auto;
 
-  .MuiButton-errorContained {
+  .${FORM_ACTION_CLASS_NAME.DELETE} {
     grid-area: delete;
   }
 
-  .MuiButton-containedSecondary {
+  .${FORM_ACTION_CLASS_NAME.DISCARD} {
     grid-area: discard;
   }
 
-  .MuiButton-containedPrimary {
+  .${FORM_ACTION_CLASS_NAME.SAVE} {
     grid-area: save;
   }
 `;

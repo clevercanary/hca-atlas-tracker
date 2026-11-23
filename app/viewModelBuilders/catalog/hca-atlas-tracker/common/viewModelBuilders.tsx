@@ -53,7 +53,7 @@ import {
   type ColumnConfig,
   type ViewContext,
 } from "@databiosphere/findable-ui/lib/config/entities";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { type LinkProps as MLinkProps } from "@mui/material";
 import {
@@ -928,13 +928,12 @@ export const buildTaskDescription = (
   const { description } = task;
   const { cellContext } = viewContext;
   return {
+    ...BUTTON_PRESETS.PRIMARY_TEXT,
     children: description,
-    color: BUTTON_PROPS.COLOR.PRIMARY,
     onClick: (e: BaseSyntheticEvent): void => {
       e.preventDefault();
       cellContext?.row.togglePreview();
     },
-    variant: BUTTON_PROPS.VARIANT.TEXT,
   };
 };
 

@@ -7,7 +7,8 @@ import {
   type RefreshServicesStatuses,
   type RefreshStatus,
 } from "@/app/services/common/entities";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/constants";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { Button } from "@mui/material";
 import { type JSX, useCallback, useEffect, useState } from "react";
 
@@ -47,21 +48,19 @@ export const RefreshForm = (): JSX.Element => {
       {buildStatusResult(statusResponseErrors, statuses)}
       <div style={{ marginBottom: "1em", marginTop: "1em" }}>
         <Button
-          color={BUTTON_PROPS.COLOR.PRIMARY}
+          {...BUTTON_PRESETS.PRIMARY_CONTAINED}
           disabled={statusIsDisabled}
           onClick={onReloadStatus}
           size={BUTTON_PROPS.SIZE.SMALL}
-          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Reload Status
         </Button>
         <Button
+          {...BUTTON_PRESETS.PRIMARY_CONTAINED}
           style={{ marginLeft: "1em" }}
-          color={BUTTON_PROPS.COLOR.PRIMARY}
           disabled={refreshIsDisabled}
           onClick={onRefresh}
           size={BUTTON_PROPS.SIZE.SMALL}
-          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Start Refresh
         </Button>

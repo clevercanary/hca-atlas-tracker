@@ -3,7 +3,7 @@ import { type APIValue } from "@/app/apis/catalog/hca-atlas-tracker/common/entit
 import { getRequestURL } from "@/app/common/utils";
 import { useEditFileArchived } from "@/app/hooks/UseEditFileArchived/hook";
 import { useEntity } from "@/app/providers/entity/hook";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { Button } from "@mui/material";
 import { type JSX } from "react";
 import { type Props } from "./entities";
@@ -18,7 +18,7 @@ export const FileArchivedStatus = ({
   const { pathParameter } = useEntity();
   return (
     <Button
-      {...BUTTON_PROPS.SECONDARY_CONTAINED}
+      {...BUTTON_PRESETS.SECONDARY_OUTLINED}
       className={className}
       // Disabled until onSubmit settles, so a repeat click doesn't send a
       // redundant request (the endpoint skips files already in the requested

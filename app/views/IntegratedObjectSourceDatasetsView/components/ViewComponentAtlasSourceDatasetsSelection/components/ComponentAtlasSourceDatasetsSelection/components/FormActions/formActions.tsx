@@ -1,6 +1,8 @@
+import { FORM_ACTION_CLASS_NAME } from "@/app/components/common/Form/components/FormActions/constants";
 import { type FormActionsProps as CommonFormActionProps } from "@/app/components/common/Form/components/FormActions/formActions";
 import { Actions } from "@/app/components/common/Form/components/FormActions/formActions.styles";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/constants";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { Button } from "@mui/material";
 import { type JSX } from "react";
 
@@ -19,19 +21,19 @@ export const FormActions = ({
   return (
     <Actions>
       <Button
-        color={BUTTON_PROPS.COLOR.SECONDARY}
+        {...BUTTON_PRESETS.SECONDARY_OUTLINED}
+        className={FORM_ACTION_CLASS_NAME.DISCARD}
         onClick={onDiscard}
         size={BUTTON_PROPS.SIZE.SMALL}
-        variant={BUTTON_PROPS.VARIANT.CONTAINED}
       >
         Discard
       </Button>
       <Button
-        color={BUTTON_PROPS.COLOR.PRIMARY}
+        {...BUTTON_PRESETS.PRIMARY_CONTAINED}
+        className={FORM_ACTION_CLASS_NAME.SAVE}
         disabled={isDisabled}
         onClick={onSave}
         size={BUTTON_PROPS.SIZE.SMALL}
-        variant={BUTTON_PROPS.VARIANT.CONTAINED}
       >
         Link {count > 0 ? `(${count})` : null}
       </Button>

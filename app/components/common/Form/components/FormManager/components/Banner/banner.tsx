@@ -3,11 +3,11 @@ import {
   FormStatus,
 } from "@/app/components/common/Form/components/FormManager/formManager.styles";
 import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
-import { ButtonOutline } from "@databiosphere/findable-ui/lib/components/common/Button/components/ButtonOutline/buttonOutline";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/constants";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { Button, Fade, Toolbar } from "@mui/material";
 import { type JSX } from "react";
-import { AppBar } from "./banner.styles";
+import { AppBar, ButtonOutline } from "./banner.styles";
 
 export const Banner = ({
   access,
@@ -26,15 +26,18 @@ export const Banner = ({
         <Toolbar>
           <FormStatus>Unsaved Changes</FormStatus>
           <FormActions>
-            <ButtonOutline onClick={onDiscard} size={BUTTON_PROPS.SIZE.SMALL}>
+            <ButtonOutline
+              {...BUTTON_PRESETS.SECONDARY_OUTLINED}
+              onClick={onDiscard}
+              size={BUTTON_PROPS.SIZE.SMALL}
+            >
               Discard
             </ButtonOutline>
             <Button
-              color={BUTTON_PROPS.COLOR.PRIMARY}
+              {...BUTTON_PRESETS.PRIMARY_CONTAINED}
               disabled={isDisabled}
               onClick={onSave}
               size={BUTTON_PROPS.SIZE.SMALL}
-              variant={BUTTON_PROPS.VARIANT.CONTAINED}
             >
               Save
             </Button>

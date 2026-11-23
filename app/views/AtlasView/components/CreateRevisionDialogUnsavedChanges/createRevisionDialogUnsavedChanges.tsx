@@ -4,7 +4,8 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/app/components/common/ConfirmationDialog/confirmationDialog.styles";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/constants";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { Button } from "@mui/material";
 import { type JSX } from "react";
 
@@ -26,10 +27,9 @@ export const CreateRevisionDialogUnsavedChanges = ({
       </DialogContent>
       <DialogActions>
         <Button
-          color={BUTTON_PROPS.COLOR.PRIMARY}
+          {...BUTTON_PRESETS.PRIMARY_CONTAINED}
           onClick={onClose}
           size={BUTTON_PROPS.SIZE.SMALL}
-          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Close
         </Button>

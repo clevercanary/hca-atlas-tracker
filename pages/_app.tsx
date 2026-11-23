@@ -12,7 +12,6 @@ import {
   SESSION_TIMEOUT,
 } from "@/site-config/hca-atlas-tracker/local/authentication/constants";
 import "@databiosphere/findable-ui";
-import { type AzulEntitiesStaticResponse } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
 import { Error } from "@databiosphere/findable-ui/lib/components/Error/error";
 import { ErrorBoundary } from "@databiosphere/findable-ui/lib/components/ErrorBoundary/errorBoundary";
 import { Head } from "@databiosphere/findable-ui/lib/components/Head/head";
@@ -26,6 +25,7 @@ import { ServicesProvider } from "@databiosphere/findable-ui/lib/providers/servi
 import { SystemStatusProvider } from "@databiosphere/findable-ui/lib/providers/systemStatus";
 import { createAppTheme } from "@databiosphere/findable-ui/lib/theme/theme";
 import { type DataExplorerError } from "@databiosphere/findable-ui/lib/types/error";
+import { type ExploreViewProps } from "@databiosphere/findable-ui/lib/views/ExploreView/types";
 import { ThemeProvider as EmotionThemeProvider } from "@emotion/react";
 import {
   createTheme,
@@ -42,7 +42,7 @@ import { type Session } from "next-auth";
 import { type AppProps } from "next/app";
 import { type JSX, useState } from "react";
 
-export interface PageProps extends AzulEntitiesStaticResponse {
+export interface PageProps extends ExploreViewProps {
   pageTitle?: string;
   session?: Session | null;
 }

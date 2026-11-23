@@ -9,7 +9,8 @@ import {
 } from "@/app/components/common/ConfirmationDialog/confirmationDialog.styles";
 import { TypographyError } from "@/app/components/common/Typography/components/TypographyError/typographyError";
 import { usePublishAtlas } from "@/app/hooks/UsePublishAtlas/hook";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/constants";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { Button, Typography } from "@mui/material";
 import { type JSX } from "react";
 import { isAtlasPublished, submitPublish } from "./utils";
@@ -79,16 +80,15 @@ export const PublishDialog = ({
       </DialogContent>
       <DialogActions>
         <Button
-          color={BUTTON_PROPS.COLOR.SECONDARY}
+          {...BUTTON_PRESETS.SECONDARY_OUTLINED}
           disabled={isRequesting}
           onClick={onCancel}
           size={BUTTON_PROPS.SIZE.SMALL}
-          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Cancel
         </Button>
         <Button
-          color={BUTTON_PROPS.COLOR.PRIMARY}
+          {...BUTTON_PRESETS.PRIMARY_CONTAINED}
           // Publishing is irreversible, so this mustn't be clickable once the
           // cached atlas shows the publish.
           disabled={isRequesting || isAtlasPublished(atlas)}
@@ -96,7 +96,6 @@ export const PublishDialog = ({
             submitPublish(onSubmit, pathParameter, onPublished);
           }}
           size={BUTTON_PROPS.SIZE.SMALL}
-          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Publish
         </Button>
