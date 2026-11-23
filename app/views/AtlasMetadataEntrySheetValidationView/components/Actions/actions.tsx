@@ -7,7 +7,7 @@ import {
   ANCHOR_TARGET,
   REL_ATTRIBUTE,
 } from "@databiosphere/findable-ui/lib/components/Links/common/entities";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { Button } from "@mui/material";
 import { type JSX } from "react";
 import { HeroActions } from "./actions.styles";
@@ -31,22 +31,18 @@ export const Actions = ({
   return (
     <HeroActions>
       <Button
-        color={BUTTON_PROPS.COLOR.SECONDARY}
+        {...BUTTON_PRESETS.SECONDARY_MEDIUM_OUTLINED}
         disabled={entrySheetSyncState.started}
         onClick={onSyncEntrySheets}
-        size={BUTTON_PROPS.SIZE.MEDIUM}
-        variant={BUTTON_PROPS.VARIANT.CONTAINED}
       >
         {entrySheetSyncState.started ? "Sync started" : "Sync entry sheet"}
       </Button>
       <Button
-        color={BUTTON_PROPS.COLOR.PRIMARY}
+        {...BUTTON_PRESETS.PRIMARY_MEDIUM_CONTAINED}
         href={buildSheetsUrl(entrySheetId)}
         startIcon={<OpenInNewIcon />}
         rel={REL_ATTRIBUTE.NO_OPENER_NO_REFERRER}
-        size={BUTTON_PROPS.SIZE.MEDIUM}
         target={ANCHOR_TARGET.BLANK}
-        variant={BUTTON_PROPS.VARIANT.CONTAINED}
       >
         Open Sheet
       </Button>

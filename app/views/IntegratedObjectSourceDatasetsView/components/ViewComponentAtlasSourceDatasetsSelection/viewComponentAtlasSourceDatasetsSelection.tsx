@@ -1,7 +1,7 @@
 import { type HCAAtlasTrackerSourceDataset } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { type PathParameter } from "@/app/common/entities";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { AddLinkIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddLinkIcon/addLinkIcon";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { Button } from "@mui/material";
 import { Fragment, type JSX, useState } from "react";
@@ -27,7 +27,7 @@ export const ViewComponentAtlasSourceDatasetsSelection = ({
   return (
     <Fragment>
       <Button
-        {...BUTTON_PROPS.SECONDARY_CONTAINED}
+        {...BUTTON_PRESETS.SECONDARY_OUTLINED}
         disabled={componentAtlasIsArchived || atlasSourceDatasets.length === 0}
         onClick={onOpen}
         startIcon={

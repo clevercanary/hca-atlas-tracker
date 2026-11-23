@@ -5,7 +5,8 @@ import {
   DialogTitle,
 } from "@/app/components/common/ConfirmationDialog/confirmationDialog.styles";
 import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/constants";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { Button } from "@mui/material";
 import { type JSX, type ReactNode } from "react";
 import { PopupContent } from "./components/PopupContent/popupContent";
@@ -37,18 +38,16 @@ export const Popup = ({
       </DialogContent>
       <DialogActions>
         <Button
-          color={BUTTON_PROPS.COLOR.SECONDARY}
+          {...BUTTON_PRESETS.SECONDARY_OUTLINED}
           onClick={onDiscard}
           size={BUTTON_PROPS.SIZE.SMALL}
-          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Discard changes
         </Button>
         <Button
-          color={BUTTON_PROPS.COLOR.PRIMARY}
+          {...BUTTON_PRESETS.PRIMARY_CONTAINED}
           onClick={onSave}
           size={BUTTON_PROPS.SIZE.SMALL}
-          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Save changes
         </Button>

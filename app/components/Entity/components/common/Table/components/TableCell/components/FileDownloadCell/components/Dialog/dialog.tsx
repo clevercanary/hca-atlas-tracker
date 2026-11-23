@@ -1,7 +1,7 @@
 import { useRequestPreSignedURL } from "@/app/components/Entity/components/common/Table/components/TableCell/components/FileDownloadCell/hooks/UseRequestPreSignedURL/hook";
 import { LABEL } from "@databiosphere/findable-ui/lib/apis/azul/common/entities";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { DialogTitle } from "@databiosphere/findable-ui/lib/components/common/Dialog/components/DialogTitle/dialogTitle";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { formatFileSize } from "@databiosphere/findable-ui/lib/utils/formatFileSize";
 import { Button, DialogActions, DialogContent, Stack } from "@mui/material";
 import { type JSX } from "react";
@@ -42,15 +42,15 @@ export const Dialog = ({
         {/* MUI only accepts `download` with a string `href`, so render a plain
             disabled button until there is a URL rather than an empty `href`. */}
         {url ? (
-          <Button {...BUTTON_PROPS.PRIMARY_CONTAINED} download href={url}>
+          <Button {...BUTTON_PRESETS.PRIMARY_CONTAINED} download href={url}>
             Download
           </Button>
         ) : (
-          <Button {...BUTTON_PROPS.PRIMARY_CONTAINED} disabled>
+          <Button {...BUTTON_PRESETS.PRIMARY_CONTAINED} disabled>
             Download
           </Button>
         )}
-        <Button {...BUTTON_PROPS.SECONDARY_CONTAINED} onClick={onClose}>
+        <Button {...BUTTON_PRESETS.SECONDARY_OUTLINED} onClick={onClose}>
           Cancel
         </Button>
       </DialogActions>

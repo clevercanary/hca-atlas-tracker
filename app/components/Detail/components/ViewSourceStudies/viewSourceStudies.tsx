@@ -5,8 +5,8 @@ import { StyledToolbar } from "@/app/components/Table/components/TableToolbar/ta
 import { type FormManager } from "@/app/hooks/useFormManager/common/entities";
 import { ROUTE } from "@/app/routes/constants";
 import { Table } from "@/app/views/SourceStudiesView/components/Table/table";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/components/common/Button/constants";
 import { AddIcon } from "@databiosphere/findable-ui/lib/components/common/CustomIcon/components/AddIcon/addIcon";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { SVG_ICON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/svgIcon";
 import { Button, Divider } from "@mui/material";
 import Link from "next/link";
@@ -35,7 +35,7 @@ export const ViewSourceStudies = ({
           <Fragment>
             <StyledToolbar>
               <Button
-                {...BUTTON_PROPS.SECONDARY_CONTAINED}
+                {...BUTTON_PRESETS.SECONDARY_OUTLINED}
                 component={Link}
                 href={getRouteURL(ROUTE.CREATE_SOURCE_STUDY, pathParameter)}
                 startIcon={

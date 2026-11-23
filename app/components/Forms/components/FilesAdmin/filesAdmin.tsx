@@ -1,7 +1,8 @@
 import { METHOD } from "@/app/common/entities";
 import { AdminFormResults } from "@/app/components/common/AdminForm/components/AdminFormResults/adminFormResults";
 import { useAdminAction } from "@/app/hooks/useAdminAction";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/constants";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { Button } from "@mui/material";
 import { type JSX } from "react";
 
@@ -18,11 +19,10 @@ export const FilesAdminForm = (): JSX.Element => {
       <h2>Validate all files</h2>
       <div>
         <Button
-          color={BUTTON_PROPS.COLOR.PRIMARY}
+          {...BUTTON_PRESETS.PRIMARY_CONTAINED}
           disabled={validateIsRequesting}
           onClick={onValidate}
           size={BUTTON_PROPS.SIZE.SMALL}
-          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           Validate
         </Button>

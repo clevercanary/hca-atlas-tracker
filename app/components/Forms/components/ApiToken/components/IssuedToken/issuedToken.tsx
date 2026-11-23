@@ -1,7 +1,8 @@
 import { type HCAAtlasTrackerIssuedApiToken } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
 import { formatISOToUTCDateTime } from "@/app/utils/date-fns";
 import { ALERT_PROPS } from "@databiosphere/findable-ui/lib/components/common/Alert/constants";
-import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/styles/common/mui/button";
+import { BUTTON_PROPS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/constants";
+import { BUTTON_PRESETS } from "@databiosphere/findable-ui/lib/contracts/mui/Button/presets";
 import { Alert, Button, Stack, TextField } from "@mui/material";
 import copy from "copy-to-clipboard";
 import { type JSX, useCallback, useEffect, useState } from "react";
@@ -44,10 +45,9 @@ export const IssuedToken = ({
           value={token}
         />
         <Button
-          color={BUTTON_PROPS.COLOR.PRIMARY}
+          {...BUTTON_PRESETS.PRIMARY_CONTAINED}
           onClick={onCopy}
           size={BUTTON_PROPS.SIZE.SMALL}
-          variant={BUTTON_PROPS.VARIANT.CONTAINED}
         >
           {copied ? "Copied" : "Copy"}
         </Button>
