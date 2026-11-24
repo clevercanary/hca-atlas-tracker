@@ -4,6 +4,7 @@ import { Summary } from "@/app/views/AtlasMetadataEntrySheetsView/components/Sum
 import { Table } from "@/app/views/AtlasMetadataEntrySheetsView/components/Table/table";
 import { SORT_DIRECTION } from "@databiosphere/findable-ui/lib/config/entities";
 import { COLUMNS } from "./columns";
+import { getRowId } from "./utils";
 
 export const METADATA_ENTRY_SHEETS_INFO: SectionConfig<typeof Alert> = {
   Component: Alert,
@@ -22,7 +23,7 @@ export const METADATA_ENTRY_SHEETS_VIEW_TABLE: SectionConfig<typeof Table> = {
   componentProps: {
     tableOptions: {
       columns: COLUMNS,
-      getRowId: (row) => row.id,
+      getRowId,
       initialState: {
         sorting: [
           { desc: SORT_DIRECTION.ASCENDING, id: "publicationString" },

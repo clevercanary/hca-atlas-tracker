@@ -1,14 +1,18 @@
 import { type HCAAtlasTrackerAtlas } from "@/app/apis/catalog/hca-atlas-tracker/common/entities";
-import { getPublicationCitation } from "@/app/apis/catalog/hca-atlas-tracker/common/utils";
 import { type ControllerConfig } from "@/app/components/common/Form/components/Controllers/common/entities";
 import { BioNetwork } from "@/app/components/Form/components/Select/components/BioNetwork/bioNetwork";
 import { Status } from "@/app/components/Form/components/Select/components/Status/status";
 import { TargetCompletion } from "@/app/components/Form/components/Select/components/TargetCompletion/targetCompletion";
 import { Wave } from "@/app/components/Form/components/Select/components/Wave/wave";
-import { getDOILink } from "@/app/viewModelBuilders/catalog/hca-atlas-tracker/common/viewModelBuilders";
 import { type NewAtlasData } from "@/app/views/AddNewAtlasView/common/entities";
 import { FIELD_NAME } from "@/app/views/AtlasView/common/constants";
 import { type AtlasEditData } from "@/app/views/AtlasView/common/entities";
+import {
+  getDOIUrl,
+  renderCellxGeneCollectionHelperText,
+  renderDOIHelperText,
+  renderMetadataSpecificationHelperText,
+} from "./utils";
 
 type CommonControllerConfig = ControllerConfig<
   NewAtlasData | AtlasEditData,
@@ -56,13 +60,10 @@ const DOI: CommonControllerConfig = {
     label: "Publication DOI",
   },
   labelLink: {
-    getUrl: (v) => getDOILink(v) || null,
+    getUrl: getDOIUrl,
   },
   name: FIELD_NAME.DOI,
-  renderHelperText(atlas) {
-    const publication = atlas?.publications[0];
-    return publication ? getPublicationCitation(publication) : "";
-  },
+  renderHelperText: renderDOIHelperText,
 };
 
 const STATUS: ControllerConfig<AtlasEditData, HCAAtlasTrackerAtlas> = {
@@ -93,9 +94,7 @@ const CELLXGENE_COLLECTION_ID: CommonControllerConfig = {
   },
   labelLink: true,
   name: FIELD_NAME.CELLXGENE_ATLAS_COLLECTION,
-  renderHelperText(atlas) {
-    return atlas?.cellxgeneAtlasCollectionTitle;
-  },
+  renderHelperText: renderCellxGeneCollectionHelperText,
 };
 
 const CAP_ID: CommonControllerConfig = {
@@ -117,9 +116,7 @@ const METADATA_SPECIFICATION_URL: ControllerConfig<
   },
   labelLink: true,
   name: FIELD_NAME.METADATA_SPECIFICATION_URL,
-  renderHelperText(atlas) {
-    return atlas?.metadataSpecificationTitle;
-  },
+  renderHelperText: renderMetadataSpecificationHelperText,
 };
 
 const METADATA_CORRECTNESS_URL: ControllerConfig<
