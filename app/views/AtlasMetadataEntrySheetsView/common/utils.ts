@@ -6,6 +6,7 @@ import {
   getAtlasesBreadcrumb,
   getMetadataEntrySheetsBreadcrumb,
 } from "@/app/components/Detail/components/TrackerForm/components/Breadcrumbs/common/utils";
+import { type MetadataEntrySheet } from "@/app/views/AtlasMetadataEntrySheetsView/entities";
 
 /**
  * Returns the breadcrumbs for the metadata entry sheets view.
@@ -22,4 +23,13 @@ export function getBreadcrumbs(
     getAtlasBreadcrumb(pathParameter, atlas),
     getMetadataEntrySheetsBreadcrumb(),
   ];
+}
+
+/**
+ * Returns the table row ID for a metadata entry sheet.
+ * @param row - Metadata entry sheet.
+ * @returns row ID.
+ */
+export function getRowId(row: Pick<MetadataEntrySheet, "id">): string {
+  return row.id;
 }

@@ -135,6 +135,25 @@ const config = [
       "sonarjs/no-duplicate-string": "off",
     },
   },
+  {
+    // Coverage leaves out every `constants.ts` (see `jest.config.js`), so a
+    // function there would go untested. Test code is exempt: coverage doesn't
+    // measure it. `FunctionExpression` also matches getters, setters and
+    // methods, so they need no `Property` selector of their own.
+    files: ["**/constants.ts"],
+    ignores: ["testing/**", "e2e/**", "**/__tests__/**"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          message:
+            "Functions don't belong in constants.ts, which coverage leaves out. Move the function to the utils.ts in the same folder.",
+          selector:
+            "ArrowFunctionExpression, FunctionExpression, FunctionDeclaration",
+        },
+      ],
+    },
+  },
 ];
 
 export default config;
