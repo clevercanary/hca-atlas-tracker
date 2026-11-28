@@ -492,6 +492,21 @@ export function delay(ms = 5): Promise<void> {
 }
 
 /**
+ * Expect a date to fall within the given time range (inclusive).
+ * @param date - Date to check.
+ * @param start - Start of the range.
+ * @param end - End of the range.
+ */
+export function expectDateToBeWithin(
+  date: Date | null | undefined,
+  start: Date,
+  end: Date,
+): void {
+  expect(date?.getTime()).toBeGreaterThanOrEqual(start.getTime());
+  expect(date?.getTime()).toBeLessThanOrEqual(end.getTime());
+}
+
+/**
  * Whether a promise is still unsettled once the microtask queue has drained.
  * @param promise - Promise to inspect.
  * @returns true while the promise has neither resolved nor rejected.

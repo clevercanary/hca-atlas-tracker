@@ -34,6 +34,7 @@ import {
 } from "@/testing/db-utils";
 import { type TestUser } from "@/testing/entities";
 import {
+  expectDateToBeWithin,
   expectIsDefined,
   expectIsInstanceOf,
   testApiRole,
@@ -193,6 +194,7 @@ async function doMainAtlasTest(): Promise<void> {
     );
 
   // Call API
+  const syncStart = new Date();
   const consoleErrorCalls: unknown[][] = [];
   await withConsoleErrorHiding(
     async () => {
@@ -211,6 +213,7 @@ async function doMainAtlasTest(): Promise<void> {
     true,
     consoleErrorCalls,
   );
+  const syncEnd = new Date();
 
   // Get validations after API call
 
@@ -245,6 +248,11 @@ async function doMainAtlasTest(): Promise<void> {
         validationWithUpdateBefore.last_synced,
       );
     }
+    expectDateToBeWithin(
+      validationWithUpdateAfter.last_synced,
+      syncStart,
+      syncEnd,
+    );
     expect(validationWithUpdateAfter.validation_report).toEqual(
       ENTRY_SHEET_VALIDATION_RESPONSE_WITH_UPDATE.errors,
     );
@@ -267,6 +275,11 @@ async function doMainAtlasTest(): Promise<void> {
         validationWithFailedUpdateBefore.last_synced,
       );
     }
+    expectDateToBeWithin(
+      validationWithFailedUpdateAfter.last_synced,
+      syncStart,
+      syncEnd,
+    );
     expect(validationWithFailedUpdateAfter.validation_report).toEqual<
       EntrySheetValidationErrorInfo[]
     >([
@@ -308,6 +321,11 @@ async function doMainAtlasTest(): Promise<void> {
         validationWithErroredUpdateBefore.last_synced,
       );
     }
+    expectDateToBeWithin(
+      validationWithErroredUpdateAfter.last_synced,
+      syncStart,
+      syncEnd,
+    );
     expect(validationWithErroredUpdateAfter.validation_report).toEqual<
       EntrySheetValidationErrorInfo[]
     >([
@@ -337,6 +355,7 @@ async function doMainAtlasTest(): Promise<void> {
   // Check new validation
 
   if (expectIsDefined(validationNewAfter)) {
+    expectDateToBeWithin(validationNewAfter.last_synced, syncStart, syncEnd);
     expect(validationNewAfter.validation_report).toEqual(
       ENTRY_SHEET_VALIDATION_RESPONSE_NEW.errors,
     );
@@ -361,6 +380,11 @@ async function doMainAtlasTest(): Promise<void> {
   }
 
   if (expectIsDefined(validationWithMalformedResponseAfter)) {
+    expectDateToBeWithin(
+      validationWithMalformedResponseAfter.last_synced,
+      syncStart,
+      syncEnd,
+    );
     expect(validationWithMalformedResponseAfter.validation_report).toEqual<
       EntrySheetValidationErrorInfo[]
     >([
