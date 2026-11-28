@@ -11,7 +11,9 @@ import { Breadcrumbs } from "@databiosphere/findable-ui/lib/components/common/Br
 import { ConditionalComponent } from "@databiosphere/findable-ui/lib/components/ComponentCreator/components/ConditionalComponent/conditionalComponent";
 import { type JSX } from "react";
 import { getBreadcrumbs } from "./common/utils";
+import { CurationReport } from "./components/CurationReport/curationReport";
 import { StatusDashboard } from "./components/StatusDashboard/statusDashboard";
+import { useCurationReport } from "./hooks/UseCurationReport/hook";
 import { useFetchAtlasStatus } from "./hooks/UseFetchAtlasStatus/hook";
 
 interface AtlasStatusViewProps {
@@ -23,6 +25,7 @@ export const AtlasStatusView = ({
 }: AtlasStatusViewProps): JSX.Element => {
   const { data: atlas } = useFetchAtlas(pathParameter);
   const { data: atlasStatus } = useFetchAtlasStatus(pathParameter);
+  const { curationReport, isLoading } = useCurationReport(atlas);
   // Status is the atlas landing page, so its back arrow returns to the
   // atlases list (honoring an explicit `from` origin when one is provided).
   const backPath = useBackPath(pathParameter) ?? getRouteURL(ROUTE.ATLASES);
@@ -34,7 +37,17 @@ export const AtlasStatusView = ({
         breadcrumbs={
           <Breadcrumbs breadcrumbs={getBreadcrumbs(pathParameter, atlas)} />
         }
-        mainColumn={atlasStatus && <StatusDashboard summary={atlasStatus} />}
+        mainColumn={
+          curationReport ? (
+            <CurationReport
+              report={curationReport}
+              statusUrl={getRouteURL(ROUTE.ATLAS_STATUS, pathParameter)}
+            />
+          ) : (
+            !isLoading &&
+            atlasStatus && <StatusDashboard summary={atlasStatus} />
+          )
+        }
         status={atlas && <AtlasStatuses statuses={atlas} />}
         tabs={<Tabs atlas={atlas} pathParameter={pathParameter} />}
         title={atlas ? getAtlasName(atlas) : "View Status"}
